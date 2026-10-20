@@ -1,0 +1,99 @@
+// A verilated chip module driven by its pin numbers, and checks of
+// function tables over every input combination.
+#pragma once
+
+#include <doctest/doctest.h>
+#include <verilated.h>
+
+#include <functional>
+#include <map>
+#include <random>
+#include <utility>
+#include <vector>
+
+// PIN(n): a table entry naming the port pN of the model type V.
+#define PIN(n) {n, [](V& m) -> CData& { return m.p##n; }}
+
+template <class V>
+class Chip {
+public:
+    using Access = CData& (*)(V&);
+
+    explicit Chip(std::map<int, Access> pins) : pins_(std::move(pins)) {}
+
+    void set(int pin, bool level) { pins_.at(pin)(model_) = level ? 1 : 0; }
+    bool get(int pin) { return pins_.at(pin)(model_) != 0; }
+    void eval() { model_.eval(); }
+    V& model() { return model_; }
+
+    // One period of the master clock: what the pins hold now is taken at
+    // its rising edge.
+    void tick()
+    {
+        model_.clk = 0;
+        model_.eval();
+        model_.clk = 1;
+        model_.eval();
+    }
+
+private:
+    V model_;
+    std::map<int, Access> pins_;
+};
+
+// A gate: its input pins and its output pin.
+struct Gate {
+    std::vector<int> in;
+    int out;
+};
+
+using GateFn = std::function<bool(const std::vector<bool>&)>;
+
+// Every gate through all its input combinations, then all the gates at
+// once from random inputs (which catches a gate wired to another's pins).
+template <class V>
+void check_gates(Chip<V>& chip, const std::vector<Gate>& gates, const GateFn& fn)
+{
+    for (const Gate& g : gates) {
+        for (unsigned m = 0; m < (1u << g.in.size()); ++m) {
+            std::vector<bool> v;
+            for (std::size_t i = 0; i < g.in.size(); ++i) {
+                v.push_back(((m >> i) & 1u) != 0);
+                chip.set(g.in[i], v.back());
+            }
+            chip.eval();
+            CHECK_MESSAGE(chip.get(g.out) == fn(v), "pin " << g.out << " inputs " << m);
+        }
+    }
+    std::mt19937 rng(515);
+    for (int round = 0; round < 256; ++round) {
+        std::vector<std::vector<bool>> all;
+        for (const Gate& g : gates) {
+            std::vector<bool> v;
+            for (int pin : g.in) {
+                v.push_back((rng() & 1u) != 0);
+                chip.set(pin, v.back());
+            }
+            all.push_back(v);
+        }
+        chip.eval();
+        for (std::size_t k = 0; k < gates.size(); ++k)
+            CHECK(chip.get(gates[k].out) == fn(all[k]));
+    }
+}
+
+inline bool all_of(const std::vector<bool>& v)
+{
+    for (bool b : v)
+        if (!b)
+            return false;
+    return true;
+}
+
+inline bool any_of(const std::vector<bool>& v)
+{
+    for (bool b : v)
+        if (b)
+            return true;
+    return false;
+}

@@ -25,7 +25,11 @@ function(ms0515_chip_test chip)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-ms0515_chip_test(k555la3)
+foreach(chip
+        k555la3 k555la4 k555la2 k555la13 k555li1 k555li3 k555li6 k555ll1
+        kr531le1 k555lp5 k555ln1 k555ln2 k155ln5 k155lp9 k555tl2 k555lr11)
+    ms0515_chip_test(${chip})
+endforeach()
 
 add_executable(test_reference reference/test_reference.cpp)
 target_link_libraries(test_reference PRIVATE sim_main ms0515_core)
