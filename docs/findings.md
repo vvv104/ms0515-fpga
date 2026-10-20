@@ -168,6 +168,12 @@ only.  No track cuts are noted anywhere.  So:
   column D17..D65 has no pin numbers at its ends - an outline or a wire,
   not settled.
 
+On the owner's board (photo `MC 0515 04.jpg`, read by the owner
+2026-10-20): two white wires meet on pin 3 of a КР1533ТМ2 (date 9002) -
+one runs to pin 3 of the next КР1533ТМ2 past one ЛР11 (D17, D25 = ЛР11,
+D33), the other runs long and down with several bends: the patch
+D17.3/D33.3 - D47.5 of the drawing, as built.
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the

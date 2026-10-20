@@ -29,9 +29,7 @@ Each stage ends with its tests green; nothing is wired before it is tested.
    ОСА with the RAM disk, floppy writes, Rodionov's system on ROM-A - frame
    by frame against the emulator.  A wrong candidate breaks something; if
    none does, the place does not matter to the machine and is marked so.
-   First candidates: the long white wire's right end (it and the
-   D98.3-D70.11 wire run together behind the brown capacitor by D64/D71,
-   not separable on the photos).
+   No candidate yet: the wires read so far all match Э3.
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
