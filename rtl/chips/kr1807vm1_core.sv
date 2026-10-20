@@ -157,10 +157,14 @@ module kr1807vm1_core (
     endfunction
 
     // A register source is read when the operation uses it, after the
-    // destination's address steps: so `MOV R0,(R0)+` stores R0 + 2 and
-    // `MOV PC,X(R)` the opcode's address + 4, as the T-11 does.
-    logic [15:0] src_val;
-    assign src_val = smode != 0 ? src : (aop == A_MFPS ? {8'd0, ps} : r[sreg]);
+    // destination's address steps: so `MOV R0,-(R0)` stores R0 - 2 and
+    // `MOV PC,X(R)` the opcode's address + 4, as the T-11 does (UG §B.2).
+    // (R)+ moves R as its operand arrives, the moment the operation takes
+    // the source: `MOV R0,(R0)+` stores R0 + 2 as well.
+    logic [15:0] src_val, src_at_read;
+    assign src_val     = smode != 0 ? src : (aop == A_MFPS ? {8'd0, ps} : r[sreg]);
+    assign src_at_read = smode == 0 && dmode == 3'd2 && sreg == dreg && aop != A_MFPS ?
+                         r[dreg] + inc_d : src_val;
 
     // a word read, or the byte the address's low bit picks
     function automatic logic [15:0] pick(input logic [15:0] w, input logic odd, input logic b);
@@ -291,7 +295,7 @@ module kr1807vm1_core (
                 ea_d <= at_d;
                 if (dmode == 3'd2) r[dreg] <= r[dreg] + inc_d;
                 if (writes) begin
-                    a = alu(aop, bw, src_val, pick(d, at_d[0], bw), ps[3], ps[0]);
+                    a = alu(aop, bw, src_at_read, pick(d, at_d[0], bw), ps[3], ps[0]);
                     res     <= a.res;
                     ps[3:0] <= a.nzvc;
                 end

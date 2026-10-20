@@ -121,6 +121,23 @@ TEST_CASE("КР1807ВМ1: the length of each instruction, App. B microcycles x 3
     }
 }
 
+TEST_CASE("КР1807ВМ1: the T-11's own source values (UG §B.2)")
+{
+    Bench b;
+    b.load(0172000, {012700, 002000,            // MOV #2000, R0
+                     010020,                    // MOV R0, (R0)+: R0 + 2 is stored
+                     012701, 002100,            // MOV #2100, R1
+                     010141,                    // MOV R1, -(R1): R1 - 2 is stored
+                     012702, 002200,            // MOV #2200, R2
+                     010762, 000010,            // MOV PC, 10(R2) at 172020: 172024
+                     000240});
+    b.power_up();
+    b.run_fetches(8);
+    CHECK(b.word(002000) == 002002);
+    CHECK(b.word(002076) == 002076);
+    CHECK(b.word(002210) == 0172024);
+}
+
 TEST_CASE("КР1807ВМ1: a level-4 request is masked at priority 7, taken at 0 through 060")
 {
     Bench b;

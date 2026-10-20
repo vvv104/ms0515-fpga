@@ -54,6 +54,10 @@ endforeach()
 
 ms0515_chip_test(kr1807vm1_bus PACKAGES "${MS0515_CHIPS}/kr1807vm1_pkg.sv")
 ms0515_chip_test(kr1807vm1 PACKAGES ${MS0515_CPU_PACKAGES})
+# the processor with its registers readable, against the emulator's
+ms0515_model(Vkr1807vm1_public "${MS0515_CHIPS}/kr1807vm1.sv" kr1807vm1
+             PACKAGES ${MS0515_CPU_PACKAGES} ARGS --public-flat-rw)
+ms0515_test(test_kr1807vm1_lockstep chips/test_kr1807vm1_lockstep.cpp Vkr1807vm1_public ms0515_core)
 
 # The board generated from the netlist (tools/board.py writes rtl/board/ns4.sv).
 ms0515_model(Vns4 "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv" ns4 PACKAGES ${MS0515_CPU_PACKAGES})
