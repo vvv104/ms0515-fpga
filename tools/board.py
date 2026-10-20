@@ -79,6 +79,27 @@ class Module:
     open_collector: bool
 
 
+def parse_ports(text):
+    """The ports of a module's ANSI port list (the text after its name):
+    each name with its direction, a list like `input logic a, b` included."""
+    body = re.sub(r"//[^\n]*", "", text)
+    body = body[body.index("(") + 1:]
+    depth, end = 1, 0
+    for end, ch in enumerate(body):
+        depth += {"(": 1, ")": -1}.get(ch, 0)
+        if depth == 0:
+            break
+    ports, way = {}, None
+    for item in body[:end].split(","):
+        words = re.findall(r"\w+", re.sub(r"\[[^]]*\]", "", item))
+        if not words:
+            continue
+        if words[0] in ("input", "output"):
+            way = words[0]
+        ports[words[-1]] = way
+    return ports
+
+
 def load_modules(folder):
     modules = {}
     for fname in sorted(os.listdir(folder)):
@@ -90,8 +111,7 @@ def load_modules(folder):
         if not m:
             continue
         header = text[:m.start()].lower()
-        ports = dict((name, way) for way, name in
-                     re.findall(r"\b(input|output)\s+logic\s+(\w+)", text[m.start():]))
+        ports = parse_ports(text[m.end():])
         modules[m.group(1)] = Module(m.group(1), ports, "open-collector" in header or
                                      "open collector" in header)
     return modules
@@ -250,13 +270,13 @@ class Builder:
         if "clk" in module.ports:
             conns.append(("clk", "clk"))
         for port, way in module.ports.items():
-            m = re.fullmatch(r"p(\d+)", port)
+            m = re.fullmatch(r"p(\d+)(_in)?", port)     # pN_in: a driven pin's level
             if not m:
                 continue
             pin = int(m.group(1))
             name = pins.get(pin) or f"~{ref}.{pin}"
             if way == "input":
-                if pin not in pins:
+                if pin not in pins and not m.group(2):
                     self.tied.append(f"{ref}.{pin}")
                     conns.append((port, "1'b1"))
                     continue
@@ -275,7 +295,8 @@ class Builder:
             else:
                 net.pp.append(wire)
         for pin in sorted(pins):
-            if f"p{pin}" not in module.ports and not self.supply(ref, pin):
+            if f"p{pin}" not in module.ports and f"p{pin}_in" not in module.ports \
+                    and not self.supply(ref, pin):
                 self.problems.error(f"{ref}.{pin} on '{pins[pin]}': not a pin of {module.name}")
         self.instances.append((ref, module.name, conns))
 
@@ -367,11 +388,18 @@ def header(b):
 def emit(b, levels, busy):
     """The text of the board module."""
     nets = sorted(levels, key=lambda n: natural(ident(n)))
+    fought = [n for n in nets if busy[n]]
     clocked = any(port == "clk" for _, _, conns in b.instances for port, _ in conns)
     ports = (["input  logic clk"] if clocked else []) + \
         [f"input  logic {p}" for p in b.ports] + \
         [f"output logic {ident(n)}" for n in nets] + ["output logic contention"]
-    lines = header(b) + ["module ns4 ("]
+    if fought:
+        ports.append(f"output logic [{len(fought) - 1}:0] contention_at")
+    lines = header(b)
+    if fought:
+        lines.append("// contention_at, bit by bit: " +
+                     ", ".join(f"{i} {n}" for i, n in enumerate(fought)))
+    lines += ["module ns4 ("]
     lines += [f"    {p}," for p in ports[:-1]] + [f"    {ports[-1]}", ");"]
     lines += [f"    logic {w};" for w in b.wires]
     for ref, module, conns in b.instances:
@@ -382,8 +410,8 @@ def emit(b, levels, busy):
         lines += [f"        .{port}({expr})", "    );"]
     lines.append("")
     lines += [f"    assign {ident(n)} = {levels[n]};" for n in nets]
-    terms = [f"({busy[n]})" for n in nets if busy[n]]
-    lines.append(f"    assign contention = {' | '.join(terms) if terms else ZERO};")
+    lines += [f"    assign contention_at[{i}] = {busy[n]};" for i, n in enumerate(fought)]
+    lines.append(f"    assign contention = {'|contention_at' if fought else ZERO};")
     lines.append("endmodule")
     return "\n".join(lines) + "\n"
 

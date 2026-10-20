@@ -30,7 +30,6 @@
 //   D76   КР580ВВ55А: no module yet
 //   D77   К573РФ4Б: no module yet
 //   D82   КР580ВВ55А: no module yet
-//   D83   КР1807ВМ1: no module yet
 //   DA2   pending: open: ДКЛ08..18 summed into ВБКЛ L through 10 kOhm each; brought out until the wired detector has its model
 //   XP3   port: parallel port (ИРПР)
 //   XP4   port: floppy drives
@@ -40,6 +39,7 @@
 //   XP8   port: МС 7007 keyboard matrix
 //   XS1   port: expansion bus (the memory expansion module)
 //   XS2   port: МС 7004 keyboard socket
+// contention_at, bit by bit: 0 АД00 H, 1 АД01 H, 2 АД02 H, 3 АД03 H, 4 АД04 H, 5 АД05 H, 6 АД06 H, 7 АД07 H, 8 АД08 H, 9 АД09 H, 10 АД10 H, 11 АД11 H, 12 АД12 H, 13 АД13 H, 14 АД14 H, 15 АД15 H, 16 ДКЛ00 L, 17 ДКЛ01 L, 18 ДКЛ02 L, 19 ДКЛ03 L, 20 ДКЛ04 L, 21 ДКЛ05 L, 22 ДКЛ06 L, 23 ДКЛ07 L, 24 ДКЛ08 L, 25 ДКЛ09 L, 26 ДКЛ10 L, 27 ДКЛ11 L, 28 ДКЛ12 L, 29 ДКЛ13 L, 30 ДКЛ14 L, 31 ДКЛ15 L, 32 ДКЛ16 L, 33 ДКЛ17 L, 34 ДКЛ18 L, 35 ДРОО H, 36 ГОТ93 H, 37 ГОТОВ2 L, 38 ИНД H, 39 МК00 H, 40 МК01 H, 41 МК02 H, 42 МК03 H, 43 МК04 H, 44 МК05 H, 45 МК06 H, 46 МК07 H, 47 МК08 H, 48 МК09 H, 49 МК10 H, 50 МК11 H, 51 МК12 H, 52 МК13 H, 53 МК14 H, 54 МК15 H, 55 ОБСЛ H, 56 ПМЛБ L, 57 ПРМ1 H, 58 ПРМ2 H, 59 ПСТБ L, 60 Р3 H, 61 Р14 H, 62 РВК1 H, 63 СГИ L, 64 СИНХР1 H, 65 СИНХР2 H, 66 СИНТ H, 67 ВХКЛ L, 68 ЗАВЕРШ H, 69 ЗОВМ H, 70 ЗЗП H
 module ns4 (
     input  logic clk,
     input  logic x_BQ1_p1,
@@ -74,8 +74,6 @@ module ns4 (
     input  logic x_D1_p17_oe,
     input  logic x_D1_p18,
     input  logic x_D1_p18_oe,
-    input  logic x_D1_p19,
-    input  logic x_D1_p19_oe,
     input  logic x_D1_p22,
     input  logic x_D1_p22_oe,
     input  logic x_D1_p23,
@@ -508,64 +506,6 @@ module ns4 (
     input  logic x_D82_p39_oe,
     input  logic x_D82_p40,
     input  logic x_D82_p40_oe,
-    input  logic x_D83_p1,
-    input  logic x_D83_p1_oe,
-    input  logic x_D83_p2,
-    input  logic x_D83_p2_oe,
-    input  logic x_D83_p3,
-    input  logic x_D83_p3_oe,
-    input  logic x_D83_p4,
-    input  logic x_D83_p4_oe,
-    input  logic x_D83_p5,
-    input  logic x_D83_p5_oe,
-    input  logic x_D83_p6,
-    input  logic x_D83_p6_oe,
-    input  logic x_D83_p7,
-    input  logic x_D83_p7_oe,
-    input  logic x_D83_p9,
-    input  logic x_D83_p9_oe,
-    input  logic x_D83_p10,
-    input  logic x_D83_p10_oe,
-    input  logic x_D83_p11,
-    input  logic x_D83_p11_oe,
-    input  logic x_D83_p12,
-    input  logic x_D83_p12_oe,
-    input  logic x_D83_p13,
-    input  logic x_D83_p13_oe,
-    input  logic x_D83_p14,
-    input  logic x_D83_p14_oe,
-    input  logic x_D83_p15,
-    input  logic x_D83_p15_oe,
-    input  logic x_D83_p16,
-    input  logic x_D83_p16_oe,
-    input  logic x_D83_p17,
-    input  logic x_D83_p17_oe,
-    input  logic x_D83_p18,
-    input  logic x_D83_p18_oe,
-    input  logic x_D83_p21,
-    input  logic x_D83_p21_oe,
-    input  logic x_D83_p24,
-    input  logic x_D83_p24_oe,
-    input  logic x_D83_p25,
-    input  logic x_D83_p25_oe,
-    input  logic x_D83_p27,
-    input  logic x_D83_p27_oe,
-    input  logic x_D83_p28,
-    input  logic x_D83_p28_oe,
-    input  logic x_D83_p29,
-    input  logic x_D83_p29_oe,
-    input  logic x_D83_p30,
-    input  logic x_D83_p30_oe,
-    input  logic x_D83_p31,
-    input  logic x_D83_p31_oe,
-    input  logic x_D83_p32,
-    input  logic x_D83_p32_oe,
-    input  logic x_D83_p37,
-    input  logic x_D83_p37_oe,
-    input  logic x_D83_p38,
-    input  logic x_D83_p38_oe,
-    input  logic x_D83_p39,
-    input  logic x_D83_p39_oe,
     input  logic x_DA2_p1,
     input  logic x_DA2_p1_oe,
     input  logic x_DA2_p2,
@@ -770,22 +710,10 @@ module ns4 (
     input  logic x_XS1_p49_oe,
     input  logic x_XS1_p50,
     input  logic x_XS1_p50_oe,
-    input  logic x_XS1_p69,
-    input  logic x_XS1_p69_oe,
-    input  logic x_XS1_p70,
-    input  logic x_XS1_p70_oe,
     input  logic x_XS1_p71,
     input  logic x_XS1_p71_oe,
     input  logic x_XS1_p72,
     input  logic x_XS1_p72_oe,
-    input  logic x_XS1_p74,
-    input  logic x_XS1_p74_oe,
-    input  logic x_XS1_p75,
-    input  logic x_XS1_p75_oe,
-    input  logic x_XS1_p76,
-    input  logic x_XS1_p76_oe,
-    input  logic x_XS1_p77,
-    input  logic x_XS1_p77_oe,
     input  logic x_XS2_p3,
     input  logic x_XS2_p3_oe,
     output logic n_A0_H,
@@ -1281,7 +1209,8 @@ module ns4 (
     output logic nx_VD17_1,
     output logic nx_XP5_3,
     output logic nx_XP5_6,
-    output logic contention
+    output logic contention,
+    output logic [70:0] contention_at
 );
     logic d_D4_p2;
     logic d_D4_p4;
@@ -1615,6 +1544,49 @@ module ns4 (
     logic d_D81_p6;
     logic d_D81_p8;
     logic d_D81_p11;
+    logic d_D83_p1;
+    logic d_D83_p1_oe;
+    logic d_D83_p2;
+    logic d_D83_p2_oe;
+    logic d_D83_p3;
+    logic d_D83_p3_oe;
+    logic d_D83_p4;
+    logic d_D83_p4_oe;
+    logic d_D83_p5;
+    logic d_D83_p5_oe;
+    logic d_D83_p6;
+    logic d_D83_p6_oe;
+    logic d_D83_p7;
+    logic d_D83_p7_oe;
+    logic d_D83_p9;
+    logic d_D83_p9_oe;
+    logic d_D83_p10;
+    logic d_D83_p10_oe;
+    logic d_D83_p11;
+    logic d_D83_p11_oe;
+    logic d_D83_p12;
+    logic d_D83_p12_oe;
+    logic d_D83_p13;
+    logic d_D83_p13_oe;
+    logic d_D83_p14;
+    logic d_D83_p14_oe;
+    logic d_D83_p15;
+    logic d_D83_p15_oe;
+    logic d_D83_p16;
+    logic d_D83_p16_oe;
+    logic d_D83_p17;
+    logic d_D83_p17_oe;
+    logic d_D83_p18;
+    logic d_D83_p21;
+    logic d_D83_p24;
+    logic d_D83_p25;
+    logic d_D83_p27;
+    logic d_D83_p27_oe;
+    logic d_D83_p28;
+    logic d_D83_p28_oe;
+    logic d_D83_p29;
+    logic d_D83_p30;
+    logic d_D83_p31;
     logic d_D84_p3;
     logic d_D84_p6;
     logic d_D84_p8;
@@ -2707,6 +2679,81 @@ module ns4 (
         .p11(d_D81_p11)
     );
 
+    kr1807vm1 D83 (
+        .clk(clk),
+        .p1_in(n_MK15_H),
+        .p2_in(n_MK14_H),
+        .p3_in(n_MK13_H),
+        .p4_in(n_MK12_H),
+        .p5_in(n_MK11_H),
+        .p6_in(n_MK10_H),
+        .p7_in(n_MK09_H),
+        .p9_in(n_MK08_H),
+        .p10_in(n_MK07_H),
+        .p11_in(n_MK06_H),
+        .p12_in(n_MK05_H),
+        .p13_in(n_MK04_H),
+        .p14_in(n_MK03_H),
+        .p15_in(n_MK02_H),
+        .p16_in(n_MK01_H),
+        .p17_in(n_MK00_H),
+        .p1(d_D83_p1),
+        .p1_oe(d_D83_p1_oe),
+        .p2(d_D83_p2),
+        .p2_oe(d_D83_p2_oe),
+        .p3(d_D83_p3),
+        .p3_oe(d_D83_p3_oe),
+        .p4(d_D83_p4),
+        .p4_oe(d_D83_p4_oe),
+        .p5(d_D83_p5),
+        .p5_oe(d_D83_p5_oe),
+        .p6(d_D83_p6),
+        .p6_oe(d_D83_p6_oe),
+        .p7(d_D83_p7),
+        .p7_oe(d_D83_p7_oe),
+        .p9(d_D83_p9),
+        .p9_oe(d_D83_p9_oe),
+        .p10(d_D83_p10),
+        .p10_oe(d_D83_p10_oe),
+        .p11(d_D83_p11),
+        .p11_oe(d_D83_p11_oe),
+        .p12(d_D83_p12),
+        .p12_oe(d_D83_p12_oe),
+        .p13(d_D83_p13),
+        .p13_oe(d_D83_p13_oe),
+        .p14(d_D83_p14),
+        .p14_oe(d_D83_p14_oe),
+        .p15(d_D83_p15),
+        .p15_oe(d_D83_p15_oe),
+        .p16(d_D83_p16),
+        .p16_oe(d_D83_p16_oe),
+        .p17(d_D83_p17),
+        .p17_oe(d_D83_p17_oe),
+        .p18(d_D83_p18),
+        .p19(n_START_H),
+        .p21(d_D83_p21),
+        .p22(n_PTS_H),
+        .p23(1'b0),
+        .p24(d_D83_p24),
+        .p25(d_D83_p25),
+        .p26(n_ZADERZH_L),
+        .p27(d_D83_p27),
+        .p27_oe(d_D83_p27_oe),
+        .p28(d_D83_p28),
+        .p28_oe(d_D83_p28_oe),
+        .p29(d_D83_p29),
+        .p30(d_D83_p30),
+        .p31(d_D83_p31),
+        .p32(n_R15_H),
+        .p33(n_SR3_L),
+        .p34(n_SR2_L),
+        .p35(n_SR1_L),
+        .p36(n_SR0_L),
+        .p37(n_R3_H),
+        .p38(n_R3_H),
+        .p39(n_OSTANOV_L)
+    );
+
     k555ll1 D84 (
         .p1(n_PVAK_L),
         .p2(n_PMLB_L),
@@ -3139,22 +3186,22 @@ module ns4 (
     assign n_KR_H = d_D56_p12_oe ? d_D56_p12 : 1'b1;
     assign n_KSI_H = d_D41_p8;
     assign n_KSI_L = d_D41_p9;
-    assign n_MK00_H = (x_D1_p7_oe | x_D2_p2_oe | x_D9_p8_oe | x_D22_p27_oe | x_D38_p27_oe | d_D52_p18_oe | x_D65_p11_oe | x_D76_p34_oe | x_D82_p34_oe | x_D83_p17_oe | x_XS1_p35_oe) ? ((x_D1_p7_oe & x_D1_p7) | (x_D2_p2_oe & x_D2_p2) | (x_D9_p8_oe & x_D9_p8) | (x_D22_p27_oe & x_D22_p27) | (x_D38_p27_oe & x_D38_p27) | (d_D52_p18_oe & d_D52_p18) | (x_D65_p11_oe & x_D65_p11) | (x_D76_p34_oe & x_D76_p34) | (x_D82_p34_oe & x_D82_p34) | (x_D83_p17_oe & x_D83_p17) | (x_XS1_p35_oe & x_XS1_p35)) : 1'b1;
-    assign n_MK01_H = (x_D1_p8_oe | x_D9_p7_oe | x_D11_p2_oe | x_D22_p28_oe | x_D38_p28_oe | d_D52_p16_oe | x_D65_p12_oe | x_D76_p33_oe | x_D82_p33_oe | x_D83_p16_oe | x_XS1_p36_oe) ? ((x_D1_p8_oe & x_D1_p8) | (x_D9_p7_oe & x_D9_p7) | (x_D11_p2_oe & x_D11_p2) | (x_D22_p28_oe & x_D22_p28) | (x_D38_p28_oe & x_D38_p28) | (d_D52_p16_oe & d_D52_p16) | (x_D65_p12_oe & x_D65_p12) | (x_D76_p33_oe & x_D76_p33) | (x_D82_p33_oe & x_D82_p33) | (x_D83_p16_oe & x_D83_p16) | (x_XS1_p36_oe & x_XS1_p36)) : 1'b1;
-    assign n_MK02_H = (x_D1_p9_oe | x_D9_p6_oe | x_D22_p1_oe | x_D26_p2_oe | x_D38_p1_oe | d_D52_p14_oe | x_D65_p13_oe | x_D76_p32_oe | x_D82_p32_oe | x_D83_p15_oe | x_XS1_p37_oe) ? ((x_D1_p9_oe & x_D1_p9) | (x_D9_p6_oe & x_D9_p6) | (x_D22_p1_oe & x_D22_p1) | (x_D26_p2_oe & x_D26_p2) | (x_D38_p1_oe & x_D38_p1) | (d_D52_p14_oe & d_D52_p14) | (x_D65_p13_oe & x_D65_p13) | (x_D76_p32_oe & x_D76_p32) | (x_D82_p32_oe & x_D82_p32) | (x_D83_p15_oe & x_D83_p15) | (x_XS1_p37_oe & x_XS1_p37)) : 1'b1;
-    assign n_MK03_H = (x_D1_p10_oe | x_D9_p5_oe | x_D22_p2_oe | x_D38_p2_oe | x_D44_p2_oe | d_D52_p12_oe | x_D65_p15_oe | x_D76_p31_oe | x_D82_p31_oe | x_D83_p14_oe | x_XS1_p38_oe) ? ((x_D1_p10_oe & x_D1_p10) | (x_D9_p5_oe & x_D9_p5) | (x_D22_p2_oe & x_D22_p2) | (x_D38_p2_oe & x_D38_p2) | (x_D44_p2_oe & x_D44_p2) | (d_D52_p12_oe & d_D52_p12) | (x_D65_p15_oe & x_D65_p15) | (x_D76_p31_oe & x_D76_p31) | (x_D82_p31_oe & x_D82_p31) | (x_D83_p14_oe & x_D83_p14) | (x_XS1_p38_oe & x_XS1_p38)) : 1'b1;
-    assign n_MK04_H = (x_D1_p11_oe | x_D5_p2_oe | x_D9_p4_oe | x_D22_p5_oe | x_D38_p5_oe | d_D52_p9_oe | x_D65_p16_oe | x_D76_p30_oe | x_D82_p30_oe | x_D83_p13_oe | x_XS1_p39_oe) ? ((x_D1_p11_oe & x_D1_p11) | (x_D5_p2_oe & x_D5_p2) | (x_D9_p4_oe & x_D9_p4) | (x_D22_p5_oe & x_D22_p5) | (x_D38_p5_oe & x_D38_p5) | (d_D52_p9_oe & d_D52_p9) | (x_D65_p16_oe & x_D65_p16) | (x_D76_p30_oe & x_D76_p30) | (x_D82_p30_oe & x_D82_p30) | (x_D83_p13_oe & x_D83_p13) | (x_XS1_p39_oe & x_XS1_p39)) : 1'b1;
-    assign n_MK05_H = (x_D1_p12_oe | x_D9_p3_oe | x_D18_p2_oe | x_D22_p6_oe | x_D38_p6_oe | d_D52_p7_oe | x_D65_p17_oe | x_D76_p29_oe | x_D82_p29_oe | x_D83_p12_oe | x_XS1_p40_oe) ? ((x_D1_p12_oe & x_D1_p12) | (x_D9_p3_oe & x_D9_p3) | (x_D18_p2_oe & x_D18_p2) | (x_D22_p6_oe & x_D22_p6) | (x_D38_p6_oe & x_D38_p6) | (d_D52_p7_oe & d_D52_p7) | (x_D65_p17_oe & x_D65_p17) | (x_D76_p29_oe & x_D76_p29) | (x_D82_p29_oe & x_D82_p29) | (x_D83_p12_oe & x_D83_p12) | (x_XS1_p40_oe & x_XS1_p40)) : 1'b1;
-    assign n_MK06_H = (x_D1_p13_oe | x_D9_p2_oe | x_D22_p7_oe | x_D34_p2_oe | x_D38_p7_oe | d_D52_p5_oe | x_D65_p18_oe | x_D76_p28_oe | x_D82_p28_oe | x_D83_p11_oe | x_XS1_p41_oe) ? ((x_D1_p13_oe & x_D1_p13) | (x_D9_p2_oe & x_D9_p2) | (x_D22_p7_oe & x_D22_p7) | (x_D34_p2_oe & x_D34_p2) | (x_D38_p7_oe & x_D38_p7) | (d_D52_p5_oe & d_D52_p5) | (x_D65_p18_oe & x_D65_p18) | (x_D76_p28_oe & x_D76_p28) | (x_D82_p28_oe & x_D82_p28) | (x_D83_p11_oe & x_D83_p11) | (x_XS1_p41_oe & x_XS1_p41)) : 1'b1;
-    assign n_MK07_H = (x_D1_p14_oe | x_D9_p1_oe | x_D22_p8_oe | x_D38_p8_oe | d_D52_p3_oe | x_D53_p2_oe | x_D65_p19_oe | x_D76_p27_oe | x_D82_p27_oe | x_D83_p10_oe | x_XS1_p42_oe) ? ((x_D1_p14_oe & x_D1_p14) | (x_D9_p1_oe & x_D9_p1) | (x_D22_p8_oe & x_D22_p8) | (x_D38_p8_oe & x_D38_p8) | (d_D52_p3_oe & d_D52_p3) | (x_D53_p2_oe & x_D53_p2) | (x_D65_p19_oe & x_D65_p19) | (x_D76_p27_oe & x_D76_p27) | (x_D82_p27_oe & x_D82_p27) | (x_D83_p10_oe & x_D83_p10) | (x_XS1_p42_oe & x_XS1_p42)) : 1'b1;
-    assign n_MK08_H = (x_D3_p2_oe | d_D58_p18_oe | x_D77_p11_oe | x_D83_p9_oe | d_D95_p12_oe | x_XS1_p43_oe) ? ((x_D3_p2_oe & x_D3_p2) | (d_D58_p18_oe & d_D58_p18) | (x_D77_p11_oe & x_D77_p11) | (x_D83_p9_oe & x_D83_p9) | (d_D95_p12_oe & d_D95_p12) | (x_XS1_p43_oe & x_XS1_p43)) : 1'b1;
-    assign n_MK09_H = (x_D12_p2_oe | d_D58_p16_oe | x_D77_p12_oe | x_D83_p7_oe | d_D95_p18_oe | x_XS1_p44_oe) ? ((x_D12_p2_oe & x_D12_p2) | (d_D58_p16_oe & d_D58_p16) | (x_D77_p12_oe & x_D77_p12) | (x_D83_p7_oe & x_D83_p7) | (d_D95_p18_oe & d_D95_p18) | (x_XS1_p44_oe & x_XS1_p44)) : 1'b1;
-    assign n_MK10_H = (x_D27_p2_oe | d_D58_p14_oe | x_D77_p13_oe | x_D83_p6_oe | d_D95_p14_oe | x_XS1_p45_oe) ? ((x_D27_p2_oe & x_D27_p2) | (d_D58_p14_oe & d_D58_p14) | (x_D77_p13_oe & x_D77_p13) | (x_D83_p6_oe & x_D83_p6) | (d_D95_p14_oe & d_D95_p14) | (x_XS1_p45_oe & x_XS1_p45)) : 1'b1;
-    assign n_MK11_H = (x_D45_p2_oe | d_D58_p12_oe | x_D77_p15_oe | x_D83_p5_oe | d_D95_p16_oe | x_XS1_p46_oe) ? ((x_D45_p2_oe & x_D45_p2) | (d_D58_p12_oe & d_D58_p12) | (x_D77_p15_oe & x_D77_p15) | (x_D83_p5_oe & x_D83_p5) | (d_D95_p16_oe & d_D95_p16) | (x_XS1_p46_oe & x_XS1_p46)) : 1'b1;
-    assign n_MK12_H = (x_D6_p2_oe | d_D58_p9_oe | x_D77_p16_oe | x_D83_p4_oe | x_XS1_p47_oe) ? ((x_D6_p2_oe & x_D6_p2) | (d_D58_p9_oe & d_D58_p9) | (x_D77_p16_oe & x_D77_p16) | (x_D83_p4_oe & x_D83_p4) | (x_XS1_p47_oe & x_XS1_p47)) : 1'b1;
-    assign n_MK13_H = (x_D19_p2_oe | d_D58_p7_oe | x_D77_p17_oe | x_D83_p3_oe | x_XS1_p48_oe) ? ((x_D19_p2_oe & x_D19_p2) | (d_D58_p7_oe & d_D58_p7) | (x_D77_p17_oe & x_D77_p17) | (x_D83_p3_oe & x_D83_p3) | (x_XS1_p48_oe & x_XS1_p48)) : 1'b1;
-    assign n_MK14_H = (x_D35_p2_oe | d_D58_p5_oe | x_D77_p18_oe | x_D83_p2_oe | x_XS1_p49_oe) ? ((x_D35_p2_oe & x_D35_p2) | (d_D58_p5_oe & d_D58_p5) | (x_D77_p18_oe & x_D77_p18) | (x_D83_p2_oe & x_D83_p2) | (x_XS1_p49_oe & x_XS1_p49)) : 1'b1;
-    assign n_MK15_H = (x_D54_p2_oe | d_D58_p3_oe | x_D77_p19_oe | x_D83_p1_oe | x_XS1_p50_oe) ? ((x_D54_p2_oe & x_D54_p2) | (d_D58_p3_oe & d_D58_p3) | (x_D77_p19_oe & x_D77_p19) | (x_D83_p1_oe & x_D83_p1) | (x_XS1_p50_oe & x_XS1_p50)) : 1'b1;
+    assign n_MK00_H = (x_D1_p7_oe | x_D2_p2_oe | x_D9_p8_oe | x_D22_p27_oe | x_D38_p27_oe | d_D52_p18_oe | x_D65_p11_oe | x_D76_p34_oe | x_D82_p34_oe | d_D83_p17_oe | x_XS1_p35_oe) ? ((x_D1_p7_oe & x_D1_p7) | (x_D2_p2_oe & x_D2_p2) | (x_D9_p8_oe & x_D9_p8) | (x_D22_p27_oe & x_D22_p27) | (x_D38_p27_oe & x_D38_p27) | (d_D52_p18_oe & d_D52_p18) | (x_D65_p11_oe & x_D65_p11) | (x_D76_p34_oe & x_D76_p34) | (x_D82_p34_oe & x_D82_p34) | (d_D83_p17_oe & d_D83_p17) | (x_XS1_p35_oe & x_XS1_p35)) : 1'b1;
+    assign n_MK01_H = (x_D1_p8_oe | x_D9_p7_oe | x_D11_p2_oe | x_D22_p28_oe | x_D38_p28_oe | d_D52_p16_oe | x_D65_p12_oe | x_D76_p33_oe | x_D82_p33_oe | d_D83_p16_oe | x_XS1_p36_oe) ? ((x_D1_p8_oe & x_D1_p8) | (x_D9_p7_oe & x_D9_p7) | (x_D11_p2_oe & x_D11_p2) | (x_D22_p28_oe & x_D22_p28) | (x_D38_p28_oe & x_D38_p28) | (d_D52_p16_oe & d_D52_p16) | (x_D65_p12_oe & x_D65_p12) | (x_D76_p33_oe & x_D76_p33) | (x_D82_p33_oe & x_D82_p33) | (d_D83_p16_oe & d_D83_p16) | (x_XS1_p36_oe & x_XS1_p36)) : 1'b1;
+    assign n_MK02_H = (x_D1_p9_oe | x_D9_p6_oe | x_D22_p1_oe | x_D26_p2_oe | x_D38_p1_oe | d_D52_p14_oe | x_D65_p13_oe | x_D76_p32_oe | x_D82_p32_oe | d_D83_p15_oe | x_XS1_p37_oe) ? ((x_D1_p9_oe & x_D1_p9) | (x_D9_p6_oe & x_D9_p6) | (x_D22_p1_oe & x_D22_p1) | (x_D26_p2_oe & x_D26_p2) | (x_D38_p1_oe & x_D38_p1) | (d_D52_p14_oe & d_D52_p14) | (x_D65_p13_oe & x_D65_p13) | (x_D76_p32_oe & x_D76_p32) | (x_D82_p32_oe & x_D82_p32) | (d_D83_p15_oe & d_D83_p15) | (x_XS1_p37_oe & x_XS1_p37)) : 1'b1;
+    assign n_MK03_H = (x_D1_p10_oe | x_D9_p5_oe | x_D22_p2_oe | x_D38_p2_oe | x_D44_p2_oe | d_D52_p12_oe | x_D65_p15_oe | x_D76_p31_oe | x_D82_p31_oe | d_D83_p14_oe | x_XS1_p38_oe) ? ((x_D1_p10_oe & x_D1_p10) | (x_D9_p5_oe & x_D9_p5) | (x_D22_p2_oe & x_D22_p2) | (x_D38_p2_oe & x_D38_p2) | (x_D44_p2_oe & x_D44_p2) | (d_D52_p12_oe & d_D52_p12) | (x_D65_p15_oe & x_D65_p15) | (x_D76_p31_oe & x_D76_p31) | (x_D82_p31_oe & x_D82_p31) | (d_D83_p14_oe & d_D83_p14) | (x_XS1_p38_oe & x_XS1_p38)) : 1'b1;
+    assign n_MK04_H = (x_D1_p11_oe | x_D5_p2_oe | x_D9_p4_oe | x_D22_p5_oe | x_D38_p5_oe | d_D52_p9_oe | x_D65_p16_oe | x_D76_p30_oe | x_D82_p30_oe | d_D83_p13_oe | x_XS1_p39_oe) ? ((x_D1_p11_oe & x_D1_p11) | (x_D5_p2_oe & x_D5_p2) | (x_D9_p4_oe & x_D9_p4) | (x_D22_p5_oe & x_D22_p5) | (x_D38_p5_oe & x_D38_p5) | (d_D52_p9_oe & d_D52_p9) | (x_D65_p16_oe & x_D65_p16) | (x_D76_p30_oe & x_D76_p30) | (x_D82_p30_oe & x_D82_p30) | (d_D83_p13_oe & d_D83_p13) | (x_XS1_p39_oe & x_XS1_p39)) : 1'b1;
+    assign n_MK05_H = (x_D1_p12_oe | x_D9_p3_oe | x_D18_p2_oe | x_D22_p6_oe | x_D38_p6_oe | d_D52_p7_oe | x_D65_p17_oe | x_D76_p29_oe | x_D82_p29_oe | d_D83_p12_oe | x_XS1_p40_oe) ? ((x_D1_p12_oe & x_D1_p12) | (x_D9_p3_oe & x_D9_p3) | (x_D18_p2_oe & x_D18_p2) | (x_D22_p6_oe & x_D22_p6) | (x_D38_p6_oe & x_D38_p6) | (d_D52_p7_oe & d_D52_p7) | (x_D65_p17_oe & x_D65_p17) | (x_D76_p29_oe & x_D76_p29) | (x_D82_p29_oe & x_D82_p29) | (d_D83_p12_oe & d_D83_p12) | (x_XS1_p40_oe & x_XS1_p40)) : 1'b1;
+    assign n_MK06_H = (x_D1_p13_oe | x_D9_p2_oe | x_D22_p7_oe | x_D34_p2_oe | x_D38_p7_oe | d_D52_p5_oe | x_D65_p18_oe | x_D76_p28_oe | x_D82_p28_oe | d_D83_p11_oe | x_XS1_p41_oe) ? ((x_D1_p13_oe & x_D1_p13) | (x_D9_p2_oe & x_D9_p2) | (x_D22_p7_oe & x_D22_p7) | (x_D34_p2_oe & x_D34_p2) | (x_D38_p7_oe & x_D38_p7) | (d_D52_p5_oe & d_D52_p5) | (x_D65_p18_oe & x_D65_p18) | (x_D76_p28_oe & x_D76_p28) | (x_D82_p28_oe & x_D82_p28) | (d_D83_p11_oe & d_D83_p11) | (x_XS1_p41_oe & x_XS1_p41)) : 1'b1;
+    assign n_MK07_H = (x_D1_p14_oe | x_D9_p1_oe | x_D22_p8_oe | x_D38_p8_oe | d_D52_p3_oe | x_D53_p2_oe | x_D65_p19_oe | x_D76_p27_oe | x_D82_p27_oe | d_D83_p10_oe | x_XS1_p42_oe) ? ((x_D1_p14_oe & x_D1_p14) | (x_D9_p1_oe & x_D9_p1) | (x_D22_p8_oe & x_D22_p8) | (x_D38_p8_oe & x_D38_p8) | (d_D52_p3_oe & d_D52_p3) | (x_D53_p2_oe & x_D53_p2) | (x_D65_p19_oe & x_D65_p19) | (x_D76_p27_oe & x_D76_p27) | (x_D82_p27_oe & x_D82_p27) | (d_D83_p10_oe & d_D83_p10) | (x_XS1_p42_oe & x_XS1_p42)) : 1'b1;
+    assign n_MK08_H = (x_D3_p2_oe | d_D58_p18_oe | x_D77_p11_oe | d_D83_p9_oe | d_D95_p12_oe | x_XS1_p43_oe) ? ((x_D3_p2_oe & x_D3_p2) | (d_D58_p18_oe & d_D58_p18) | (x_D77_p11_oe & x_D77_p11) | (d_D83_p9_oe & d_D83_p9) | (d_D95_p12_oe & d_D95_p12) | (x_XS1_p43_oe & x_XS1_p43)) : 1'b1;
+    assign n_MK09_H = (x_D12_p2_oe | d_D58_p16_oe | x_D77_p12_oe | d_D83_p7_oe | d_D95_p18_oe | x_XS1_p44_oe) ? ((x_D12_p2_oe & x_D12_p2) | (d_D58_p16_oe & d_D58_p16) | (x_D77_p12_oe & x_D77_p12) | (d_D83_p7_oe & d_D83_p7) | (d_D95_p18_oe & d_D95_p18) | (x_XS1_p44_oe & x_XS1_p44)) : 1'b1;
+    assign n_MK10_H = (x_D27_p2_oe | d_D58_p14_oe | x_D77_p13_oe | d_D83_p6_oe | d_D95_p14_oe | x_XS1_p45_oe) ? ((x_D27_p2_oe & x_D27_p2) | (d_D58_p14_oe & d_D58_p14) | (x_D77_p13_oe & x_D77_p13) | (d_D83_p6_oe & d_D83_p6) | (d_D95_p14_oe & d_D95_p14) | (x_XS1_p45_oe & x_XS1_p45)) : 1'b1;
+    assign n_MK11_H = (x_D45_p2_oe | d_D58_p12_oe | x_D77_p15_oe | d_D83_p5_oe | d_D95_p16_oe | x_XS1_p46_oe) ? ((x_D45_p2_oe & x_D45_p2) | (d_D58_p12_oe & d_D58_p12) | (x_D77_p15_oe & x_D77_p15) | (d_D83_p5_oe & d_D83_p5) | (d_D95_p16_oe & d_D95_p16) | (x_XS1_p46_oe & x_XS1_p46)) : 1'b1;
+    assign n_MK12_H = (x_D6_p2_oe | d_D58_p9_oe | x_D77_p16_oe | d_D83_p4_oe | x_XS1_p47_oe) ? ((x_D6_p2_oe & x_D6_p2) | (d_D58_p9_oe & d_D58_p9) | (x_D77_p16_oe & x_D77_p16) | (d_D83_p4_oe & d_D83_p4) | (x_XS1_p47_oe & x_XS1_p47)) : 1'b1;
+    assign n_MK13_H = (x_D19_p2_oe | d_D58_p7_oe | x_D77_p17_oe | d_D83_p3_oe | x_XS1_p48_oe) ? ((x_D19_p2_oe & x_D19_p2) | (d_D58_p7_oe & d_D58_p7) | (x_D77_p17_oe & x_D77_p17) | (d_D83_p3_oe & d_D83_p3) | (x_XS1_p48_oe & x_XS1_p48)) : 1'b1;
+    assign n_MK14_H = (x_D35_p2_oe | d_D58_p5_oe | x_D77_p18_oe | d_D83_p2_oe | x_XS1_p49_oe) ? ((x_D35_p2_oe & x_D35_p2) | (d_D58_p5_oe & d_D58_p5) | (x_D77_p18_oe & x_D77_p18) | (d_D83_p2_oe & d_D83_p2) | (x_XS1_p49_oe & x_XS1_p49)) : 1'b1;
+    assign n_MK15_H = (x_D54_p2_oe | d_D58_p3_oe | x_D77_p19_oe | d_D83_p1_oe | x_XS1_p50_oe) ? ((x_D54_p2_oe & x_D54_p2) | (d_D58_p3_oe & d_D58_p3) | (x_D77_p19_oe & x_D77_p19) | (d_D83_p1_oe & d_D83_p1) | (x_XS1_p50_oe & x_XS1_p50)) : 1'b1;
     assign n_MONO = x_XP6_p12_oe ? x_XP6_p12 : 1'b1;
     assign n_NACH_H = d_D97_p12;
     assign n_NPR_H = x_D1_p16_oe ? x_D1_p16 : 1'b1;
@@ -3166,11 +3213,11 @@ module ns4 (
     assign n_OKRZL_H = d_D39_p11;
     assign n_OKSN_H = x_D76_p14_oe ? x_D76_p14 : 1'b1;
     assign n_OKZL_H = x_D76_p16_oe ? x_D76_p16 : 1'b1;
-    assign n_OSTANOV_L = (x_D83_p39_oe | d_D89_p16_oe) ? ((x_D83_p39_oe & x_D83_p39) | (d_D89_p16_oe & d_D89_p16)) : 1'b1;
+    assign n_OSTANOV_L = d_D89_p16_oe ? d_D89_p16 : 1'b1;
     assign n_OST_L = x_XP8_p21_oe ? x_XP8_p21 : 1'b1;
     assign n_PKL_H = d_D59_p9;
     assign n_PKSI_L = x_D13_p12_oe ? x_D13_p12 : 1'b1;
-    assign n_PMLB_L = (x_D83_p28_oe | x_XS1_p71_oe) ? ((x_D83_p28_oe & x_D83_p28) | (x_XS1_p71_oe & x_XS1_p71)) : 1'b1;
+    assign n_PMLB_L = (d_D83_p28_oe | x_XS1_p71_oe) ? ((d_D83_p28_oe & d_D83_p28) | (x_XS1_p71_oe & x_XS1_p71)) : 1'b1;
     assign n_POVER_H = x_D76_p1_oe ? x_D76_p1 : 1'b1;
     assign n_PRD1_H = x_D22_p19_oe ? x_D22_p19 : 1'b1;
     assign n_PRD2_H = x_D38_p19_oe ? x_D38_p19 : 1'b1;
@@ -3178,20 +3225,20 @@ module ns4 (
     assign n_PRM1_H = (x_D22_p3_oe | d_D48_p13_oe) ? ((x_D22_p3_oe & x_D22_p3) | (d_D48_p13_oe & d_D48_p13)) : 1'b1;
     assign n_PRM2_H = (x_D38_p3_oe | d_D48_p3_oe) ? ((x_D38_p3_oe & x_D38_p3) | (d_D48_p3_oe & d_D48_p3)) : 1'b1;
     assign n_PRMAG_H = d_D90_p9 & (x_D76_p25_oe ? x_D76_p25 : 1'b1);
-    assign n_PRV_H = (x_D83_p31_oe | x_XS1_p77_oe) ? ((x_D83_p31_oe & x_D83_p31) | (x_XS1_p77_oe & x_XS1_p77)) : 1'b1;
+    assign n_PRV_H = d_D83_p31;
     assign n_PSINH_H = d_D99_p2;
     assign n_PSS_H = d_D73_p11;
     assign n_PSS_L = d_D75_p8;
-    assign n_PSTB_L = (x_D83_p27_oe | x_XS1_p72_oe) ? ((x_D83_p27_oe & x_D83_p27) | (x_XS1_p72_oe & x_XS1_p72)) : 1'b1;
+    assign n_PSTB_L = (d_D83_p27_oe | x_XS1_p72_oe) ? ((d_D83_p27_oe & d_D83_p27) | (x_XS1_p72_oe & x_XS1_p72)) : 1'b1;
     assign n_PTS_H = d_D24_p8;
     assign n_PVAK_H = d_D99_p8;
-    assign n_PVAK_L = (x_D83_p30_oe | x_XS1_p70_oe) ? ((x_D83_p30_oe & x_D83_p30) | (x_XS1_p70_oe & x_XS1_p70)) : 1'b1;
+    assign n_PVAK_L = d_D83_p30;
     assign n_PVAS_H = d_D99_p4;
-    assign n_PVAS_L = (x_D83_p29_oe | x_XS1_p69_oe) ? ((x_D83_p29_oe & x_D83_p29) | (x_XS1_p69_oe & x_XS1_p69)) : 1'b1;
+    assign n_PVAS_L = d_D83_p29;
     assign n_R = x_XP6_p13_oe ? x_XP6_p13 : 1'b1;
     assign n_R1_H = 1'b1;
     assign n_R2_H = 1'b1;
-    assign n_R3_H = (x_D65_p27_oe | x_D77_p27_oe | x_D83_p37_oe | x_D83_p38_oe) ? ((x_D65_p27_oe & x_D65_p27) | (x_D77_p27_oe & x_D77_p27) | (x_D83_p37_oe & x_D83_p37) | (x_D83_p38_oe & x_D83_p38)) : 1'b1;
+    assign n_R3_H = (x_D65_p27_oe | x_D77_p27_oe) ? ((x_D65_p27_oe & x_D65_p27) | (x_D77_p27_oe & x_D77_p27)) : 1'b1;
     assign n_R4_H = 1'b1;
     assign n_R5_H = 1'b1;
     assign n_R6_H = 1'b1;
@@ -3203,14 +3250,14 @@ module ns4 (
     assign n_R12_H = 1'b1;
     assign n_R13_H = 1'b1;
     assign n_R14_H = (x_D9_p11_oe | x_D9_p14_oe) ? ((x_D9_p11_oe & x_D9_p11) | (x_D9_p14_oe & x_D9_p14)) : 1'b1;
-    assign n_R15_H = x_D83_p32_oe ? x_D83_p32 : 1'b1;
+    assign n_R15_H = 1'b1;
     assign n_RASSH_H = d_D86_p5_oe ? d_D86_p5 : 1'b1;
     assign n_RAZR_GR_H = x_D76_p11_oe ? x_D76_p11 : 1'b1;
     assign n_RAZR_H = x_D76_p17_oe ? x_D76_p17 : 1'b1;
     assign n_RAZR_L = d_D66_p11;
     assign n_RAZR_OZU_L = d_D31_p12;
-    assign n_REZH0_H = (x_D83_p25_oe | x_XS1_p75_oe) ? ((x_D83_p25_oe & x_D83_p25) | (x_XS1_p75_oe & x_XS1_p75)) : 1'b1;
-    assign n_REZH1_H = (x_D83_p24_oe | x_XS1_p74_oe) ? ((x_D83_p24_oe & x_D83_p24) | (x_XS1_p74_oe & x_XS1_p74)) : 1'b1;
+    assign n_REZH0_H = d_D83_p25;
+    assign n_REZH1_H = d_D83_p24;
     assign n_ROOD1_L = x_D22_p24_oe ? x_D22_p24 : 1'b1;
     assign n_ROOD2_L = x_D38_p24_oe ? x_D38_p24 : 1'b1;
     assign n_RPRRT_H = d_D97_p2;
@@ -3271,7 +3318,7 @@ module ns4 (
     assign n_TS15_H = d_D91_p6;
     assign n_TS15_L = d_D31_p6;
     assign n_UPR_GR_H = x_D76_p12_oe ? x_D76_p12 : 1'b1;
-    assign n_UST_L = (x_D1_p19_oe | x_D83_p18_oe | x_XS1_p76_oe) ? ((x_D1_p19_oe & x_D1_p19) | (x_D83_p18_oe & x_D83_p18) | (x_XS1_p76_oe & x_XS1_p76)) : 1'b0;
+    assign n_UST_L = d_D83_p18;
     assign n_V = x_XP6_p15_oe ? x_XP6_p15 : 1'b1;
     assign n_VAK_L = d_D43_p11;
     assign n_VAS_L = d_D43_p6;
@@ -3458,7 +3505,7 @@ module ns4 (
     assign nx_D82_12 = x_D82_p12_oe ? x_D82_p12 : 1'b1;
     assign nx_D82_13 = x_D82_p13_oe ? x_D82_p13 : 1'b1;
     assign nx_D82_17 = x_D82_p17_oe ? x_D82_p17 : 1'b1;
-    assign nx_D83_21 = x_D83_p21_oe ? x_D83_p21 : 1'b1;
+    assign nx_D83_21 = d_D83_p21;
     assign nx_D84_6 = d_D84_p6;
     assign nx_D84_11 = d_D84_p11;
     assign nx_D86_6 = d_D86_p6_oe ? d_D86_p6 : 1'b1;
@@ -3498,5 +3545,76 @@ module ns4 (
     assign nx_VD17_1 = 1'b1;
     assign nx_XP5_3 = x_XP5_p3_oe ? x_XP5_p3 : 1'b0;
     assign nx_XP5_6 = x_XP5_p6_oe ? x_XP5_p6 : 1'b0;
-    assign contention = ($countones({d_D92_p2_oe, x_XS1_p3_oe}) > 1) | ($countones({x_D1_p5_oe, x_D9_p19_oe, x_D22_p12_oe, x_D38_p12_oe, x_D65_p10_oe, x_D76_p9_oe, x_D77_p10_oe, x_D82_p9_oe, d_D92_p5_oe, x_XS1_p4_oe}) > 1) | ($countones({x_D1_p6_oe, x_D9_p20_oe, x_D65_p9_oe, x_D76_p8_oe, x_D77_p9_oe, x_D82_p8_oe, d_D92_p6_oe, x_XS1_p5_oe}) > 1) | ($countones({x_D65_p8_oe, x_D77_p8_oe, d_D92_p9_oe, x_XS1_p6_oe}) > 1) | ($countones({x_D65_p7_oe, x_D77_p7_oe, d_D92_p12_oe, x_XS1_p7_oe}) > 1) | ($countones({x_D65_p6_oe, x_D77_p6_oe, d_D92_p15_oe, x_XS1_p8_oe}) > 1) | ($countones({x_D65_p5_oe, x_D77_p5_oe, d_D92_p16_oe, x_XS1_p9_oe}) > 1) | ($countones({x_D65_p4_oe, x_D77_p4_oe, d_D92_p19_oe, x_XS1_p10_oe}) > 1) | ($countones({x_D65_p3_oe, x_D77_p3_oe, d_D94_p2_oe, x_XS1_p11_oe}) > 1) | ($countones({x_D65_p25_oe, x_D77_p25_oe, d_D94_p5_oe, x_XS1_p12_oe}) > 1) | ($countones({x_D65_p24_oe, x_D77_p24_oe, d_D94_p6_oe, x_XS1_p13_oe}) > 1) | ($countones({x_D65_p21_oe, x_D77_p21_oe, d_D94_p9_oe, x_XS1_p14_oe}) > 1) | ($countones({x_D65_p23_oe, x_D77_p23_oe, d_D94_p12_oe, x_XS1_p15_oe}) > 1) | ($countones({x_D65_p2_oe, x_D77_p2_oe, d_D94_p15_oe, x_XS1_p16_oe}) > 1) | ($countones({d_D94_p16_oe, x_XS1_p17_oe}) > 1) | ($countones({d_D94_p19_oe, x_XS1_p18_oe}) > 1) | ($countones({x_D82_p4_oe, x_XP3_p2_oe, x_XP8_p1_oe}) > 1) | ($countones({x_D82_p3_oe, x_XP3_p3_oe, x_XP8_p2_oe}) > 1) | ($countones({x_D82_p2_oe, x_XP3_p4_oe, x_XP8_p3_oe}) > 1) | ($countones({x_D82_p1_oe, x_XP3_p5_oe, x_XP8_p4_oe}) > 1) | ($countones({x_D82_p40_oe, x_XP3_p6_oe, x_XP8_p5_oe}) > 1) | ($countones({x_D82_p39_oe, x_XP3_p7_oe, x_XP8_p6_oe}) > 1) | ($countones({x_D82_p38_oe, x_XP3_p8_oe, x_XP8_p7_oe}) > 1) | ($countones({x_D82_p37_oe, x_XP3_p9_oe, x_XP8_p8_oe}) > 1) | ($countones({x_D82_p18_oe, x_DA2_p1_oe, x_XP8_p10_oe}) > 1) | ($countones({x_D82_p19_oe, x_DA2_p2_oe, x_XP8_p11_oe}) > 1) | ($countones({x_D82_p20_oe, x_DA2_p3_oe, x_XP8_p12_oe}) > 1) | ($countones({x_D82_p21_oe, x_DA2_p4_oe, x_XP8_p13_oe}) > 1) | ($countones({x_D82_p22_oe, x_DA2_p5_oe, x_XP8_p14_oe}) > 1) | ($countones({x_D82_p23_oe, x_DA2_p6_oe, x_XP8_p15_oe}) > 1) | ($countones({x_D82_p24_oe, x_DA2_p7_oe, x_XP8_p16_oe}) > 1) | ($countones({x_D82_p25_oe, x_DA2_p8_oe, x_XP8_p17_oe}) > 1) | ($countones({x_D82_p14_oe, x_DA2_p9_oe, x_XP8_p18_oe}) > 1) | ($countones({x_D82_p15_oe, x_DA2_p10_oe, x_XP8_p19_oe}) > 1) | ($countones({x_D82_p16_oe, x_DA2_p11_oe, x_XP8_p20_oe}) > 1) | ($countones({x_D1_p34_oe, x_XP4_p26_oe}) > 1) | ($countones({x_D1_p39_oe, x_D76_p18_oe}) > 1) | ($countones({x_D38_p17_oe, x_D38_p22_oe, d_D48_p5_oe}) > 1) | ($countones({x_D1_p35_oe, x_XP4_p8_oe}) > 1) | ($countones({x_D1_p7_oe, x_D2_p2_oe, x_D9_p8_oe, x_D22_p27_oe, x_D38_p27_oe, d_D52_p18_oe, x_D65_p11_oe, x_D76_p34_oe, x_D82_p34_oe, x_D83_p17_oe, x_XS1_p35_oe}) > 1) | ($countones({x_D1_p8_oe, x_D9_p7_oe, x_D11_p2_oe, x_D22_p28_oe, x_D38_p28_oe, d_D52_p16_oe, x_D65_p12_oe, x_D76_p33_oe, x_D82_p33_oe, x_D83_p16_oe, x_XS1_p36_oe}) > 1) | ($countones({x_D1_p9_oe, x_D9_p6_oe, x_D22_p1_oe, x_D26_p2_oe, x_D38_p1_oe, d_D52_p14_oe, x_D65_p13_oe, x_D76_p32_oe, x_D82_p32_oe, x_D83_p15_oe, x_XS1_p37_oe}) > 1) | ($countones({x_D1_p10_oe, x_D9_p5_oe, x_D22_p2_oe, x_D38_p2_oe, x_D44_p2_oe, d_D52_p12_oe, x_D65_p15_oe, x_D76_p31_oe, x_D82_p31_oe, x_D83_p14_oe, x_XS1_p38_oe}) > 1) | ($countones({x_D1_p11_oe, x_D5_p2_oe, x_D9_p4_oe, x_D22_p5_oe, x_D38_p5_oe, d_D52_p9_oe, x_D65_p16_oe, x_D76_p30_oe, x_D82_p30_oe, x_D83_p13_oe, x_XS1_p39_oe}) > 1) | ($countones({x_D1_p12_oe, x_D9_p3_oe, x_D18_p2_oe, x_D22_p6_oe, x_D38_p6_oe, d_D52_p7_oe, x_D65_p17_oe, x_D76_p29_oe, x_D82_p29_oe, x_D83_p12_oe, x_XS1_p40_oe}) > 1) | ($countones({x_D1_p13_oe, x_D9_p2_oe, x_D22_p7_oe, x_D34_p2_oe, x_D38_p7_oe, d_D52_p5_oe, x_D65_p18_oe, x_D76_p28_oe, x_D82_p28_oe, x_D83_p11_oe, x_XS1_p41_oe}) > 1) | ($countones({x_D1_p14_oe, x_D9_p1_oe, x_D22_p8_oe, x_D38_p8_oe, d_D52_p3_oe, x_D53_p2_oe, x_D65_p19_oe, x_D76_p27_oe, x_D82_p27_oe, x_D83_p10_oe, x_XS1_p42_oe}) > 1) | ($countones({x_D3_p2_oe, d_D58_p18_oe, x_D77_p11_oe, x_D83_p9_oe, d_D95_p12_oe, x_XS1_p43_oe}) > 1) | ($countones({x_D12_p2_oe, d_D58_p16_oe, x_D77_p12_oe, x_D83_p7_oe, d_D95_p18_oe, x_XS1_p44_oe}) > 1) | ($countones({x_D27_p2_oe, d_D58_p14_oe, x_D77_p13_oe, x_D83_p6_oe, d_D95_p14_oe, x_XS1_p45_oe}) > 1) | ($countones({x_D45_p2_oe, d_D58_p12_oe, x_D77_p15_oe, x_D83_p5_oe, d_D95_p16_oe, x_XS1_p46_oe}) > 1) | ($countones({x_D6_p2_oe, d_D58_p9_oe, x_D77_p16_oe, x_D83_p4_oe, x_XS1_p47_oe}) > 1) | ($countones({x_D19_p2_oe, d_D58_p7_oe, x_D77_p17_oe, x_D83_p3_oe, x_XS1_p48_oe}) > 1) | ($countones({x_D35_p2_oe, d_D58_p5_oe, x_D77_p18_oe, x_D83_p2_oe, x_XS1_p49_oe}) > 1) | ($countones({x_D54_p2_oe, d_D58_p3_oe, x_D77_p19_oe, x_D83_p1_oe, x_XS1_p50_oe}) > 1) | ($countones({x_D76_p23_oe, x_XP3_p12_oe}) > 1) | ($countones({x_D83_p39_oe, d_D89_p16_oe}) > 1) | ($countones({x_D83_p28_oe, x_XS1_p71_oe}) > 1) | ($countones({x_D22_p3_oe, d_D48_p13_oe}) > 1) | ($countones({x_D38_p3_oe, d_D48_p3_oe}) > 1) | ($countones({x_D83_p31_oe, x_XS1_p77_oe}) > 1) | ($countones({x_D83_p27_oe, x_XS1_p72_oe}) > 1) | ($countones({x_D83_p30_oe, x_XS1_p70_oe}) > 1) | ($countones({x_D83_p29_oe, x_XS1_p69_oe}) > 1) | ($countones({x_D65_p27_oe, x_D77_p27_oe, x_D83_p37_oe, x_D83_p38_oe}) > 1) | ($countones({x_D9_p11_oe, x_D9_p14_oe}) > 1) | ($countones({x_D83_p25_oe, x_XS1_p75_oe}) > 1) | ($countones({x_D83_p24_oe, x_XS1_p74_oe}) > 1) | ($countones({x_D13_p16_oe, x_D76_p22_oe}) > 1) | ($countones({x_D13_p13_oe, x_D21_p13_oe}) > 1) | ($countones({x_D9_p10_oe, x_D22_p9_oe, x_D22_p25_oe}) > 1) | ($countones({x_D9_p13_oe, x_D38_p9_oe, x_D38_p25_oe}) > 1) | ($countones({x_D9_p16_oe, x_D76_p10_oe}) > 1) | ($countones({x_D1_p19_oe, x_D83_p18_oe, x_XS1_p76_oe}) > 1) | ($countones({x_XP6_p10_oe, x_XS2_p3_oe}) > 1) | ($countones({x_D76_p24_oe, x_XP3_p11_oe}) > 1) | ($countones({x_D1_p38_oe, x_D76_p19_oe}) > 1) | ($countones({x_D1_p36_oe, x_XP4_p28_oe}) > 1);
+    assign contention_at[0] = $countones({d_D92_p2_oe, x_XS1_p3_oe}) > 1;
+    assign contention_at[1] = $countones({x_D1_p5_oe, x_D9_p19_oe, x_D22_p12_oe, x_D38_p12_oe, x_D65_p10_oe, x_D76_p9_oe, x_D77_p10_oe, x_D82_p9_oe, d_D92_p5_oe, x_XS1_p4_oe}) > 1;
+    assign contention_at[2] = $countones({x_D1_p6_oe, x_D9_p20_oe, x_D65_p9_oe, x_D76_p8_oe, x_D77_p9_oe, x_D82_p8_oe, d_D92_p6_oe, x_XS1_p5_oe}) > 1;
+    assign contention_at[3] = $countones({x_D65_p8_oe, x_D77_p8_oe, d_D92_p9_oe, x_XS1_p6_oe}) > 1;
+    assign contention_at[4] = $countones({x_D65_p7_oe, x_D77_p7_oe, d_D92_p12_oe, x_XS1_p7_oe}) > 1;
+    assign contention_at[5] = $countones({x_D65_p6_oe, x_D77_p6_oe, d_D92_p15_oe, x_XS1_p8_oe}) > 1;
+    assign contention_at[6] = $countones({x_D65_p5_oe, x_D77_p5_oe, d_D92_p16_oe, x_XS1_p9_oe}) > 1;
+    assign contention_at[7] = $countones({x_D65_p4_oe, x_D77_p4_oe, d_D92_p19_oe, x_XS1_p10_oe}) > 1;
+    assign contention_at[8] = $countones({x_D65_p3_oe, x_D77_p3_oe, d_D94_p2_oe, x_XS1_p11_oe}) > 1;
+    assign contention_at[9] = $countones({x_D65_p25_oe, x_D77_p25_oe, d_D94_p5_oe, x_XS1_p12_oe}) > 1;
+    assign contention_at[10] = $countones({x_D65_p24_oe, x_D77_p24_oe, d_D94_p6_oe, x_XS1_p13_oe}) > 1;
+    assign contention_at[11] = $countones({x_D65_p21_oe, x_D77_p21_oe, d_D94_p9_oe, x_XS1_p14_oe}) > 1;
+    assign contention_at[12] = $countones({x_D65_p23_oe, x_D77_p23_oe, d_D94_p12_oe, x_XS1_p15_oe}) > 1;
+    assign contention_at[13] = $countones({x_D65_p2_oe, x_D77_p2_oe, d_D94_p15_oe, x_XS1_p16_oe}) > 1;
+    assign contention_at[14] = $countones({d_D94_p16_oe, x_XS1_p17_oe}) > 1;
+    assign contention_at[15] = $countones({d_D94_p19_oe, x_XS1_p18_oe}) > 1;
+    assign contention_at[16] = $countones({x_D82_p4_oe, x_XP3_p2_oe, x_XP8_p1_oe}) > 1;
+    assign contention_at[17] = $countones({x_D82_p3_oe, x_XP3_p3_oe, x_XP8_p2_oe}) > 1;
+    assign contention_at[18] = $countones({x_D82_p2_oe, x_XP3_p4_oe, x_XP8_p3_oe}) > 1;
+    assign contention_at[19] = $countones({x_D82_p1_oe, x_XP3_p5_oe, x_XP8_p4_oe}) > 1;
+    assign contention_at[20] = $countones({x_D82_p40_oe, x_XP3_p6_oe, x_XP8_p5_oe}) > 1;
+    assign contention_at[21] = $countones({x_D82_p39_oe, x_XP3_p7_oe, x_XP8_p6_oe}) > 1;
+    assign contention_at[22] = $countones({x_D82_p38_oe, x_XP3_p8_oe, x_XP8_p7_oe}) > 1;
+    assign contention_at[23] = $countones({x_D82_p37_oe, x_XP3_p9_oe, x_XP8_p8_oe}) > 1;
+    assign contention_at[24] = $countones({x_D82_p18_oe, x_DA2_p1_oe, x_XP8_p10_oe}) > 1;
+    assign contention_at[25] = $countones({x_D82_p19_oe, x_DA2_p2_oe, x_XP8_p11_oe}) > 1;
+    assign contention_at[26] = $countones({x_D82_p20_oe, x_DA2_p3_oe, x_XP8_p12_oe}) > 1;
+    assign contention_at[27] = $countones({x_D82_p21_oe, x_DA2_p4_oe, x_XP8_p13_oe}) > 1;
+    assign contention_at[28] = $countones({x_D82_p22_oe, x_DA2_p5_oe, x_XP8_p14_oe}) > 1;
+    assign contention_at[29] = $countones({x_D82_p23_oe, x_DA2_p6_oe, x_XP8_p15_oe}) > 1;
+    assign contention_at[30] = $countones({x_D82_p24_oe, x_DA2_p7_oe, x_XP8_p16_oe}) > 1;
+    assign contention_at[31] = $countones({x_D82_p25_oe, x_DA2_p8_oe, x_XP8_p17_oe}) > 1;
+    assign contention_at[32] = $countones({x_D82_p14_oe, x_DA2_p9_oe, x_XP8_p18_oe}) > 1;
+    assign contention_at[33] = $countones({x_D82_p15_oe, x_DA2_p10_oe, x_XP8_p19_oe}) > 1;
+    assign contention_at[34] = $countones({x_D82_p16_oe, x_DA2_p11_oe, x_XP8_p20_oe}) > 1;
+    assign contention_at[35] = $countones({x_D1_p34_oe, x_XP4_p26_oe}) > 1;
+    assign contention_at[36] = $countones({x_D1_p39_oe, x_D76_p18_oe}) > 1;
+    assign contention_at[37] = $countones({x_D38_p17_oe, x_D38_p22_oe, d_D48_p5_oe}) > 1;
+    assign contention_at[38] = $countones({x_D1_p35_oe, x_XP4_p8_oe}) > 1;
+    assign contention_at[39] = $countones({x_D1_p7_oe, x_D2_p2_oe, x_D9_p8_oe, x_D22_p27_oe, x_D38_p27_oe, d_D52_p18_oe, x_D65_p11_oe, x_D76_p34_oe, x_D82_p34_oe, d_D83_p17_oe, x_XS1_p35_oe}) > 1;
+    assign contention_at[40] = $countones({x_D1_p8_oe, x_D9_p7_oe, x_D11_p2_oe, x_D22_p28_oe, x_D38_p28_oe, d_D52_p16_oe, x_D65_p12_oe, x_D76_p33_oe, x_D82_p33_oe, d_D83_p16_oe, x_XS1_p36_oe}) > 1;
+    assign contention_at[41] = $countones({x_D1_p9_oe, x_D9_p6_oe, x_D22_p1_oe, x_D26_p2_oe, x_D38_p1_oe, d_D52_p14_oe, x_D65_p13_oe, x_D76_p32_oe, x_D82_p32_oe, d_D83_p15_oe, x_XS1_p37_oe}) > 1;
+    assign contention_at[42] = $countones({x_D1_p10_oe, x_D9_p5_oe, x_D22_p2_oe, x_D38_p2_oe, x_D44_p2_oe, d_D52_p12_oe, x_D65_p15_oe, x_D76_p31_oe, x_D82_p31_oe, d_D83_p14_oe, x_XS1_p38_oe}) > 1;
+    assign contention_at[43] = $countones({x_D1_p11_oe, x_D5_p2_oe, x_D9_p4_oe, x_D22_p5_oe, x_D38_p5_oe, d_D52_p9_oe, x_D65_p16_oe, x_D76_p30_oe, x_D82_p30_oe, d_D83_p13_oe, x_XS1_p39_oe}) > 1;
+    assign contention_at[44] = $countones({x_D1_p12_oe, x_D9_p3_oe, x_D18_p2_oe, x_D22_p6_oe, x_D38_p6_oe, d_D52_p7_oe, x_D65_p17_oe, x_D76_p29_oe, x_D82_p29_oe, d_D83_p12_oe, x_XS1_p40_oe}) > 1;
+    assign contention_at[45] = $countones({x_D1_p13_oe, x_D9_p2_oe, x_D22_p7_oe, x_D34_p2_oe, x_D38_p7_oe, d_D52_p5_oe, x_D65_p18_oe, x_D76_p28_oe, x_D82_p28_oe, d_D83_p11_oe, x_XS1_p41_oe}) > 1;
+    assign contention_at[46] = $countones({x_D1_p14_oe, x_D9_p1_oe, x_D22_p8_oe, x_D38_p8_oe, d_D52_p3_oe, x_D53_p2_oe, x_D65_p19_oe, x_D76_p27_oe, x_D82_p27_oe, d_D83_p10_oe, x_XS1_p42_oe}) > 1;
+    assign contention_at[47] = $countones({x_D3_p2_oe, d_D58_p18_oe, x_D77_p11_oe, d_D83_p9_oe, d_D95_p12_oe, x_XS1_p43_oe}) > 1;
+    assign contention_at[48] = $countones({x_D12_p2_oe, d_D58_p16_oe, x_D77_p12_oe, d_D83_p7_oe, d_D95_p18_oe, x_XS1_p44_oe}) > 1;
+    assign contention_at[49] = $countones({x_D27_p2_oe, d_D58_p14_oe, x_D77_p13_oe, d_D83_p6_oe, d_D95_p14_oe, x_XS1_p45_oe}) > 1;
+    assign contention_at[50] = $countones({x_D45_p2_oe, d_D58_p12_oe, x_D77_p15_oe, d_D83_p5_oe, d_D95_p16_oe, x_XS1_p46_oe}) > 1;
+    assign contention_at[51] = $countones({x_D6_p2_oe, d_D58_p9_oe, x_D77_p16_oe, d_D83_p4_oe, x_XS1_p47_oe}) > 1;
+    assign contention_at[52] = $countones({x_D19_p2_oe, d_D58_p7_oe, x_D77_p17_oe, d_D83_p3_oe, x_XS1_p48_oe}) > 1;
+    assign contention_at[53] = $countones({x_D35_p2_oe, d_D58_p5_oe, x_D77_p18_oe, d_D83_p2_oe, x_XS1_p49_oe}) > 1;
+    assign contention_at[54] = $countones({x_D54_p2_oe, d_D58_p3_oe, x_D77_p19_oe, d_D83_p1_oe, x_XS1_p50_oe}) > 1;
+    assign contention_at[55] = $countones({x_D76_p23_oe, x_XP3_p12_oe}) > 1;
+    assign contention_at[56] = $countones({d_D83_p28_oe, x_XS1_p71_oe}) > 1;
+    assign contention_at[57] = $countones({x_D22_p3_oe, d_D48_p13_oe}) > 1;
+    assign contention_at[58] = $countones({x_D38_p3_oe, d_D48_p3_oe}) > 1;
+    assign contention_at[59] = $countones({d_D83_p27_oe, x_XS1_p72_oe}) > 1;
+    assign contention_at[60] = $countones({x_D65_p27_oe, x_D77_p27_oe}) > 1;
+    assign contention_at[61] = $countones({x_D9_p11_oe, x_D9_p14_oe}) > 1;
+    assign contention_at[62] = $countones({x_D13_p16_oe, x_D76_p22_oe}) > 1;
+    assign contention_at[63] = $countones({x_D13_p13_oe, x_D21_p13_oe}) > 1;
+    assign contention_at[64] = $countones({x_D9_p10_oe, x_D22_p9_oe, x_D22_p25_oe}) > 1;
+    assign contention_at[65] = $countones({x_D9_p13_oe, x_D38_p9_oe, x_D38_p25_oe}) > 1;
+    assign contention_at[66] = $countones({x_D9_p16_oe, x_D76_p10_oe}) > 1;
+    assign contention_at[67] = $countones({x_XP6_p10_oe, x_XS2_p3_oe}) > 1;
+    assign contention_at[68] = $countones({x_D76_p24_oe, x_XP3_p11_oe}) > 1;
+    assign contention_at[69] = $countones({x_D1_p38_oe, x_D76_p19_oe}) > 1;
+    assign contention_at[70] = $countones({x_D1_p36_oe, x_XP4_p28_oe}) > 1;
+    assign contention = |contention_at;
 endmodule

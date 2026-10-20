@@ -47,6 +47,18 @@ endmodule
 """
 
 
+TRANSCEIVER = """// A made-up chip with one pin both driven and read.
+module k555ap6 (
+    input  logic p1, input  logic p2_in,
+    output logic p2, output logic p2_oe, output logic p3
+);
+    assign p2 = 1'b0;
+    assign p2_oe = p1;
+    assign p3 = p2_in;
+endmodule
+"""
+
+
 class Fixture:
     """A board in a temporary folder: parts, nets, treatments and chip modules."""
 
@@ -165,7 +177,7 @@ class Generate(unittest.TestCase):
         self.assertEqual(errors(problems), [])
         self.assertIn("assign n_Y = (d_D1_p18_oe | d_D2_p18_oe) ? "
                       "((d_D1_p18_oe & d_D1_p18) | (d_D2_p18_oe & d_D2_p18)) : 1'b1;", text)
-        self.assertIn("$countones({d_D1_p18_oe, d_D2_p18_oe}) > 1", text)
+        self.assertIn("assign contention_at[0] = $countones({d_D1_p18_oe, d_D2_p18_oe}) > 1;", text)
 
     def test_a_chip_with_no_module_is_brought_out(self):
         f = Fixture("D1,К555ЛН1,,14,7,14,,,\nD9,КР1807ВМ1,,40,20,40,,,\n",
@@ -177,6 +189,15 @@ class Generate(unittest.TestCase):
         self.assertIn("assign n_A = x_D9_p5_oe ? x_D9_p5 : 1'b1;", text)
         self.assertIn("assign n_B = d_D1_p2;", text)
         self.assertNotIn("x_D9_p6", text)
+
+    def test_a_pin_driven_and_read_is_both_a_driver_and_a_reader_of_its_net(self):
+        f = Fixture("D1,К555АП6,,20,10,20,,,\n", "E,D1,1,,1,\nB,D1,2,,1,\nC,D1,3,,1,\n",
+                    modules=(TRANSCEIVER,))
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn(".p2_in(n_B)", text)
+        self.assertIn(".p2(d_D1_p2)", text)
+        self.assertIn("assign n_B = d_D1_p2_oe ? d_D1_p2 : 1'b1;", text)
 
     def test_clock_goes_to_stateful_chips(self):
         f = Fixture("D1,К555ТМ2,,14,7,14,,,\n", "A,D1,2,,1,\nC,D1,3,,1,\nQ,D1,5,,1,\n",

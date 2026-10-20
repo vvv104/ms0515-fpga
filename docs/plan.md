@@ -28,7 +28,10 @@ Each stage ends with its tests green; nothing is wired before it is tested.
    КР1818ВГ93, memories - each tested against its datasheet's cycles.
 6. **The board in simulation.**  The generated board boots ROM-B to its
    prompt in Verilator; the screen compared with the emulator's frame,
-   pixel for pixel.
+   pixel for pixel.  First the power-on reset: D16 counts `АПК7 Н` of the
+   video counters (clocked by `ССИ L` of the РТ12 PROM D21) to give the
+   `СТАРТ Н` pulse, and after it no net may have two drivers on at once
+   (`contention_at` names the net).
 6b. **Disputed places decided by software.**  Every place the sources do
    not settle becomes a switchable change in `netlist/rev3a.csv` with its
    candidates (as Э3, as the copper, to pin X or Y).  The board is built
