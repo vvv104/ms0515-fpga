@@ -311,3 +311,4 @@ XT2,лепесток 7.750.008,ground lug (ОБЩИЙ),1,,,,ПЭ3 p26,
 XT3,лепесток 7.750.008,ground lug (ОБЩИЙ),1,,,,ПЭ3 p26,
 E1,перемычка,jumper (two contacts on Э3),2,,,,Э3 sheet 3,not in ПЭ3 - a pair of pads on the board
 E5,перемычка,jumper (two contacts on Э3),2,,,,Э3 sheet 3,not in ПЭ3 - a pair of pads on the board
+E6,перемычка,jumper (two contacts on Э3),2,,,,Э3 sheet 3,not in ПЭ3 - a pair of pads on the board
