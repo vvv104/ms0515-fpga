@@ -106,6 +106,30 @@ at 3.5 (the ES gives the hold against SEL1); -RAS ↑ IACK_RAS_DELAY = 6
 ticks (50 ns) after SEL1 ↓ (tRHS ≥ 45 ns).  On НС4 -VEC is `Р3 H`, held
 high: every vector is the internal one, so no IACK reads DAL.
 
+## READY
+
+A falling edge of READY while -RAS is low asks for one slip; READY
+already low when -RAS falls asks for one by itself (ES p.13), so READY
+tied low slips every read, write, IACK and DMA grant once and leaves bus
+NOPs and ASPIs alone.  A slip is one more microcycle (3T) before the data
+microcycle ends: -CAS, PI and -RAS are held, COUT pulses once more, and the
+read data and requests are taken a microcycle later (the ES READY sheet).
+On НС4 READY is `ЗАДЕРЖ L` from D98.
+
+## -BCLR
+
+While -BCLR is low the DALs are let go whatever the transaction (tDFB),
+so the board's mode drivers (D95) own them.
+
+## DMA grant
+
+Not used on НС4 (-DMR is `Р15 H`, held high), modelled for the pin's
+sake: SEL 11 and DAL, R/-WHB, R/-WLB let go at 0; -RAS ↓ at 2; -CAS ↓ at
+4.5 (tMRC); PI ↑ at 5.5; COUT in both φW; at 7 -CAS ↑ and SEL1 ↓, PI ↓
+PI_FALL_DELAY later with -DMR sampled, -RAS ↑ SEL1_RAS_DELAY later; SEL0
+↓ at 8 unless the grant goes on.  -DMR is read at every PI; the CP
+requests only in reads and ASPIs.
+
 ## Choices between the documents
 
 | Place | Chosen | Why |

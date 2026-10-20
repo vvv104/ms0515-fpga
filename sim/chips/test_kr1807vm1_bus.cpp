@@ -18,7 +18,7 @@ constexpr int kTicksPerT = 16;                  // 120 MHz master, 7.5 MHz XTL
 constexpr double kTick = 1000.0 / 120.0;        // ns
 constexpr double kT = kTick * kTicksPerT;
 
-enum Kind { NOP = 0, READ = 1, WRITE = 2, ASPI = 3, IACK = 4 };
+enum Kind { NOP = 0, READ = 1, WRITE = 2, ASPI = 3, IACK = 4, DMG = 5 };
 
 struct Request {
     Kind kind;
@@ -28,19 +28,31 @@ struct Request {
     int ack = 0;
 };
 
+// READY: left high, tied low, or one low pulse in the first transaction
+// that drops -RAS, a few ticks after it drops.
+enum class Ready { High, Low, Pulse };
+
+struct Options {
+    bool delayed = false;
+    bool pulse_cout = true;
+    Ready ready = Ready::High;
+    bool bclr = false;
+};
+
 // The pins at one master tick.
 struct Sample {
-    bool ras_n, cas_n, pi, cout, sel0, sel1, rwhb, rwlb;
+    bool ras_n, cas_n, pi, cout, sel0, sel1, rwhb, rwlb, rw_oe;
     std::uint16_t dal_oe, dal_out;
 };
 
 class Bench {
 public:
-    explicit Bench(std::vector<Request> script, bool delayed = false, bool pulse = true)
-        : script_(std::move(script))
+    explicit Bench(std::vector<Request> script, Options o = {})
+        : script_(std::move(script)), o_(o)
     {
-        m_.delayed = delayed;
-        m_.cout_pulse = pulse;
+        m_.delayed = o.delayed;
+        m_.cout_pulse = o.pulse_cout;
+        m_.bclr = o.bclr;
         for (int i = 0; i < 2 * kTicksPerT + 3; ++i)    // idle, then start off phase
             tick();
         m_.run = 1;
@@ -53,7 +65,8 @@ public:
     std::vector<int> takes;                     // tick of each transaction start
     std::map<std::uint16_t, std::uint16_t> memory{{0172000, 012700}, {01000, 0x1234}};
     std::vector<std::uint16_t> read_data;
-    std::vector<int> ai_seen;
+    std::vector<int> ai_seen;                   // the samples that count as requests
+    int pi_samples = 0;                         // every PI trailing edge (DMR)
     std::vector<std::uint16_t> vectors;
 
 private:
@@ -73,22 +86,31 @@ private:
     // -CAS and a byte strobe are low; an IACK's vector while SEL1 is high.
     void device()
     {
-        if (!m_.ras_n && ras_was_)
+        if (!m_.ras_n && ras_was_) {
             address_ = m_.dal_out;
+            ras_fell_at_ = t_;
+        }
         std::uint16_t in = 0xFFFF;
         if (!m_.ras_n && !m_.cas_n && m_.dal_oe == 0)
             in = memory[address_];
         if (m_.sel1)
             in = 0x0134;
-        if (!m_.cas_n && !(m_.rwhb && m_.rwlb)) {
+        if (!m_.cas_n && m_.rw_oe && !(m_.rwhb && m_.rwlb)) {
             std::uint16_t& w = memory[address_];
             if (!m_.rwlb) w = static_cast<std::uint16_t>((w & 0xFF00) | (m_.dal_out & 0x00FF));
             if (!m_.rwhb) w = static_cast<std::uint16_t>((w & 0x00FF) | (m_.dal_out & 0xFF00));
         }
         m_.dal_in = in;
         m_.ai_in = 0xA5;
+        m_.ready_n = 1;
+        if (o_.ready == Ready::Low)
+            m_.ready_n = 0;
+        if (o_.ready == Ready::Pulse && ras_fell_at_ != 0 && t_ >= ras_fell_at_ + 4 &&
+            t_ < ras_fell_at_ + 12 && first_pulse_)
+            m_.ready_n = 0;
+        if (o_.ready == Ready::Pulse && ras_fell_at_ != 0 && t_ == ras_fell_at_ + 12)
+            first_pulse_ = false;
         ras_was_ = m_.ras_n;
-        cas_was_ = m_.cas_n;
     }
 
     void tick()
@@ -101,23 +123,30 @@ private:
         m_.eval();
         ++t_;
         s.push_back({m_.ras_n != 0, m_.cas_n != 0, m_.pi != 0, m_.cout != 0, m_.sel0 != 0,
-                     m_.sel1 != 0, m_.rwhb != 0, m_.rwlb != 0, m_.dal_oe, m_.dal_out});
+                     m_.sel1 != 0, m_.rwhb != 0, m_.rwlb != 0, m_.rw_oe != 0, m_.dal_oe,
+                     m_.dal_out});
         if (m_.take) {
             takes.push_back(static_cast<int>(s.size()) - 1);
             present(++taken_);
         }
         if (m_.data_valid) read_data.push_back(m_.data);
-        if (m_.ai_valid) ai_seen.push_back(m_.ai);
+        if (m_.ai_valid) {
+            ++pi_samples;
+            if (m_.ai_requests) ai_seen.push_back(m_.ai);
+        }
         if (m_.vector_valid) vectors.push_back(m_.data);
     }
 
     std::unique_ptr<Vkr1807vm1_bus> model_ = std::make_unique<Vkr1807vm1_bus>();
     Vkr1807vm1_bus& m_ = *model_;
     std::vector<Request> script_;
+    Options o_;
     std::size_t taken_ = 0;
     std::uint64_t t_ = 0;
+    std::uint64_t ras_fell_at_ = 0;
     std::uint16_t address_ = 0;
-    bool ras_was_ = true, cas_was_ = true;
+    bool ras_was_ = true;
+    bool first_pulse_ = true;
 };
 
 using Pin = bool Sample::*;
@@ -131,6 +160,8 @@ int edge(const Bench& b, int from, Pin pin, bool level)
             return t;
     return -1;
 }
+
+const Sample& at(const Bench& b, int t) { return b.s[static_cast<std::size_t>(t)]; }
 
 // The ticks of one read or write transaction's edges.
 struct Edges {
@@ -210,6 +241,7 @@ TEST_CASE("КР1807ВМ1 bus: a fetch, a read and a write in a row")
     CHECK(b.read_data == std::vector<std::uint16_t>{012700, 0x1234, 0xBEEF});
     CHECK(b.memory[01004] == 0x005A);
     CHECK(b.ai_seen == std::vector<int>{0xA5, 0xA5, 0xA5});
+    CHECK(b.pi_samples == 5);                   // DMR is read at the writes' PI too
 
     for (std::size_t i = 0; i < 5; ++i) {
         CAPTURE(i);
@@ -220,10 +252,10 @@ TEST_CASE("КР1807ВМ1 bus: a fetch, a read and a write in a row")
     }
     // the fetch flag: SEL0 from the address to PI
     const Edges f = edges_of(b, 0);
-    CHECK(b.s[static_cast<std::size_t>(f.addr)].sel0);
+    CHECK(at(b, f.addr).sel0);
     AT_LEAST("tFFR", f.addr, f.ras_fall, kT - 23);
     AT_LEAST("tSSF", f.addr, edge(b, f.addr, &Sample::sel0, false), 3 * kT - 38);
-    CHECK(!b.s[static_cast<std::size_t>(edges_of(b, 1).addr)].sel0);
+    CHECK(!at(b, edges_of(b, 1).addr).sel0);
 }
 
 TEST_CASE("КР1807ВМ1 bus: a read lets DAL go at -CAS and takes the data at its rise")
@@ -231,9 +263,9 @@ TEST_CASE("КР1807ВМ1 bus: a read lets DAL go at -CAS and takes the data at i
     Bench b({{READ, 01000}});
     const Edges e = edges_of(b, 0);
     for (int t = e.addr; t < e.cas_fall; ++t)
-        CHECK(b.s[static_cast<std::size_t>(t)].dal_oe == 0xFFFF);
+        CHECK(at(b, t).dal_oe == 0xFFFF);
     for (int t = e.cas_fall; t < e.next; ++t)
-        CHECK(b.s[static_cast<std::size_t>(t)].dal_oe == 0);
+        CHECK(at(b, t).dal_oe == 0);
     AT_LEAST("tDHR", e.ras_fall, e.cas_fall, kT - 12);
     CHECK(b.read_data == std::vector<std::uint16_t>{0x1234});
 }
@@ -245,7 +277,7 @@ TEST_CASE("КР1807ВМ1 bus: a write in normal mode")
     const int rw_fall = edge(b, e.addr, &Sample::rwlb, false);
     const int rw_rise = edge(b, rw_fall, &Sample::rwlb, true);
     const int data_on = e.cas_fall;
-    CHECK(b.s[static_cast<std::size_t>(data_on)].dal_out == 0xCAFE);
+    CHECK(at(b, data_on).dal_out == 0xCAFE);
     CHECK(rw_fall == e.addr);
     AT_LEAST("tNSR", rw_fall, e.ras_fall, kT - 78);
     AT_LEAST("tNSC", rw_fall, e.cas_fall, 2 * kT - 37);
@@ -265,7 +297,8 @@ TEST_CASE("КР1807ВМ1 bus: a write in normal mode")
     AT_LEAST("tWHP", e.pi_fall, e.next, kT - 88);
     AT_LEAST("tWHR", e.ras_rise, e.next, kT - 118);
     CHECK(b.memory[01000] == 0xCAFE);
-    CHECK(b.ai_seen.empty());                   // a write does not sample requests
+    CHECK(b.ai_seen.empty());                   // a write's PI counts for DMR only
+    CHECK(b.pi_samples == 1);
 }
 
 TEST_CASE("КР1807ВМ1 bus: byte writes strobe one half")
@@ -276,7 +309,9 @@ TEST_CASE("КР1807ВМ1 bus: byte writes strobe one half")
 
 TEST_CASE("КР1807ВМ1 bus: delayed R/W strobes with -CAS")
 {
-    Bench b({{WRITE, 01000, 0xCAFE, 3}}, true);
+    Options o;
+    o.delayed = true;
+    Bench b({{WRITE, 01000, 0xCAFE, 3}}, o);
     const Edges e = edges_of(b, 0);
     CHECK(edge(b, e.addr, &Sample::rwlb, false) == e.cas_fall);
     CHECK(edge(b, e.cas_fall, &Sample::rwlb, true) == e.cas_rise);
@@ -289,7 +324,7 @@ TEST_CASE("КР1807ВМ1 bus: a bus NOP is 3T with no strobes and one COUT pulse
     CHECK(b.takes[1] - b.takes[0] == 3 * kTicksPerT);
     CHECK(b.takes[2] - b.takes[1] == 3 * kTicksPerT);
     for (int t = b.takes[0]; t < b.takes[2]; ++t) {
-        const Sample& x = b.s[static_cast<std::size_t>(t)];
+        const Sample& x = at(b, t);
         CHECK((x.ras_n && x.cas_n && !x.pi && !x.sel0 && !x.sel1 && x.rwhb && x.rwlb));
     }
     const int rise = edge(b, b.takes[0], &Sample::cout, true);
@@ -308,7 +343,7 @@ TEST_CASE("КР1807ВМ1 bus: ASPI pulses -CAS and PI without -RAS and samples t
     AT_LEAST("tCSP", cas_fall, pi_rise, kT - 28);
     CHECK(edge(b, t0, &Sample::ras_n, false) < 0);
     CHECK(b.ai_seen == std::vector<int>{0xA5});
-    CHECK(b.s[static_cast<std::size_t>(t0)].dal_oe == 0);
+    CHECK(at(b, t0).dal_oe == 0);
 }
 
 TEST_CASE("КР1807ВМ1 bus: IACK shows the request and reads the vector at SEL1 falling")
@@ -319,9 +354,9 @@ TEST_CASE("КР1807ВМ1 bus: IACK shows the request and reads the vector at SEL
     const int sel1_fall = edge(b, t0, &Sample::sel1, false);
     const int ras_fall = edge(b, t0, &Sample::ras_n, false);
     const int ras_rise = edge(b, ras_fall, &Sample::ras_n, true);
-    CHECK(b.s[static_cast<std::size_t>(t0)].sel1);
-    CHECK(b.s[static_cast<std::size_t>(t0)].dal_out == 0x0A00);
-    CHECK(b.s[static_cast<std::size_t>(t0)].dal_oe == 0xFF00);
+    CHECK(at(b, t0).sel1);
+    CHECK(at(b, t0).dal_out == 0x0A00);
+    CHECK(at(b, t0).dal_oe == 0xFF00);
     AT_LEAST("tKKR", t0, ras_fall, kT - 63);
     AT_LEAST("tDSR", t0, ras_fall, kT - 48);
     AT_LEAST("tKRP", ras_fall, ras_rise, 2 * kT + 35);
@@ -334,10 +369,76 @@ TEST_CASE("КР1807ВМ1 bus: IACK shows the request and reads the vector at SEL
 
 TEST_CASE("КР1807ВМ1 bus: constant COUT is the clock divided by two")
 {
-    Bench b({{NOP}, {NOP}}, false, false);
+    Options o;
+    o.pulse_cout = false;
+    Bench b({{NOP}, {NOP}}, o);
     const int r1 = edge(b, b.takes[0], &Sample::cout, true);
     const int f1 = edge(b, r1, &Sample::cout, false);
     const int r2 = edge(b, f1, &Sample::cout, true);
     CHECK(f1 - r1 == kTicksPerT);
     CHECK(r2 - r1 == 2 * kTicksPerT);
+}
+
+TEST_CASE("КР1807ВМ1 bus: one READY pulse slips a read by one microcycle")
+{
+    Options o;
+    o.ready = Ready::Pulse;
+    Bench b({{READ, 01000}, {READ, 01000}}, o);
+    CHECK(b.takes[1] - b.takes[0] == 9 * kTicksPerT);
+    CHECK(b.takes[2] - b.takes[1] == 6 * kTicksPerT);
+    const Edges e = edges_of(b, 0);
+    CHECK(e.cas_rise - e.cas_fall == static_cast<int>(2.5 * kTicksPerT) + 3 * kTicksPerT);
+    CHECK(edge(b, e.cout_fall2, &Sample::cout, true) < e.next);    // a COUT pulse in the slip
+    check_strobes(e);
+    CHECK(b.read_data == std::vector<std::uint16_t>{0x1234, 0x1234});
+}
+
+TEST_CASE("КР1807ВМ1 bus: READY tied low slips every access once, not a NOP or an ASPI")
+{
+    Options o;
+    o.ready = Ready::Low;
+    Bench b({{WRITE, 01000, 0x4321}, {NOP}, {ASPI}, {IACK}, {READ, 01000}}, o);
+    CHECK(b.takes[1] - b.takes[0] == 9 * kTicksPerT);
+    CHECK(b.takes[2] - b.takes[1] == 3 * kTicksPerT);
+    CHECK(b.takes[3] - b.takes[2] == 4 * kTicksPerT);
+    CHECK(b.takes[4] - b.takes[3] == 7 * kTicksPerT);
+    CHECK(b.takes[5] - b.takes[4] == 9 * kTicksPerT);
+    CHECK(b.read_data == std::vector<std::uint16_t>{0x4321});
+}
+
+TEST_CASE("КР1807ВМ1 bus: -BCLR lets DAL go whatever the transaction")
+{
+    Options o;
+    o.bclr = true;
+    Bench b({{READ, 01000}, {WRITE, 01000, 1}, {NOP}}, o);
+    for (int t = b.takes[0]; t < b.takes[3]; ++t)
+        CHECK(at(b, t).dal_oe == 0);
+}
+
+TEST_CASE("КР1807ВМ1 bus: a DMA grant: SEL 11, DAL and R/W let go, the strobes for the master")
+{
+    Bench b({{DMG}, {READ, 01000}});
+    const int t0 = b.takes[0];
+    CHECK(b.takes[1] - t0 == 8 * kTicksPerT);
+    const int ras_fall = edge(b, t0, &Sample::ras_n, false);
+    const int cas_fall = edge(b, t0, &Sample::cas_n, false);
+    const int pi_rise = edge(b, t0, &Sample::pi, true);
+    const int sel1_fall = edge(b, t0, &Sample::sel1, false);
+    const int ras_rise = edge(b, ras_fall, &Sample::ras_n, true);
+    CHECK(at(b, t0).sel0);
+    CHECK(at(b, t0).sel1);
+    CHECK(!at(b, t0).rw_oe);
+    for (int t = t0; t < b.takes[1]; ++t)
+        CHECK(at(b, t).dal_oe == 0);
+    AT_LEAST("tSFR", t0, ras_fall, 2 * kT - 23);
+    AT_LEAST("tSKR", t0, ras_fall, 2 * kT - 63);
+    AT_LEAST("tMRC", ras_fall, cas_fall, 2 * kT + 10);
+    AT_LEAST("tCSP", cas_fall, pi_rise, kT - 28);
+    AT_LEAST("tMRP", ras_fall, ras_rise, 5 * kT + 35);
+    AT_LEAST("tMSF", t0, edge(b, t0, &Sample::sel0, false), 8 * kT - 38);
+    AT_LEAST("tMSK", t0, sel1_fall, 7 * kT - 68);
+    AT_LEAST("tRHS", sel1_fall, ras_rise, 45);
+    AT_LEAST("tDSE", sel1_fall, b.takes[1], kT - 27);
+    CHECK(b.ai_seen.size() == 1);               // the read's; the grant's PI is for DMR
+    CHECK(b.pi_samples == 2);
 }

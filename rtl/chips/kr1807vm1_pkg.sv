@@ -6,4 +6,5 @@ package kr1807vm1_pkg;
     localparam logic [2:0] BUS_WRITE = 3'd2;   // 6T
     localparam logic [2:0] BUS_ASPI  = 3'd3;   // 4T: -CAS and PI, requests sampled
     localparam logic [2:0] BUS_IACK  = 3'd4;   // 4T: SEL1, -RAS, vector read
+    localparam logic [2:0] BUS_DMG   = 3'd5;   // 8T: a DMA grant, SEL 11, DAL let go
 endpackage
