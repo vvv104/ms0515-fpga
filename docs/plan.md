@@ -22,6 +22,9 @@ Each stage ends with its tests green; nothing is wired before it is tested.
 6. **The board in simulation.**  The generated board boots ROM-B to its
    prompt in Verilator; the screen compared with the emulator's frame,
    pixel for pixel.
+6a. **The memory expansion module** (RAM disk + two RS-232C) the same
+   way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
+   of its own, its chips as modules, wired to the board's XS1.
 7. **The FPGA.**  Tang Nano 20K: master clock, RAM in the on-chip SDRAM,
    HDMI out, disk images from the SD card, the keyboard line on a pin
    (the PC first, a real МС 7004 later).

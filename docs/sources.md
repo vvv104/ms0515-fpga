@@ -35,7 +35,8 @@ traced into this repository, **want** = known to exist, not yet obtained.
 | Cables `4.854.127..131 Э3` | not found yet | want |
 | МС 7004 keyboard: schematic, ТО, firmware | `scans/ps-kb.rar`, `kbms7004.djvu`; firmware in the emulator's `src/assets` | have |
 | Floppy drive (НГМД) documentation | `scans/ngmd-nmd.rar` | have |
-| Memory expansion module | `Модуль расширения запоминающего устройства 0515.zip`, `docs/ext/` | have |
+| Memory expansion module («Модуль расширения ЗУ и интерфейсов»: 512 KB of КР565РУ7Г as a RAM disk + two RS-232C) - its description, element list (D1..D35, R1..R27, G1 5.0688 MHz, XP1 to the board's XS1) and **connection tables** (`l1..l6_1.doc.txt`, cp1251) - a netlist in table form, no schematic needed | `Модуль расширения запоминающего устройства 0515.zip` (anasana, zx-pk 15146 p16 #154), `docs/ext/` | have |
+| Photos of the owner's RAM-disk board | `photos/known-machines/0_d4979_65e0bd2a_XXXL.jpg`, `0_d497a_ec95e9c1_XXXL.jpg` | have |
 | ROM-A / ROM-B images and listings | `docs/ms0515-roma.*`, `docs/ms0515-romb.*` | have |
 | Factory documentation inventory | ms0515-software `refs/docs-inventory.md` | read |
 
