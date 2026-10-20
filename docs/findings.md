@@ -179,6 +179,16 @@ one runs to pin 3 of the next КР1533ТМ2 past one ЛР11 (D17, D25 = ЛР11,
 D33), the other runs long and down with several bends: the patch
 D17.3/D33.3 - D47.5 of the drawing, as built.
 
+A thin bare wire on the owner's board, not on the assembly drawing (found
+by the owner, 2026-10-20): it runs under the three resistors left of D70
+(R24, R25, R26 - their upper ends are on ~D51.1, ~D57.1 and `ВК2 Н` in
+the copper) from a pad below them that no drawn copper reaches (a plane
+or an inner layer) to D70's pin row, where the white wire D98.3-D70.11
+lands too - within one pin on the photo.  D70 (К555КП11) has its fourth
+section (pins 12-14) unused and its inputs open on Э3; a bare wire
+tying them to a plane is the usual fix, which would make it harmless.
+Which pin and which plane is open - not in the netlist.
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
