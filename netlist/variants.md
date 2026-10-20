@@ -12,11 +12,20 @@ ROM pair, the switch SA1 and the jumpers E3/E4.
 
 The ROMs are К573РФ4Б programmed per `0.348.422-04ТУ`.
 
-- **SA1** (switch k joins pins k and 21-k) routes the socket XS2: the odd
-  set (1, 3, 5, 7, 9) carries +12V, the keyboard's line out (`ВЫХКЛ L`),
-  its line in (`ВХКЛ L`), the cassette read through E8... see
-  `nets.csv` sheet 1; the even set the cassette and the С2 line - so the
-  odd builds are the МС 7004 keyboard machines, the even ones the МС 7007.
+- **SA1** (switch k joins pins k and 21-k) decides what the socket XS2
+  carries:
+
+  | XS2 | odd set closed (1, 3, 5, 7, 9) | even set closed (2, 4, 6, 8, 10) |
+  |---|---|---|
+  | 1 | +12V | `ЗАП МАГ Н` (cassette write) |
+  | 2 | `ВЫХКЛ L` (line to the keyboard) | GND |
+  | 3 | `ВХКЛ L` (line from the keyboard) | `ЧТМАГ Н` through E7 |
+  | 4 | GND | `ВЫХКЛ L` |
+  | 5 | `СТЫК С2 108` | `ЧТМАГ Н` through E8 |
+
+  So the odd builds put the МС 7004 keyboard (power and its serial line)
+  on XS2; the even builds, fitted with the 7007 ROMs, put the cassette
+  recorder there.
 - **E3 / E4** tie `РВК1 Н` or `РВК0 Н` to ground: they pick the sync PROMs'
   page, i.e. the video timing variant.
 - The sheet's note: «Перемычки E1, E2, E3, E4, E5, E7, E8 выполнены
