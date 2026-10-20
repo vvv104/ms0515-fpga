@@ -146,11 +146,30 @@ traced so far joins pins that Э3 puts on one net and the copper does not:
 |---|---|---|
 | D13.1 - D84.4 | `АПК7 Н` | D13.1 with D36.11; D84.4 alone |
 | D17.3 / D33.3 - D47.5 | `ИМП ЧТ Н` | D17.3 with D33.3; D47.5 alone |
-| D15.9 - D40.9 | `ТС8М L` | D40.9 with D16.1 (the E1 side) - so a cut there too |
-| D98.3 - (towards D70.11) | `СТРОБ Н` | D98.3 with D30.15/D37.7/D42.7 - so a cut there too |
+| D15.9 - D40.9 | `ТС8М L` | D40.9 with D16.1 by my copper read - doubtful, see below |
+| D98.3 - D70.11 | `СТРОБ Н` | D98.3 with D30.15/D37.7/D42.7 by my copper read - doubtful, see below |
 
-So **Э3 is the patched board**: the copper had errors, the patches (and
-cuts) fix them, and Э3 was drawn after.  This settles three of the six
+The drawing's own notes (page 27, the text block beside the title, read
+2026-10-20) say how: note 11 «Поднять ножки микросхем D84/4, D17/3,
+D33/3» - those three pins are lifted off their pads and go to the wires
+only.  No track cuts are noted anywhere.  So:
+
+- D84.4, D17.3, D33.3: lifted and rewired - exactly the copper/Э3
+  differences there;
+- D40.9 and D98.3 get a wire **without** a lift or a cut.  If the copper
+  joined D40.9 to D16.1 (the E1 side) and D98.3 to the ~D30.15 run, as
+  my reading of Mick's traces says, the wires would short two outputs.
+  So those two copper reads are the doubtful ones (like the D77.27 case,
+  a run passing a ring), not the board: these places are closed in Э3's
+  favour.
+- The wire D98.3 is drawn as a long polyline along the bottom and up the
+  right side; its far end is taken to be D70.11 (`СТРОБ Н`, the only
+  other pin-numbered end on that route).  Another stepped polyline in the
+  column D17..D65 has no pin numbers at its ends - an outline or a wire,
+  not settled.
+
+So **Э3 is the patched board**: the copper had errors, the patches fix
+them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
 `ИМП ЧТ` and `АПК7` splits) - in Э3's favour.  `rev3a.csv` loses its
 D40.9 entry: the copper there is the unpatched state, not the machine.
