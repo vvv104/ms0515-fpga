@@ -4,17 +4,19 @@
     python tools/footprints.py
 
 A DIP is two horizontal rows of N/2 pads at the 2.5 mm pitch (39.4 px),
-7.5 mm (118 px) or 15 mm (236 px) apart, pin 1 at the lower left (the
-notch to the left, as the parts sit on the assembly drawing 3.858.420 СБ).
+7.5 mm (118 px) or 15 mm (236 px) apart.  Pin 1 is at the upper right:
+the assembly drawing 3.858.420 СБ marks it there on every part (the parts
+stand notch to the right), so the upper row runs 1..N/2 right to left and
+the lower row N/2+1..N left to right.
 
 On НС4 the parts of a row stand end to end at one pitch, so their pad
 rows run on without a break; the power pins split them.  The four layer
 images show no plane, and the pins that go only to a plane are the ones no
-drawn copper reaches: in every 7.5 mm part here the power pins are the
-last of the lower row and the first of the upper one (7/14, 8/16, 9/18,
-10/20, 4/8).  So a run of paired pads is cut into parts whose lower right
-and upper left pads are such "plane" pads - the cut that covers the most
-pads wins.  15 mm parts (ВВ51, ВВ55, ВИ53, ВГ93, the ROMs, the processor)
+drawn copper reaches: in every 7.5 mm part here the power pins sit at the
+upper left and the lower right corner (7/14, 8/16, 9/18, 10/20, 4/8) -
+which says where a part ends, not which way it faces.  So a run of paired
+pads is cut into parts whose corners are such "plane" pads - the cut that
+covers the most pads wins.  15 mm parts (ВВ51, ВВ55, ВИ53, ВГ93, the ROMs, the processor)
 are taken where the run has exactly their length.
 Writes netlist/footprints.json: pin count, the pad of every pin, the box.
 """
@@ -67,7 +69,7 @@ class Board:
 def make(board, run, i, h):
     lower = [run[k][0] for k in range(i, i + h)]
     upper = [run[k][1] for k in range(i, i + h)]
-    pins = lower + list(reversed(upper))
+    pins = list(reversed(upper)) + lower
     xs = [float(board.pads[p][0]) for p in pins]
     ys = [float(board.pads[p][1]) for p in pins]
     return {"pins": 2 * h, "pads": [int(p) for p in pins],
