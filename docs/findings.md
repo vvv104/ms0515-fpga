@@ -213,6 +213,12 @@ bare wire from GND to D70.15 enables D70 always - the pixel strobes
      chip's orientation - then D70.15 on `ЧТ ВЗУ Н`.
 b) changes only the border picture; the frame comparison will tell.
 
+Settled the same day: the owner sees **D70 pin 15 lifted** off its pad.
+So b) it is - D70.15 off `~D14.3` and on GND, D14.3 still driving D74.1;
+in `rev3a.csv`.  Not on the assembly drawing and not on the leningrad.su
+board as far as its photo shows: a later fix, most likely made by the
+plant with the RAM-disk upgrade.
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the

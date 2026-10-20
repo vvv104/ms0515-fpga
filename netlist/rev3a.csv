@@ -2,5 +2,7 @@
 # the copper or a photo shows it beyond doubt AND the factory wire patches
 # (drawn on the assembly drawing 3.858.420 СБ) do not already bring the
 # board back to Э3; everything uncertain stays by Э3 and is listed in
-# docs/findings.md.  Empty: the patches traced so far all restore Э3.
+# docs/findings.md.  The factory patches traced so far all restore Э3;
+# what is here is on the owner's board only.
 ref,pin,from_net,to_net,evidence
+D70,15,~D14.3,GND,"owner's board photo MC 0515 04 (read by the owner 2026-10-20): pin 15 of D70 is lifted off its pad and a bare wire ties it to D57.10 (GND); not on the assembly drawing - a later fix. D70 (strobe mux) is then always enabled; D14.3 still drives D74.1"

@@ -29,8 +29,9 @@ Each stage ends with its tests green; nothing is wired before it is tested.
    ОСА with the RAM disk, floppy writes, Rodionov's system on ROM-A - frame
    by frame against the emulator.  A wrong candidate breaks something; if
    none does, the place does not matter to the machine and is marked so.
-   First candidate: the bare wire on the owner's board, GND (D57.10) to
-   D70.15 - see `docs/findings.md`; the factory wires all match Э3.
+   No candidate open: the bare wire on the owner's board (GND to
+   the lifted D70.15) is settled into `rev3a.csv`; the factory wires all
+   match Э3.
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
