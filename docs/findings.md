@@ -58,3 +58,18 @@ decided it.
   therefore not the machine: the patches on the assembly drawing
   (3.858.420 СБ, page 27) and on photos of real boards are to be read and
   added to the netlist as wires.
+
+## The copper against the schematic: first pass (Mick's traces)
+
+`tools/compare.py` lays the 103 DIP parts on the pads of Mick's layer
+traces (pin 1 upper right, confirmed by the square pin-1 pads of the 3А
+scans) and checks every schematic net.  Nine places come out where the
+traces join pins the schematic keeps apart, e.g. D9.19 (A0, `АД01`) with
+D1.6 (A1, `АД02`), or D65.2 (A12, `АД13`) with D77.27 (PGM, `Р3`).
+Looking at them on the 3А scans warped onto the traces
+(`tools/register.py`, ~2 px), the one checked so far is the traces': the
+layer-8 run from D65.2 passes beside the ring of D77.27 with a nub, while
+Mick's line ends on it.  So a join in the traces is a question for the
+scans, not a finding against the schematic; each of the nine is to be
+looked at on the scans, and the inner-layer runs (2, 7) can be judged
+there only partly - they show through the laminate under the rings.
