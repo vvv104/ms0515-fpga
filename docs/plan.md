@@ -14,6 +14,13 @@ Each stage ends with its tests green; nothing is wired before it is tested.
    instruction.
 3. **Small-scale chips.**  One module per К555/К1533/К531 type used on the
    board, each with its function-table test.
+3a. **The board from the netlist.**  `tools/board.py` writes
+   `rtl/board/ns4.sv`: the chips with a module as instances, the others
+   and the connectors brought out as ports for the test bench, every net
+   resolved from its drivers and a board output; every analog part decided
+   in `netlist/analog.csv` (`docs/analog.md`).  Tested on made-up boards,
+   then the real one: the clock nets from the two crystals, no contention.
+   Each later module moves its chip inside.
 4. **КР1807ВМ1.**  Pin-level T-11 from the Engineering Specification:
    microcycles, bus timing, interrupt sampling; tested by single
    instructions, then in lockstep with the emulator's CPU.

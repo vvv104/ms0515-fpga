@@ -1,0 +1,251 @@
+"""The board generator, on small boards made up for each case."""
+import os
+import sys
+import tempfile
+import unittest
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+import board  # noqa: E402
+
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+
+INVERTER = """// К555ЛН1 (74LS04): six inverters.
+module k555ln1 (
+    input  logic p1, output logic p2,
+    input  logic p3, output logic p4
+);
+    assign p2 = ~p1;
+    assign p4 = ~p3;
+endmodule
+"""
+OC_INVERTER = """// К555ЛН2 (74LS05): six inverters, open-collector outputs.
+module k555ln2 (
+    input  logic p1, output logic p2
+);
+    assign p2 = ~p1;
+endmodule
+"""
+BUFFER = """// К555АП5 (74LS244): buffers, three-state.
+module k555ap5 (
+    input  logic p1, input  logic p2,
+    output logic p18, output logic p18_oe
+);
+    assign p18 = p2;
+    assign p18_oe = ~p1;
+endmodule
+"""
+FLOP = """// К555ТМ2 (74LS74): a D flip-flop.
+module k555tm2 (
+    input  logic clk,
+    input  logic p2, input  logic p3,
+    output logic p5
+);
+    logic q;
+    always_ff @(posedge clk) if (p3) q <= p2;
+    assign p5 = q;
+endmodule
+"""
+
+
+class Fixture:
+    """A board in a temporary folder: parts, nets, treatments and chip modules."""
+
+    def __init__(self, parts, nets, analog="", modules=(INVERTER,)):
+        self.dir = tempfile.TemporaryDirectory()
+        d = self.dir.name
+        os.makedirs(os.path.join(d, "chips"))
+        self.write("parts.csv", "ref,type,value,pins,gnd,vcc,vcc12,source,note\n" + parts)
+        self.write("pinouts.csv", "type,pin,name,source\n")
+        self.write("nets.csv", "net,ref,pin,pin_name,sheet,note\n" + nets)
+        self.write("analog.csv", "ref,treatment,pins,reason\n" + analog)
+        for text in modules:
+            name = text.split("module ")[1].split(" ")[0]
+            self.write(os.path.join("chips", name + ".sv"), text)
+
+    def write(self, name, text):
+        with open(os.path.join(self.dir.name, name), "w", encoding="utf-8") as f:
+            f.write(text)
+
+    def generate(self):
+        with self.dir as d:
+            return board.generate(board.Sources(
+                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+                nets=os.path.join(d, "nets.csv"), changes=None,
+                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips")))
+
+
+def errors(problems):
+    return [p.text for p in problems if p.error]
+
+
+class Names(unittest.TestCase):
+    def test_identifiers_are_transliterated(self):
+        self.assertEqual(board.ident("ТС8М L"), "n_TS8M_L")
+        self.assertEqual(board.ident("~D15.13"), "nx_D15_13")
+        self.assertEqual(board.ident("СТЫК С2 103"), "n_STYK_S2_103")
+        self.assertEqual(board.ident("ЧТМАГ H"), "n_CHTMAG_H")
+
+    def test_module_name_drops_the_grade_letter(self):
+        self.assertEqual(board.module_name("К555ЛА3"), "k555la3")
+        self.assertEqual(board.module_name("К554СА3А"), "k554sa3")
+        self.assertEqual(board.module_name("КР580ВВ55А"), "kr580vv55")
+        self.assertEqual(board.module_name("КР1807ВМ1"), "kr1807vm1")
+
+    def test_chip_types(self):
+        for t in ("К555ЛА3", "КР1102АП15", "КР565РУ5Г", "К573РФ4Б"):
+            self.assertTrue(board.is_chip(t), t)
+        for t in ("К10-17-2б-Н90", "К53-14", "КД522Б", "КС133А", "КТ676АС", "С1-4", "КМ-6Б-Н90"):
+            self.assertFalse(board.is_chip(t), t)
+
+
+class Ports(unittest.TestCase):
+    def test_ports_and_open_collector(self):
+        with tempfile.TemporaryDirectory() as d:
+            for text in (INVERTER, OC_INVERTER):
+                name = text.split("module ")[1].split(" ")[0]
+                with open(os.path.join(d, name + ".sv"), "w", encoding="utf-8") as f:
+                    f.write(text)
+            modules = board.load_modules(d)
+        self.assertEqual(modules["k555ln1"].ports, {"p1": "input", "p2": "output",
+                                                     "p3": "input", "p4": "output"})
+        self.assertFalse(modules["k555ln1"].open_collector)
+        self.assertTrue(modules["k555ln2"].open_collector)
+
+
+class Generate(unittest.TestCase):
+    def test_a_chain_of_inverters(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\n",
+                    "A,D1,1,,1,\nB,D1,2,,1,\nB,D1,3,,1,\nC,D1,4,,1,\n")
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("k555ln1 D1 (", text)
+        self.assertIn(".p1(n_A)", text)
+        self.assertIn(".p2(d_D1_p2)", text)
+        self.assertIn("assign n_B = d_D1_p2;", text)
+        self.assertIn("output logic n_C", text)
+
+    def test_an_input_nobody_drives_reads_high_and_is_reported(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\n", "A,D1,1,,1,\nB,D1,2,,1,\n")
+        text, problems = f.generate()
+        self.assertIn("assign n_A = 1'b1;", text)
+        self.assertTrue(any("'A'" in p.text and "nothing drives" in p.text for p in problems))
+
+    def test_an_unconnected_input_is_tied_high_and_an_output_gets_its_own_net(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\n", "A,D1,1,,1,\nB,D1,2,,1,\n")
+        text, _ = f.generate()
+        self.assertIn(".p3(1'b1)", text)
+        self.assertIn("output logic nx_D1_4", text)
+
+    def test_power_nets_are_constants(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\n", "GND,D1,1,,1,\nB,D1,2,,1,\n+5V,D1,3,,1,\n")
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn(".p1(1'b0)", text)
+        self.assertIn(".p3(1'b1)", text)
+
+    def test_two_outputs_on_one_net_is_an_error(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\n", "B,D1,2,,1,\nB,D1,4,,1,\n")
+        _, problems = f.generate()
+        self.assertTrue(any("two outputs" in e for e in errors(problems)))
+
+    def test_open_collectors_and_with_their_pull_up(self):
+        f = Fixture("D1,К555ЛН2,,14,7,14,,,\nD2,К555ЛН2,,14,7,14,,,\nR1,С1-4,1 кОм,2,,,,,\n",
+                    "A,D1,1,,1,\nB,D2,1,,1,\nW,D1,2,,1,\nW,D2,2,,1,\nW,R1,1,,1,\n+5V,R1,2,,1,\n",
+                    modules=(OC_INVERTER,))
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("assign n_W = d_D1_p2 & d_D2_p2;", text)
+
+    def test_three_state_drivers_resolve_with_the_pull_and_flag_contention(self):
+        f = Fixture("D1,К555АП5,,20,10,20,,,\nD2,К555АП5,,20,10,20,,,\nR1,С1-4,1 кОм,2,,,,,\n",
+                    "E1,D1,1,,1,\nE2,D2,1,,1,\nA,D1,2,,1,\nA,D2,2,,1,\n"
+                    "Y,D1,18,,1,\nY,D2,18,,1,\nY,R1,1,,1,\n+5V,R1,2,,1,\n",
+                    modules=(BUFFER,))
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("assign n_Y = (d_D1_p18_oe | d_D2_p18_oe) ? "
+                      "((d_D1_p18_oe & d_D1_p18) | (d_D2_p18_oe & d_D2_p18)) : 1'b1;", text)
+        self.assertIn("$countones({d_D1_p18_oe, d_D2_p18_oe}) > 1", text)
+
+    def test_a_chip_with_no_module_is_brought_out(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nD9,КР1807ВМ1,,40,20,40,,,\n",
+                    "A,D9,5,,1,\nA,D1,1,,1,\nB,D1,2,,1,\nB,D9,6,,1,\n")
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("input  logic x_D9_p5", text)
+        self.assertIn("input  logic x_D9_p5_oe", text)
+        self.assertIn("assign n_A = x_D9_p5_oe ? x_D9_p5 : 1'b1;", text)
+        self.assertIn("assign n_B = d_D1_p2;", text)
+        self.assertNotIn("x_D9_p6", text)
+
+    def test_clock_goes_to_stateful_chips(self):
+        f = Fixture("D1,К555ТМ2,,14,7,14,,,\n", "A,D1,2,,1,\nC,D1,3,,1,\nQ,D1,5,,1,\n",
+                    modules=(FLOP,))
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn(".clk(clk)", text)
+
+    def test_a_passive_without_a_treatment_is_an_error(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nC1,К10-17-1б-М47,68 пФ,2,,,,,\n",
+                    "A,D1,1,,1,\nB,D1,2,,1,\nB,C1,1,,1,\nGND,C1,2,,1,\n")
+        _, problems = f.generate()
+        self.assertTrue(any("C1" in e and "analog.csv" in e for e in errors(problems)))
+
+    def test_decoupling_needs_no_treatment(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nC1,К10-17-2б-Н90,,2,,,,,\n",
+                    "A,D1,1,,1,\nB,D1,2,,1,\n+5V,C1,1,,1,\nGND,C1,2,,1,\n")
+        _, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+
+    def test_a_short_joins_two_nets(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nE1,перемычка,,2,,,,,\n",
+                    "A,D1,1,,1,\nB,D1,2,,1,\nB,E1,1,,1,\nC,E1,2,,1,\nC,D1,3,,1,\n",
+                    analog="E1,short,1-2,fitted\n")
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn(".p3(n_B)", text)
+        self.assertNotIn("n_C", text)
+
+    def test_a_short_to_ground_makes_the_net_a_constant(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nE1,перемычка,,2,,,,,\n",
+                    "A,D1,1,,1,\nA,E1,1,,1,\nGND,E1,2,,1,\nB,D1,2,,1,\n",
+                    analog="E1,short,1-2,fitted\n")
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn(".p1(1'b0)", text)
+
+    def test_an_open_part_is_left_out(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nE1,перемычка,,2,,,,,\n",
+                    "A,D1,1,,1,\nA,E1,1,,1,\nGND,E1,2,,1,\nB,D1,2,,1,\n",
+                    analog="E1,open,,not fitted\n")
+        text, problems = f.generate()
+        self.assertIn("assign n_A = 1'b1;", text)
+
+    def test_a_connector_brings_its_signal_pins_out(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nXP1,ОНП-ЖГ-79-9,,9,,,,,\n",
+                    "A,D1,1,,1,\nA,XP1,3,,1,\nGND,XP1,1,,1,\nB,D1,2,,1,\n",
+                    analog="XP1,port,,the printer port\n")
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("input  logic x_XP1_p3", text)
+        self.assertNotIn("x_XP1_p1", text)
+
+    def test_two_pulls_on_one_net_disagreeing_is_an_error(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nR1,С1-4,,2,,,,,\nR2,С1-4,,2,,,,,\n",
+                    "A,D1,1,,1,\nA,R1,1,,1,\n+5V,R1,2,,1,\nA,R2,1,,1,\nGND,R2,2,,1,\n"
+                    "B,D1,2,,1,\n",
+                    analog="R2,pull0,,a pull-down\n")
+        _, problems = f.generate()
+        self.assertTrue(any("pulled both" in e for e in errors(problems)))
+
+
+class TheBoard(unittest.TestCase):
+    def test_ns4_generates_without_errors_and_matches_the_committed_file(self):
+        text, problems = board.generate(board.ns4_sources())
+        self.assertEqual(errors(problems), [])
+        with open(os.path.join(ROOT, "rtl", "board", "ns4.sv"), encoding="utf-8") as f:
+            self.assertEqual(f.read(), text, "rtl/board/ns4.sv is stale: run tools/board.py")
+
+
+if __name__ == "__main__":
+    unittest.main()

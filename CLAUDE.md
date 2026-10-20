@@ -58,6 +58,9 @@ without our warning flags, their headers reach our code as system headers;
 our code (`ms0515_strict`) builds with `/W4 /WX` or `-Wall -Wextra -Werror`.
 A chip module is its pins: a port `pN` for every signal pin N, power pins
 left out.  `python -m unittest discover -s tools/tests` tests the tools.
+`python tools/board.py` regenerates `rtl/board/ns4.sv` after a change to
+`netlist/` or to a chip module's ports (a tool test fails while the
+committed file is stale); `sim/board/test_board.cpp` runs it.
 
 ## Sources
 `docs/sources.md` lists every document, scan and forum thread the board is

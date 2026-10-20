@@ -37,6 +37,20 @@ foreach(chip
     ms0515_chip_test(${chip})
 endforeach()
 
+# The board generated from the netlist (tools/board.py writes rtl/board/ns4.sv).
+add_library(Vns4 STATIC)
+set_target_properties(Vns4 PROPERTIES SYSTEM ON)
+target_compile_definitions(Vns4 PUBLIC VL_TIME_CONTEXT)
+verilate(Vns4
+    SOURCES ${MS0515_CHIP_SOURCES} "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv"
+    TOP_MODULE ns4
+    PREFIX Vns4
+    VERILATOR_ARGS --language ${MS0515_SV_LANGUAGE} -Wall)
+add_executable(test_board board/test_board.cpp)
+target_link_libraries(test_board PRIVATE sim_main Vns4)
+ms0515_strict(test_board)
+add_test(NAME test_board COMMAND test_board)
+
 add_executable(test_reference reference/test_reference.cpp)
 target_link_libraries(test_reference PRIVATE sim_main ms0515_core)
 ms0515_strict(test_reference)

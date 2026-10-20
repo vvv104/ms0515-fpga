@@ -1,0 +1,132 @@
+# What each part that is not a chip becomes on the generated board
+# (tools/board.py, which reads this file; docs/analog.md says why).  A part
+# with all its pins on power (decoupling) and a resistor with a pin on +5V
+# (a pull-up) need no row.  "open:" in a reason marks a place still to be
+# settled by running the board (plan 6b).
+ref,treatment,pins,reason
+# --- the owner's build: jumpers and SA1 (netlist/variants.md) ---
+E1,short,,fitted (white wire in place of a resistor)
+E2,short,,fitted (С2 circuit 108 to XP5.5)
+E3,open,,not fitted
+E4,short,,fitted (РВК0 Н to ground)
+E5,short,,fitted (the 15 MHz oscillator into ТС15 Н)
+E6,open,,not fitted (speaker to XP6.11)
+E7,short,,fitted (ЧТМАГ Н to SA1 contact 6)
+E8,short,,fitted (ЧТМАГ Н to SA1 contact 10)
+SA1,short,1-20 3-18 5-16 7-14 9-12,"base build: odd contacts closed, the МС 7004 on XS2"
+# --- connectors: their signal pins brought out ---
+XP3,port,,parallel port (ИРПР)
+XP4,port,,floppy drives
+XP5,port,,С2 (printer) port
+XP6,port,,"monitor and keyboard: R, G, В, МОНО, the keyboard line"
+XP7,port,,speaker
+XP8,port,,МС 7007 keyboard matrix
+XS1,port,,expansion bus (the memory expansion module)
+XS2,port,,МС 7004 keyboard socket
+# --- 8 MHz oscillator: D15 gates 6 and 5 around BQ1 ---
+BQ1,pending,,"8 MHz crystal: the test bench drives a square wave on its pin 1 (~D15.13) until the oscillator has its model"
+C5,wire,,couples BQ1 to the input of D15 gate 6
+C6,wire,,couples D15 gate 6 to gate 5
+R1,open,,bias of D15 gate 6
+R3,open,,bias of D15 gate 5
+# --- 15 MHz oscillator: D91 gates 1 and 2 around BQ2 ---
+BQ2,pending,,"15 MHz crystal: the test bench drives a square wave on its pin 1 (~D91.1) until the oscillator has its model"
+C79,wire,,couples BQ2 to the input of D91 gate 1
+C78,wire,,couples D91 gate 1 to gate 2
+R77,open,,bias of D91 gate 1
+R79,open,,bias of D91 gate 2
+# --- series resistors: conductors to the logic ---
+R13,wire,,33 Ohm damping on ВАК L (CAS of the RAM)
+R16,wire,,33 Ohm damping on ВАС L (RAS of the RAM)
+R45,wire,,20 Ohm from РПРРТ Н to D86's OE
+R78,wire,,620 Ohm from D93.11 to D47's reset (with C82)
+R61,wire,,43 Ohm from D93's paired outputs to the speaker
+# --- strong pull-downs: the net is held low ---
+R24,pull0,,20 Ohm to ground: D51's OE held low
+R25,pull0,,20 Ohm to ground: D57's OE held low
+R43,pull0,,20 Ohm to ground: D78's OE held low
+R60,pull0,,20 Ohm to ground: D89's OE held low
+R62,pull0,,20 Ohm to ground: D92's OE held low
+R75,pull0,,20 Ohm to ground: D94's OE held low
+R74,pull0,,1 kOhm to ground on УСТ L: low while nothing drives it
+# --- weak resistors to ground on TTL inputs: the input still reads high ---
+R6,open,,"10 kOhm to ground on D20's E: too weak to pull a TTL input low, E reads high"
+R12,open,,"10 kOhm to ground on D28's E: too weak to pull a TTL input low, E reads high"
+# --- С2 and keyboard line receivers (D48): RS-232 bias and filters ---
+R15,pull0,,"23.7 kOhm to -12 V on ВХКЛ L: an idle line is negative (mark), level 0"
+R22,pull0,,"23.7 kOhm to -12 V on XP5.3: an idle line is negative (mark), level 0"
+R23,pull0,,"23.7 kOhm to -12 V on XP5.6: an idle line is negative (mark), level 0"
+C45,open,,2200 pF line filter
+C46,open,,2200 pF line filter
+C47,open,,2200 pF line filter
+VD1,open,,D20's VEE to -12 V
+VD2,open,,D28's VEE to -12 V
+# --- МС 7007 keyboard: matrix diodes, the return pack and its detector ---
+VD5,wire,,matrix diode XP8.1 - ДКЛ00 (a key pulls the line low through it)
+VD6,wire,,matrix diode XP8.2 - ДКЛ01
+VD7,wire,,matrix diode XP8.3 - ДКЛ02
+VD8,wire,,matrix diode XP8.4 - ДКЛ03
+VD10,wire,,matrix diode XP8.5 - ДКЛ04
+VD12,wire,,matrix diode XP8.6 - ДКЛ05
+VD14,wire,,matrix diode XP8.7 - ДКЛ06
+VD15,wire,,matrix diode XP8.8 - ДКЛ07
+DA2,pending,,"open: ДКЛ08..18 summed into ВБКЛ L through 10 kOhm each; brought out until the wired detector has its model"
+R18,pull0,,"with R19 a divider at mid-supply on D48's 3A: the low side of the pair, so 3Y follows the inverse of ВБКЛ L"
+R19,open,,the upper half of the R18/R19 divider
+# --- cassette ---
+C72,open,,"cassette input coupling; ЧТМАГ Н reaches XS2 only through SA1's even contacts, open on this build"
+R64,wire,,cassette signal to D90's IN-
+R66,pull0,,24 kOhm to ground: D90's IN- rests low
+R69,pull0,,12 kOhm to ground on ЧТМАГ Н
+R70,pull0,,4.7 kOhm to ground: D90's IN+ rests low
+R65,open,,470 kOhm hysteresis of D90
+R71,open,,cassette output divider (ПРДМАГ Н is the signal)
+R72,open,,cassette output divider (ПРДМАГ Н is the signal)
+C83,open,,cassette output filter
+C84,open,,cassette output coupling to ЗАП МАГ Н
+# --- RC edges and delays on the logic ---
+C35,open,,"open: 68 pF on СГИ L, an open-collector PROM output pulled up by R5 - slows its rising edge"
+C64,open,,"open: 120 pF on ССИ L, an open-collector PROM output pulled up by R28 - slows its rising edge"
+C70,open,,"open: 100 pF on БОРДС L, an open-collector PROM output pulled up by R39 - slows its rising edge"
+C40,open,,open: 27 pF on D47.9 into D14.12 - a delay of a few ns
+C82,open,,open: 51 pF with R78 (about 30 ns) on D47's reset
+C86,open,,"open: 0.1 uF on D95.7 into D16.12 (reset of D16's second counter) - a power-on shape of tens of microseconds, wants its model"
+VD11,open,,"zener from +5 V: with R58 holds D95.13 at about 1.7 V, which an LS input reads high"
+R58,open,,see VD11
+VD13,open,,clamp of the speaker output to +5 V
+# --- status LEDs ---
+VD9,open,,LED (its cathode net is a board output)
+VD16,open,,LED (its cathode net is a board output)
+VD17,open,,LED (its cathode net is a board output)
+# --- video DAC: the frame is taken at its digital inputs ---
+VT1,open,,video DAC transistors
+VT2,open,,video DAC transistors
+C54,open,,video DAC
+VD3,open,,video DAC bias
+VD4,open,,video DAC bias
+R27,open,,video DAC trimmer
+R29,open,,video DAC bias
+R30,open,,video DAC emitter resistor
+R31,open,,video DAC trimmer
+R32,open,,video output load
+R33,open,,video DAC emitter resistor
+R34,open,,video output load
+R35,open,,video DAC emitter resistor
+R36,open,,video output load
+R37,open,,video DAC emitter resistor
+R38,open,,video output load
+R40,open,,video DAC trimmer
+R42,open,,video DAC input
+R44,open,,video DAC input
+R46,open,,video DAC input
+R47,open,,video DAC input
+R49,open,,video DAC input
+R50,open,,video DAC trimmer
+R51,open,,video DAC input
+R52,open,,video DAC input
+R53,open,,video DAC input
+R54,open,,video DAC input
+R55,open,,video DAC input
+R56,open,,video DAC input
+R57,open,,video DAC input
+R59,open,,video DAC input
