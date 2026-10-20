@@ -33,3 +33,18 @@ The ROMs are К573РФ4Б programmed per `0.348.422-04ТУ`.
 
 `nets.csv` holds every jumper and every SA1 contact as drawn; a build is
 chosen by which of them are closed.
+
+## The owner's board
+
+From the photo `MC 0515 04.jpg` (jumpers read by the owner 2026-10-20,
+placed by the photo fit and the pads' copper):
+
+- **E4 fitted** (a white wire from the `РВК0 Н` pad to a plane pad),
+  **E3 open** - in a row of four positions whose other two are R7, R8;
+- **E1 fitted** (a white wire in place of a resistor, between D15.8 and
+  the D16.1 pad), as the sheet-1 note on wire jumpers says.
+
+E4 fitted / E3 open is the base build `3.858.420` or `-02`; with the МС
+7004 keyboard the owner used, the base build: ROMs «7004L»/«7004H» and
+SA1 1, 3, 5, 7, 9 by the table.  The ROMs in it in 2015 were ROM-B and
+unlabelled (`docs/findings.md`) - one more sign they were replaced.
