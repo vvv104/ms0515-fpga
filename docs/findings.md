@@ -177,7 +177,8 @@ only.  No track cuts are noted anywhere.  So:
   And the second: from D70's third pin from the top on the left (pin 11),
   under the short bare wire, down and right in steps to the КР1533ТМ2
   (9002) at the board's right edge, beside an unused connector - D98, the
-  only КР1533ТМ2 on the board: the patch D98.3 - D70.11.
+  only КР1533ТМ2 on the board; it lands on the third pin from the bottom
+  on the right - pin 3: the patch D98.3 - D70.11.
 
 On the owner's board (photo `MC 0515 04.jpg`, read by the owner
 2026-10-20): two white wires meet on pin 3 of a КР1533ТМ2 (date 9002) -
