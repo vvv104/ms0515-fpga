@@ -1543,7 +1543,7 @@ GND,D1,37,DDEN,5,pin number reads 31 on the scan; DDEN is 37
 ~D40.7,D32,15,D4,5,
 ~D40.10,D40,10,3Q,5,
 ~D40.10,D32,13,D6,5,
-ТС8М L,D40,13,4D,5,the wire from pin 13 joins the clock line of pin 9
+GND,D40,13,4D,5,a ground symbol (Mick reads it so too)
 GND,D32,12,D7,5,
 ТС8М L,D40,9,C,5,
 Р15 H,D40,1,R,5,

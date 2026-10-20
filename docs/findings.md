@@ -84,5 +84,19 @@ Where each of the nine stands (2026-10-20):
 | D16.1 `~E1.2` - D40.9 `ТС8М L` | layers 7, 2, 8 through a square pad | every part of the chain is on the scans | **board differs from Э3**: D40 is clocked from the E1 side (after D15.4), not from the oscillator node D15.10; the netlist keeps Э3 until a real board settles it |
 | D86.11 `А13` - D9.6 `МК02`; D1.19 `УСТ` - D38.9 `СИНХР2` - D76.2 `ВКЛДВ`; D30.15 - D98.3 `СТРОБ`; D78.6 - D74.6 `А13`; D62.10 `АД06` - D79.9 `БОРДС` | long chains through vias on layers 2 and 7 | the inner runs are largely there; which via is wrong cannot be told - the scans show layers 2 and 7 only through the laminate | open - for another copy of the board or Mick's P-CAD file |
 
-Э3 sheet 5 read again on the way: D40 pin 13 (4D) is on the clock line
-with pin 9, not on ground - fixed in `nets.csv`.
+Э3 sheet 5, D40 pin 13 (4D): a re-read took the short bar under it for a
+join with the clock line of pin 9; it is a ground symbol, as the first
+read and Mick's redraw (below) both have it.
+
+## Mick's redraw of Э3 in P-CAD 2002 (2012)
+
+Mick redrew the four logic sheets of Э3 in P-CAD 2002 in 2012 (zx-pk.ru
+thread 18337 post 482134 and page 5; Yandex Disk
+https://disk.yandex.ru/d/-BDz0FNek24y_A, 2021): `mc-0515.sch` (binary
+P-CAD 2002) and `mc-0515.pdf` (vector, 5 pages); the connector sheet was
+never drawn.  anasana sent the same files on 2026-10-20 with Mick's P-CAD
+libraries (`$MS0515_DATA/scans/anasana-2026-10-20`).  It is a second,
+independent reading of the same Э3: where it and `nets.csv` differ, one of
+the two misread the scan.  The binary .sch has no open reader; a netlist
+exported from P-CAD (ASCII .sch or a .net) would let `tools/` compare the
+two readings net by net.
