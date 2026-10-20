@@ -59,6 +59,19 @@ decided it.
   (3.858.420 СБ, page 27) and on photos of real boards are to be read and
   added to the netlist as wires.
 
+### The owner's board, 2015 (photo 16337efabef4, 1280x960)
+
+A close-up of the owner's НС4 rev. 3А as handed over in 2015
+(`$MS0515_DATA/photos/known-machines/16337efabef4.jpg`, from the Yandex
+folder https://yadi.sk/d/5J5jsBP0fn-FSQ; the full-size file is lost):
+the processor КР1807ВМ1 (date 9010), both ROMs К573РФ4А (8911, 9004; "Vpp=23В"),
+the two ВВ55, ИР22/ИР23/АП5 - and several wire patches: a white wire
+running down beside the ROM sockets from near the processor, another from
+the ЛИ6/ЛН2 group to the left, a green wire with a series part near the top
+ИР22.  Two chips left of the ВВ55 carry hand-written labels «ОМЕГА-2» and
+«ОМЕГА-3».  Their pins are to be found by laying the photo onto the
+placement (pin 1 upper right); not done yet.
+
 ## The copper against the schematic: first pass (Mick's traces)
 
 `tools/compare.py` lays the 103 DIP parts on the pads of Mick's layer
