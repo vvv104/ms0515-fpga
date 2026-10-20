@@ -197,6 +197,22 @@ section (pins 12-14) unused and its inputs open on Э3; a bare wire
 tying them to a plane is the usual fix, which would make it harmless.
 Which pin and which plane is open - not in the netlist.
 
+The owner read its ends (2026-10-20): from the first pin at the top on
+the right of the chip on the left (the ИР23 D57 by the photo fit - its
+corner pin there is **pin 10, GND**) to the second pin from the bottom on
+the left of D70 - **pin 15, OE**.  On Э3, D70.15 is `~D14.3` (D14.3, the
+NAND of `БОРДС L`/`БОРДК L`, also into D74.1): the strobe multiplexer is
+switched off in the border.  The copper shows D70.15, D14.3 and D74.1 on
+no outer-layer run (an inner layer), so a cut there cannot be seen.  A
+bare wire from GND to D70.15 enables D70 always - the pixel strobes
+`ВК2`..`ВК4` would run in the border too.  Candidates for the model
+(plan 6b):
+  a) as Э3 - D70.15 on `~D14.3`;
+  b) D70.15 on GND, D14.3 still driving D74.1 (a cut hidden inside);
+  c) D57's other corner is pin 11 (`ЧТ ВЗУ Н`) if the fit is off by the
+     chip's orientation - then D70.15 on `ЧТ ВЗУ Н`.
+b) changes only the border picture; the frame comparison will tell.
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
