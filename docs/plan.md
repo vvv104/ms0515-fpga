@@ -5,7 +5,7 @@ Each stage ends with its tests green; nothing is wired before it is tested.
 1. **Netlist of НС4.**  Read the four Э3 sheets and the ПЭ3 element list
    into `netlist/` (parts, pins, nets, with sheet and zone), starting from
    the method of the МС 1702 read-out.  Check the nets against the copper: Radon17's
-   per-layer traces (layers 1, 2, 7, 8) - or his P-CAD database, if he
+   per-layer traces (layers 1, 2, 7, 8) - or the P-CAD database, if Mick
    gives it, which is the copper's netlist outright - and the rev. 3А
    bare-board scans; every disagreement goes to `docs/findings.md`.
    Generate a KiCad schematic from it to compare with the scans by eye.

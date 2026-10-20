@@ -15,9 +15,11 @@ traced into this repository, **want** = known to exist, not yet obtained.
 | `3.858.420 ТО` - НС4 technical description (block diagrams, timing diagrams, registers) | `scans/hc4-to.rar`; text in `docs/NS4-techdesc.md` | have, text read |
 | НС4 rev. 3А bare board, both sides, 6630x5233 | `scans/boards/NS4_red3A_1.tif`, `NS4_red3A_8.tif` (from radon.su) | have |
 | НС5 rev. 01 - НС4 re-routed for the УКНЦ case, both sides | `scans/boards/NS5_1.png`, `NS5_8.png` (from radon.su) | have |
-| НС4 traced layer by layer by Radon17: signal layers 1, 2, 7, 8 and all together, 4488x3543, traces and pads redrawn on black | `scans/boards/radon17-layers/NS4-{1,2,7,8,all}.gif` - zx-pk.ru thread 15146 post #271 (2023-09-15), images on ibb.co | have |
-| The same board translated into P-CAD by Radon17 (picture only) | `scans/boards/radon17-layers/NS4-pcad.png`, same post | have |
-| **The P-CAD database itself** (the netlist of the real copper) and the unglued source scans - Radon17 offered them in post #271 | - | want - ask Radon17 |
+| НС4 traced layer by layer by **Mick** (from Radon17's scan): signal layers 1, 2, 7, 8 and all together, 4488x3543 - layers 3-6 not traced | `scans/boards/radon17-layers/NS4-{1,2,7,8,all}.gif` - zx-pk.ru thread 15146 post #271 (2023-09-15), images on ibb.co | have |
+| The same board translated into P-CAD by Mick (picture only) | `scans/boards/radon17-layers/NS4-pcad.png`, same post | have |
+| НС5 rev. 01 traced by Mick: layers 1, 2, 7, 8 and also 1+3, 6+7 | `scans/boards/mick-ns5-layers/` - thread 15146 post #266 (2023-09-10) | have |
+| НС4 **rev. 3** (not 3А), both sides, ~396 MB each | `scans/boards/ns4-red3/` - Radon17's Yandex Disk folder «Э85-сканы/НС4» (https://disk.yandex.ru/d/FjOsY6VLrxZHiQ), linked in thread 15146 post #267 | have |
+| **Mick's P-CAD databases** of НС4 and НС5 (the netlists of the copper) and the inner layers 3-6 of НС4 | - | want - ask Mick (micklab.ru) |
 | К556РТ12 PROMs D13 (КДРВ) and D21 (СТРВ) on the video output, read by Radon17 from a damaged НС4 (also read earlier by Xolod) | `MS0515_RT12.zip` - zx-pk.ru 15146 post #274 (2024-10-20) | have |
 | Photos of assembled machines and boards | `photos/`, `docs/codemaster-processor/` | have |
 | The other НС4 revisions (four are known) | - | want |

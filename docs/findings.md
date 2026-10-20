@@ -49,3 +49,12 @@ decided it.
 - Э3 sheet 4 draws the video output stage with `DT1` (КТ677) and `DT2`
   (КТ676); ПЭ3 lists `VT1 КТ677АС` and `VT2 КТ676АС` and no DT parts.
   The netlist uses ПЭ3's references.
+
+## Wire patches on НС4 (forum)
+
+- Radon17, zx-pk.ru 15146 post #251 (2023-09-08): «на НС4 есть патчи
+  проводками (они даже на монтажке отражены)» - the board carries wire
+  patches, and they are drawn on the assembly drawing.  The copper alone is
+  therefore not the machine: the patches on the assembly drawing
+  (3.858.420 СБ, page 27) and on photos of real boards are to be read and
+  added to the netlist as wires.
