@@ -1002,7 +1002,7 @@ GND,C82,2,,3,
 ТС5 H,D21,3,A4,4,
 ТС6 H,D21,2,A5,4,
 ТС7 H,D21,1,A6,4,
-РВК0 H,D21,17,A7,4,A7 read as РВК0 Н, the same name as D13's A9
+РВК0 H,D21,17,A7,4,read by the user: РВК0 Н (Л4) 17
 GND,D21,16,A8,4,
 GND,D21,15,A9,4,
 GND,D21,10,CE2,4,
