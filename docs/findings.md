@@ -13,3 +13,25 @@ decided it.
   МОН first.
 - **Open**: which revision the Э3 shows; the board scans (rev. 3А) are to be
   traced around D89/D96 to see whether the copper agrees with the sheet.
+
+## XP5 pin 13 (Э3 sheet 2 vs. ПЭ3)
+
+- **Э3 sheet 2**: D97 Q4 (pin 12) `НАЧ Н` goes out as `ХР5:13` (read
+  so by the user too).
+- **ПЭ3**: XP5 is `ОНП-ЖГ-79-9` - nine contacts.
+- **Open**: the board scans decide where pin 12 of D97 really goes; until
+  then the connection is kept out of `netlist/nets.csv`.
+
+## D23 type (ПЭ3 vs. the power table of Э3 sheet 1)
+
+- **ПЭ3** (page 24): D23 КР531ЛЕ1.  **Power table**: К555ЛЕ1.
+- Same function and pinout (quad 2-NOR); the series differ in speed.
+  `parts.csv` keeps ПЭ3's; the chip on a real board decides.
+
+## КР1807ВМ1 vs. T-11
+
+- The pin functions drawn on Э3 sheet 2 match the T-11 User's Guide pin
+  diagram for all 40 pins.  Whether the microcycle timing and the details
+  of behaviour are the same is not documented in the sources at hand: the
+  Soviet specification (ТУ 0.348.964-01) is wanted.  Every place the
+  processor model leans on the T-11 documents is to be marked as such.
