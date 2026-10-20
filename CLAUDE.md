@@ -44,6 +44,21 @@ tools/     — the netlist reader, the RTL generator, scan helpers (Python)
 docs/      — sources, plan, analog replacements, findings
 ```
 
+## Build
+```
+conan create recipes/verilator --version 5.044    # once: ConanCenter has no Verilator
+conan build . --build=missing -s compiler.cppstd=20
+```
+builds every test bench (Verilator, CMake and Ninja come from Conan) and
+runs them with ctest.  `sim/CMakeLists.txt`: `ms0515_chip_test(<chip>)`
+verilates `rtl/chips/<chip>.sv` into its own library `V<chip>` and links
+`sim/chips/test_<chip>.cpp` against it.  The generated models and the
+Verilator runtime are a tool's output: they build in their own libraries
+without our warning flags, their headers reach our code as system headers;
+our code (`ms0515_strict`) builds with `/W4 /WX` or `-Wall -Wextra -Werror`.
+A chip module is its pins: a port `pN` for every signal pin N, power pins
+left out.  `python -m unittest discover -s tools/tests` tests the tools.
+
 ## Sources
 `docs/sources.md` lists every document, scan and forum thread the board is
 read from.  The scans themselves are **not** in this repository: they are
