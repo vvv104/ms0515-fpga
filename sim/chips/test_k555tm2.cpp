@@ -23,16 +23,16 @@ TEST_CASE("К555ТМ2: set, reset, both, clock")
         chip.set(x.c, false);
         chip.set(x.s, false);
         chip.set(x.r, true);
-        chip.eval();                       // asynchronous: before any master edge
+        chip.tick();                       // asynchronous: at the next master edge
         CHECK(chip.get(x.q));
         CHECK(!chip.get(x.qn));
         chip.set(x.s, true);
         chip.set(x.r, false);
-        chip.eval();
+        chip.tick();
         CHECK(!chip.get(x.q));
         CHECK(chip.get(x.qn));
         chip.set(x.s, false);
-        chip.eval();
+        chip.tick();
         CHECK(chip.get(x.q));              // both active: both outputs high
         CHECK(chip.get(x.qn));
         chip.set(x.s, true);

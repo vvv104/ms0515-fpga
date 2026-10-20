@@ -24,7 +24,7 @@ module k555ie10 (
                 count <= count + 4'd1;
         end
     end
-    assign q = p1 ? count : '0;
+    assign q = count;
     assign {p11, p12, p13, p14} = q;
     assign p15 = p10 & (q == 4'hF);
 endmodule

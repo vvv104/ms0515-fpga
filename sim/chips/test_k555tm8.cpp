@@ -24,11 +24,6 @@ TEST_CASE("К555ТМ8: random sequences against the function table")
             in[k] = dice.bit();
             chip.set(d[k], in[k]);
         }
-        chip.eval();
-        if (clr) {
-            for (int k = 0; k < 4; ++k)
-                CHECK(!chip.get(q[k]));     // clear acts before the master edge
-        }
         for (int k = 0; k < 4; ++k)
             if (clr)
                 state[k] = false;

@@ -23,7 +23,7 @@ TEST_CASE("К555ИР22: random sequences against the function table")
             in[k] = dice.bit();
             chip.set(d[k], in[k]);
         }
-        chip.eval();                       // transparent: before any master edge
+        chip.tick();                       // transparent: D shows at the next master edge
         for (int k = 0; k < 8; ++k) {
             if (c)
                 held[k] = in[k];
@@ -31,6 +31,5 @@ TEST_CASE("К555ИР22: random sequences against the function table")
             if (!oe_n)
                 CHECK(chip.get(q[k]) == held[k]);
         }
-        chip.tick();
     }
 }

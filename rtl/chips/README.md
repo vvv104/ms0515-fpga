@@ -15,8 +15,12 @@ ports the chip's pins:
   master clock is many times the board's, so the order of the board's
   edges is kept; a ripple counter changes all its bits at once on its
   clock edge (its internal ripple delay is not modelled).  Asynchronous
-  inputs (set, reset, clear) act on the outputs at once and on the
-  stored state at the next master edge.
+  inputs (set, reset, clear) and a transparent latch's gate act at the
+  next master edge too, and the outputs always show the stored state: no
+  path through a chip with state is combinational.  A loop on the board
+  through one - a flip-flop resetting itself through a gate - is broken
+  there, as the chip's own propagation delay breaks it in the hardware,
+  and one master tick is about that delay.
 
 The behaviour of each is its datasheet's function table (the TI 74xx
 equivalent named in `netlist/pinouts.csv`), and each has its test in

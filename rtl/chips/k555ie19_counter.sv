@@ -14,5 +14,5 @@ module k555ie19_counter (
         else if (!c && c_was)
             count <= count + 4'd1;
     end
-    assign q = r ? '0 : count;
+    assign q = count;
 endmodule

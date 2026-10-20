@@ -18,5 +18,5 @@ module k555tm9 (
         else if (p9 && !c_was)
             state <= {p14, p13, p11, p6, p4, p3};
     end
-    assign {p15, p12, p10, p7, p5, p2} = p1 ? state : '0;
+    assign {p15, p12, p10, p7, p5, p2} = state;
 endmodule

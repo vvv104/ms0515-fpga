@@ -16,6 +16,6 @@ module k555ir22 (
     always_ff @(posedge clk)
         if (p11)
             held <= d;
-    assign {p19, p16, p15, p12, p9, p6, p5, p2} = p11 ? d : held;
+    assign {p19, p16, p15, p12, p9, p6, p5, p2} = held;
     assign {p19_oe, p16_oe, p15_oe, p12_oe, p9_oe, p6_oe, p5_oe, p2_oe} = {8{~p1}};
 endmodule

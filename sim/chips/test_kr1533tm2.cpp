@@ -21,7 +21,7 @@ TEST_CASE("КР1533ТМ2: wraps К555ТМ2")
     CHECK(!chip.get(9));
     chip.set(1, false);
     chip.set(10, false);
-    chip.eval();
+    chip.tick();
     CHECK(!chip.get(5));
     CHECK(chip.get(9));
 }
