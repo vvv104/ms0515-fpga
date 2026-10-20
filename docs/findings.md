@@ -95,6 +95,13 @@ placement (pin 1 upper right); not done yet.
   above fits ROM-A at purchase and ROM-B (with Omega) after the upgrade;
   what is proven is only ROM-B in 2015.  The plant's people could have
   changed anything then - the green wire patch included.
+- The owner also had Rodionov's disk (RT15SJ «©1992» + ROSA3, the
+  Norton-like shell), which runs on ROM-A only and has no driver for the
+  512 KB module (no EX.SYS; the Omega kit has it).  He recalls it as the
+  disk that came with the upgrade, but is not sure.  The evidence orders
+  it the other way (Rodionov/ROM-A before, Omega/ROM-B with the RAM disk
+  after); left open.  For the FPGA it means: both ROM contents are needed,
+  switchable.
 
 ### The owner's board against another one (first look)
 
