@@ -135,6 +135,29 @@ plant.  To settle: a sharper look at the lower end (which pin, and
 whether a D80.4/D80.5 trace is cut), and the XS1 C17..C24 contacts on a
 board with the module.
 
+### The factory wire patches restore Э3 (assembly drawing, 2026-10-20)
+
+The assembly drawing 3.858.420 СБ (page 27, drawn turned half round: a
+"9" there reads "6" in a raw crop) draws the factory patches as thin
+lines between pins, each end marked with the pin number.  Every one
+traced so far joins pins that Э3 puts on one net and the copper does not:
+
+| Patch (as drawn) | Э3 net | Copper without the patch |
+|---|---|---|
+| D13.1 - D84.4 | `АПК7 Н` | D13.1 with D36.11; D84.4 alone |
+| D17.3 / D33.3 - D47.5 | `ИМП ЧТ Н` | D17.3 with D33.3; D47.5 alone |
+| D15.9 - D40.9 | `ТС8М L` | D40.9 with D16.1 (the E1 side) - so a cut there too |
+| D98.3 - (towards D70.11) | `СТРОБ Н` | D98.3 with D30.15/D37.7/D42.7 - so a cut there too |
+
+So **Э3 is the patched board**: the copper had errors, the patches (and
+cuts) fix them, and Э3 was drawn after.  This settles three of the six
+"cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
+`ИМП ЧТ` and `АПК7` splits) - in Э3's favour.  `rev3a.csv` loses its
+D40.9 entry: the copper there is the unpatched state, not the machine.
+The same white wires are on the owner's board and the leningrad.su one.
+Still to trace on the drawing: the other end of D98.3's and D84.4's
+lines beyond the tiles read, and any patch not yet found.
+
 ### The owner's board against another one (first look)
 
 `MC 0515 04.jpg` (the owner's НС4 rev. 3А, full view) against
@@ -182,7 +205,7 @@ Where each of the nine stands (2026-10-20):
 | D65.2 `АД13` - D77.27 `Р3` | layer 8, D65.2 up to D77.27 | the run passes beside the ring of D77.27, a nub touches it | open - looks like the traces' error |
 | D70.5 `ТС15 L` - D70.10 `~D71.8` | layer 2, via - D70.5 | no gold seen between the via and D70.5 (it may run under the tin) | **my misread of Э3**: pin 5 is on the D71.8 wire with pin 10 - Mick's redraw and the copper agree; fixed |
 | D9.19 `АД01` - D1.6 `АД02` | layer 2, D9.19 - D1.6 | gold leaves D1.6 upward and goes under a layer-1 run, where it may turn | open - a short A0/A1 cannot be right; the schematic stands |
-| D16.1 `~E1.2` - D40.9 `ТС8М L` | layers 7, 2, 8 through a square pad | every part of the chain is on the scans | **board differs from Э3**: D40 is clocked from the E1 side (after D15.4), not from the oscillator node D15.10 - in `rev3a.csv` |
+| D16.1 `~E1.2` - D40.9 `ТС8М L` | layers 7, 2, 8 through a square pad | every part of the chain is on the scans | copper differs from Э3, the factory patch D15.9-D40.9 (with a cut) restores Э3 |
 | D86.11 `А13` - D9.6 `МК02`; D1.19 `УСТ` - D38.9 `СИНХР2` - D76.2 `ВКЛДВ`; D30.15 - D98.3 `СТРОБ`; D78.6 - D74.6 `А13`; D62.10 `АД06` - D79.9 `БОРДС` | long chains through vias on layers 2 and 7 | the inner runs are largely there; which via is wrong cannot be told - the scans show layers 2 and 7 only through the laminate | open - for another copy of the board or Mick's P-CAD file |
 
 Э3 sheet 5, D40 pin 13 (4D): a re-read took the short bar under it for a
@@ -200,8 +223,8 @@ beyond doubt.  `python tools/netlist.py check rev3a` applies and checks
 them.  The FPGA is built from Э3 with the rev. 3А changes, each one
 switchable; where a change matters, software on the model decides.
 
-In `rev3a.csv` so far: D40.9 (write-precompensation clock) on the E1 side
-of the 8 MHz oscillator.
+In `rev3a.csv` so far: nothing - D40.9 was taken out again once the factory
+patch D15.9-D40.9 was found (see below).
 
 ## Mick's redraw of Э3 in P-CAD 2002 (2012)
 

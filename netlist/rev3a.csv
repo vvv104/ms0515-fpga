@@ -1,5 +1,6 @@
 # НС4 rev. 3А as built, against 3.858.420 Э3: a change goes in only when
-# the copper or a photo shows it beyond doubt; everything uncertain stays
-# by Э3 and is listed in docs/findings.md.
+# the copper or a photo shows it beyond doubt AND the factory wire patches
+# (drawn on the assembly drawing 3.858.420 СБ) do not already bring the
+# board back to Э3; everything uncertain stays by Э3 and is listed in
+# docs/findings.md.  Empty: the patches traced so far all restore Э3.
 ref,pin,from_net,to_net,evidence
-D40,9,ТС8М L,~E1.2,"3А scans: D40.9 joins D16.1 (after E1) through layers 8, 2, 7 and a square pad - every run of the chain seen; D15.10 not on it (docs/findings.md)"
