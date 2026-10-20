@@ -81,12 +81,26 @@ Where each of the nine stands (2026-10-20):
 | D65.2 `АД13` - D77.27 `Р3` | layer 8, D65.2 up to D77.27 | the run passes beside the ring of D77.27, a nub touches it | open - looks like the traces' error |
 | D70.5 `ТС15 L` - D70.10 `~D71.8` | layer 2, via - D70.5 | no gold seen between the via and D70.5 (it may run under the tin) | **my misread of Э3**: pin 5 is on the D71.8 wire with pin 10 - Mick's redraw and the copper agree; fixed |
 | D9.19 `АД01` - D1.6 `АД02` | layer 2, D9.19 - D1.6 | gold leaves D1.6 upward and goes under a layer-1 run, where it may turn | open - a short A0/A1 cannot be right; the schematic stands |
-| D16.1 `~E1.2` - D40.9 `ТС8М L` | layers 7, 2, 8 through a square pad | every part of the chain is on the scans | **board differs from Э3**: D40 is clocked from the E1 side (after D15.4), not from the oscillator node D15.10; the netlist keeps Э3 until a real board settles it |
+| D16.1 `~E1.2` - D40.9 `ТС8М L` | layers 7, 2, 8 through a square pad | every part of the chain is on the scans | **board differs from Э3**: D40 is clocked from the E1 side (after D15.4), not from the oscillator node D15.10 - in `rev3a.csv` |
 | D86.11 `А13` - D9.6 `МК02`; D1.19 `УСТ` - D38.9 `СИНХР2` - D76.2 `ВКЛДВ`; D30.15 - D98.3 `СТРОБ`; D78.6 - D74.6 `А13`; D62.10 `АД06` - D79.9 `БОРДС` | long chains through vias on layers 2 and 7 | the inner runs are largely there; which via is wrong cannot be told - the scans show layers 2 and 7 only through the laminate | open - for another copy of the board or Mick's P-CAD file |
 
 Э3 sheet 5, D40 pin 13 (4D): a re-read took the short bar under it for a
 join with the clock line of pin 9; it is a ground symbol, as the first
 read and Mick's redraw (below) both have it.
+
+## Э3 and the board: how disagreements are kept
+
+Э3 was drawn by hand, the board may have changed after it, and the
+documents we have come from unknown copies - neither source wins by rule.
+`nets.csv` stays Э3 as read; a real board's differences live in
+`netlist/<board>.csv` (`rev3a.csv` for НС4 rev. 3А), one moved pin per row
+with its evidence, and go in only when the copper or a photo shows them
+beyond doubt.  `python tools/netlist.py check rev3a` applies and checks
+them.  The FPGA is built from Э3 with the rev. 3А changes, each one
+switchable; where a change matters, software on the model decides.
+
+In `rev3a.csv` so far: D40.9 (write-precompensation clock) on the E1 side
+of the 8 MHz oscillator.
 
 ## Mick's redraw of Э3 in P-CAD 2002 (2012)
 

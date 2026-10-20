@@ -25,8 +25,8 @@ type,pin,name,source
 
 NETS = """\
 net,ref,pin,pin_name,sheet,note
-АД00 Н,D14,1,1A,2,
-АД00 Н,D83,26,,2,
+АД00 H,D14,1,1A,2,
+АД00 H,D83,26,,2,
 ЛН,D14,3,1Y,2,
 ЛН,R62,1,,2,
 """
@@ -112,6 +112,55 @@ class NetlistTest(unittest.TestCase):
         errs = self.errors(pinouts=PINOUTS + "К555ЛА9,1,1A,74LS03\n")
         self.assertEqual(len(errs), 1)
         self.assertIn("К555ЛА9", errs[0].text)
+
+
+CHANGES = """\
+ref,pin,from_net,to_net,evidence
+D14,1,АД00 H,ЛН,scan side 8
+"""
+
+
+class ChangesTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = self.tmp.name
+        _, _, self.conns = netlist.load(write(self.dir, "parts.csv", PARTS),
+                                        write(self.dir, "pinouts.csv", PINOUTS),
+                                        write(self.dir, "nets.csv", NETS))
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def apply(self, text):
+        return netlist.apply_changes(self.conns, netlist.load_changes(
+            write(self.dir, "changes.csv", text)))
+
+    def test_moves_a_pin_to_another_net(self):
+        conns, errors = self.apply(CHANGES)
+        self.assertEqual(errors, [])
+        moved = [c for c in conns if (c.ref, c.pin) == ("D14", 1)]
+        self.assertEqual([c.net for c in moved], ["ЛН"])
+        self.assertIn("scan side 8", moved[0].note)
+
+    def test_other_pins_untouched(self):
+        conns, _ = self.apply(CHANGES)
+        self.assertEqual(len(conns), len(self.conns))
+        self.assertEqual({(c.ref, c.pin, c.net) for c in conns if c.ref != "D14" or c.pin != 1},
+                         {(c.ref, c.pin, c.net) for c in self.conns if c.ref != "D14" or c.pin != 1})
+
+    def test_wrong_from_net_is_an_error(self):
+        conns, errors = self.apply("ref,pin,from_net,to_net,evidence\nD14,1,ЛН,X,scan\n")
+        self.assertEqual(len(errors), 1)
+        self.assertIn("D14.1", errors[0].text)
+
+    def test_unknown_pin_is_an_error(self):
+        _, errors = self.apply("ref,pin,from_net,to_net,evidence\nD14,2,X,Y,scan\n")
+        self.assertEqual(len(errors), 1)
+
+    def test_change_without_evidence_is_an_error(self):
+        _, errors = self.apply("ref,pin,from_net,to_net,evidence\nD14,1,АД00 H,ЛН,\n")
+        self.assertEqual(len(errors), 1)
+        self.assertIn("evidence", errors[0].text)
 
 
 if __name__ == "__main__":

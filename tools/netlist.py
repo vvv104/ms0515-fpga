@@ -3,6 +3,12 @@
 
     python tools/netlist.py check   - list the problems (exit 1 on errors)
     python tools/netlist.py stats   - parts, nets and pins read so far
+    python tools/netlist.py check rev3a - the same with a board's changes
+                                    (netlist/rev3a.csv) applied over Э3
+
+netlist/<board>.csv  ref,pin,from_net,to_net,evidence - the changes a real
+                     board makes to Э3: a pin moved off one net onto
+                     another; every change names the evidence it rests on
 
 netlist/parts.csv    ref,type,value,pins,gnd,vcc,vcc12,source,note
                      one row per part; gnd/vcc/vcc12 are the power pins
@@ -127,11 +133,56 @@ def check(parts, pinouts, conns):
     return problems
 
 
+@dataclass
+class Change:
+    ref: str
+    pin: int
+    from_net: str
+    to_net: str
+    evidence: str
+
+
+def load_changes(path):
+    return [Change(r["ref"], int(r["pin"]), r["from_net"], r["to_net"], r["evidence"] or "")
+            for r in rows(path)]
+
+
+def apply_changes(conns, changes):
+    """The pins moved as a board's change list says: each change takes a pin
+    off the net Э3 has it on and puts it on another.  Returns the new pin
+    list and the problems (a pin not where the change expects it, a change
+    with no evidence)."""
+    out, errors = list(conns), []
+    for ch in changes:
+        where = f"{ch.ref}.{ch.pin} '{ch.from_net}' -> '{ch.to_net}'"
+        if not ch.evidence.strip():
+            errors.append(Problem(True, f"change {where}: no evidence"))
+            continue
+        hit = [i for i, c in enumerate(out)
+               if (c.ref, c.pin) == (ch.ref, ch.pin) and c.net == ch.from_net]
+        if not hit:
+            errors.append(Problem(True, f"change {where}: the pin is not on '{ch.from_net}'"))
+            continue
+        for i in hit:
+            c = out[i]
+            out[i] = Conn(ch.to_net, c.ref, c.pin, c.pin_name, c.sheet,
+                          f"board: {ch.evidence}")
+    return out, errors
+
+
 def main(argv):
     sys.stdout.reconfigure(encoding="utf-8")
     command = argv[1] if len(argv) > 1 else "check"
+    board = argv[2] if len(argv) > 2 else None
     parts, pinouts, conns = load(*(os.path.join(ROOT, n) for n in
                                    ("parts.csv", "pinouts.csv", "nets.csv")))
+    if board:
+        conns, errors = apply_changes(conns, load_changes(os.path.join(ROOT,
+                                                                       f"{board}.csv")))
+        for p in errors:
+            print("error: " + p.text)
+        if errors:
+            return 1
     if command == "stats":
         print(f"{len(parts)} parts, {len({c.net for c in conns})} nets, "
               f"{len(conns)} pins on nets, {len(pinouts)} pinouts")
