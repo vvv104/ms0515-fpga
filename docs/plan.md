@@ -22,6 +22,16 @@ Each stage ends with its tests green; nothing is wired before it is tested.
 6. **The board in simulation.**  The generated board boots ROM-B to its
    prompt in Verilator; the screen compared with the emulator's frame,
    pixel for pixel.
+6b. **Disputed places decided by software.**  Every place the sources do
+   not settle becomes a switchable change in `netlist/rev3a.csv` with its
+   candidates (as Э3, as the copper, to pin X or Y).  The board is built
+   with each and runs the real software - the ROM self-test, Omega and
+   ОСА with the RAM disk, floppy writes, Rodionov's system on ROM-A - frame
+   by frame against the emulator.  A wrong candidate breaks something; if
+   none does, the place does not matter to the machine and is marked so.
+   First candidates: the long white wire's right end (it and the
+   D98.3-D70.11 wire run together behind the brown capacitor by D64/D71,
+   not separable on the photos).
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
