@@ -103,6 +103,38 @@ placement (pin 1 upper right); not done yet.
   after); left open.  For the FPGA it means: both ROM contents are needed,
   switchable.
 
+### The green wire on the owner's board (photo `MC 0515 04.jpg`)
+
+The photo laid onto the placement by six chip centres (worst error ~24
+layer px, under a pin pitch; the pin labels then sit on the pins):
+
+- **one end: D92 pin 9** - Q3 of the address latch, `АД03 Н`;
+- **the other end:** the upper lead of a discrete resistor between D80
+  (К555ИД7, the register decoder) and D85, next to D80 pins 4/5 (G2A/G2B,
+  both `ВБРЕГ L` on Э3).  Its reference on the assembly drawing is
+  unreadable; in Mick's traces its pad is on the run the traces wrongly
+  merge (`АД13`/`Р3`), its other lead on a plane.  Not settled.
+
+Why it is there - a hypothesis the documents support:
+
+- Alex_K (zx-pk 15146 #315, 2026) read the decoder off Э3: D80 decodes
+  `АД05`-`АД07`, "the line `АД03` I do not see used";
+- the memory expansion module's connection tables (`docs/ext`) decode
+  its own registers with `АД03` (into its D10) and take "выбор устр"
+  from XS1:C23, ТС15 from C21, ДЧТ51 from C22, СТАРТ from C24 and the
+  RS-232 lines from C17-C19 - **none of XS1 C17..C24 is wired on Э3's
+  НС4**;
+- Alex_K (#313): the RAM-disk board's registers overlap НС4's own -
+  "либо были какие-то модификации, которые неизвестны".
+
+So fitting the module needs НС4 to give up half of its register space
+(gate its decoder with `АД03`) and to bring signals out to XS1 C17..C24:
+the green wire from `АД03` towards D80's enables fits the first, and it
+appears on the owner's board only - the one that got the module at the
+plant.  To settle: a sharper look at the lower end (which pin, and
+whether a D80.4/D80.5 trace is cut), and the XS1 C17..C24 contacts on a
+board with the module.
+
 ### The owner's board against another one (first look)
 
 `MC 0515 04.jpg` (the owner's НС4 rev. 3А, full view) against
