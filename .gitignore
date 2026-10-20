@@ -38,3 +38,5 @@ netlist/compare.txt
 netlist/registration.json
 netlist/verify.json
 netlist/verify-*.png
+netlist/mick.csv
+netlist/compare-mick.txt

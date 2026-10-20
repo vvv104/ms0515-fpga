@@ -79,7 +79,7 @@ Where each of the nine stands (2026-10-20):
 | Join in the traces | Link that joins | On the scans | Verdict |
 |---|---|---|---|
 | D65.2 `АД13` - D77.27 `Р3` | layer 8, D65.2 up to D77.27 | the run passes beside the ring of D77.27, a nub touches it | open - looks like the traces' error |
-| D70.5 `ТС15 L` - D70.10 `~D71.8` | layer 2, via - D70.5 | no gold between the via and D70.5; the layer-7 part is there | traces' error |
+| D70.5 `ТС15 L` - D70.10 `~D71.8` | layer 2, via - D70.5 | no gold seen between the via and D70.5 (it may run under the tin) | **my misread of Э3**: pin 5 is on the D71.8 wire with pin 10 - Mick's redraw and the copper agree; fixed |
 | D9.19 `АД01` - D1.6 `АД02` | layer 2, D9.19 - D1.6 | gold leaves D1.6 upward and goes under a layer-1 run, where it may turn | open - a short A0/A1 cannot be right; the schematic stands |
 | D16.1 `~E1.2` - D40.9 `ТС8М L` | layers 7, 2, 8 through a square pad | every part of the chain is on the scans | **board differs from Э3**: D40 is clocked from the E1 side (after D15.4), not from the oscillator node D15.10; the netlist keeps Э3 until a real board settles it |
 | D86.11 `А13` - D9.6 `МК02`; D1.19 `УСТ` - D38.9 `СИНХР2` - D76.2 `ВКЛДВ`; D30.15 - D98.3 `СТРОБ`; D78.6 - D74.6 `А13`; D62.10 `АД06` - D79.9 `БОРДС` | long chains through vias on layers 2 and 7 | the inner runs are largely there; which via is wrong cannot be told - the scans show layers 2 and 7 only through the laminate | open - for another copy of the board or Mick's P-CAD file |
@@ -97,6 +97,24 @@ P-CAD 2002) and `mc-0515.pdf` (vector, 5 pages); the connector sheet was
 never drawn.  anasana sent the same files on 2026-10-20 with Mick's P-CAD
 libraries (`$MS0515_DATA/scans/anasana-2026-10-20`).  It is a second,
 independent reading of the same Э3: where it and `nets.csv` differ, one of
-the two misread the scan.  The binary .sch has no open reader; a netlist
-exported from P-CAD (ASCII .sch or a .net) would let `tools/` compare the
-two readings net by net.
+the two misread the scan.
+
+`tools/mick_pdf.py` reads the netlist out of the vector PDF (wires, pin
+stubs, bodies, labels by line width and geometry; bus entries dropped),
+`tools/compare_mick.py` compares it with `nets.csv`.  Mick's library
+numbers some types' pins its own way (КР580ВИ53 D0 on pin 1, likewise
+ВВ51, АП5, ЛИ6, ИВ3); Э3 and the datasheets agree with `nets.csv`, and the
+comparison maps Mick's numbers back.  First pass: 1331 signal pins in
+both, 1042 under the same net name, 20 disagreements.  Settled by Э3 and
+the copper so far:
+
+- mine wrong, fixed: D70.5 (on the D71.8 wire); `ИМЧТ Н` is `ИМП ЧТ Н`;
+- Mick's slips, `nets.csv` kept: D62/D67 swapped in the address-mux
+  stack (copper: D62.5 with D74.6 `А13`, D62.11 with D74.8 `А14`); D84.12
+  `АД13`/D84.13 `ДПЗУ` swapped (copper: D84.12 on the `АД13` run); D7.14
+  `МК08`, not `МК06` (copper: with D3.2, D58.18, D77.11); D81.9 on the
+  D69.9 wire, as the user read it (copper: D81.1, D81.4, D81.9 one run);
+  `ТС45 L` on D70.3/D70.6 is `ТС15 L` (the label points to sheet 3, where
+  only `ТС15 L` is made);
+- `СГИ L`/`КГИ L` on D14.9/D14.10: Э3 joins them with a dotted wire and
+  the copper joins the two pins; Mick keeps them apart.
