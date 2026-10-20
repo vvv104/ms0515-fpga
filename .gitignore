@@ -1,0 +1,34 @@
+# Build output
+build/
+obj_dir/
+cmake-build-*/
+*.vcd
+*.fst
+
+# FPGA tool output
+impl/
+*.fs
+*.bit
+*.json
+
+# Conan
+CMakeUserPresets.json
+
+# Python
+__pycache__/
+
+# Editor / IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+
+# KiCad per-user/local state
+*.kicad_prl
+*-backups/
+fp-info-cache
