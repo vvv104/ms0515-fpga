@@ -164,9 +164,14 @@ only.  No track cuts are noted anywhere.  So:
   favour.
 - The wire D98.3 is drawn as a long polyline along the bottom and up the
   right side; its far end is taken to be D70.11 (`СТРОБ Н`, the only
-  other pin-numbered end on that route).  Another stepped polyline in the
-  column D17..D65 has no pin numbers at its ends - an outline or a wire,
-  not settled.
+  other pin-numbered end on that route).  The stepped polyline in the
+  column D17..D65 without pin numbers is the D13.1 - D84.4 wire's route:
+  on the owner's photo (annotated copy `photos/known-machines/annotated-MC
+  0515 04-wires.jpg`) one white wire leaves D13's pin row between the two
+  РТ12s, runs down past D14 and D22, along the row above D17..D58 and turns
+  down past D58 towards D84; the D98.3 - D70.11 wire comes in from the
+  right along the row under D64/D71 and rises behind the brown capacitor
+  (D64) to D70.  Both as drawn.
 
 On the owner's board (photo `MC 0515 04.jpg`, read by the owner
 2026-10-20): two white wires meet on pin 3 of a КР1533ТМ2 (date 9002) -
