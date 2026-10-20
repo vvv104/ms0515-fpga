@@ -72,6 +72,30 @@ the ЛИ6/ЛН2 group to the left, a green wire with a series part near the top
 «ОМЕГА-3».  Their pins are to be found by laying the photo onto the
 placement (pin 1 upper right); not done yet.
 
+### Which ROM the owner's machine carried (checked 2026-10-20)
+
+- **2012, KokaF77** dumped his machine's ROMs, labelled «7004L» (D65) and
+  «7004H» (D77) (zx-pk 15146 p14 #134).  Merged by Titus, they are the
+  ROM in EmuStudio v0.12g: md5 b92cda2d… - **ROM-A** (the one with the
+  cassette loader).  The leningrad.su board's ROMs carry the same labels.
+- **30.06.2015** the club-museum dumped the owner's ROMs at the hand-over
+  (thread 9786 #814829); vvv104 posted them on 03.07.2015 (15146 #815382),
+  anasana merged them (#815389, attachment 52762: "the content differs",
+  "no reaction to the L command").  That file is md5 3d60d719… - **ROM-B**
+  byte for byte (`$MS0515_DATA/roms-provenance/`).
+- The owner's ROM chips (К573РФ4А, 8911 and 9004) carry no 7004 labels,
+  only hand marks; ROM-B is the one the Omega system disks need
+  (emulator KNOWN_ISSUES: the vvv104 Omega disk runs on ROM-B only;
+  shattered 2017: Omega's lang.dsk wants "другая прошивка").
+- Neither ROM drives the RAM disk (no access to its data port 177550 in
+  either listing): the RAM disk is the OS's driver's business.
+- The owner's account: the machine was bought, later taken back to the
+  plant whole for the RAM-disk upgrade and came back with a different
+  system diskette, the old one possibly no longer booting.  Everything
+  above fits ROM-A at purchase and ROM-B (with Omega) after the upgrade;
+  what is proven is only ROM-B in 2015.  The plant's people could have
+  changed anything then - the green wire patch included.
+
 ### The owner's board against another one (first look)
 
 `MC 0515 04.jpg` (the owner's НС4 rev. 3А, full view) against
