@@ -81,6 +81,17 @@ void check_table(Chip<V>& chip, const std::vector<int>& in, const std::vector<in
 
 inline Level lv(bool b) { return b ? L1 : L0; }
 
+// Random levels for a sequence test, repeatable.
+class Dice {
+public:
+    bool bit() { return (rng_() & 1u) != 0; }
+    // true with probability 1/n (a rarely asserted control input)
+    bool one_in(unsigned n) { return rng_() % n == 0; }
+
+private:
+    std::mt19937 rng_{515};
+};
+
 // The number held by input bits v[first .. first+count-1], v[first] lowest.
 inline unsigned bits(const std::vector<bool>& v, std::size_t first, std::size_t count)
 {
