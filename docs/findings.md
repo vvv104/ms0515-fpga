@@ -171,7 +171,9 @@ only.  No track cuts are noted anywhere.  So:
   РТ12s, runs down past D14 and D22, along the row above D17..D58 and turns
   down past D58 towards D84; the D98.3 - D70.11 wire comes in from the
   right along the row under D64/D71 and rises behind the brown capacitor
-  (D64) to D70.  Both as drawn.
+  (D64) to D70.  Both as drawn.  The owner followed the first on his
+  photo end to end: from D13's lower right pin, down, right, down along
+  the ROMs' blue socket, to pin 4 of a К555ЛЛ1 (date 8906) - D84.4.
 
 On the owner's board (photo `MC 0515 04.jpg`, read by the owner
 2026-10-20): two white wires meet on pin 3 of a КР1533ТМ2 (date 9002) -
