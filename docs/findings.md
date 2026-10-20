@@ -72,6 +72,31 @@ the ЛИ6/ЛН2 group to the left, a green wire with a series part near the top
 «ОМЕГА-3».  Their pins are to be found by laying the photo onto the
 placement (pin 1 upper right); not done yet.
 
+### The owner's board against another one (first look)
+
+`MC 0515 04.jpg` (the owner's НС4 rev. 3А, full view) against
+`mc0515-6.jpg` (the leningrad.su museum machine, Sergei Frolov 2009,
+980x735 - turned 90° to match), both in
+`$MS0515_DATA/photos/known-machines`:
+
+- the same placement part for part: the same board design;
+- **the white wire patches run the same routes** on both - from the top
+  left (by the РТ12s) down and along the row above the ROMs to the right
+  of the processor and down; from the ROMs' left down to the lower rows;
+  the short one by the ЛН2 at the top; the loop at the left middle.  So
+  these are factory changes, as Radon17 said (they are drawn on the
+  assembly drawing), not one owner's repairs;
+- **one green wire on the owner's board only**, on the right: from beside
+  the processor down to the bottom rows by the LEDs.  A later factory
+  change, a repair, or the owner's own (he fitted a joystick socket and
+  does not remember how it was wired) - to be found which pins it joins;
+- the other board's ROMs carry «7004L»/«7004H» labels, the owner's none;
+  the other board has blue capacitors, the owner's yellow; processors
+  9109 and 9010.
+
+The other photo is too small to follow pins; the routes are compared by
+shape only.
+
 ## The copper against the schematic: first pass (Mick's traces)
 
 `tools/compare.py` lays the 103 DIP parts on the pads of Mick's layer
