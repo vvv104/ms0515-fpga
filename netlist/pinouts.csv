@@ -498,3 +498,83 @@ type,pin,name,source
 К555ТМ8,13,4D,74LS175
 К555ТМ8,14,4QN,74LS175
 К555ТМ8,15,4Q,74LS175
+К555ИЕ10,1,CLR,74LS161
+К555ИЕ10,2,CLK,74LS161
+К555ИЕ10,3,A,74LS161
+К555ИЕ10,4,B,74LS161
+К555ИЕ10,5,C,74LS161
+К555ИЕ10,6,D,74LS161
+К555ИЕ10,7,ENP,74LS161
+К555ИЕ10,9,LOAD,74LS161
+К555ИЕ10,10,ENT,74LS161
+К555ИЕ10,11,QD,74LS161
+К555ИЕ10,12,QC,74LS161
+К555ИЕ10,13,QB,74LS161
+К555ИЕ10,14,QA,74LS161
+К555ИЕ10,15,RCO,74LS161
+КР556РТ12,1,A6,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,2,A5,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,3,A4,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,4,A3,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,5,A0,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,6,A1,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,7,A2,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,8,CE1,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,10,CE2,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,11,O3,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,12,O2,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,13,O1,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,14,O0,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,15,A9,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,16,A8,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+КР556РТ12,17,A7,as drawn on Э3 sheet 4 (1K x 4 PROM; datasheet wanted)
+К555КП11,1,SEL,74LS257
+К555КП11,2,1A,74LS257
+К555КП11,3,1B,74LS257
+К555КП11,4,1Y,74LS257
+К555КП11,5,2A,74LS257
+К555КП11,6,2B,74LS257
+К555КП11,7,2Y,74LS257
+К555КП11,9,3Y,74LS257
+К555КП11,10,3B,74LS257
+К555КП11,11,3A,74LS257
+К555КП11,12,4Y,74LS257
+К555КП11,13,4B,74LS257
+К555КП11,14,4A,74LS257
+К555КП11,15,OE,74LS257
+К555ИР16,1,SER,74LS295
+К555ИР16,2,A,74LS295
+К555ИР16,3,B,74LS295
+К555ИР16,4,C,74LS295
+К555ИР16,5,D,74LS295
+К555ИР16,6,MODE,74LS295
+К555ИР16,8,OE,74LS295
+К555ИР16,9,CLK,74LS295
+К555ИР16,10,QD,74LS295
+К555ИР16,11,QC,74LS295
+К555ИР16,12,QB,74LS295
+К555ИР16,13,QA,74LS295
+КТ677АС,1,C1,as drawn on Э3 sheet 4 (DT1.1)
+КТ677АС,2,B1,as drawn on Э3 sheet 4 (DT1.1)
+КТ677АС,3,E1,as drawn on Э3 sheet 4 (DT1.1)
+КТ677АС,5,E2,as drawn on Э3 sheet 4 (DT1.2)
+КТ677АС,6,B2,as drawn on Э3 sheet 4 (DT1.2)
+КТ677АС,7,C2,as drawn on Э3 sheet 4 (DT1.2)
+КТ677АС,8,C3,as drawn on Э3 sheet 4 (DT1.3)
+КТ677АС,9,B3,as drawn on Э3 sheet 4 (DT1.3)
+КТ677АС,10,E3,as drawn on Э3 sheet 4 (DT1.3)
+КТ677АС,12,E4,as drawn on Э3 sheet 4 (DT1.4)
+КТ677АС,13,B4,as drawn on Э3 sheet 4 (DT1.4)
+КТ677АС,14,C4,as drawn on Э3 sheet 4 (DT1.4)
+КТ676АС,1,C1,as drawn on Э3 sheet 4 (DT2.1)
+КТ676АС,2,B1,as drawn on Э3 sheet 4 (DT2.1)
+КТ676АС,3,E1,as drawn on Э3 sheet 4 (DT2.1)
+КТ676АС,5,E2,as drawn on Э3 sheet 4 (DT2.2)
+КТ676АС,6,B2,as drawn on Э3 sheet 4 (DT2.2)
+КТ676АС,7,C2,as drawn on Э3 sheet 4 (DT2.2)
+КТ676АС,8,C3,as drawn on Э3 sheet 4 (DT2.3)
+КТ676АС,9,B3,as drawn on Э3 sheet 4 (DT2.3)
+КТ676АС,10,E3,as drawn on Э3 sheet 4 (DT2.3)
+КТ676АС,12,E4,as drawn on Э3 sheet 4 (DT2.4)
+КТ676АС,13,B4,as drawn on Э3 sheet 4 (DT2.4)
+КТ676АС,14,C4,as drawn on Э3 sheet 4 (DT2.4)

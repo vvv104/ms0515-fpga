@@ -35,3 +35,17 @@ decided it.
   of behaviour are the same is not documented in the sources at hand: the
   Soviet specification (ТУ 0.348.964-01) is wanted.  Every place the
   processor model leans on the T-11 documents is to be marked as such.
+
+## СГИ L and КГИ L are one wire (Э3 sheet 4)
+
+- D21 O1 is labelled `СГИ L` (line sync pulse), D13 O1 `КГИ L` (frame
+  sync pulse).  At D14.3 both labels end on one vertical wire with a dot
+  on each, so the two open-collector outputs are tied: a composite sync,
+  pulled up by R5 alone (`КГИ L` has no pull-up of its own).  The netlist
+  keeps them as one net, `СГИ L`.  To confirm on the board.
+
+## Transistor arrays DT1/DT2 (Э3 sheet 4) = VT1/VT2 (ПЭ3)
+
+- Э3 sheet 4 draws the video output stage with `DT1` (КТ677) and `DT2`
+  (КТ676); ПЭ3 lists `VT1 КТ677АС` and `VT2 КТ676АС` and no DT parts.
+  The netlist uses ПЭ3's references.
