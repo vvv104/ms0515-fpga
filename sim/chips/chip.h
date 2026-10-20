@@ -19,10 +19,13 @@ class Chip {
 public:
     using Access = CData& (*)(V&);
 
-    explicit Chip(std::map<int, Access> pins) : pins_(std::move(pins)) {}
+    explicit Chip(std::map<int, Access> pins, std::map<int, Access> enables = {})
+        : pins_(std::move(pins)), enables_(std::move(enables)) {}
 
     void set(int pin, bool level) { pins_.at(pin)(model_) = level ? 1 : 0; }
     bool get(int pin) { return pins_.at(pin)(model_) != 0; }
+    bool has_enable(int pin) const { return enables_.count(pin) != 0; }
+    bool driven(int pin) { return enables_.at(pin)(model_) != 0; }
     void eval() { model_.eval(); }
     V& model() { return model_; }
 
@@ -39,7 +42,53 @@ public:
 private:
     V model_;
     std::map<int, Access> pins_;
+    std::map<int, Access> enables_;
 };
+
+// OE(n): the enable port pN_oe of a three-state output.
+#define OE(n) {n, [](V& m) -> CData& { return m.p##n##_oe; }}
+
+// An expected output level: 0, 1, or Z - a three-state output let go.
+enum Level { L0 = 0, L1 = 1, Z = 2 };
+
+using TableFn = std::function<std::vector<Level>(const std::vector<bool>&)>;
+
+// Every combination of the input pins (in[0] the lowest bit); fn gives the
+// expected level of each output pin in `out`.
+template <class V>
+void check_table(Chip<V>& chip, const std::vector<int>& in, const std::vector<int>& out,
+                 const TableFn& fn)
+{
+    for (unsigned m = 0; m < (1u << in.size()); ++m) {
+        std::vector<bool> v;
+        for (std::size_t i = 0; i < in.size(); ++i) {
+            v.push_back(((m >> i) & 1u) != 0);
+            chip.set(in[i], v.back());
+        }
+        chip.eval();
+        const std::vector<Level> want = fn(v);
+        for (std::size_t k = 0; k < out.size(); ++k) {
+            const int pin = out[k];
+            if (chip.has_enable(pin)) {
+                CHECK_MESSAGE(chip.driven(pin) == (want[k] != Z), "pin " << pin << " inputs " << m);
+                if (want[k] == Z)
+                    continue;
+            }
+            CHECK_MESSAGE(chip.get(pin) == (want[k] == L1), "pin " << pin << " inputs " << m);
+        }
+    }
+}
+
+inline Level lv(bool b) { return b ? L1 : L0; }
+
+// The number held by input bits v[first .. first+count-1], v[first] lowest.
+inline unsigned bits(const std::vector<bool>& v, std::size_t first, std::size_t count)
+{
+    unsigned n = 0;
+    for (std::size_t i = 0; i < count; ++i)
+        n |= (v[first + i] ? 1u : 0u) << i;
+    return n;
+}
 
 // A gate: its input pins and its output pin.
 struct Gate {

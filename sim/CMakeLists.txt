@@ -27,7 +27,8 @@ endfunction()
 
 foreach(chip
         k555la3 k555la4 k555la2 k555la13 k555li1 k555li3 k555li6 k555ll1
-        kr531le1 k555lp5 k555ln1 k555ln2 k155ln5 k155lp9 k555tl2 k555lr11)
+        kr531le1 k555lp5 k555ln1 k555ln2 k155ln5 k155lp9 k555tl2 k555lr11
+        k555id7 kr531id14 k555kp2 k555kp11 k555kp15 k555iv3 k555ap3 k555ap5)
     ms0515_chip_test(${chip})
 endforeach()
 
