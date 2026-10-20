@@ -45,7 +45,16 @@ placed by the photo fit and the pads' copper):
   the D16.1 pad), as the sheet-1 note on wire jumpers says;
 - **E5 fitted** (a white wire left of D91, from the pad on `ТС15 Н` -
   copper to D37.2 - to the pad on D91.6): the 15 MHz oscillator into the
-  clock net.
+  clock net;
+- **E2 fitted** (the white wire beside VD1 and R6, by D20/D28): С2's
+  circuit 108 from D20.6 to XP5.5;
+- **E7 and E8 fitted** (the pair of white wires by the two-pin XP7): the
+  cassette input `ЧТМАГ Н` to SA1 contacts 6 and 10;
+- E6 not seen (the speaker signal to XP6.11, for a monitor's speaker).
+
+That is exactly the assembly drawing's list of jumpers to fit (note to
+page 27: «E1, E2, E4, E5, E7, E8 - установочный размер 12,5»), E3 and E6
+left out: the owner's board carries the drawing's standard set.
 
 E4 fitted / E3 open is the base build `3.858.420` or `-02`; with the МС
 7004 keyboard the owner used, the base build: ROMs «7004L»/«7004H» and
