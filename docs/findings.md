@@ -73,3 +73,16 @@ Mick's line ends on it.  So a join in the traces is a question for the
 scans, not a finding against the schematic; each of the nine is to be
 looked at on the scans, and the inner-layer runs (2, 7) can be judged
 there only partly - they show through the laminate under the rings.
+
+Where each of the nine stands (2026-10-20):
+
+| Join in the traces | Link that joins | On the scans | Verdict |
+|---|---|---|---|
+| D65.2 `АД13` - D77.27 `Р3` | layer 8, D65.2 up to D77.27 | the run passes beside the ring of D77.27, a nub touches it | open - looks like the traces' error |
+| D70.5 `ТС15 L` - D70.10 `~D71.8` | layer 2, via - D70.5 | no gold between the via and D70.5; the layer-7 part is there | traces' error |
+| D9.19 `АД01` - D1.6 `АД02` | layer 2, D9.19 - D1.6 | gold leaves D1.6 upward and goes under a layer-1 run, where it may turn | open - a short A0/A1 cannot be right; the schematic stands |
+| D16.1 `~E1.2` - D40.9 `ТС8М L` | layers 7, 2, 8 through a square pad | every part of the chain is on the scans | **board differs from Э3**: D40 is clocked from the E1 side (after D15.4), not from the oscillator node D15.10; the netlist keeps Э3 until a real board settles it |
+| D86.11 `А13` - D9.6 `МК02`; D1.19 `УСТ` - D38.9 `СИНХР2` - D76.2 `ВКЛДВ`; D30.15 - D98.3 `СТРОБ`; D78.6 - D74.6 `А13`; D62.10 `АД06` - D79.9 `БОРДС` | long chains through vias on layers 2 and 7 | the inner runs are largely there; which via is wrong cannot be told - the scans show layers 2 and 7 only through the laminate | open - for another copy of the board or Mick's P-CAD file |
+
+Э3 sheet 5 read again on the way: D40 pin 13 (4D) is on the clock line
+with pin 9, not on ground - fixed in `nets.csv`.
