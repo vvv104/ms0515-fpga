@@ -46,6 +46,8 @@ traced into this repository, **want** = known to exist, not yet obtained.
 |---|---|---|
 | T-11 Engineering Specification Rev E (Mar 1982) - microcycles, pin timing | `scans/t11/T11_Engineering_Specification_Rev_E_Mar82.pdf` (+ `.txt`) | have |
 | T-11 User's Guide | `scans/t11/T11_UsersMan.pdf` (+ `.txt`) | have |
+| КР1807ВМ1 in A. V. Nefedov's catalogue (pp. 379-381): pin functions as the T-11's, 66 instructions, 12 addressing modes, 17 000 elements, 7.6 MHz clock at most; RAS-to-CAS setup >= 153 ns, hold >= 50 ns, cycle 1.6 us, low pulse >= 607 ns; nothing on differences from the T-11 (nedopc.org forum t=18840) | `docs/t11-clones/Nef1807vm1.pdf` | read |
+| Another board on КР1807ВМ1 with Intel-family LSI (same thread) | `docs/t11-clones/1807vm1-board-sch.pdf` | have |
 | КР1818ВГ93 (WD1793), КР580ВИ53 (8253), КР580ВВ51 (8251), КР580ВВ55 (8255), К565РУ*, К573РФ* datasheets | - | want |
 | К555 / К1533 / К531 function tables (Soviet reference books, TI 74LS data) | - | want |
 
@@ -59,6 +61,7 @@ traced into this repository, **want** = known to exist, not yet obtained.
 | radon.su board scans of the plant (НС1, НС3, НС4, НС5, НС8, ...) | https://radon.su/files/scan/brd/processor/ |
 | tis.kz scanned documentation (the RARs above came from there) | http://www.tis.kz/docs/ |
 | bitsavers - DEC T-11 documents | http://www.bitsavers.org/pdf/dec/ |
+| nedopc.org "DEC процессор T11 и его клоны" - Nefedov's КР1807ВМ1 page, a КР1807ВМ1 board schematic, the owner's photos of his MS 0515 | http://www.nedopc.org/forum/viewtopic.php?t=18840 |
 
 The forum serves attachments only with a browser's User-Agent and Referer.
 
