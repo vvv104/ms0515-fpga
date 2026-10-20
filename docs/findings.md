@@ -174,6 +174,10 @@ only.  No track cuts are noted anywhere.  So:
   (D64) to D70.  Both as drawn.  The owner followed the first on his
   photo end to end: from D13's lower right pin, down, right, down along
   the ROMs' blue socket, to pin 4 of a К555ЛЛ1 (date 8906) - D84.4.
+  And the second: from D70's third pin from the top on the left (pin 11),
+  under the short bare wire, down and right in steps to the КР1533ТМ2
+  (9002) at the board's right edge, beside an unused connector - D98, the
+  only КР1533ТМ2 on the board: the patch D98.3 - D70.11.
 
 On the owner's board (photo `MC 0515 04.jpg`, read by the owner
 2026-10-20): two white wires meet on pin 3 of a КР1533ТМ2 (date 9002) -
@@ -186,7 +190,8 @@ by the owner, 2026-10-20): it runs under the three resistors left of D70
 (R24, R25, R26 - their upper ends are on ~D51.1, ~D57.1 and `ВК2 Н` in
 the copper) from a pad below them that no drawn copper reaches (a plane
 or an inner layer) to D70's pin row, where the white wire D98.3-D70.11
-lands too - within one pin on the photo.  D70 (К555КП11) has its fourth
+lands too - within one pin on the photo; the owner sees the white wire
+pass under it, so the bare wire ends elsewhere on that row.  D70 (К555КП11) has its fourth
 section (pins 12-14) unused and its inputs open on Э3; a bare wire
 tying them to a plane is the usual fix, which would make it harmless.
 Which pin and which plane is open - not in the netlist.
