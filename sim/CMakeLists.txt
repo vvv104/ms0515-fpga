@@ -1,34 +1,45 @@
 # Test benches: one executable per chip module, verilated from rtl/chips,
-# plus the reference model's own check.  doctest supplies main().
+# the board, plus the reference model's own check.  doctest supplies main().
 
 add_library(sim_main STATIC main.cpp)
 target_link_libraries(sim_main PUBLIC doctest::doctest)
 ms0515_strict(sim_main)
 
-# ms0515_chip_test(<chip>): the module <chip> of rtl/chips against
-# chips/test_<chip>.cpp.  All chip sources are given, so a type may use
-# another's module.  The verilated model is its own library (V<chip>).
-# Packages go first: a module importing one needs it compiled before.
-file(GLOB MS0515_CHIP_PACKAGES CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/rtl/chips/*_pkg.sv")
-file(GLOB MS0515_CHIP_SOURCES CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/rtl/chips/*.sv")
-list(REMOVE_ITEM MS0515_CHIP_SOURCES ${MS0515_CHIP_PACKAGES})
-list(PREPEND MS0515_CHIP_SOURCES ${MS0515_CHIP_PACKAGES})
-function(ms0515_chip_test chip)
-    set(model V${chip})
-    add_library(${model} STATIC)
-    set_target_properties(${model} PROPERTIES SYSTEM ON)
+set(MS0515_CHIPS "${PROJECT_SOURCE_DIR}/rtl/chips")
+# the packages of КР1807ВМ1, in the order they import each other
+set(MS0515_CPU_PACKAGES "${MS0515_CHIPS}/kr1807vm1_pkg.sv" "${MS0515_CHIPS}/kr1807vm1_steps_pkg.sv")
+
+# ms0515_model(<library> <top source> <top module> [PACKAGES ...] [ARGS ...]):
+# a verilated model as its own library.  Verilator finds the modules the top
+# uses in rtl/chips by their names (-y); the packages it imports are given,
+# first.  The model and the Verilator runtime build without our warning
+# flags and reach our code as system headers.
+function(ms0515_model library source top)
+    cmake_parse_arguments(M "" "" "PACKAGES;ARGS" ${ARGN})
+    add_library(${library} STATIC)
+    set_target_properties(${library} PROPERTIES SYSTEM ON)
     # time comes from the VerilatedContext, not a global sc_time_stamp()
-    target_compile_definitions(${model} PUBLIC VL_TIME_CONTEXT)
-    verilate(${model}
-        SOURCES ${MS0515_CHIP_SOURCES}
-        TOP_MODULE ${chip}
-        PREFIX ${model}
-        VERILATOR_ARGS --language ${MS0515_SV_LANGUAGE} -Wall)
-    set(target test_${chip})
-    add_executable(${target} chips/test_${chip}.cpp)
-    target_link_libraries(${target} PRIVATE sim_main ${model})
-    ms0515_strict(${target})
-    add_test(NAME ${target} COMMAND ${target})
+    target_compile_definitions(${library} PUBLIC VL_TIME_CONTEXT)
+    verilate(${library}
+        SOURCES ${M_PACKAGES} "${source}"
+        TOP_MODULE ${top}
+        PREFIX ${library}
+        VERILATOR_ARGS --language ${MS0515_SV_LANGUAGE} -Wall -y "${MS0515_CHIPS}" ${M_ARGS})
+endfunction()
+
+# ms0515_test(<name> <source> <libraries...>)
+function(ms0515_test name source)
+    add_executable(${name} ${source})
+    target_link_libraries(${name} PRIVATE sim_main ${ARGN})
+    ms0515_strict(${name})
+    add_test(NAME ${name} COMMAND ${name})
+endfunction()
+
+# ms0515_chip_test(<chip> [PACKAGES ...]): the module <chip> of rtl/chips
+# against chips/test_<chip>.cpp.
+function(ms0515_chip_test chip)
+    ms0515_model(V${chip} "${MS0515_CHIPS}/${chip}.sv" ${chip} ${ARGN})
+    ms0515_test(test_${chip} chips/test_${chip}.cpp V${chip})
 endfunction()
 
 foreach(chip
@@ -37,26 +48,15 @@ foreach(chip
         k555id7 kr531id14 k555kp2 k555kp11 k555kp15 k555iv3 k555ap3 k555ap5
         k555tm2 kr531tm2 kr1533tm2 k555tm8 k555tm9 k555ir22 k555ir23 k555ir16
         k555ie10 k555ie19
-        kr559ip11 kr1102ap15 k554sa3
-        kr1807vm1_bus)
+        kr559ip11 kr1102ap15 k554sa3)
     ms0515_chip_test(${chip})
 endforeach()
 
-# The board generated from the netlist (tools/board.py writes rtl/board/ns4.sv).
-add_library(Vns4 STATIC)
-set_target_properties(Vns4 PROPERTIES SYSTEM ON)
-target_compile_definitions(Vns4 PUBLIC VL_TIME_CONTEXT)
-verilate(Vns4
-    SOURCES ${MS0515_CHIP_SOURCES} "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv"
-    TOP_MODULE ns4
-    PREFIX Vns4
-    VERILATOR_ARGS --language ${MS0515_SV_LANGUAGE} -Wall)
-add_executable(test_board board/test_board.cpp)
-target_link_libraries(test_board PRIVATE sim_main Vns4)
-ms0515_strict(test_board)
-add_test(NAME test_board COMMAND test_board)
+ms0515_chip_test(kr1807vm1_bus PACKAGES "${MS0515_CHIPS}/kr1807vm1_pkg.sv")
+ms0515_chip_test(kr1807vm1 PACKAGES ${MS0515_CPU_PACKAGES})
 
-add_executable(test_reference reference/test_reference.cpp)
-target_link_libraries(test_reference PRIVATE sim_main ms0515_core)
-ms0515_strict(test_reference)
-add_test(NAME test_reference COMMAND test_reference)
+# The board generated from the netlist (tools/board.py writes rtl/board/ns4.sv).
+ms0515_model(Vns4 "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv" ns4 PACKAGES ${MS0515_CPU_PACKAGES})
+ms0515_test(test_board board/test_board.cpp Vns4)
+
+ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
