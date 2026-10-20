@@ -141,6 +141,21 @@ requests only in reads and ASPIs.
 | Vector strobe | SEL1 trailing edge | the ES's hold time is referenced to it |
 | SP after power-up | 000376 | ES p.9, UG §3.5.2.5.  The emulator leaves 0. |
 
+## Where the emulator differs from the documents
+
+Found by the lockstep test (`test_kr1807vm1_lockstep.cpp`) and by reading
+the emulator's `src/core/src/cpu*.c`; the model follows the documents.  To
+be tried on the software emulator (ROM self-test, OSA, Omega, games)
+before the emulator is changed:
+
+| Place | DEC documents (the model) | Emulator |
+|---|---|---|
+| Rn as the source, (Rn)+ / -(Rn) / @(Rn)+ / @-(Rn) as the destination (`ADD R0,@(R0)+`, `XOR R2,-(R2)`) | Rn already moved is the source (UG §B.2) | Rn before it moved |
+| SP after power-up | 000376 (ES p.9, UG §3.5.2.5) | 0 |
+| MTPS | cannot set T (UG p.B-5) | loads T with the rest |
+| RTI that sets T | trace trap at once, before the next instruction (UG §6.3.5.8) | inhibited for one instruction, as RTT |
+| RTT, RESET times | App. B: 8 and 39 microcycles | UG Tables A-20/A-21: 11 and 36.5 |
+
 ## Microcycle order inside instructions
 
 The documents give totals (App. B), bus transactions (App. E) and eleven
