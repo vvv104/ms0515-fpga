@@ -42,7 +42,10 @@ placed by the photo fit and the pads' copper):
 - **E4 fitted** (a white wire from the `РВК0 Н` pad to a plane pad),
   **E3 open** - in a row of four positions whose other two are R7, R8;
 - **E1 fitted** (a white wire in place of a resistor, between D15.8 and
-  the D16.1 pad), as the sheet-1 note on wire jumpers says.
+  the D16.1 pad), as the sheet-1 note on wire jumpers says;
+- **E5 fitted** (a white wire left of D91, from the pad on `ТС15 Н` -
+  copper to D37.2 - to the pad on D91.6): the 15 MHz oscillator into the
+  clock net.
 
 E4 fitted / E3 open is the base build `3.858.420` or `-02`; with the МС
 7004 keyboard the owner used, the base build: ROMs «7004L»/«7004H» and
