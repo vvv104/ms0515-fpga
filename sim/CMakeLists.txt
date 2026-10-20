@@ -8,7 +8,11 @@ ms0515_strict(sim_main)
 # ms0515_chip_test(<chip>): the module <chip> of rtl/chips against
 # chips/test_<chip>.cpp.  All chip sources are given, so a type may use
 # another's module.  The verilated model is its own library (V<chip>).
+# Packages go first: a module importing one needs it compiled before.
+file(GLOB MS0515_CHIP_PACKAGES CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/rtl/chips/*_pkg.sv")
 file(GLOB MS0515_CHIP_SOURCES CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/rtl/chips/*.sv")
+list(REMOVE_ITEM MS0515_CHIP_SOURCES ${MS0515_CHIP_PACKAGES})
+list(PREPEND MS0515_CHIP_SOURCES ${MS0515_CHIP_PACKAGES})
 function(ms0515_chip_test chip)
     set(model V${chip})
     add_library(${model} STATIC)
@@ -33,7 +37,8 @@ foreach(chip
         k555id7 kr531id14 k555kp2 k555kp11 k555kp15 k555iv3 k555ap3 k555ap5
         k555tm2 kr531tm2 kr1533tm2 k555tm8 k555tm9 k555ir22 k555ir23 k555ir16
         k555ie10 k555ie19
-        kr559ip11 kr1102ap15 k554sa3)
+        kr559ip11 kr1102ap15 k554sa3
+        kr1807vm1_bus)
     ms0515_chip_test(${chip})
 endforeach()
 

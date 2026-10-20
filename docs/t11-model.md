@@ -58,25 +58,28 @@ Times in T from the start of the address microcycle's φ2:
 | 3.5 | PI ↑, SEL0 ↓ | PI ↑ |
 | 4 | COUT ↑ | the same |
 | 5 | COUT ↓, -CAS ↑: **read data latched** | COUT ↓, -CAS ↑ (delayed: R/-WxB ↑) |
-| 5.5 | PI ↓: AI requests latched | PI ↓: AI read for DMR only |
+| 5 + PI_FALL_DELAY | PI ↓: AI requests latched | PI ↓ |
 | 5.5 + RAS_RISE_DELAY | -RAS ↑ | -RAS ↑ |
 | 6 | next address | R/-WxB ↑ (normal mode), next address |
 
-Checked against the AC table (ES §4.1, `t11.md` §5.8) at T = 133 ns,
-RAS_RISE_DELAY = 2 ticks (16.7 ns):
+PI cannot fall on an XTL edge: it has to come between tPIP (≥ 2T-47 after
+it rose, so ≥ 5T+20 ns) and tNHP (≥ T-43 before R/W rises at 6, so
+≤ 5T+43 ns).  Checked against the AC table (ES §4.1, `t11.md` §5.8) at
+T = 133 ns, PI_FALL_DELAY = 3 ticks (25 ns), RAS_RISE_DELAY = 2 ticks
+(16.7 ns):
 
-- strobes: tRAS 4.5T+17 ≥ 4T+35; tCAS 2.5T ≥ 3T-90; tPIP 2T ≥ 2T-47;
-  tRSC 1.5T ≥ T+10; tCSP T ≥ T-28; tRSP 2.5T ≥ 2T+10; tCSR 2.5T+17 ≥
-  3T-40; tPSC 1.5T ≥ 2T-75; tPSR 2T+17 ≥ 2T+14; tRHC 0.5T+17 ≥ 50 ns;
-  tRHP 17 ns ≥ 10; tPHC 0.5T ≥ 10;
-- precharge: -RAS 1.5T-17 ≥ 2T-120; -CAS 3.5T ≥ 3T-5; PI 4T ≥ 4T-33;
+- strobes: tRAS 4.5T+17 ≥ 4T+35; tCAS 2.5T ≥ 3T-90; tPIP 1.5T+25 ≥
+  2T-47; tRSC 1.5T ≥ T+10; tCSP T ≥ T-28; tRSP 2.5T ≥ 2T+10; tCSR
+  2.5T+17 ≥ 3T-40; tPSC 1.5T ≥ 2T-75; tPSR 2T+17 ≥ 2T+14; tRHC 0.5T+17 ≥
+  50 ns; tRHP 0.5T-8 ≥ 10; tPHC 25 ≥ 10;
+- precharge: -RAS 1.5T-17 ≥ 2T-120; -CAS 3.5T ≥ 3T-5; PI 4.5T-25 ≥ 4T-33;
 - address: tDSR T ≥ T-48; tDHR 1.5T ≥ T-12; tDSC 2.5T ≥ 2T-22; tDSP
   3.5T ≥ 3T-20; tCDE T ≥ T-18; tRDE 0.5T-17 ≥ T-118;
 - write data: tCWD 0 ≤ 80 ns; tRWD 1.5T ≤ 2T+4; tWDP T ≥ T-83; tWSC
-  2.5T ≥ 3T-150; tWSP 3T ≥ 3T-110; tWSR 3T+17 ≥ 3T-55; tWHC T ≥ T-28;
-  tWHP 0.5T ≥ T-88; tWHR 0.5T-17 ≥ T-118;
+  2.5T ≥ 3T-150; tWSP 2.5T+25 ≥ 3T-110; tWSR 3T+17 ≥ 3T-55; tWHC T ≥
+  T-28; tWHP T-25 ≥ T-88; tWHR 0.5T-17 ≥ T-118;
 - normal R/W: tNSR T ≥ T-78; tNSC 2.5T ≥ 2T-37; tNSP 3.5T ≥ 3T-45;
-  tNHR 0.5T-17 ≥ T-108; tNMP 6T ≥ 6T-66;
+  tNHR 0.5T-17 ≥ T-108; tNHC T ≥ T-32; tNHP T-25 ≥ T-43; tNMP 6T ≥ 6T-66;
 - COUT: tOPW T ≥ T-33; tORT 2T ≥ 2T-37; tMOR 0 ≥ 0; tMRO T ≥ T-51; tOSC
   0.5T ≥ 10;
 - fetch SEL0: tFFR T ≥ T-23; tSSF 3.5T ≥ 3T-38.
