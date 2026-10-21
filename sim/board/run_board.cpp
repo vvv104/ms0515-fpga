@@ -12,6 +12,7 @@
 
 #include "Vns4.h"
 #include "dram_watch.h"
+#include "screen_compare.h"
 
 extern "C" {
 #include <ms0515/core/board.h>
@@ -121,6 +122,12 @@ public:
             std::printf("%02x ", vram[i]);
         std::printf("\n");
     }
+    // the board's frame against the emulator's picture of its video memory
+    ScreenCompare screen(const Frame& f) const
+    {
+        return compare_screen(f.lines, board_get_vram(b_.get()), board_is_hires(b_.get()),
+                              board_get_border_color(b_.get()));
+    }
     // the bytes of the emulator's video memory that are not zero
     std::size_t vram_used() const
     {
@@ -179,8 +186,20 @@ int main(int argc, char** argv)
         ras_was = m->n_PVAS_L != 0;
 
         if (!m->n_KSI_L && ksi_was) {                   // a frame ends
-            if (frames % every == 0)
+            if (frames % every == 0) {
                 write_bmp(folder + "/frame" + std::to_string(frames) + ".bmp", frame);
+                if (started) {
+                    const ScreenCompare c = emu.screen(frame);
+                    if (c.differ < 0)
+                        std::printf("frame %d: too short to compare\n", frames);
+                    else if (c.differ == 0)
+                        std::printf("frame %d: as the emulator's screen (area at %d, %d)\n", frames, c.dx, c.dy);
+                    else
+                        std::printf("frame %d: %d samples differ (area at %d, %d); first at %d, %d: "
+                                    "%x, the emulator's %x\n",
+                                    frames, c.differ, c.dx, c.dy, c.first_x, c.first_y, c.got, c.want);
+                }
+            }
             frame.lines.clear();
             ++frames;
         }
