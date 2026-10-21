@@ -13,7 +13,7 @@
 // disk=IMAGE puts the image in drive 0, the МС 5305 on XP4 (sim/board/
 // drive.h), its tracks laid out as the formatter `layout` writes them;
 // `keyboard` puts the stub on XS2 that answers ROM-B's ID request.
-// save=FILE@MS writes a snapshot of the board and the bench at machine
+// save=FILE@MS (as many as wanted) writes a snapshot of the board and the bench at machine
 // time MS; load=FILE goes on from one, to machine time <machine ms> (no
 // lockstep then: the emulator starts at power-on).  The last line,
 // "summary: key=value ...", is for tools/run_many.py.
@@ -210,8 +210,7 @@ struct Options {
     std::string disk;                   // an image in drive 0, the МС 5305 (none: no disk)
     std::string layout = "omega";       // the formatter its tracks are laid out as
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
-    std::string save;                   // a snapshot written at machine time save_ms
-    std::uint64_t save_ms = 0;
+    std::vector<std::pair<std::uint64_t, std::string>> saves;  // snapshots: (machine ms, file)
     std::string load;                   // a snapshot the run goes on from
 
     drive::Layout track_layout() const
@@ -239,10 +238,10 @@ struct Options {
                 layout = arg.substr(7);
             else if (arg == "keyboard")
                 keyboard = true;
-            else if (arg.rfind("save=", 0) == 0 && arg.find('@') != std::string::npos) {
-                save = arg.substr(5, arg.find('@') - 5);
-                save_ms = std::strtoull(arg.c_str() + arg.find('@') + 1, nullptr, 10);
-            } else if (arg.rfind("load=", 0) == 0)
+            else if (arg.rfind("save=", 0) == 0 && arg.find('@') != std::string::npos)
+                saves.emplace_back(std::strtoull(arg.c_str() + arg.find('@') + 1, nullptr, 10),
+                                   arg.substr(5, arg.find('@') - 5));
+            else if (arg.rfind("load=", 0) == 0)
                 load = arg.substr(5);
         }
         return every > 0;
@@ -458,13 +457,15 @@ int main(int argc, char** argv)
         fetches.diverged = true;                       // the emulator starts at power-on: no lockstep
         fetches.resume();
     }
-    const std::uint64_t save_at = o.save_ms * 1000 * kMasterMhz;
+    std::size_t next_save = 0;                          // saves in the order of their times
+    std::vector<std::pair<std::uint64_t, std::string>> saves = o.saves;
+    std::sort(saves.begin(), saves.end());
 
     const auto wall = std::chrono::steady_clock::now();
     const std::uint64_t ticks = o.ms * 1000 * kMasterMhz;
     for (std::uint64_t t = from; t < ticks; ++t) {
-        if (!o.save.empty() && t == save_at)
-            save_snapshot(o.save, parts, t);
+        while (next_save < saves.size() && t == saves[next_save].first * 1000 * kMasterMhz)
+            save_snapshot(saves[next_save++].second, parts, t);
         power(*m, t);
         if (fdd)
             xp4_drive(*m, fdd->tick(t, xp4_lines(*m)));
