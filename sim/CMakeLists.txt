@@ -57,10 +57,11 @@ ms0515_model(Vcrystal "${MS0515_CHIPS}/crystal.sv" crystal)
 ms0515_model(Vcrystal_15 "${MS0515_CHIPS}/crystal.sv" crystal ARGS -GPERIOD=8 -GHIGH=4)
 ms0515_test(test_crystal chips/test_crystal.cpp Vcrystal Vcrystal_15)
 
-# a delay line, three ticks long
-ms0515_model(Vdelay_line "${MS0515_CHIPS}/delay_line.sv" delay_line ARGS -GTICKS=3)
-ms0515_model(Vdelay_line_asym "${MS0515_CHIPS}/delay_line.sv" delay_line ARGS -GTICKS=3 -GFALL=1)
-ms0515_test(test_delay_line chips/test_delay_line.cpp Vdelay_line Vdelay_line_asym)
+# a bank of delay lines: three ticks, one bit or three
+ms0515_model(Vdelay_bank "${MS0515_CHIPS}/delay_bank.sv" delay_bank ARGS -GTICKS=3)
+ms0515_model(Vdelay_bank_asym "${MS0515_CHIPS}/delay_bank.sv" delay_bank ARGS -GTICKS=3 -GFALL=1)
+ms0515_model(Vdelay_bank_wide "${MS0515_CHIPS}/delay_bank.sv" delay_bank ARGS -GTICKS=3 -GW=3)
+ms0515_test(test_delay_bank chips/test_delay_bank.cpp Vdelay_bank Vdelay_bank_asym Vdelay_bank_wide)
 
 # a PROM is tested programmed with a pattern (chips/kr556rt12_bench.sv)
 ms0515_model(Vkr556rt12_bench "${CMAKE_CURRENT_SOURCE_DIR}/chips/kr556rt12_bench.sv" kr556rt12_bench)

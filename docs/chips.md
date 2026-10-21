@@ -63,4 +63,4 @@ Not chips but models the generator places:
 | What | Model | From |
 |---|---|---|
 | a crystal and its oscillator (BQ1, BQ2) | `crystal.sv` | the rating in `netlist/parts.csv` |
-| a chip's propagation delay | `delay_line.sv` | `netlist/delays.csv` |
+| chips' propagation delays | `delay_bank.sv` | `netlist/delays.csv` |

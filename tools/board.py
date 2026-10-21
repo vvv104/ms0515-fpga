@@ -567,16 +567,36 @@ def emit(b, levels, busy):
         port, expr = conns[-1]
         lines += [f"        .{port}({expr})", "    );"]
     if b.lines:
-        lines += ["", "    // the chips' propagation delays (netlist/delays.csv)"]
-        for (rise, fall), raw, to in b.lines:
-            params = f".TICKS({rise})" + ("" if fall == rise else f", .FALL({fall})")
-            lines.append(f"    delay_line #({params}) l_{to[2:]} (.clk(clk), .i({raw}), .o({to}));")
+        lines += ["", "    // the chips' propagation delays (netlist/delays.csv), a bank for the"
+                      " outputs of one delay"]
+        made = defaultdict(int)
+        for chunk in banks(b.lines):
+            rise, fall = chunk[0][0]
+            params = f".TICKS({rise})" + ("" if fall == rise else f", .FALL({fall})") + f", .W({len(chunk)})"
+            name = f"b{rise}_{fall}_{made[rise, fall]}"
+            made[rise, fall] += 1
+            ins = ", ".join(raw for _, raw, _ in chunk)
+            outs = ", ".join(to for _, _, to in chunk)
+            lines.append(f"    delay_bank #({params}) {name} (.clk(clk), .i({{{ins}}}), .o({{{outs}}}));")
     lines.append("")
     lines += [f"    assign {ident(n)} = {levels[n]};" for n in nets]
     lines += [f"    assign contention_at[{i}] = {busy[n]};" for i, n in enumerate(fought)]
     lines.append(f"    assign contention = {'|contention_at' if fought else ZERO};")
     lines.append("endmodule")
     return "\n".join(lines) + "\n"
+
+
+BANK_WIDTH = 64                 # a machine word: the bank's bits in one operation
+
+
+def banks(lines):
+    """The delay lines (ticks, raw, wire) in banks: the outputs of one
+    (rise, fall) delay together, in the order they came, a machine word's
+    worth at most a bank."""
+    groups = defaultdict(list)
+    for line in lines:
+        groups[line[0]].append(line)
+    return [group[i:i + BANK_WIDTH] for group in groups.values() for i in range(0, len(group), BANK_WIDTH)]
 
 
 def inputs_text(ports):

@@ -6,8 +6,9 @@ the chip's propagation delay, as on the board.
 
 ## The rule
 
-- Every chip's outputs pass through a **delay line** (`rtl/chips/delay_line.sv`)
-  that `tools/board.py` puts after them: round(delay / 8.33 ns) ticks.
+- Every chip's outputs pass through a **delay line** that `tools/board.py`
+  puts after them: round(delay / 8.33 ns) ticks.  The lines of one delay
+  share a bank (`rtl/chips/delay_bank.sv`), up to 64 bits handled at once.
 - The delay is the chip's **typical** tPLH/tPHL from its datasheet
   (`netlist/delays.csv`, each row with its source).  Where a datasheet
   gives maximums only (К555ИР16, КР1533ТМ2, К573РФ4Б, КР565РУ5Г), the
@@ -62,5 +63,9 @@ taking time:
 
 ## The cost
 
-The 469 delay lines make the model about 1.6 times slower (bench_board:
-181x -> 289x slower than the machine).
+The 469 delay lines made the model about 1.6 times slower (bench_board:
+181x -> 289x slower than the machine); in 16 banks, a machine word at a
+time, 253x.  This is the price of the 8.33 ns step: the board relies on
+its gates' delays, and 120 MHz is the least clock both crystals (8 and
+15 MHz) divide.  Real time is the FPGA's; the simulation is the check,
+its long runs run side by side (tools/run_many.py).

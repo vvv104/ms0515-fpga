@@ -343,13 +343,13 @@ class Crystals(unittest.TestCase):
         self.assertNotIn("x_BQ1", text)
 
 
-DELAY_LINE = """// A delay line.
-module delay_line #(
-    parameter int TICKS = 1
+DELAY_BANK = """// A bank of delay lines.
+module delay_bank #(
+    parameter int TICKS = 1, parameter int FALL = TICKS, parameter int W = 1
 ) (
     input  logic clk,
-    input  logic i,
-    output logic o
+    input  logic [W-1:0] i,
+    output logic [W-1:0] o
 );
     assign o = i;
 endmodule
@@ -377,20 +377,25 @@ class Delays(unittest.TestCase):
                 analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"),
                 delays=os.path.join(d, "delays.csv")))
 
-    def test_an_output_comes_through_a_delay_line(self):
+    def test_outputs_of_one_delay_come_through_one_bank(self):
         text, problems = self.generate("К555ЛН1,20,a datasheet\nК555АП5,3,a datasheet\n",
-                                       (INVERTER, BUFFER, DELAY_LINE))
+                                       (INVERTER, BUFFER, DELAY_BANK))
         self.assertEqual(errors(problems), [])
         self.assertIn(".p2(r_D1_p2)", text)
-        self.assertIn("delay_line #(.TICKS(2)) l_D1_p2 (.clk(clk), .i(r_D1_p2), .o(d_D1_p2));", text)
+        self.assertIn("delay_bank #(.TICKS(2), .W(2)) b2_2_0 (.clk(clk), .i({r_D1_p2, r_D1_p4}), "
+                      ".o({d_D1_p2, d_D1_p4}));", text)
         self.assertIn("input  logic clk", text)
         # under a tick: straight through, no line
         self.assertIn(".p18(d_D2_p18)", text)
-        self.assertNotIn("l_D2_p18", text)
+        self.assertNotIn("r_D2_p18", text)
+
+    def test_a_bank_is_a_machine_word_wide_at_most(self):
+        self.assertEqual([len(c) for c in board.banks([((1, 1), f"r{i}", f"d{i}") for i in range(130)])],
+                         [64, 64, 2])
 
     def test_an_enable_has_a_delay_of_its_own(self):
         f = Fixture("D2,К555АП5,,20,10,20,,,\n", "E,D2,1,,1,\nB,D2,2,,1,\nY,D2,18,,1,\n",
-                    modules=(BUFFER, DELAY_LINE))
+                    modules=(BUFFER, DELAY_BANK))
         f.write("delays.csv", "type,ns,oe_ns,off_ns,source\nК555АП5,20,40,10,a datasheet\n")
         with f.dir as d:
             text, problems = board.generate(board.Sources(
@@ -399,12 +404,12 @@ class Delays(unittest.TestCase):
                 analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"),
                 delays=os.path.join(d, "delays.csv")))
         self.assertEqual(errors(problems), [])
-        self.assertIn("delay_line #(.TICKS(2)) l_D2_p18 (.clk(clk), .i(r_D2_p18), .o(d_D2_p18));", text)
-        self.assertIn("delay_line #(.TICKS(5), .FALL(1)) l_D2_p18_oe (.clk(clk), .i(r_D2_p18_oe), "
-                      ".o(d_D2_p18_oe));", text)
+        self.assertIn("delay_bank #(.TICKS(2), .W(1)) b2_2_0 (.clk(clk), .i({r_D2_p18}), .o({d_D2_p18}));", text)
+        self.assertIn("delay_bank #(.TICKS(5), .FALL(1), .W(1)) b5_1_0 (.clk(clk), .i({r_D2_p18_oe}), "
+                      ".o({d_D2_p18_oe}));", text)
 
     def test_a_chip_type_without_a_delay_is_an_error(self):
-        _, problems = self.generate("К555ЛН1,10,a datasheet\n", (INVERTER, BUFFER, DELAY_LINE))
+        _, problems = self.generate("К555ЛН1,10,a datasheet\n", (INVERTER, BUFFER, DELAY_BANK))
         self.assertTrue(any("К555АП5" in e and "delays.csv" in e for e in errors(problems)))
 
 
