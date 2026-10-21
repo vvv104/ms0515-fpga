@@ -4,7 +4,7 @@
 // address a in bits 4a+3..4a, bit k of a word on output Ok - a programmer's
 // dump read as nibbles (firmware/README.md).
 module kr556rt12 #(
-    parameter logic [4095:0] CONTENTS = '1
+    parameter logic [4095:0] CONTENTS = '0     // unprogrammed: every output low (82S136)
 ) (
     input  logic p5,  input  logic p6,  input  logic p7,  input  logic p4,   // A0..A3
     input  logic p3,  input  logic p2,  input  logic p1,  input  logic p17,  // A4..A7

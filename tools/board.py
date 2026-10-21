@@ -55,6 +55,7 @@ POWER = {"GND": "1'b0", "+5V": "1'b1", "+12V": None, "-12V": None}
 ZERO = "1'b0"
 MASTER_MHZ = 120            # the clk the stateful chips take
 SUPPLIES = {"VCC", "VEE", "VDD", "VBB", "VSS", "GND", "BGND"}
+ANALOGUE = {"W-S"}              # a slew-rate resistor's pin (КР1102АП15)
 RESISTORS = ("С1-4", "С2-23", "НР1-11", "СП5-16")
 TRANSLIT = dict(zip("АБВГДЕЗИЙКЛМНОПРСТУФХЦЫЭ", "ABVGDEZIYKLMNOPRSTUFHCYE"))
 TRANSLIT.update({"Ж": "ZH", "Ч": "CH", "Ш": "SH", "Щ": "SCH", "Ю": "YU", "Я": "YA",
@@ -436,8 +437,9 @@ class Builder:
                                {"PERIOD": period, "HIGH": high}))
 
     def supply(self, ref, pin):
-        """A supply pin left off the power table (VEE of КР1102АП15): no logic."""
-        return self.pinouts.get(self.parts[ref].type, {}).get(pin) in SUPPLIES
+        """A pin with no logic: a supply left off the power table (VEE of
+        КР1102АП15) or an analogue one (its slew-rate resistor's W-S)."""
+        return self.pinouts.get(self.parts[ref].type, {}).get(pin) in SUPPLIES | ANALOGUE
 
     def read(self, name, ref, pin):
         root = self.joins.find(name)

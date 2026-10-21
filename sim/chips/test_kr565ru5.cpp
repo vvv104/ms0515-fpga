@@ -122,3 +122,22 @@ TEST_CASE("КР565РУ5: -CAS without -RAS does nothing; DO is off while -CAS is
     ram.set(15, true);
     CHECK(ram.read(1, 2));
 }
+
+// DO is controlled by -CAS alone: -RAS going high with -CAS still low keeps
+// the data out (hidden refresh) - TI TMS4164 p.2, Intel 2164A p.1, p.11-12.
+TEST_CASE("КР565РУ5: DO stays out while -CAS is low after -RAS goes high")
+{
+    Ram ram;
+    ram.write(3, 4, true);
+    ram.address(3);
+    ram.chip().tick();
+    ram.set(4, false);
+    ram.address(4);
+    ram.set(15, false);
+    REQUIRE(ram.chip().driven(14));
+    ram.set(4, true);                       // -RAS up, -CAS still low
+    CHECK(ram.chip().driven(14));
+    CHECK(ram.chip().get(14));
+    ram.set(15, true);
+    CHECK(!ram.chip().driven(14));
+}

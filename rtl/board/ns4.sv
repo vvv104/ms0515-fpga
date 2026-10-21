@@ -583,7 +583,6 @@ module ns4 (
     output logic nx_D17_5,
     output logic nx_D17_6,
     output logic nx_D17_8,
-    output logic nx_D20_1,
     output logic nx_D20_6,
     output logic nx_D22_15,
     output logic nx_D22_16,
@@ -595,7 +594,6 @@ module ns4 (
     output logic nx_D24_6,
     output logic nx_D24_9,
     output logic nx_D25_6,
-    output logic nx_D28_1,
     output logic nx_D29_14,
     output logic nx_D29_15,
     output logic nx_D30_15,
@@ -2815,7 +2813,6 @@ module ns4 (
     );
 
     kr1102ap15 D20 (
-        .p1(nx_D20_1),
         .p2(n_PRD2_H),
         .p7(d_D20_p7),
         .p3(n_ROOD2_L),
@@ -2970,7 +2967,6 @@ module ns4 (
     );
 
     kr1102ap15 D28 (
-        .p1(nx_D28_1),
         .p2(n_PRD1_H),
         .p7(d_D28_p7),
         .p3(n_ROOD1_L),
@@ -5425,7 +5421,6 @@ module ns4 (
     assign nx_D17_5 = d_D17_p5;
     assign nx_D17_6 = d_D17_p6;
     assign nx_D17_8 = d_D17_p8;
-    assign nx_D20_1 = 1'b1;
     assign nx_D20_6 = d_D20_p6;
     assign nx_D22_15 = d_D22_p15;
     assign nx_D22_16 = d_D22_p16;
@@ -5437,7 +5432,6 @@ module ns4 (
     assign nx_D24_6 = d_D24_p6;
     assign nx_D24_9 = d_D24_p9;
     assign nx_D25_6 = d_D25_p6;
-    assign nx_D28_1 = 1'b1;
     assign nx_D29_14 = d_D29_p14;
     assign nx_D29_15 = d_D29_p15;
     assign nx_D30_15 = d_D30_p15;

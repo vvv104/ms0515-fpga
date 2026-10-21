@@ -50,8 +50,8 @@ R62,pull0,,20 Ohm to ground: D92's OE held low
 R75,pull0,,20 Ohm to ground: D94's OE held low
 R74,pull0,,1 kOhm to ground on УСТ L: low while nothing drives it
 # --- weak resistors to ground on TTL inputs: the input still reads high ---
-R6,open,,"10 kOhm to ground on D20's E: too weak to pull a TTL input low, E reads high"
-R12,open,,"10 kOhm to ground on D28's E: too weak to pull a TTL input low, E reads high"
+R6,open,,"10 kOhm from D20's W-S to ground: the slew-rate resistor of its RS-232 outputs, no logic"
+R12,open,,"10 kOhm from D28's W-S to ground: the slew-rate resistor of its RS-232 outputs, no logic"
 # --- С2 and keyboard line receivers (D48): RS-232 bias and filters ---
 R15,pull0,,"23.7 kOhm to -12 V on ВХКЛ L: an idle line is negative (mark), level 0"
 R22,pull0,,"23.7 kOhm to -12 V on XP5.3: an idle line is negative (mark), level 0"

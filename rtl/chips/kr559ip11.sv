@@ -3,6 +3,9 @@
 // an input is 1 when it is above the other input of its pair: Y is 1 while
 // A is above B, and also with both inputs alike (the receiver's fail-safe
 // high for an open line, which is what a level of 0 on both stands for).
+// That last is the model's choice: TI SLLS115G Table 8-1 (p.12) gives H for
+// open inputs only and leaves a difference inside the threshold window
+// undefined; the board's lines with nothing on them come here.
 module kr559ip11 (
     input  logic p4,  input  logic p12,                                         // EN ENN
     input  logic p2,  input  logic p1,  output logic p3,  output logic p3_oe,    // 1A 1B 1Y

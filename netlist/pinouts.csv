@@ -548,7 +548,7 @@ type,pin,name,source
 К555ИР16,4,C,74LS295
 К555ИР16,5,D,74LS295
 К555ИР16,6,MODE,74LS295
-К555ИР16,8,OE,74LS295
+К555ИР16,8,OC,74LS295 (TI SDLS154 p.1: high enables the outputs; Soviet W)
 К555ИР16,9,CLK,74LS295
 К555ИР16,10,QD,74LS295
 К555ИР16,11,QC,74LS295
@@ -713,12 +713,12 @@ type,pin,name,source
 КР580ВВ55А,38,PA6,i8255
 КР580ВВ55А,39,PA5,i8255
 КР580ВВ55А,40,PA4,i8255
-КР1102АП15,1,E,as drawn on Э3 sheet 5 (datasheet wanted)
-КР1102АП15,2,B,as drawn on Э3 sheet 5
-КР1102АП15,3,A,as drawn on Э3 sheet 5
+КР1102АП15,1,W-S,eandc К1102АП15 p.1 (the external resistor); TI SLLS110B p.1
+КР1102АП15,2,1A,eandc К1102АП15 p.1; TI SLLS110B p.1
+КР1102АП15,3,2A,eandc К1102АП15 p.1; TI SLLS110B p.1
 КР1102АП15,5,VEE,as drawn on Э3 sheet 5 (through a diode to -12V)
-КР1102АП15,6,YN,as drawn on Э3 sheet 5
-КР1102АП15,7,Y,as drawn on Э3 sheet 5
+КР1102АП15,6,2Y,eandc К1102АП15 p.1; TI SLLS110B p.1
+КР1102АП15,7,1Y,eandc К1102АП15 p.1; TI SLLS110B p.1
 К554СА3А,2,GND,LM311
 К554СА3А,3,IN+,LM311 (14-pin package as drawn on Э3 sheet 5)
 К554СА3А,4,IN-,LM311 (14-pin package as drawn on Э3 sheet 5)

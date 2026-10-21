@@ -2,7 +2,10 @@
 // row, -CAS falling (pin 15) the column; with -WE (pin 3) low by then the
 // cycle is an early write of DI (pin 2) and DO stays off, else a read: DO
 // (pin 14) shows the cell while -CAS is low, and -WE falling later writes
-// DI there (late write, read-modify-write).
+// DI there (late write, read-modify-write).  DO is controlled by -CAS
+// alone: -RAS going high with -CAS low keeps it out (hidden refresh; TI
+// TMS4164 p.2, Intel 2164A p.1 and p.11-12, MK4564 p.1 - the eandc
+// К565РУ5 table's "RAS 1, CAS 0: off" is -CAS without a -RAS cycle).
 //
 // Strobes are seen on the master clock.  The row is the address the tick
 // before -RAS fell was seen, so a multiplexer turning to the column on
@@ -31,7 +34,7 @@ module kr565ru5 (
         we_was  <= p3;
         if (!p4 && ras_was)
             row <= a_was;
-        if (p4 || p15)
+        if (p15)
             reading <= 1'b0;
         if (!p4 && !p15 && cas_was) begin
             column <= a;
