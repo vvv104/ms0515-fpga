@@ -25,6 +25,15 @@ drive::Lines xp4_lines(const V& m)
     return l;
 }
 
+// the keyboard on XS2: the board's ВЫХКЛ L (pin 2) in, ВХКЛ L (pin 3)
+// driven, its line's levels as the board's driver and receiver make them
+template <class V, class Keyboard>
+void xs2_keyboard(V& m, Keyboard& k, std::uint64_t t)
+{
+    m.x_XS2_p3 = k.tick(t, m.n_VYHKL_L != 0) ? 1 : 0;
+    m.x_XS2_p3_oe = 1;
+}
+
 // an open collector: low pulls, high lets the pin go to the board's pull-up
 template <class V>
 void xp4_drive(V& m, const drive::Outputs& o)

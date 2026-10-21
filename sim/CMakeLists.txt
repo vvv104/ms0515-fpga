@@ -88,6 +88,8 @@ ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
 # the floppy drive the bench plays: its tracks (sim/board/drive.h)
 ms0515_test(test_drive board/test_drive.cpp)
 ms0515_test(test_drive_mechanics board/test_drive_mechanics.cpp)
+# the keyboard stub on XS2 (sim/board/keyboard_stub.h)
+ms0515_test(test_keyboard_stub board/test_keyboard_stub.cpp)
 
 # the board model's speed (not a test): sim/board/bench_board.cpp
 add_executable(bench_board board/bench_board.cpp)

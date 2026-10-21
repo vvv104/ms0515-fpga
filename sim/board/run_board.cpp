@@ -3,7 +3,7 @@
 // picture taken off the video DAC's digital inputs, frame by frame.
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
-//             [disk=IMAGE] [layout=omega|vvv|fdz]
+//             [disk=IMAGE] [layout=omega|vvv|fdz] [keyboard]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
@@ -22,6 +22,7 @@
 
 #include "Vns4.h"
 #include "power.h"
+#include "keyboard_stub.h"
 #include "xp4.h"
 #include "dram_watch.h"
 #include "screen_compare.h"
@@ -201,6 +202,7 @@ struct Options {
     int seed = 0;
     std::string disk;                   // an image in drive 0, the МС 5305 (none: no disk)
     std::string layout = "omega";       // the formatter its tracks are laid out as
+    bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
 
     drive::Layout track_layout() const
     {
@@ -225,6 +227,8 @@ struct Options {
                 disk = arg.substr(5);
             else if (arg.rfind("layout=", 0) == 0)
                 layout = arg.substr(7);
+            else if (arg == "keyboard")
+                keyboard = true;
         }
         return every > 0;
     }
@@ -376,6 +380,8 @@ int main(int argc, char** argv)
     DramWatch dram;
     Fetches fetches;
     Camera camera(o);
+    keyboard::Stub kbd;
+    std::size_t heard = 0;
     std::unique_ptr<drive::Mc5305> fdd;
     if (!o.disk.empty()) {
         std::ifstream f(o.disk, std::ios::binary);
@@ -390,6 +396,14 @@ int main(int argc, char** argv)
         power(*m, t);
         if (fdd)
             xp4_drive(*m, fdd->tick(t, xp4_lines(*m)));
+        if (o.keyboard) {
+            xs2_keyboard(*m, kbd, t);
+            if (kbd.heard().size() != heard) {
+                std::printf("%.3f s: the keyboard heard %03o\n", static_cast<double>(t) / (1e6 * kMasterMhz),
+                            kbd.heard().back());
+                heard = kbd.heard().size();
+            }
+        }
         m->clk = 0;
         m->eval();
         m->clk = 1;
