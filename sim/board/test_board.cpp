@@ -5,6 +5,7 @@
 #include <verilated.h>
 
 #include "Vns4.h"
+#include "power.h"
 
 extern "C" {
 #include <ms0515/core/board.h>
@@ -26,21 +27,38 @@ namespace {
 // ticks, the 15 MHz one of 8.
 constexpr int kMasterMhz = 120;
 
+// The state every register, latch and RAM cell powers up in: all zero
+// (seed 0), or Verilator's random values from the seed - the state the
+// datasheets leave undefined until a reset, which the board must come out
+// of by itself.  Set before the model is made.
+struct PowerUp {
+    explicit PowerUp(int seed)
+    {
+        Verilated::randReset(seed == 0 ? 0 : 2);
+        Verilated::randSeed(seed);
+    }
+};
+
 class Board {
 public:
+    explicit Board(int seed = 0) : power_up_(seed), m_(std::make_unique<Vns4>()) { disconnect(*m_); }
+
     // One master tick: the rising edge.
     void tick()
     {
-        m_.clk = 0;
-        m_.eval();
-        m_.clk = 1;
-        m_.eval();
+        power(*m_, t_++);
+        m_->clk = 0;
+        m_->eval();
+        m_->clk = 1;
+        m_->eval();
     }
 
-    Vns4& m() { return m_; }
+    Vns4& m() { return *m_; }
 
 private:
-    Vns4 m_;
+    PowerUp power_up_;
+    std::unique_ptr<Vns4> m_;
+    std::uint64_t t_ = 0;
 };
 
 // Rising edges of a net over `ticks` master ticks.
@@ -204,9 +222,10 @@ std::string octal(unsigned v)
 // the processor running ROM-B as the emulator does.  The owner's jumpers
 // (E4 fitted, E3 open: РВК0 low, РВК1 high) are the 60 Hz row of the ТО's
 // Table 10.
-TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in the emulator")
+static void power_on(int seed)
 {
-    Board b;
+    INFO("power-up state seed " << seed);
+    Board b(seed);
     Falls line, frame;
     Fights fights;
     std::int64_t start_rose = -1, start_fell = -1;
@@ -218,7 +237,9 @@ TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in t
         Vns4& m = b.m();
         line.see(m.n_SSI_L != 0, t);
         frame.see(m.n_KSI_L != 0, t);
-        if (start_rose < 0 && m.n_START_H) start_rose = t;
+        // СТАРТ is the pulse once the supply is up (before, a random
+        // power-up state may show anything there for a tick)
+        if (start_rose < 0 && m.n_START_H && t >= static_cast<std::int64_t>(kSupplyRiseTicks)) start_rose = t;
         if (start_rose >= 0 && start_fell < 0 && !m.n_START_H) start_fell = t;
         if (start_fell >= 0 && !m.n_PVAS_L && ras_was && m.n_REZH0_H)
             fetches.push_back(mk(m));
@@ -254,4 +275,16 @@ TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in t
     MESSAGE(fetches.size() << " fetches, the first " << same << " as the emulator's; board/emulator around: "
                            << around);
     CHECK(same == fetches.size());
+}
+
+TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in the emulator")
+{
+    power_on(0);
+}
+
+// The same from undefined power-up states: the board must reset itself.
+TEST_CASE("power-on from any state: three random power-up states")
+{
+    for (const int seed : {1, 2, 3})
+        power_on(seed);
 }

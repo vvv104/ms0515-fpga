@@ -97,6 +97,17 @@ outputs); the speaker clamp VD13 too.
   that output by tens of microseconds, a power-on shape.  Left out: the
   counter starts from the simulation's initial state.  To model with the
   power-on sequence.
-- **VD11 with R58**: about 1.7 V on D95.13, which an LS input reads high;
-  left out, so the input reads high.  What it is for is still to find.
+- **VD11 with R58: the power-on reset.**  VD11 (КС133А, 3.3 V) from +5 V
+  and R58 (1 kOhm) to ground make a supply monitor: while the supply rises
+  below about 4.7 V, D95.13 is low; once it is up, about 1.7 V, which an LS
+  input reads high.  D95 inverts it into D16.12, the reset of D16's second
+  counter, so СТАРТ always starts from a cleared counter and lasts its
+  full length (C86 stretches the reset's end by tens of microseconds).
+  The supply is outside the board, so the node is brought out (VD11 as a
+  port): the bench, as the supply, holds it low for the first millisecond
+  and then lets it go (`sim/board/power.h`).  The supply's rise time is not
+  known (no document of the МС 0515's supply is at hand); any rise longer
+  than a few ticks resets D16 alike.  Found by starting the board from
+  random power-up states: without it, D16 starts where it powered up,
+  СТАРТ can be short and the board does not come out of reset.
 - **The МС 7007 detector** (DA2 above).

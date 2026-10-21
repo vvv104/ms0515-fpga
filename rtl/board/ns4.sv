@@ -3,6 +3,7 @@
 //
 // Brought out (the test bench stands in for them):
 //   DA2   pending: open: ДКЛ08..18 summed into ВБКЛ L through 10 kOhm each; brought out until the wired detector has its model
+//   VD11  port: 3.3 V zener from +5 V, with R58 a supply monitor: D95.13 is low while the supply rises below about 4.7 V, then about 1.7 V, read high; D95 inverts it into D16's second reset, so СТАРТ starts from a cleared counter.  The supply is outside the board: brought out, the bench holds it low as the supply rises (docs/analog.md)
 //   XP3   port: parallel port (ИРПР)
 //   XP4   port: floppy drives
 //   XP5   port: С2 (printer) port
@@ -46,6 +47,8 @@ module ns4 (
     input  logic x_DA2_p15_oe,
     input  logic x_DA2_p16,
     input  logic x_DA2_p16_oe,
+    input  logic x_VD11_p1,
+    input  logic x_VD11_p1_oe,
     input  logic x_XP3_p2,
     input  logic x_XP3_p2_oe,
     input  logic x_XP3_p3,
@@ -2020,6 +2023,8 @@ module ns4 (
     logic q_x_DA2_p15_oe;
     logic q_x_DA2_p16;
     logic q_x_DA2_p16_oe;
+    logic q_x_VD11_p1;
+    logic q_x_VD11_p1_oe;
     logic q_x_XP3_p2;
     logic q_x_XP3_p2_oe;
     logic q_x_XP3_p3;
@@ -2232,6 +2237,8 @@ module ns4 (
         q_x_DA2_p15_oe <= x_DA2_p15_oe;
         q_x_DA2_p16 <= x_DA2_p16;
         q_x_DA2_p16_oe <= x_DA2_p16_oe;
+        q_x_VD11_p1 <= x_VD11_p1;
+        q_x_VD11_p1_oe <= x_VD11_p1_oe;
         q_x_XP3_p2 <= x_XP3_p2;
         q_x_XP3_p2_oe <= x_XP3_p2_oe;
         q_x_XP3_p3 <= x_XP3_p3;
@@ -5553,7 +5560,7 @@ module ns4 (
     assign nx_DA2_15 = q_x_DA2_p15_oe ? q_x_DA2_p15 : 1'b1;
     assign nx_E6_2 = q_x_XP6_p11_oe ? q_x_XP6_p11 : 1'b1;
     assign nx_VD9_1 = 1'b1;
-    assign nx_VD11_1 = 1'b1;
+    assign nx_VD11_1 = q_x_VD11_p1_oe ? q_x_VD11_p1 : 1'b1;
     assign nx_VD16_1 = 1'b1;
     assign nx_VD17_1 = 1'b1;
     assign nx_XP5_3 = q_x_XP5_p3_oe ? q_x_XP5_p3 : 1'b0;

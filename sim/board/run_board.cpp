@@ -16,6 +16,7 @@
 #include <verilated.h>
 
 #include "Vns4.h"
+#include "power.h"
 #include "dram_watch.h"
 #include "screen_compare.h"
 
@@ -206,6 +207,7 @@ int main(int argc, char** argv)
     std::uint64_t frame_start = 0;
 
     auto m = std::make_unique<Vns4>();
+    disconnect(*m);
     Emulator emu(MS0515_FIRMWARE_DIR "/ms0515-romb.rom");
     DramWatch dram;
     Lockstep lockstep;
@@ -218,6 +220,7 @@ int main(int argc, char** argv)
     const auto wall = std::chrono::steady_clock::now();
     const std::uint64_t ticks = ms * 1000 * kMasterMhz;
     for (std::uint64_t t = 0; t < ticks; ++t) {
+        power(*m, t);
         m->clk = 0;
         m->eval();
         m->clk = 1;

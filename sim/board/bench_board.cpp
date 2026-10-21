@@ -2,6 +2,7 @@
 #include <verilated.h>
 
 #include "Vns4.h"
+#include "power.h"
 
 #include <chrono>
 #include <cstdint>
@@ -11,9 +12,11 @@
 int main()
 {
     auto m = std::make_unique<Vns4>();
+    disconnect(*m);
     const std::uint64_t ticks = 5000ull * 120ull;
     const auto start = std::chrono::steady_clock::now();
     for (std::uint64_t t = 0; t < ticks; ++t) {
+        power(*m, t);
         m->clk = 0;
         m->eval();
         m->clk = 1;

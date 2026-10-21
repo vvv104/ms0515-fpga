@@ -408,12 +408,29 @@ class Delays(unittest.TestCase):
         self.assertTrue(any("К555АП5" in e and "delays.csv" in e for e in errors(problems)))
 
 
+class Inputs(unittest.TestCase):
+    def test_every_board_input_is_listed_for_the_bench(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nD9,КР1807ВМ1,,40,20,40,,,\n",
+                    "A,D9,5,,1,\nA,D1,1,,1,\nB,D1,2,,1,\nB,D9,6,,1,\n")
+        with f.dir as d:
+            b = board.Builder(board.Sources(
+                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+                nets=os.path.join(d, "nets.csv"), changes=None,
+                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"))).build()
+        text = board.inputs_text(b.ports)
+        self.assertIn("NS4_INPUT(x_D9_p5)", text)
+        self.assertIn("NS4_INPUT(x_D9_p5_oe)", text)
+        self.assertNotIn("NS4_INPUT(clk)", text)
+
+
 class TheBoard(unittest.TestCase):
     def test_ns4_generates_without_errors_and_matches_the_committed_file(self):
-        text, problems = board.generate(board.ns4_sources())
+        text, problems, inputs = board.generate_all(board.ns4_sources())
         self.assertEqual(errors(problems), [])
         with open(os.path.join(ROOT, "rtl", "board", "ns4.sv"), encoding="utf-8") as f:
             self.assertEqual(f.read(), text, "rtl/board/ns4.sv is stale: run tools/board.py")
+        with open(os.path.join(ROOT, "rtl", "board", "ns4_inputs.inc"), encoding="utf-8") as f:
+            self.assertEqual(f.read(), inputs, "rtl/board/ns4_inputs.inc is stale: run tools/board.py")
 
 
 if __name__ == "__main__":

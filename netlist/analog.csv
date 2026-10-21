@@ -91,8 +91,8 @@ C70,open,,"open: 100 pF on БОРДС L, an open-collector PROM output pulled up
 C40,open,,open: 27 pF on D47.9 into D14.12 - a delay of a few ns
 C82,open,,open: 51 pF with R78 (about 30 ns) on D47's reset
 C86,open,,"open: 0.1 uF on D95.7 into D16.12 (reset of D16's second counter) - a power-on shape of tens of microseconds, wants its model"
-VD11,open,,"zener from +5 V: with R58 holds D95.13 at about 1.7 V, which an LS input reads high"
-R58,open,,see VD11
+VD11,port,,"3.3 V zener from +5 V, with R58 a supply monitor: D95.13 is low while the supply rises below about 4.7 V, then about 1.7 V, read high; D95 inverts it into D16's second reset, so СТАРТ starts from a cleared counter.  The supply is outside the board: brought out, the bench holds it low as the supply rises (docs/analog.md)"
+R58,open,,see VD11 (the low it gives is the bench's)
 VD13,open,,clamp of the speaker output to +5 V
 # --- status LEDs ---
 VD9,open,,LED (its cathode net is a board output)
