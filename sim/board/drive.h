@@ -245,6 +245,21 @@ public:
     }
 
     int head() const { return head_; }
+
+    // everything that changes as it runs, for a snapshot (sim/board/snapshot.h)
+    template <class Archive>
+    void state(Archive& a)
+    {
+        a(head_);
+        a(turning_);
+        a(ready_);
+        a(step_was_);
+        a(started_);
+        a(last_index_);
+        a(indexes_);
+        a.bytes(image_);
+        cached_ = -1;                                   // the track is made again from the image
+    }
     // the tick the turn in progress at t began, at its index
     std::uint64_t turn_start(std::uint64_t t) const { return t - phase(t); }
 

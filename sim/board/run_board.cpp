@@ -3,7 +3,7 @@
 // picture taken off the video DAC's digital inputs, frame by frame.
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
-//             [disk=IMAGE] [layout=omega|vvv|fdz] [keyboard]
+//             [disk=IMAGE] [layout=omega|vvv|fdz] [keyboard] [save=FILE@MS] [load=FILE]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
@@ -11,8 +11,12 @@
 // makes them a film in the machine's own time.  seed=N powers the board up
 // in Verilator's random state from seed N (0, the default: all zero).
 // disk=IMAGE puts the image in drive 0, the МС 5305 on XP4 (sim/board/
-// drive.h), its tracks laid out as the formatter `layout` writes them.  The
-// last line, "summary: key=value ...", is for tools/run_many.py.
+// drive.h), its tracks laid out as the formatter `layout` writes them;
+// `keyboard` puts the stub on XS2 that answers ROM-B's ID request.
+// save=FILE@MS writes a snapshot of the board and the bench at machine
+// time MS; load=FILE goes on from one, to machine time <machine ms> (no
+// lockstep then: the emulator starts at power-on).  The last line,
+// "summary: key=value ...", is for tools/run_many.py.
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
 // at each ТС15 H rise from the line sync (ССИ L): the blue, red and green
@@ -20,12 +24,15 @@
 // files, the whole line with its blanking (960 x the frame's lines).
 #include <verilated.h>
 
+
 #include "Vns4.h"
 #include "power.h"
 #include "keyboard_stub.h"
 #include "xp4.h"
 #include "dram_watch.h"
 #include "screen_compare.h"
+#include "snapshot.h"
+#include "snapshot_file.h"
 
 extern "C" {
 #include <ms0515/core/board.h>
@@ -203,6 +210,9 @@ struct Options {
     std::string disk;                   // an image in drive 0, the МС 5305 (none: no disk)
     std::string layout = "omega";       // the formatter its tracks are laid out as
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
+    std::string save;                   // a snapshot written at machine time save_ms
+    std::uint64_t save_ms = 0;
+    std::string load;                   // a snapshot the run goes on from
 
     drive::Layout track_layout() const
     {
@@ -229,6 +239,11 @@ struct Options {
                 layout = arg.substr(7);
             else if (arg == "keyboard")
                 keyboard = true;
+            else if (arg.rfind("save=", 0) == 0 && arg.find('@') != std::string::npos) {
+                save = arg.substr(5, arg.find('@') - 5);
+                save_ms = std::strtoull(arg.c_str() + arg.find('@') + 1, nullptr, 10);
+            } else if (arg.rfind("load=", 0) == 0)
+                load = arg.substr(5);
         }
         return every > 0;
     }
@@ -252,6 +267,7 @@ public:
         ras_was_ = m.n_PVAS_L != 0;
     }
     bool started() const { return started_; }
+    void resume() { started_ = true; }      // from a snapshot, taken after СТАРТ
 
 private:
     void fetch(std::uint16_t at, Emulator& emu)
@@ -364,6 +380,51 @@ void report(const Options& o, const Fetches& f, const Camera& cam, const Emulato
 
 }  // namespace
 
+// The parts of a run that a snapshot carries: the board, the bench's
+// drive and keyboard, the tick it was taken at, the frames so far.
+struct Parts {
+    Vns4& m;
+    std::unique_ptr<drive::Mc5305>& fdd;
+    keyboard::Stub& kbd;
+    int& frames;
+};
+
+void save_snapshot(const std::string& path, Parts p, std::uint64_t t)
+{
+    SnapshotSave os(path);
+    os << p.m;
+    SaveArchive<SnapshotSave> a{os};
+    a(t);
+    a(p.frames);
+    a(p.fdd != nullptr);
+    if (p.fdd) p.fdd->state(a);
+    p.kbd.state(a);
+    os.close();
+    std::printf("%.3f s: snapshot saved to %s\n", static_cast<double>(t) / (1e6 * kMasterMhz), path.c_str());
+}
+
+// the tick the snapshot was taken at; the drive made if it had one
+std::uint64_t load_snapshot(const std::string& path, Parts p, const Options& o)
+{
+    SnapshotRestore is(path);
+    is >> p.m;
+    LoadArchive<SnapshotRestore> a{is};
+    std::uint64_t t = 0;
+    a(t);
+    a(p.frames);
+    bool disk = false;
+    a(disk);
+    if (disk) {
+        if (!p.fdd) p.fdd = std::make_unique<drive::Mc5305>(std::vector<std::uint8_t>{}, o.track_layout());
+        p.fdd->state(a);
+    }
+    p.kbd.state(a);
+    is.close();
+    std::printf("%.3f s: the run goes on from %s; the emulator is not followed from a snapshot\n",
+                static_cast<double>(t) / (1e6 * kMasterMhz), path.c_str());
+    return t;
+}
+
 int main(int argc, char** argv)
 {
     Options o;
@@ -390,9 +451,20 @@ int main(int argc, char** argv)
         fdd = std::make_unique<drive::Mc5305>(std::move(image), o.track_layout());
     }
 
+    const Parts parts{*m, fdd, kbd, camera.frames};
+    std::uint64_t from = 0;
+    if (!o.load.empty()) {
+        from = load_snapshot(o.load, parts, o);
+        fetches.diverged = true;                       // the emulator starts at power-on: no lockstep
+        fetches.resume();
+    }
+    const std::uint64_t save_at = o.save_ms * 1000 * kMasterMhz;
+
     const auto wall = std::chrono::steady_clock::now();
     const std::uint64_t ticks = o.ms * 1000 * kMasterMhz;
-    for (std::uint64_t t = 0; t < ticks; ++t) {
+    for (std::uint64_t t = from; t < ticks; ++t) {
+        if (!o.save.empty() && t == save_at)
+            save_snapshot(o.save, parts, t);
         power(*m, t);
         if (fdd)
             xp4_drive(*m, fdd->tick(t, xp4_lines(*m)));

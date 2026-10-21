@@ -32,6 +32,26 @@ public:
 
     const std::vector<std::uint8_t>& heard() const { return heard_; }
 
+    // everything that changes as it runs, for a snapshot (sim/board/snapshot.h)
+    template <class Archive>
+    void state(Archive& a)
+    {
+        a(line_was_);
+        a(in_frame_);
+        a(level_);
+        a(start_);
+        a(byte_);
+        a(bit_);
+        a.bytes(heard_);
+        std::uint64_t n = bits_.size();
+        a(n);
+        bits_.resize(static_cast<std::size_t>(n));
+        for (Bit& b : bits_) {
+            a(b.at);
+            a(b.level);
+        }
+    }
+
 private:
     void hear(std::uint64_t t, bool line)
     {

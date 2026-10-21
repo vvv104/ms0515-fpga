@@ -79,7 +79,8 @@ ms0515_test(test_kr1807vm1_lockstep chips/test_kr1807vm1_lockstep.cpp Vkr1807vm1
 
 # The board generated from the netlist (tools/board.py writes rtl/board/ns4.sv).
 ms0515_model(Vns4 "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv" ns4
-             PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv")
+             PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv"
+             ARGS --savable)
 ms0515_test(test_board board/test_board.cpp Vns4 ms0515_core)
 target_compile_definitions(test_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
 
@@ -90,6 +91,8 @@ ms0515_test(test_drive board/test_drive.cpp)
 ms0515_test(test_drive_mechanics board/test_drive_mechanics.cpp)
 # the keyboard stub on XS2 (sim/board/keyboard_stub.h)
 ms0515_test(test_keyboard_stub board/test_keyboard_stub.cpp)
+# their snapshots (sim/board/snapshot.h)
+ms0515_test(test_snapshot board/test_snapshot.cpp)
 
 # the board model's speed (not a test): sim/board/bench_board.cpp
 add_executable(bench_board board/bench_board.cpp)
