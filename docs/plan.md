@@ -2,6 +2,29 @@
 
 Each stage ends with its tests green; nothing is wired before it is tested.
 
+**The emulator is a check, not a source.**  The board is built only from
+the primary sources - the netlist read off Э3, each chip's datasheet, the
+DEC documents for the processor, the ТО - and nothing in it comes from the
+emulator, so where the two agree, two models of different sources confirm
+each other.  Where they differ, the documents decide, not the emulator:
+- first find out from the documents which one is right;
+- the board changes only where it is wrong by the documents;
+- otherwise the difference is the emulator's, and goes to its list
+  (`docs/t11-model.md`, "Where the emulator differs from the documents")
+  rather than into the board.
+
+Three places need care:
+- a comparison that forgives (run_board's lockstep waits out the board's
+  loops where the board, as the machine does, waits longer than the
+  emulator) says how much it forgave, and the screen, compared point for
+  point, stays the final check;
+- the screen comparison's picture rules come from the emulator's
+  documentation (`docs/hardware/video.md` there): a difference in them is
+  decided by the ТО, not by bending the board;
+- where the emulator departs from Э3 on purpose (the interrupt priority it
+  moved after OSA's ^Q hung), the board follows Э3, and a difference in
+  behaviour there is a finding for the open question, not a fault.
+
 1. **Netlist of НС4.**  Read the four Э3 sheets and the ПЭ3 element list
    into `netlist/` (parts, pins, nets, with sheet and zone), starting from
    the method of the МС 1702 read-out.  Check the nets against the copper: Mick's
