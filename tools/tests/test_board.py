@@ -97,6 +97,11 @@ class Firmware(unittest.TestCase):
     def test_bytes(self):
         self.assertEqual(board.contents(bytes([0x01, 0xAB]), "bytes"), "16'hab01")
 
+    def test_the_halves_of_a_word_image(self):
+        image = bytes([0x01, 0x02, 0x03, 0x04])             # words 0x0201, 0x0403
+        self.assertEqual(board.contents(image, "even-bytes"), "16'h0301")
+        self.assertEqual(board.contents(image, "odd-bytes"), "16'h0402")
+
     def test_a_chip_with_an_image_gets_it_as_its_contents(self):
         f = Fixture("D1,К555ЛН1,,14,7,14,,,\n", "A,D1,1,,1,\nB,D1,2,,1,\n")
         f.write("image.bin", "")

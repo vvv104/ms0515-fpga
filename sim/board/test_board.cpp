@@ -1,13 +1,20 @@
 // The generated НС4 board (rtl/board/ns4.sv) with nothing but its two
-// crystals driven: the clock nets the board derives from them.  The power-on
-// reset (D16 counting the video counters, clocked by the РТ12 PROMs) and the
-// bus without contention after it wait for the PROMs (plan, stage 6).
+// crystals driven: its clocks, its power-on and the processor running ROM-B.
 #include <doctest/doctest.h>
 #include <verilated.h>
 
 #include "Vns4.h"
 
+extern "C" {
+#include <ms0515/core/board.h>
+#include <ms0515/core/cpu.h>
+}
+
 #include <cstdint>
+#include <fstream>
+#include <iterator>
+#include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -110,18 +117,59 @@ struct Falls {
     }
 };
 
+// the word on МК00..МК15
+std::uint16_t mk(const Vns4& m)
+{
+    const CData bits[16] = {m.n_MK00_H, m.n_MK01_H, m.n_MK02_H, m.n_MK03_H, m.n_MK04_H, m.n_MK05_H,
+                            m.n_MK06_H, m.n_MK07_H, m.n_MK08_H, m.n_MK09_H, m.n_MK10_H, m.n_MK11_H,
+                            m.n_MK12_H, m.n_MK13_H, m.n_MK14_H, m.n_MK15_H};
+    std::uint16_t w = 0;
+    for (int i = 0; i < 16; ++i)
+        w = static_cast<std::uint16_t>(w | (bits[i] & 1u) << i);
+    return w;
+}
+
+// The emulator from reset with ROM-B: the PC of each of its first n instructions.
+std::vector<std::uint16_t> emulator_fetches(std::size_t n)
+{
+    std::ifstream f(MS0515_FIRMWARE_DIR "/ms0515-romb.rom", std::ios::binary);
+    REQUIRE(f);
+    const std::vector<char> rom{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
+    auto board = std::make_unique<ms0515_board_t>();
+    board_init(board.get());
+    board_load_rom(board.get(), reinterpret_cast<const std::uint8_t*>(rom.data()),
+                   static_cast<std::uint32_t>(rom.size()));
+    board_reset(board.get());
+    std::vector<std::uint16_t> pcs;
+    while (pcs.size() < n) {
+        pcs.push_back(board->cpu.r[7]);
+        cpu_step(&board->cpu);
+    }
+    return pcs;
+}
+
+std::string octal(unsigned v)
+{
+    std::ostringstream s;
+    s << std::oct << v;
+    return s.str();
+}
+
 }  // namespace
 
-// The first 70 ms after power-on: the sync PROMs' timing, D16's reset pulse
-// and the processor let go, and from then on no net with two drivers on.
-// The owner's jumpers (E4 fitted, E3 open: РВК0 low, РВК1 high) are the 60 Hz
-// row of the ТО's Table 10.
-TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then no contention")
+// The first 100 ms after power-on: the sync PROMs' timing, D16's reset pulse
+// and the processor let go, from then on no net with two drivers on, and
+// the processor running ROM-B as the emulator does.  The owner's jumpers
+// (E4 fitted, E3 open: РВК0 low, РВК1 high) are the 60 Hz row of the ТО's
+// Table 10.
+TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in the emulator")
 {
     Board b;
     Falls line, frame;
     std::int64_t start_rose = -1, start_fell = -1;
-    const std::int64_t ticks = 70000 * static_cast<std::int64_t>(kMasterMhz);
+    std::vector<std::uint16_t> fetches;
+    bool ras_was = true;
+    const std::int64_t ticks = 100000 * static_cast<std::int64_t>(kMasterMhz);
     for (std::int64_t t = 0; t < ticks; ++t) {
         b.tick();
         Vns4& m = b.m();
@@ -129,6 +177,9 @@ TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then no contention
         frame.see(m.n_KSI_L != 0, t);
         if (start_rose < 0 && m.n_START_H) start_rose = t;
         if (start_rose >= 0 && start_fell < 0 && !m.n_START_H) start_fell = t;
+        if (start_fell >= 0 && !m.n_PVAS_L && ras_was && m.n_REZH0_H)
+            fetches.push_back(mk(m));
+        ras_was = m.n_PVAS_L != 0;
         if (start_fell >= 0 && m.contention) {
             std::string bits;
             for (int n = 0; n < 32 * 3; ++n)
@@ -146,4 +197,16 @@ TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then no contention
     REQUIRE(start_fell > start_rose);
     CHECK(static_cast<double>(start_fell - start_rose) / kMasterMhz ==
           doctest::Approx(2 * 128 * 2 * 64.0).epsilon(0.02));
+
+    REQUIRE(fetches.size() > 100);
+    const std::vector<std::uint16_t> expected = emulator_fetches(fetches.size());
+    std::size_t same = 0;
+    while (same < fetches.size() && fetches[same] == expected[same])
+        ++same;
+    std::string around;
+    for (std::size_t i = same >= 8 ? same - 8 : 0; i < same + 4 && i < fetches.size(); ++i)
+        around += octal(fetches[i]) + (i < expected.size() ? "/" + octal(expected[i]) : "") + " ";
+    MESSAGE(fetches.size() << " fetches, the first " << same << " as the emulator's; board/emulator around: "
+                           << around);
+    CHECK(same == fetches.size());
 }

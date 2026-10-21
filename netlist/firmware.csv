@@ -1,5 +1,9 @@
 # The contents of the programmed chips (firmware/README.md says where each
-# image comes from).  format: nibbles - one 4-bit word a byte, low bits.
+# image comes from).  format: nibbles - one 4-bit word a byte, low bits;
+# bytes - one byte a word; even-bytes / odd-bytes - the low / high bytes of
+# a 16-bit image, for the chip on the low / high half of the bus.
 ref,file,format
 D13,firmware/d13_kdrv.r12,nibbles
 D21,firmware/d21_strv.r12,nibbles
+D65,firmware/ms0515-romb.rom,even-bytes
+D77,firmware/ms0515-romb.rom,odd-bytes

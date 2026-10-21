@@ -164,6 +164,8 @@ def contents(data, fmt):
         words, width = [b & 0xF for b in data], 4
     elif fmt == "bytes":
         words, width = list(data), 8
+    elif fmt in ("even-bytes", "odd-bytes"):        # one chip of a 16-bit pair
+        words, width = list(data[fmt == "odd-bytes"::2]), 8
     else:
         raise ValueError(f"firmware format '{fmt}'")
     digits = width // 4
