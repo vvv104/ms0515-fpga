@@ -69,3 +69,9 @@ time, 253x.  This is the price of the 8.33 ns step: the board relies on
 its gates' delays, and 120 MHz is the least clock both crystals (8 and
 15 MHz) divide.  Real time is the FPGA's; the simulation is the check,
 its long runs run side by side (tools/run_many.py).
+
+Verilator's threads make it slower, not faster: the threads meet at every
+master tick, and the meeting costs more than the share of a tick's work
+they take off each other (bench_board: one thread 253x, two 375x, four
+625x slower than the machine).  Runs side by side, each on one thread,
+scale with the cores instead: eight runs take as long as one.
