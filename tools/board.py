@@ -392,9 +392,11 @@ def resolve(net, problems):
     if net.pp:
         if len(net.pp) > 1 or net.oc:
             problems.error(f"'{net.name}': two outputs drive it: {', '.join(net.pp + net.oc)}")
-        # a brought-out pin here can only be an input: it gets no ports
-        enables = [oe for v, oe in net.tri if not v.startswith("x_")]
-        return net.pp[0], " | ".join(enables) if enables else None
+        # A brought-out pin here can only be an input: it gets no ports.  A
+        # three-state output on with the push-pull one fights it where the
+        # two disagree.
+        fights = [f"({oe} & ({v} ^ {net.pp[0]}))" for v, oe in net.tri if not v.startswith("x_")]
+        return net.pp[0], " | ".join(fights) if fights else None
     level, busy = pull, None
     if net.tri:
         enables = [oe for _, oe in net.tri]

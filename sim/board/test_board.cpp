@@ -16,6 +16,7 @@ extern "C" {
 #include <memory>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace {
@@ -117,6 +118,17 @@ struct Falls {
     }
 };
 
+// bit n of a Verilator vector: a number up to 64 bits, an array of words above
+template <class T>
+bool bit_of(const T& v, int n)
+{
+    if constexpr (std::is_integral_v<T>)
+        return n < 64 && ((static_cast<std::uint64_t>(v) >> n) & 1u) != 0;
+    else
+        return static_cast<std::size_t>(n / 32) < sizeof(v) / 4 &&
+               ((v[static_cast<std::size_t>(n / 32)] >> (n % 32)) & 1u) != 0;
+}
+
 // the word on МК00..МК15
 std::uint16_t mk(const Vns4& m)
 {
@@ -182,8 +194,8 @@ TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in t
         ras_was = m.n_PVAS_L != 0;
         if (start_fell >= 0 && m.contention) {
             std::string bits;
-            for (int n = 0; n < 32 * 3; ++n)
-                if ((m.contention_at[static_cast<std::size_t>(n / 32)] >> (n % 32)) & 1u)
+            for (int n = 0; n < 32 * 4; ++n)
+                if (bit_of(m.contention_at, n))
                     bits += std::to_string(n) + " ";
             FAIL("contention at " << t / kMasterMhz << " us on bits " << bits << "(ns4.sv's header)");
         }

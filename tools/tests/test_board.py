@@ -227,6 +227,15 @@ class Generate(unittest.TestCase):
         self.assertIn(".p2(d_D1_p2)", text)
         self.assertIn("assign n_B = d_D1_p2_oe ? d_D1_p2 : 1'b1;", text)
 
+    def test_a_three_state_output_on_an_output_s_net_fights_where_they_differ(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nD2,К555АП5,,20,10,20,,,\n",
+                    "A,D1,1,,1,\nB,D1,2,,1,\nE,D2,1,,1,\nA,D2,2,,1,\nB,D2,18,,1,\n",
+                    modules=(INVERTER, BUFFER))
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("assign n_B = d_D1_p2;", text)
+        self.assertIn("assign contention_at[0] = (d_D2_p18_oe & (d_D2_p18 ^ d_D1_p2));", text)
+
     def test_clock_goes_to_stateful_chips(self):
         f = Fixture("D1,К555ТМ2,,14,7,14,,,\n", "A,D1,2,,1,\nC,D1,3,,1,\nQ,D1,5,,1,\n",
                     modules=(FLOP,))
