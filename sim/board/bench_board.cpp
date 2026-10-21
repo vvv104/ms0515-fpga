@@ -11,13 +11,9 @@
 int main()
 {
     auto m = std::make_unique<Vns4>();
-    m->x_BQ1_p1_oe = 1;
-    m->x_BQ2_p1_oe = 1;
     const std::uint64_t ticks = 5000ull * 120ull;
     const auto start = std::chrono::steady_clock::now();
     for (std::uint64_t t = 0; t < ticks; ++t) {
-        m->x_BQ1_p1 = (t % 15) < 8 ? 1 : 0;
-        m->x_BQ2_p1 = (t % 8) < 4 ? 1 : 0;
         m->clk = 0;
         m->eval();
         m->clk = 1;

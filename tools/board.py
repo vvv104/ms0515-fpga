@@ -12,7 +12,10 @@ the owner's board's changes (netlist/rev3a.csv) applied:
   with none yet (the processor, the large chips) and a connector are
   brought out: each of their signal pins is a pair of board inputs
   x_<ref>_p<n> / x_<ref>_p<n>_oe that drive the net while _oe is 1, so a
-  test bench stands in for them;
+  test bench stands in for them; on a clocked board they come in through
+  registers, one master tick (8 ns) late, as through an FPGA's input
+  registers - else Verilator works out again, at every eval(), all the
+  logic they reach, which through the expansion bus is most of the board;
 - every net is a board output n_<name>, its level resolved from its
   drivers: one push-pull output alone; open collectors ANDed; three-state
   outputs and brought-out pins by their enables, with the net's pull (or 1,
@@ -31,6 +34,8 @@ netlist/analog.csv   ref,treatment,pins,reason
     pull0 / pull1  pulls the part's signal nets low / high
     port           a connector: its signal pins brought out
     pending        brought out like a connector until it has a model
+    crystal        a crystal oscillator: a square wave of the rating (parts.csv)
+                   on pin 1, the gate input's side
 """
 import csv
 import os
@@ -45,6 +50,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.join(HERE, "..")
 POWER = {"GND": "1'b0", "+5V": "1'b1", "+12V": None, "-12V": None}
 ZERO = "1'b0"
+MASTER_MHZ = 120            # the clk the stateful chips take
 SUPPLIES = {"VCC", "VEE", "VDD", "VBB", "VSS", "GND", "BGND"}
 RESISTORS = ("С1-4", "С2-23", "НР1-11", "СП5-16")
 TRANSLIT = dict(zip("АБВГДЕЗИЙКЛМНОПРСТУФХЦЫЭ", "ABVGDEZIYKLMNOPRSTUFHCYE"))
@@ -173,6 +179,16 @@ def contents(data, fmt):
     return f"{len(words) * width}'h{text}"
 
 
+def crystal_ticks(rating):
+    """A crystal's period and its high part in master clock ticks, from its
+    rating ("8 МГц"); the master clock must be a whole multiple of it."""
+    m = re.fullmatch(r"\s*(\d+)\s*МГц\s*", rating or "")
+    if not m or MASTER_MHZ % int(m.group(1)):
+        raise ValueError(f"crystal rating '{rating}' is no divisor of {MASTER_MHZ} MHz")
+    period = MASTER_MHZ // int(m.group(1))
+    return period, (period + 1) // 2
+
+
 def load_firmware(path):
     """{ref: the CONTENTS literal} from firmware.csv."""
     if not path:
@@ -257,7 +273,7 @@ class Builder:
             self.pins[c.ref][c.pin] = c.net
         self.joins = Joins()
         self.nets = {}
-        self.instances = []     # (ref, module, [(port, expr)])
+        self.instances = []     # (ref, module, [(port, expr)], {parameter: value})
         self.ports = []         # brought-out inputs, in order
         self.out = []           # (ref, why) parts brought out
         self.wires = []         # internal driver wires
@@ -337,7 +353,27 @@ class Builder:
             if f"p{pin}" not in module.ports and f"p{pin}_in" not in module.ports \
                     and not self.supply(ref, pin):
                 self.problems.error(f"{ref}.{pin} on '{pins[pin]}': not a pin of {module.name}")
-        self.instances.append((ref, module.name, conns, self.firmware.get(ref)))
+        image = self.firmware.get(ref)
+        self.instances.append((ref, module.name, conns, {"CONTENTS": image} if image else {}))
+
+    def place_crystal(self, ref, part):
+        """A crystal and its oscillator: a square wave on pin 1, the one
+        facing the gate's input; pin 2 faces the gate's output and is left."""
+        module = self.modules.get("crystal")
+        if module is None:
+            self.problems.error(f"{ref}: no crystal module")
+            return
+        try:
+            period, high = crystal_ticks(part.value)
+        except ValueError as e:
+            self.problems.error(f"{ref}: {e}")
+            return
+        name = self.pins.get(ref, {}).get(1, f"~{ref}.1")
+        wire = f"d_{ref}_p1"
+        self.wires.append(wire)
+        self.net(name).pp.append(wire)
+        self.instances.append((ref, module.name, [("clk", "clk"), ("p1", wire)],
+                               {"PERIOD": period, "HIGH": high}))
 
     def supply(self, ref, pin):
         """A supply pin left off the power table (VEE of КР1102АП15): no logic."""
@@ -373,6 +409,8 @@ class Builder:
                 self.pull(ref, t)
             elif t.kind in ("port", "pending"):
                 self.bring_out(ref, f"{t.kind}: {t.reason}")
+            elif t.kind == "crystal":
+                self.place_crystal(ref, part)
             elif t.kind not in ("short", "wire", "open"):
                 self.problems.error(f"{ref}: unknown treatment '{t.kind}'")
         return self
@@ -443,9 +481,25 @@ def emit(b, levels, busy):
     lines += ["module ns4 ("]
     lines += [f"    {p}," for p in ports[:-1]] + [f"    {ports[-1]}", ");"]
     lines += [f"    logic {w};" for w in b.wires]
-    for ref, module, conns, image in b.instances:
+    # On a clocked board the brought-out pins come in through registers,
+    # one master tick late: the board then hangs on its own state alone, and
+    # Verilator does not work all that the pins reach out again at every
+    # eval() (it does, for whatever hangs on the model's inputs).
+    registered = clocked and b.ports
+    if registered:
+        lines += [f"    logic q_{p};" for p in b.ports]
+        lines += ["", "    always_ff @(posedge clk) begin"]
+        lines += [f"        q_{p} <= {p};" for p in b.ports]
+        lines += ["    end"]
+        inside = set(b.ports)
+        late = lambda expr: re.sub(r"\bx_\w+", lambda m: "q_" + m.group(0)
+                                   if m.group(0) in inside else m.group(0), expr)
+        levels = {n: late(e) for n, e in levels.items()}
+        busy = {n: late(e) if e else e for n, e in busy.items()}
+    for ref, module, conns, values in b.instances:
         lines.append("")
-        params = f" #(.CONTENTS({image}))" if image else ""
+        params = ", ".join(f".{name}({value})" for name, value in values.items())
+        params = f" #({params})" if params else ""
         lines.append(f"    {module}{params} {ref} (")
         lines += [f"        .{port}({expr})," for port, expr in conns[:-1]]
         port, expr = conns[-1]

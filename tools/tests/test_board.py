@@ -243,6 +243,18 @@ class Generate(unittest.TestCase):
         self.assertEqual(errors(problems), [])
         self.assertIn(".clk(clk)", text)
 
+    def test_on_a_clocked_board_the_brought_out_pins_come_in_through_registers(self):
+        f = Fixture("D1,К555ТМ2,,14,7,14,,,\nD9,КР1807ВМ1,,40,20,40,,,\n",
+                    "A,D9,5,,1,\nA,D1,2,,1,\nC,D1,3,,1,\nQ,D1,5,,1,\n",
+                    modules=(FLOP,))
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("input  logic x_D9_p5", text)
+        self.assertIn("    logic q_x_D9_p5;", text)
+        self.assertIn("        q_x_D9_p5 <= x_D9_p5;", text)
+        self.assertIn("        q_x_D9_p5_oe <= x_D9_p5_oe;", text)
+        self.assertIn("assign n_A = q_x_D9_p5_oe ? q_x_D9_p5 : 1'b1;", text)
+
     def test_a_passive_without_a_treatment_is_an_error(self):
         f = Fixture("D1,К555ЛН1,,14,7,14,,,\nC1,К10-17-1б-М47,68 пФ,2,,,,,\n",
                     "A,D1,1,,1,\nB,D1,2,,1,\nB,C1,1,,1,\nGND,C1,2,,1,\n")
@@ -295,6 +307,40 @@ class Generate(unittest.TestCase):
                     analog="R2,pull0,,a pull-down\n")
         _, problems = f.generate()
         self.assertTrue(any("pulled both" in e for e in errors(problems)))
+
+
+CRYSTAL = """// A crystal oscillator.
+module crystal #(
+    parameter int PERIOD = 2, parameter int HIGH = 1
+) (
+    input  logic clk,
+    output logic p1
+);
+    assign p1 = 1'b0;
+endmodule
+"""
+
+
+class Crystals(unittest.TestCase):
+    def test_periods_in_master_ticks_from_the_rating(self):
+        self.assertEqual(board.crystal_ticks("8 МГц"), (15, 8))
+        self.assertEqual(board.crystal_ticks("15 МГц"), (8, 4))
+
+    def test_a_rating_off_the_master_clock_is_refused(self):
+        with self.assertRaises(ValueError):
+            board.crystal_ticks("7 МГц")
+
+    def test_a_crystal_drives_its_first_pin_and_leaves_the_second(self):
+        f = Fixture("BQ1,РК 169МА-6АН,15 МГц,2,,,,,\nD1,К555ЛН1,,14,7,14,,,\n",
+                    "X,BQ1,1,,1,\nX,D1,1,,1,\nY,BQ1,2,,1,\nY,D1,2,,1,\n",
+                    analog="BQ1,crystal,,the 15 MHz oscillator\n",
+                    modules=(INVERTER, CRYSTAL))
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("crystal #(.PERIOD(8), .HIGH(4)) BQ1 (", text)
+        self.assertIn("assign n_X = d_BQ1_p1;", text)
+        self.assertIn("assign n_Y = d_D1_p2;", text)
+        self.assertNotIn("x_BQ1", text)
 
 
 class TheBoard(unittest.TestCase):

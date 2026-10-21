@@ -44,10 +44,16 @@ The drivers D20, D28 (КР1102АП15) invert; their VEE diodes are left out.
 ## Oscillators
 
 The crystals BQ1 (8 MHz, around D15's gates 6 and 5) and BQ2 (15 MHz,
-around D91's gates 1 and 2) are brought out: the test bench drives a
-square wave into the first gate (`~D15.13`, `~D91.1`); the coupling
-capacitors are wires, the bias resistors left out.  They become a model of
-their own when the board has its top.
+around D91's gates 1 and 2) are each an instance of `rtl/chips/crystal.sv`:
+the oscillator's square wave, made of the 120 MHz master clock, on the
+crystal's pin 1, which the coupling capacitor (a wire) joins to the first
+gate's input (`~D15.13`, `~D91.1`); the gates take it on as on the board.
+Pin 2, on the second gate's output, is left; the bias resistors are left
+out.  The period and its high part in master ticks come from the rating in
+parts.csv: 8 MHz is 15 ticks, 8 of them high; 15 MHz is 8 ticks, 4 high.
+
+They were first brought out, the test bench driving the wave; inside, the
+board runs on the master clock alone, as it will in the FPGA.
 
 ## МС 7007 keyboard
 

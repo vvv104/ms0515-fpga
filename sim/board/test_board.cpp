@@ -1,5 +1,6 @@
-// The generated НС4 board (rtl/board/ns4.sv) with nothing but its two
-// crystals driven: its clocks, its power-on and the processor running ROM-B.
+// The generated НС4 board (rtl/board/ns4.sv) on nothing but the master
+// clock, its crystals inside: its clocks, its power-on and the processor
+// running ROM-B.
 #include <doctest/doctest.h>
 #include <verilated.h>
 
@@ -27,29 +28,19 @@ constexpr int kMasterMhz = 120;
 
 class Board {
 public:
-    Board()
-    {
-        m_.x_BQ1_p1_oe = 1;
-        m_.x_BQ2_p1_oe = 1;
-    }
-
-    // One master tick: the crystals' levels for it, then the rising edge.
+    // One master tick: the rising edge.
     void tick()
     {
-        m_.x_BQ1_p1 = (t_ % 15) < 8 ? 1 : 0;
-        m_.x_BQ2_p1 = (t_ % 8) < 4 ? 1 : 0;
         m_.clk = 0;
         m_.eval();
         m_.clk = 1;
         m_.eval();
-        ++t_;
     }
 
     Vns4& m() { return m_; }
 
 private:
     Vns4 m_;
-    std::uint64_t t_ = 0;
 };
 
 // Rising edges of a net over `ticks` master ticks.
@@ -74,8 +65,10 @@ TEST_CASE("the 8 MHz crystal comes out on ТС8М L through D15's gates 6 and 5"
     Board b;
     for (int i = 0; i < 100; ++i) {
         b.tick();
-        CHECK(b.m().n_TS8M_L == b.m().x_BQ1_p1);
+        CHECK(b.m().n_TS8M_L == b.m().nx_C5_2);         // BQ1 pin 1
     }
+    CHECK(rises(b, 100 * kMasterMhz, [](Vns4& m) { return m.nx_C5_2; }) ==
+          doctest::Approx(800).epsilon(0.01));
 }
 
 TEST_CASE("D16 divides ТС8М into ТС4М, ТС2М and ТС1М")

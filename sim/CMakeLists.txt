@@ -52,6 +52,11 @@ foreach(chip
     ms0515_chip_test(${chip})
 endforeach()
 
+# a crystal: the 8 MHz one by default, the 15 MHz one by its parameters
+ms0515_model(Vcrystal "${MS0515_CHIPS}/crystal.sv" crystal)
+ms0515_model(Vcrystal_15 "${MS0515_CHIPS}/crystal.sv" crystal ARGS -GPERIOD=8 -GHIGH=4)
+ms0515_test(test_crystal chips/test_crystal.cpp Vcrystal Vcrystal_15)
+
 # a PROM is tested programmed with a pattern (chips/kr556rt12_bench.sv)
 ms0515_model(Vkr556rt12_bench "${CMAKE_CURRENT_SOURCE_DIR}/chips/kr556rt12_bench.sv" kr556rt12_bench)
 ms0515_test(test_kr556rt12 chips/test_kr556rt12.cpp Vkr556rt12_bench)

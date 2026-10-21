@@ -24,13 +24,13 @@ XP8,port,,МС 7007 keyboard matrix
 XS1,port,,expansion bus (the memory expansion module)
 XS2,port,,МС 7004 keyboard socket
 # --- 8 MHz oscillator: D15 gates 6 and 5 around BQ1 ---
-BQ1,pending,,"8 MHz crystal: the test bench drives a square wave on its pin 1 (~D15.13) until the oscillator has its model"
+BQ1,crystal,,"8 MHz crystal with D15 gates 6 and 5: a square wave on its pin 1 (~D15.13, through C5)"
 C5,wire,,couples BQ1 to the input of D15 gate 6
 C6,wire,,couples D15 gate 6 to gate 5
 R1,open,,bias of D15 gate 6
 R3,open,,bias of D15 gate 5
 # --- 15 MHz oscillator: D91 gates 1 and 2 around BQ2 ---
-BQ2,pending,,"15 MHz crystal: the test bench drives a square wave on its pin 1 (~D91.1) until the oscillator has its model"
+BQ2,crystal,,"15 MHz crystal with D91 gates 1 and 2: a square wave on its pin 1 (~D91.1, through C79)"
 C79,wire,,couples BQ2 to the input of D91 gate 1
 C78,wire,,couples D91 gate 1 to gate 2
 R77,open,,bias of D91 gate 1
