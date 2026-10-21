@@ -2,12 +2,14 @@
 // time - the processor's fetches checked against the emulator's, and the
 // picture taken off the video DAC's digital inputs, frame by frame.
 //
-//   run_board <machine ms> <folder for the frames> [every Nth frame] [video]
+//   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
 // master tick each began at in video/frames.txt - tools/frames_to_video.py
-// makes them a film in the machine's own time.
+// makes them a film in the machine's own time.  seed=N powers the board up
+// in Verilator's random state from seed N (0, the default: all zero).  The
+// last line, "summary: key=value ...", is for tools/run_many.py.
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
 // at each ТС15 H rise from the line sync (ССИ L): the blue, red and green
@@ -187,38 +189,181 @@ private:
     std::size_t next_ = 0;
 };
 
+struct Options {
+    std::uint64_t ms = 0;
+    std::string folder;
+    int every = 10;
+    bool video = false;
+    int seed = 0;
+
+    // false on a bad command line
+    bool parse(int argc, char** argv)
+    {
+        if (argc < 3)
+            return false;
+        ms = std::strtoull(argv[1], nullptr, 10);
+        folder = argv[2];
+        every = argc > 3 ? std::atoi(argv[3]) : 10;
+        for (int a = 4; a < argc; ++a) {
+            const std::string arg = argv[a];
+            if (arg == "video")
+                video = true;
+            else if (arg.rfind("seed=", 0) == 0)
+                seed = std::atoi(arg.c_str() + 5);
+        }
+        return every > 0;
+    }
+};
+
+// The processor's fetches (a row strobe of a fetch once СТАРТ is over)
+// against the emulator's.  СТАРТ is the pulse once the supply is up: a
+// random power-up state may show it high before, and the processor may run
+// until the real pulse resets it.
+class Fetches {
+public:
+    std::uint64_t fetches = 0, matched = 0;
+    bool diverged = false;
+    Lockstep lockstep;
+
+    void see(const Vns4& m, Emulator& emu, std::uint64_t t)
+    {
+        if (m.n_START_H && t >= kSupplyRiseTicks) started_ = true;
+        if (started_ && !m.n_START_H && !m.n_PVAS_L && ras_was_ && m.n_REZH0_H)
+            fetch(mk(m), emu);
+        ras_was_ = m.n_PVAS_L != 0;
+    }
+    bool started() const { return started_; }
+
+private:
+    void fetch(std::uint16_t at, Emulator& emu)
+    {
+        ++fetches;
+        if (diverged)
+            return;
+        switch (lockstep.see(at, emu)) {
+        case Lockstep::Same: ++matched; break;
+        case Lockstep::Waiting: break;
+        case Lockstep::Apart:
+            diverged = true;
+            std::printf("fetch %llu: the board at %06o, the emulator at %06o\n",
+                        static_cast<unsigned long long>(fetches), at, lockstep.want);
+            break;
+        }
+    }
+
+    bool started_ = false, ras_was_ = true;
+};
+
+// The picture off the video DAC's inputs, frame by frame: every Nth saved
+// and compared with the emulator's screen, every one saved for a film.
+class Camera {
+public:
+    Frame frame;
+    int frames = 0, last_differ = -1;
+
+    explicit Camera(const Options& o) : o_(o)
+    {
+        if (o.video) {
+            std::filesystem::create_directories(o.folder + "/video");
+            starts_.open(o.folder + "/video/frames.txt");
+        }
+    }
+
+    void see(const Vns4& m, std::uint64_t t, const Emulator& emu, bool started)
+    {
+        if (!m.n_KSI_L && ksi_was_)
+            frame_ends(t, emu, started);
+        ksi_was_ = m.n_KSI_L != 0;
+        if (!m.n_SSI_L && ssi_was_) frame.lines.emplace_back();
+        ssi_was_ = m.n_SSI_L != 0;
+        if (m.n_TS15_H && !ts15_was_ && !frame.lines.empty() && frame.lines.back().size() < kLineSamples)
+            frame.lines.back().push_back(static_cast<std::uint8_t>(
+                (m.n_SC_H & 1u) | (m.n_KC_H & 1u) << 1 | (m.n_ZC_H & 1u) << 2 | (m.nx_D69_9 & 1u) << 3));
+        ts15_was_ = m.n_TS15_H != 0;
+    }
+
+private:
+    void frame_ends(std::uint64_t t, const Emulator& emu, bool started)
+    {
+        if (o_.video && !frame.lines.empty()) {
+            char name[32];
+            std::snprintf(name, sizeof name, "/video/%05d.bmp", frames);
+            write_bmp(o_.folder + name, frame);
+            starts_ << frames << ' ' << frame_start_ << ' ' << t << '\n';
+        }
+        frame_start_ = t;
+        if (frames % o_.every == 0) {
+            write_bmp(o_.folder + "/frame" + std::to_string(frames) + ".bmp", frame);
+            if (started)
+                compare(emu);
+        }
+        frame.lines.clear();
+        ++frames;
+    }
+
+    void compare(const Emulator& emu)
+    {
+        const ScreenCompare c = emu.screen(frame);
+        last_differ = c.differ;
+        if (c.differ < 0)
+            std::printf("frame %d: too short to compare\n", frames);
+        else if (c.differ == 0)
+            std::printf("frame %d: as the emulator's screen (area at %d, %d)\n", frames, c.dx, c.dy);
+        else
+            std::printf("frame %d: %d samples differ (area at %d, %d); first at %d, %d: %x, the emulator's %x\n",
+                        frames, c.differ, c.dx, c.dy, c.first_x, c.first_y, c.got, c.want);
+    }
+
+    const Options& o_;
+    std::ofstream starts_;
+    std::uint64_t frame_start_ = 0;
+    bool ksi_was_ = true, ssi_was_ = true, ts15_was_ = false;
+};
+
+void report(const Options& o, const Fetches& f, const Camera& cam, const Emulator& emu, const DramWatch& dram)
+{
+    using ull = unsigned long long;
+    std::printf("done: %llu fetches, %llu as the emulator's, %d frames\n", static_cast<ull>(f.fetches),
+                static_cast<ull>(f.matched), cam.frames);
+    std::printf("the emulator waited out %llu of the board's loops, %llu fetches in all\n",
+                static_cast<ull>(f.lockstep.waits), static_cast<ull>(f.lockstep.waited));
+    std::printf("the emulator's video memory: %zu of %d bytes not zero\n", emu.vram_used(), MEM_VRAM_SIZE);
+    emu.print_vram_summary();
+    const DramWatch::Stats& s = dram.stats();
+    std::printf("RAM: %llu writes (%llu of 047777 words), %llu reads, %llu of them of written cells, %llu differ\n",
+                static_cast<ull>(s.writes), static_cast<ull>(s.fills), static_cast<ull>(s.reads),
+                static_cast<ull>(s.checked), static_cast<ull>(s.differ));
+    std::printf("video: %llu reads, %llu of them 047777, %llu not zero\n", static_cast<ull>(s.video_reads),
+                static_cast<ull>(s.video_fills), static_cast<ull>(s.video_nonzero));
+    dram.print_cells();
+    std::printf("summary: ms=%llu seed=%d fetches=%llu matched=%llu diverged=%d waits=%llu waited=%llu frames=%d "
+                "last_differ=%d\n",
+                static_cast<ull>(o.ms), o.seed, static_cast<ull>(f.fetches), static_cast<ull>(f.matched),
+                f.diverged ? 1 : 0, static_cast<ull>(f.lockstep.waits), static_cast<ull>(f.lockstep.waited),
+                cam.frames, cam.last_differ);
+}
+
 }  // namespace
 
 int main(int argc, char** argv)
 {
-    if (argc < 3) {
-        std::fprintf(stderr, "usage: run_board <machine ms> <folder> [every Nth frame] [video]\n");
+    Options o;
+    if (!o.parse(argc, argv)) {
+        std::fprintf(stderr, "usage: run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]\n");
         return 2;
     }
-    const std::uint64_t ms = std::strtoull(argv[1], nullptr, 10);
-    const std::string folder = argv[2];
-    const int every = argc > 3 ? std::atoi(argv[3]) : 10;
-    const bool video = argc > 4 && std::string(argv[4]) == "video";
-    std::ofstream starts;
-    if (video) {
-        std::filesystem::create_directories(folder + "/video");
-        starts.open(folder + "/video/frames.txt");
-    }
-    std::uint64_t frame_start = 0;
-
+    // the power-up state, set before the model is made
+    Verilated::randReset(o.seed == 0 ? 0 : 2);
+    Verilated::randSeed(o.seed);
     auto m = std::make_unique<Vns4>();
     disconnect(*m);
     Emulator emu(MS0515_FIRMWARE_DIR "/ms0515-romb.rom");
     DramWatch dram;
-    Lockstep lockstep;
+    Fetches fetches;
+    Camera camera(o);
 
-
-    Frame frame;
-    int frames = 0;
-    std::uint64_t fetches = 0, matched = 0;
-    bool diverged = false, started = false, ras_was = true, ksi_was = true, ssi_was = true, ts15_was = false;
     const auto wall = std::chrono::steady_clock::now();
-    const std::uint64_t ticks = ms * 1000 * kMasterMhz;
+    const std::uint64_t ticks = o.ms * 1000 * kMasterMhz;
     for (std::uint64_t t = 0; t < ticks; ++t) {
         power(*m, t);
         m->clk = 0;
@@ -226,84 +371,18 @@ int main(int argc, char** argv)
         m->clk = 1;
         m->eval();
         dram.see(*m);
-
-        if (m->n_START_H) started = true;
-        if (started && !m->n_START_H && !m->n_PVAS_L && ras_was && m->n_REZH0_H) {
-            const std::uint16_t at = mk(*m);
-            ++fetches;
-            if (!diverged) {
-                switch (lockstep.see(at, emu)) {
-                case Lockstep::Same: ++matched; break;
-                case Lockstep::Waiting: break;
-                case Lockstep::Apart:
-                    diverged = true;
-                    std::printf("fetch %llu: the board at %06o, the emulator at %06o\n",
-                                static_cast<unsigned long long>(fetches), at, lockstep.want);
-                    break;
-                }
-            }
-        }
-        ras_was = m->n_PVAS_L != 0;
-
-        if (!m->n_KSI_L && ksi_was) {                   // a frame ends
-            if (video && !frame.lines.empty()) {
-                char name[32];
-                std::snprintf(name, sizeof name, "/video/%05d.bmp", frames);
-                write_bmp(folder + name, frame);
-                starts << frames << ' ' << frame_start << ' ' << t << '\n';
-            }
-            frame_start = t;
-            if (frames % every == 0) {
-                write_bmp(folder + "/frame" + std::to_string(frames) + ".bmp", frame);
-                if (started) {
-                    const ScreenCompare c = emu.screen(frame);
-                    if (c.differ < 0)
-                        std::printf("frame %d: too short to compare\n", frames);
-                    else if (c.differ == 0)
-                        std::printf("frame %d: as the emulator's screen (area at %d, %d)\n", frames, c.dx, c.dy);
-                    else
-                        std::printf("frame %d: %d samples differ (area at %d, %d); first at %d, %d: "
-                                    "%x, the emulator's %x\n",
-                                    frames, c.differ, c.dx, c.dy, c.first_x, c.first_y, c.got, c.want);
-                }
-            }
-            frame.lines.clear();
-            ++frames;
-        }
-        ksi_was = m->n_KSI_L != 0;
-        if (!m->n_SSI_L && ssi_was) frame.lines.emplace_back();
-        ssi_was = m->n_SSI_L != 0;
-        if (m->n_TS15_H && !ts15_was && !frame.lines.empty() && frame.lines.back().size() < kLineSamples) {
-            frame.lines.back().push_back(static_cast<std::uint8_t>(
-                (m->n_SC_H & 1u) | (m->n_KC_H & 1u) << 1 | (m->n_ZC_H & 1u) << 2 | (m->nx_D69_9 & 1u) << 3));
-        }
-        ts15_was = m->n_TS15_H != 0;
-
+        fetches.see(*m, emu, t);
+        camera.see(*m, t, emu, fetches.started());
         if (t % (10000ull * kMasterMhz) == 0 && t != 0) {
             const double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - wall).count();
             std::printf("%llu ms: %llu fetches, %llu as the emulator's, %d frames (%.0f s)\n",
                         static_cast<unsigned long long>(t / (1000ull * kMasterMhz)),
-                        static_cast<unsigned long long>(fetches), static_cast<unsigned long long>(matched),
-                        frames, s);
+                        static_cast<unsigned long long>(fetches.fetches),
+                        static_cast<unsigned long long>(fetches.matched), camera.frames, s);
             std::fflush(stdout);
         }
     }
-    write_bmp(folder + "/last.bmp", frame);
-    std::printf("done: %llu fetches, %llu as the emulator's, %d frames\n",
-                static_cast<unsigned long long>(fetches), static_cast<unsigned long long>(matched), frames);
-    std::printf("the emulator waited out %llu of the board's loops, %llu fetches in all\n",
-                static_cast<unsigned long long>(lockstep.waits), static_cast<unsigned long long>(lockstep.waited));
-    std::printf("the emulator's video memory: %zu of %d bytes not zero\n", emu.vram_used(), MEM_VRAM_SIZE);
-    emu.print_vram_summary();
-    const DramWatch::Stats& s = dram.stats();
-    std::printf("RAM: %llu writes (%llu of 047777 words), %llu reads, %llu of them of written cells, "
-                "%llu differ\n",
-                static_cast<unsigned long long>(s.writes), static_cast<unsigned long long>(s.fills),
-                static_cast<unsigned long long>(s.reads), static_cast<unsigned long long>(s.checked),
-                static_cast<unsigned long long>(s.differ));
-    std::printf("video: %llu reads, %llu of them 047777, %llu not zero\n",
-                static_cast<unsigned long long>(s.video_reads), static_cast<unsigned long long>(s.video_fills),
-                static_cast<unsigned long long>(s.video_nonzero));
-    dram.print_cells();
+    write_bmp(o.folder + "/last.bmp", camera.frame);
+    report(o, fetches, camera, emu, dram);
     return 0;
 }
