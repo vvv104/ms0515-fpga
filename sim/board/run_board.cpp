@@ -3,12 +3,15 @@
 // picture taken off the video DAC's digital inputs, frame by frame.
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
+//             [disk=IMAGE] [layout=omega|vvv|fdz]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
 // master tick each began at in video/frames.txt - tools/frames_to_video.py
 // makes them a film in the machine's own time.  seed=N powers the board up
-// in Verilator's random state from seed N (0, the default: all zero).  The
+// in Verilator's random state from seed N (0, the default: all zero).
+// disk=IMAGE puts the image in drive 0, the МС 5305 on XP4 (sim/board/
+// drive.h), its tracks laid out as the formatter `layout` writes them.  The
 // last line, "summary: key=value ...", is for tools/run_many.py.
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
@@ -19,6 +22,7 @@
 
 #include "Vns4.h"
 #include "power.h"
+#include "xp4.h"
 #include "dram_watch.h"
 #include "screen_compare.h"
 
@@ -195,6 +199,13 @@ struct Options {
     int every = 10;
     bool video = false;
     int seed = 0;
+    std::string disk;                   // an image in drive 0, the МС 5305 (none: no disk)
+    std::string layout = "omega";       // the formatter its tracks are laid out as
+
+    drive::Layout track_layout() const
+    {
+        return layout == "vvv" ? drive::vvv() : layout == "fdz" ? drive::fdz() : drive::omega();
+    }
 
     // false on a bad command line
     bool parse(int argc, char** argv)
@@ -210,6 +221,10 @@ struct Options {
                 video = true;
             else if (arg.rfind("seed=", 0) == 0)
                 seed = std::atoi(arg.c_str() + 5);
+            else if (arg.rfind("disk=", 0) == 0)
+                disk = arg.substr(5);
+            else if (arg.rfind("layout=", 0) == 0)
+                layout = arg.substr(7);
         }
         return every > 0;
     }
@@ -361,11 +376,20 @@ int main(int argc, char** argv)
     DramWatch dram;
     Fetches fetches;
     Camera camera(o);
+    std::unique_ptr<drive::Mc5305> fdd;
+    if (!o.disk.empty()) {
+        std::ifstream f(o.disk, std::ios::binary);
+        std::vector<std::uint8_t> image{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
+        std::printf("drive 0: %s, %zu bytes, laid out as %s's\n", o.disk.c_str(), image.size(), o.layout.c_str());
+        fdd = std::make_unique<drive::Mc5305>(std::move(image), o.track_layout());
+    }
 
     const auto wall = std::chrono::steady_clock::now();
     const std::uint64_t ticks = o.ms * 1000 * kMasterMhz;
     for (std::uint64_t t = 0; t < ticks; ++t) {
         power(*m, t);
+        if (fdd)
+            xp4_drive(*m, fdd->tick(t, xp4_lines(*m)));
         m->clk = 0;
         m->eval();
         m->clk = 1;

@@ -176,4 +176,130 @@ inline std::vector<std::uint8_t> track(const Layout& l, int track, int side, con
     return e.cells;
 }
 
+// The interface's lines at the drive's connector, each true high: the
+// board's lines active low (Shugart), the drive's open collector, high
+// when let go.
+struct Lines {
+    bool select0 = true, select1 = true, select2 = true, select3 = true;    // ВН0..ВН3 L
+    bool motor = true;          // МВК L
+    bool direction = true;      // НПШ: high out, toward track 0
+    bool step = true;           // ШАГ L
+    bool write_data = true;     // ДЗП L: each fall turns the flux
+    bool write_gate = true;     // РЗП L
+    bool side = true;           // ВПВ: high the lower head, side 0
+};
+
+struct Outputs {
+    bool index = true;          // ИНД L
+    bool track0 = true;         // Д00 L
+    bool protect = true;        // ЗЗП L
+    bool data = true;           // ДВС L: a pulse a flux transition
+    bool ready = true;          // НГТ L
+};
+
+// «Электроника МС 5305» (ТО 2.791.064 Табл. 9), drive 0 of the board's
+// four selects.  Sources: «Ремонт дисководов» (Солон 1995), ch. 1, on the
+// МС 5305 [BOOK]; the TEAC FD-55 specification, its 80-track twin, where
+// the МС 5305's own papers give no figure [TEAC].
+// - The spindle turns at 300 rpm from МВК, select or not [BOOK p.3, the
+//   schematic]; spin-up is not modelled: it turns at speed at once.
+// - ИНД: 4 ms low a turn [TEAC 2..5.5 ms]; the first as the motor starts.
+// - НГТ: on at the third index after the start, off when no index has come
+//   for 450 ms [BOOK pp.7-9, the one-shot DD7.2].
+// - ШАГ: the head moves on its trailing edge, when selected and not
+//   writing; НПШ high is out [BOOK pp.3, 6, 9]; tracks 0..kTracks-1.
+// - ДВС: 1 us low a flux transition, from the cell's start [TEAC 1 ±0.5 us].
+// - ДЗП: a fall turns the flux; recorded a cell at a time while РЗП is on.
+// - The outputs answer only when selected [BOOK p.3].
+class Mc5305 {
+public:
+    static constexpr std::uint64_t kTicksPerUs = 120;
+    static constexpr std::uint64_t kCellTicks = 2 * kTicksPerUs;
+    static constexpr std::uint64_t kTurnTicks = kCellsPerTurn * kCellTicks;
+    static constexpr std::uint64_t kIndexTicks = 4000 * kTicksPerUs;
+    static constexpr std::uint64_t kReadyLossTicks = 450'000 * kTicksPerUs;
+    static constexpr std::uint64_t kPulseTicks = kTicksPerUs;
+
+    // image: 80 tracks of one side (409 600 bytes), or of two with the
+    // sides of a track one after the other (819 200)
+    Mc5305(std::vector<std::uint8_t> image, Layout layout, bool protect = false)
+        : image_(std::move(image)), layout_(layout), protect_(protect),
+          sides_(image_.size() >= 2u * kTracks * kSectors * kSectorBytes ? 2 : 1)
+    {
+    }
+
+    Outputs tick(std::uint64_t t, const Lines& in)
+    {
+        spindle(t, in);
+        const bool selected = !in.select0;
+        if (selected) head_moves(in);
+        step_was_ = in.step;
+        Outputs o;
+        if (!selected) return o;
+        o.index = !(turning_ && phase(t) < kIndexTicks);
+        o.track0 = head_ != 0;
+        o.protect = !protect_;
+        o.ready = !ready_;
+        if (turning_) o.data = !pulse(t, in.side ? 0 : 1);
+        return o;
+    }
+
+    int head() const { return head_; }
+    // the tick the turn in progress at t began, at its index
+    std::uint64_t turn_start(std::uint64_t t) const { return t - phase(t); }
+
+private:
+    std::uint64_t phase(std::uint64_t t) const { return (t - started_) % kTurnTicks; }
+
+    void spindle(std::uint64_t t, const Lines& in)
+    {
+        const bool on = !in.motor;
+        if (on && !turning_)
+            started_ = t;                               // the first index as it starts
+        turning_ = on;
+        if (turning_) {                                 // an index a turn, at its start
+            const std::uint64_t turns = (t - started_) / kTurnTicks;
+            indexes_ = turns + 1;
+            last_index_ = started_ + turns * kTurnTicks;
+        }
+        ready_ = indexes_ >= 3 && t - last_index_ < kReadyLossTicks;
+    }
+
+    void head_moves(const Lines& in)
+    {
+        if (in.step && !step_was_ && in.write_gate) {   // the trailing edge, not writing
+            if (in.direction) head_ = head_ > 0 ? head_ - 1 : 0;
+            else head_ = head_ < kTracks - 1 ? head_ + 1 : kTracks - 1;
+        }
+    }
+
+    bool pulse(std::uint64_t t, int side)
+    {
+        const std::uint64_t p = phase(t);
+        return (p % kCellTicks) < kPulseTicks && cells(side)[static_cast<std::size_t>(p / kCellTicks)] != 0;
+    }
+
+    const std::vector<std::uint8_t>& cells(int side)
+    {
+        if (side >= sides_) side = 0;
+        const int key = head_ * 2 + side;
+        if (key != cached_) {
+            const std::size_t at = (static_cast<std::size_t>(head_) * sides_ + side) * kSectors * kSectorBytes;
+            track_ = track(layout_, head_, side, image_.data() + at);
+            cached_ = key;
+        }
+        return track_;
+    }
+
+    std::vector<std::uint8_t> image_;
+    Layout layout_;
+    bool protect_;
+    int sides_;
+    int head_ = 0;
+    bool turning_ = false, ready_ = false, step_was_ = true;
+    std::uint64_t started_ = 0, last_index_ = 0, indexes_ = 0;
+    int cached_ = -1;
+    std::vector<std::uint8_t> track_;
+};
+
 }  // namespace drive
