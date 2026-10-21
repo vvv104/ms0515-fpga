@@ -67,8 +67,13 @@ ms0515_model(Vkr1807vm1_public "${MS0515_CHIPS}/kr1807vm1.sv" kr1807vm1
 ms0515_test(test_kr1807vm1_lockstep chips/test_kr1807vm1_lockstep.cpp Vkr1807vm1_public ms0515_core)
 
 # The board generated from the netlist (tools/board.py writes rtl/board/ns4.sv).
-ms0515_model(Vns4 "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv" ns4 PACKAGES ${MS0515_CPU_PACKAGES})
+ms0515_model(Vns4 "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv" ns4
+             PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv")
 ms0515_test(test_board board/test_board.cpp Vns4 ms0515_core)
 target_compile_definitions(test_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
 
 ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
+
+# the board model's speed (not a test): sim/board/bench_board.cpp
+add_executable(bench_board board/bench_board.cpp)
+target_link_libraries(bench_board PRIVATE Vns4)
