@@ -29,6 +29,21 @@ def durations(spans):
     return out
 
 
+def resample(spans, step_ms):
+    """For a film of a fixed step (a GIF: 20 ms, 50 a second - its delays
+    are in hundredths and players stretch anything shorter): which frame is
+    on the screen at each step of the machine's clock."""
+    out, k = [], 0
+    start, end = spans[0][0], spans[-1][1]
+    t = start
+    while t < end:
+        while k + 1 < len(spans) and spans[k][1] <= t:
+            k += 1
+        out.append(k)
+        t += step_ms * TICKS_PER_MS
+    return out
+
+
 def canvas_height(heights):
     """The film's height: the frames' most common one.  A film's frames
     are one size; the few after power-on, before the sync settles, are cut
@@ -54,7 +69,14 @@ def main(argv):
         canvas = Image.new("RGB", (width, height))
         canvas.paste(image.crop((0, 0, width, min(height, image.height))), (0, 0))
         frames.append(canvas.resize((width, height * 2), Image.NEAREST))
-    ms = durations([(s, e) for _, s, e in rows])
+    spans = [(s, e) for _, s, e in rows]
+    if film.lower().endswith(".gif"):
+        steps = resample(spans, 20)
+        shots = [frames[k] for k in steps]
+        shots[0].save(film, save_all=True, append_images=shots[1:], duration=20, loop=0, optimize=False)
+        print(f"{film}: {len(shots)} steps of 20 ms, {len(shots) * 0.02:.2f} s of the machine")
+        return 0
+    ms = durations(spans)
     frames[0].save(film, save_all=True, append_images=frames[1:], duration=ms, loop=0, lossless=True)
     print(f"{film}: {len(frames)} frames, {sum(ms) / 1000:.2f} s of the machine")
     return 0

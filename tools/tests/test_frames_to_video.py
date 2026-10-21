@@ -24,6 +24,20 @@ class Durations(unittest.TestCase):
         self.assertEqual(frames_to_video.durations([(0, 2 * 1996800)]), [33])
 
 
+class Resample(unittest.TestCase):
+    def test_each_step_shows_the_frame_on_the_screen_then(self):
+        # three frames of 16.64 ms: at 0, 20 and 40 ms the screen shows
+        # frames 0, 1 and 2
+        spans = [(i * 1996800, (i + 1) * 1996800) for i in range(3)]
+        self.assertEqual(frames_to_video.resample(spans, 20), [0, 1, 2])
+
+    def test_the_steps_cover_the_whole_run(self):
+        spans = [(i * 1996800, (i + 1) * 1996800) for i in range(600)]
+        steps = frames_to_video.resample(spans, 20)
+        self.assertEqual(len(steps), 500)          # 9984 ms in steps from 0: 0, 20, ... 9980
+        self.assertEqual(steps, sorted(steps))
+
+
 class Canvas(unittest.TestCase):
     def test_the_film_is_as_tall_as_most_frames(self):
         # the first frames after power-on are of other lengths
