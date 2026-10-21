@@ -58,6 +58,7 @@ ms0515_test(test_kr556rt12 chips/test_kr556rt12.cpp Vkr556rt12_bench)
 ms0515_model(Vk573rf4_bench "${CMAKE_CURRENT_SOURCE_DIR}/chips/k573rf4_bench.sv" k573rf4_bench)
 ms0515_test(test_k573rf4 chips/test_k573rf4.cpp Vk573rf4_bench)
 
+ms0515_chip_test(kr1818vg93 PACKAGES "${MS0515_CHIPS}/kr1818vg93_pkg.sv")
 ms0515_chip_test(kr1807vm1_bus PACKAGES "${MS0515_CHIPS}/kr1807vm1_pkg.sv")
 ms0515_chip_test(kr1807vm1 PACKAGES ${MS0515_CPU_PACKAGES})
 # the processor with its registers readable, against the emulator's
