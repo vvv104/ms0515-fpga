@@ -48,8 +48,8 @@ traced into this repository, **want** = known to exist, not yet obtained.
 | T-11 User's Guide | `scans/t11/T11_UsersMan.pdf` (+ `.txt`) | have |
 | КР1807ВМ1 in A. V. Nefedov's catalogue (pp. 379-381): pin functions as the T-11's, 66 instructions, 12 addressing modes, 17 000 elements, 7.6 MHz clock at most; RAS-to-CAS setup >= 153 ns, hold >= 50 ns, cycle 1.6 us, low pulse >= 607 ns; nothing on differences from the T-11 (nedopc.org forum t=18840) | `docs/t11-clones/Nef1807vm1.pdf` | read |
 | Another board on КР1807ВМ1 with Intel-family LSI (same thread) | `docs/t11-clones/1807vm1-board-sch.pdf` | have |
-| КР1818ВГ93 (WD1793), КР580ВИ53 (8253), КР580ВВ51 (8251), КР580ВВ55 (8255), К565РУ*, К573РФ* datasheets | - | want |
-| К555 / К1533 / К531 function tables (Soviet reference books, TI 74LS data) | - | want |
+| КР1818ВГ93 (WD1793), КР580ВИ53 (8253), КР580ВВ51 (8251), КР580ВВ55 (8255) datasheets | read in `docs/vg93.md`, `vi53.md`, `vv51.md`, `vv55.md`, each with its pages | read |
+| Every chip's datasheet (TI 74LS/S/ALS/7400, Signetics PROMs, ST M2764A, TMS4164, eandc.ru sheets of the Soviet reference data): function and delay | `docs/chips.md`, `netlist/delays.csv` - a document per chip type | read (delays) |
 
 ## Forum and web
 
