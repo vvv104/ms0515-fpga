@@ -85,6 +85,9 @@ target_compile_definitions(test_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOU
 
 ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
 
+# the floppy drive the bench plays: its tracks (sim/board/drive.h)
+ms0515_test(test_drive board/test_drive.cpp)
+
 # the board model's speed (not a test): sim/board/bench_board.cpp
 add_executable(bench_board board/bench_board.cpp)
 target_link_libraries(bench_board PRIVATE Vns4)
