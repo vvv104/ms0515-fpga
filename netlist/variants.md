@@ -60,3 +60,21 @@ E4 fitted / E3 open is the base build `3.858.420` or `-02`; with the МС
 7004 keyboard the owner used, the base build: ROMs «7004L»/«7004H» and
 SA1 1, 3, 5, 7, 9 by the table.  The ROMs in it in 2015 were ROM-B and
 unlabelled (`docs/findings.md`) - one more sign they were replaced.
+
+## The frame rate the jumpers give
+
+E3 and E4 pick the sync PROMs' page (D13 A9 = `РВК0 Н`, A8 = `РВК1 Н`; D21
+A7 = `РВК0 Н`), and software reads the same two lines at 177602 bits 3, 4.
+The ТО's Table 10 and the PROM dumps (`firmware/`) agree:
+
+| РВК1 | РВК0 | Line (D21) | Lines a frame (D13) | Frame |
+|---|---|---|---|---|
+| 0 | 0 | 64 us | 312 | 50 Hz |
+| 0 | 1 | 53.3 us | 262 | 72 Hz |
+| 1 | x | 64 us | 260 | 60 Hz |
+
+With E4 fitted and E3 open, `РВК0` is low and `РВК1` high through R8: the
+owner's board ran at **60 Hz**, as the generated board does
+(`sim/board/test_board.cpp`).  50 Hz needs both jumpers fitted, which no
+build of the sheet-1 table has.  (The emulator starts at 50 Hz, its
+`dip_refresh` 0.)

@@ -79,16 +79,24 @@ class Module:
     open_collector: bool
 
 
+def closing(text, start):
+    """The index of the parenthesis closing one opened just before `start`."""
+    depth = 1
+    for i in range(start, len(text)):
+        depth += {"(": 1, ")": -1}.get(text[i], 0)
+        if depth == 0:
+            return i
+    raise ValueError("unbalanced parentheses")
+
+
 def parse_ports(text):
     """The ports of a module's ANSI port list (the text after its name):
     each name with its direction, a list like `input logic a, b` included."""
-    body = re.sub(r"//[^\n]*", "", text)
+    body = re.sub(r"//[^\n]*", "", text).lstrip()
+    if body.startswith("#"):                    # a parameter list comes first
+        body = body[closing(body, body.index("(") + 1) + 1:]
     body = body[body.index("(") + 1:]
-    depth, end = 1, 0
-    for end, ch in enumerate(body):
-        depth += {"(": 1, ")": -1}.get(ch, 0)
-        if depth == 0:
-            break
+    end = closing(body, 0)
     ports, way = {}, None
     for item in body[:end].split(","):
         words = re.findall(r"\w+", re.sub(r"\[[^]]*\]", "", item))
@@ -138,13 +146,41 @@ class Sources:
     changes: str
     analog: str
     chips: str
+    firmware: str = None        # ref,file,format; files relative to the folder above it
 
 
 def ns4_sources():
     n = os.path.join(REPO, "netlist")
     return Sources(os.path.join(n, "parts.csv"), os.path.join(n, "pinouts.csv"),
                    os.path.join(n, "nets.csv"), os.path.join(n, "rev3a.csv"),
-                   os.path.join(n, "analog.csv"), os.path.join(REPO, "rtl", "chips"))
+                   os.path.join(n, "analog.csv"), os.path.join(REPO, "rtl", "chips"),
+                   os.path.join(n, "firmware.csv"))
+
+
+def contents(data, fmt):
+    """A chip's CONTENTS parameter from its image: word a in the bits from
+    w*a up, w the word's width."""
+    if fmt == "nibbles":
+        words, width = [b & 0xF for b in data], 4
+    elif fmt == "bytes":
+        words, width = list(data), 8
+    else:
+        raise ValueError(f"firmware format '{fmt}'")
+    digits = width // 4
+    text = "".join(f"{w:0{digits}x}" for w in reversed(words))
+    return f"{len(words) * width}'h{text}"
+
+
+def load_firmware(path):
+    """{ref: the CONTENTS literal} from firmware.csv."""
+    if not path:
+        return {}
+    root = os.path.dirname(os.path.dirname(os.path.abspath(path)))
+    out = {}
+    for r in nl.rows(path):
+        with open(os.path.join(root, r["file"]), "rb") as f:
+            out[r["ref"]] = contents(f.read(), r["format"])
+    return out
 
 
 class Joins:
@@ -213,6 +249,7 @@ class Builder:
             self.problems.extend(errors)
         self.analog = load_analog(src.analog)
         self.modules = load_modules(src.chips)
+        self.firmware = load_firmware(src.firmware)
         self.pins = defaultdict(dict)
         for c in conns:
             self.pins[c.ref][c.pin] = c.net
@@ -298,7 +335,7 @@ class Builder:
             if f"p{pin}" not in module.ports and f"p{pin}_in" not in module.ports \
                     and not self.supply(ref, pin):
                 self.problems.error(f"{ref}.{pin} on '{pins[pin]}': not a pin of {module.name}")
-        self.instances.append((ref, module.name, conns))
+        self.instances.append((ref, module.name, conns, self.firmware.get(ref)))
 
     def supply(self, ref, pin):
         """A supply pin left off the power table (VEE of КР1102АП15): no logic."""
@@ -389,7 +426,7 @@ def emit(b, levels, busy):
     """The text of the board module."""
     nets = sorted(levels, key=lambda n: natural(ident(n)))
     fought = [n for n in nets if busy[n]]
-    clocked = any(port == "clk" for _, _, conns in b.instances for port, _ in conns)
+    clocked = any(port == "clk" for _, _, conns, _ in b.instances for port, _ in conns)
     ports = (["input  logic clk"] if clocked else []) + \
         [f"input  logic {p}" for p in b.ports] + \
         [f"output logic {ident(n)}" for n in nets] + ["output logic contention"]
@@ -402,9 +439,10 @@ def emit(b, levels, busy):
     lines += ["module ns4 ("]
     lines += [f"    {p}," for p in ports[:-1]] + [f"    {ports[-1]}", ");"]
     lines += [f"    logic {w};" for w in b.wires]
-    for ref, module, conns in b.instances:
+    for ref, module, conns, image in b.instances:
         lines.append("")
-        lines.append(f"    {module} {ref} (")
+        params = f" #(.CONTENTS({image}))" if image else ""
+        lines.append(f"    {module}{params} {ref} (")
         lines += [f"        .{port}({expr})," for port, expr in conns[:-1]]
         port, expr = conns[-1]
         lines += [f"        .{port}({expr})", "    );"]

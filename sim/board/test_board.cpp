@@ -8,6 +8,8 @@
 #include "Vns4.h"
 
 #include <cstdint>
+#include <string>
+#include <vector>
 
 namespace {
 
@@ -88,4 +90,60 @@ TEST_CASE("the 15 MHz crystal comes out on ТС15 H and ТС15 L")
         b.tick();
         CHECK(b.m().n_TS15_L != b.m().n_TS15_H);
     }
+}
+
+namespace {
+
+// The ticks a net fell at.
+struct Falls {
+    std::vector<std::int64_t> at;
+    bool was = true;
+    void see(bool now, std::int64_t t)
+    {
+        if (!now && was) at.push_back(t);
+        was = now;
+    }
+    double period_us(std::size_t from) const
+    {
+        return static_cast<double>(at.back() - at[from]) / static_cast<double>(at.size() - 1 - from) /
+               kMasterMhz;
+    }
+};
+
+}  // namespace
+
+// The first 70 ms after power-on: the sync PROMs' timing, D16's reset pulse
+// and the processor let go, and from then on no net with two drivers on.
+// The owner's jumpers (E4 fitted, E3 open: РВК0 low, РВК1 high) are the 60 Hz
+// row of the ТО's Table 10.
+TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then no contention")
+{
+    Board b;
+    Falls line, frame;
+    std::int64_t start_rose = -1, start_fell = -1;
+    const std::int64_t ticks = 70000 * static_cast<std::int64_t>(kMasterMhz);
+    for (std::int64_t t = 0; t < ticks; ++t) {
+        b.tick();
+        Vns4& m = b.m();
+        line.see(m.n_SSI_L != 0, t);
+        frame.see(m.n_KSI_L != 0, t);
+        if (start_rose < 0 && m.n_START_H) start_rose = t;
+        if (start_rose >= 0 && start_fell < 0 && !m.n_START_H) start_fell = t;
+        if (start_fell >= 0 && m.contention) {
+            std::string bits;
+            for (int n = 0; n < 32 * 3; ++n)
+                if ((m.contention_at[static_cast<std::size_t>(n / 32)] >> (n % 32)) & 1u)
+                    bits += std::to_string(n) + " ";
+            FAIL("contention at " << t / kMasterMhz << " us on bits " << bits << "(ns4.sv's header)");
+        }
+    }
+    REQUIRE(line.at.size() > 100);
+    CHECK(line.period_us(1) == doctest::Approx(64.0).epsilon(0.001));
+    REQUIRE(frame.at.size() >= 4);
+    CHECK(frame.period_us(1) == doctest::Approx(260 * 64.0).epsilon(0.01));    // after the first frame
+    // D16 counts АПК7: the processor is held from its 2nd fall to its 4th
+    REQUIRE(start_rose > 0);
+    REQUIRE(start_fell > start_rose);
+    CHECK(static_cast<double>(start_fell - start_rose) / kMasterMhz ==
+          doctest::Approx(2 * 128 * 2 * 64.0).epsilon(0.02));
 }

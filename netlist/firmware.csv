@@ -1,0 +1,5 @@
+# The contents of the programmed chips (firmware/README.md says where each
+# image comes from).  format: nibbles - one 4-bit word a byte, low bits.
+ref,file,format
+D13,firmware/d13_kdrv.r12,nibbles
+D21,firmware/d21_strv.r12,nibbles

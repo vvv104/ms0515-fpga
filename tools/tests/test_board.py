@@ -90,6 +90,29 @@ def errors(problems):
     return [p.text for p in problems if p.error]
 
 
+class Firmware(unittest.TestCase):
+    def test_nibbles_are_words_from_the_low_bits_up(self):
+        self.assertEqual(board.contents(bytes([0x01, 0xF2, 0x03]), "nibbles"), "12'h321")
+
+    def test_bytes(self):
+        self.assertEqual(board.contents(bytes([0x01, 0xAB]), "bytes"), "16'hab01")
+
+    def test_a_chip_with_an_image_gets_it_as_its_contents(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\n", "A,D1,1,,1,\nB,D1,2,,1,\n")
+        f.write("image.bin", "")
+        with open(os.path.join(f.dir.name, "image.bin"), "wb") as out:
+            out.write(bytes([0x0A, 0x05]))
+        os.makedirs(os.path.join(f.dir.name, "netlist"))
+        f.write(os.path.join("netlist", "firmware.csv"), "ref,file,format\nD1,image.bin,nibbles\n")
+        with f.dir as d:
+            text, _ = board.generate(board.Sources(
+                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+                nets=os.path.join(d, "nets.csv"), changes=None,
+                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"),
+                firmware=os.path.join(d, "netlist", "firmware.csv")))
+        self.assertIn("k555ln1 #(.CONTENTS(8'h5a)) D1 (", text)
+
+
 class Names(unittest.TestCase):
     def test_identifiers_are_transliterated(self):
         self.assertEqual(board.ident("ТС8М L"), "n_TS8M_L")

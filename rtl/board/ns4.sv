@@ -12,10 +12,8 @@
 //   D9    КР580ВИ53: no module yet
 //   D11   КР565РУ5Г: no module yet
 //   D12   КР565РУ5Г: no module yet
-//   D13   КР556РТ12: no module yet
 //   D18   КР565РУ5Г: no module yet
 //   D19   КР565РУ5Г: no module yet
-//   D21   КР556РТ12: no module yet
 //   D22   КР580ВВ51А: no module yet
 //   D26   КР565РУ5Г: no module yet
 //   D27   КР565РУ5Г: no module yet
@@ -39,7 +37,7 @@
 //   XP8   port: МС 7007 keyboard matrix
 //   XS1   port: expansion bus (the memory expansion module)
 //   XS2   port: МС 7004 keyboard socket
-// contention_at, bit by bit: 0 АД00 H, 1 АД01 H, 2 АД02 H, 3 АД03 H, 4 АД04 H, 5 АД05 H, 6 АД06 H, 7 АД07 H, 8 АД08 H, 9 АД09 H, 10 АД10 H, 11 АД11 H, 12 АД12 H, 13 АД13 H, 14 АД14 H, 15 АД15 H, 16 ДКЛ00 L, 17 ДКЛ01 L, 18 ДКЛ02 L, 19 ДКЛ03 L, 20 ДКЛ04 L, 21 ДКЛ05 L, 22 ДКЛ06 L, 23 ДКЛ07 L, 24 ДКЛ08 L, 25 ДКЛ09 L, 26 ДКЛ10 L, 27 ДКЛ11 L, 28 ДКЛ12 L, 29 ДКЛ13 L, 30 ДКЛ14 L, 31 ДКЛ15 L, 32 ДКЛ16 L, 33 ДКЛ17 L, 34 ДКЛ18 L, 35 ДРОО H, 36 ГОТ93 H, 37 ГОТОВ2 L, 38 ИНД H, 39 МК00 H, 40 МК01 H, 41 МК02 H, 42 МК03 H, 43 МК04 H, 44 МК05 H, 45 МК06 H, 46 МК07 H, 47 МК08 H, 48 МК09 H, 49 МК10 H, 50 МК11 H, 51 МК12 H, 52 МК13 H, 53 МК14 H, 54 МК15 H, 55 ОБСЛ H, 56 ПМЛБ L, 57 ПРМ1 H, 58 ПРМ2 H, 59 ПСТБ L, 60 Р3 H, 61 Р14 H, 62 РВК1 H, 63 СГИ L, 64 СИНХР1 H, 65 СИНХР2 H, 66 СИНТ H, 67 ВХКЛ L, 68 ЗАВЕРШ H, 69 ЗОВМ H, 70 ЗЗП H
+// contention_at, bit by bit: 0 АД00 H, 1 АД01 H, 2 АД02 H, 3 АД03 H, 4 АД04 H, 5 АД05 H, 6 АД06 H, 7 АД07 H, 8 АД08 H, 9 АД09 H, 10 АД10 H, 11 АД11 H, 12 АД12 H, 13 АД13 H, 14 АД14 H, 15 АД15 H, 16 ДКЛ00 L, 17 ДКЛ01 L, 18 ДКЛ02 L, 19 ДКЛ03 L, 20 ДКЛ04 L, 21 ДКЛ05 L, 22 ДКЛ06 L, 23 ДКЛ07 L, 24 ДКЛ08 L, 25 ДКЛ09 L, 26 ДКЛ10 L, 27 ДКЛ11 L, 28 ДКЛ12 L, 29 ДКЛ13 L, 30 ДКЛ14 L, 31 ДКЛ15 L, 32 ДКЛ16 L, 33 ДКЛ17 L, 34 ДКЛ18 L, 35 ДРОО H, 36 ГОТ93 H, 37 ГОТОВ2 L, 38 ИНД H, 39 МК00 H, 40 МК01 H, 41 МК02 H, 42 МК03 H, 43 МК04 H, 44 МК05 H, 45 МК06 H, 46 МК07 H, 47 МК08 H, 48 МК09 H, 49 МК10 H, 50 МК11 H, 51 МК12 H, 52 МК13 H, 53 МК14 H, 54 МК15 H, 55 ОБСЛ H, 56 ПМЛБ L, 57 ПРМ1 H, 58 ПРМ2 H, 59 ПСТБ L, 60 Р3 H, 61 Р14 H, 62 СИНХР1 H, 63 СИНХР2 H, 64 СИНТ H, 65 ВХКЛ L, 66 ЗАВЕРШ H, 67 ЗОВМ H, 68 ЗЗП H
 module ns4 (
     input  logic clk,
     input  logic x_BQ1_p1,
@@ -156,16 +154,6 @@ module ns4 (
     input  logic x_D12_p2_oe,
     input  logic x_D12_p14,
     input  logic x_D12_p14_oe,
-    input  logic x_D13_p11,
-    input  logic x_D13_p11_oe,
-    input  logic x_D13_p12,
-    input  logic x_D13_p12_oe,
-    input  logic x_D13_p13,
-    input  logic x_D13_p13_oe,
-    input  logic x_D13_p14,
-    input  logic x_D13_p14_oe,
-    input  logic x_D13_p16,
-    input  logic x_D13_p16_oe,
     input  logic x_D18_p2,
     input  logic x_D18_p2_oe,
     input  logic x_D18_p14,
@@ -174,14 +162,6 @@ module ns4 (
     input  logic x_D19_p2_oe,
     input  logic x_D19_p14,
     input  logic x_D19_p14_oe,
-    input  logic x_D21_p11,
-    input  logic x_D21_p11_oe,
-    input  logic x_D21_p12,
-    input  logic x_D21_p12_oe,
-    input  logic x_D21_p13,
-    input  logic x_D21_p13_oe,
-    input  logic x_D21_p14,
-    input  logic x_D21_p14_oe,
     input  logic x_D22_p1,
     input  logic x_D22_p1_oe,
     input  logic x_D22_p2,
@@ -1210,7 +1190,7 @@ module ns4 (
     output logic nx_XP5_3,
     output logic nx_XP5_6,
     output logic contention,
-    output logic [70:0] contention_at
+    output logic [68:0] contention_at
 );
     logic d_D4_p2;
     logic d_D4_p4;
@@ -1238,6 +1218,10 @@ module ns4 (
     logic d_D10_p10;
     logic d_D10_p12;
     logic d_D10_p15;
+    logic d_D13_p14;
+    logic d_D13_p13;
+    logic d_D13_p12;
+    logic d_D13_p11;
     logic d_D14_p3;
     logic d_D14_p6;
     logic d_D14_p8;
@@ -1262,6 +1246,10 @@ module ns4 (
     logic d_D17_p8;
     logic d_D20_p7;
     logic d_D20_p6;
+    logic d_D21_p14;
+    logic d_D21_p13;
+    logic d_D21_p12;
+    logic d_D21_p11;
     logic d_D23_p1;
     logic d_D23_p4;
     logic d_D23_p10;
@@ -1762,6 +1750,25 @@ module ns4 (
         .p15(d_D10_p15)
     );
 
+    kr556rt12 #(.CONTENTS(4096'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeeeeeeeeeeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6eeeffffffffcccccccc8ccceeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeeeeeeeefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6eeffffffffccccccc8cceeeeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc8cceeeefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6eeeeeeeeeeeeeeeeeeecccccccccffffffffeeeeeeeeeeeeeeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)) D13 (
+        .p5(n_APK1_H),
+        .p6(n_APK2_H),
+        .p7(n_APK3_H),
+        .p4(n_APK4_H),
+        .p3(n_APK5_H),
+        .p2(n_APK6_H),
+        .p1(n_APK7_H),
+        .p17(n_APK8_H),
+        .p16(n_RVK1_H),
+        .p15(1'b0),
+        .p8(1'b0),
+        .p10(1'b0),
+        .p14(d_D13_p14),
+        .p13(d_D13_p13),
+        .p12(d_D13_p12),
+        .p11(d_D13_p11)
+    );
+
     k555la3 D14 (
         .p1(n_BORDS_L),
         .p2(n_BORDK_L),
@@ -1830,6 +1837,25 @@ module ns4 (
         .p7(d_D20_p7),
         .p3(n_ROOD2_L),
         .p6(d_D20_p6)
+    );
+
+    kr556rt12 #(.CONTENTS(4096'hfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff4ccccccc88888888cccffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffccfffffff6eeeeeecccccccccccc888888888ccceeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffee)) D21 (
+        .p5(n_TS4_H),
+        .p6(n_AV01_H),
+        .p7(n_AV02_H),
+        .p4(n_AV03_H),
+        .p3(n_TS5_H),
+        .p2(n_TS6_H),
+        .p1(n_TS7_H),
+        .p17(1'b0),
+        .p16(1'b0),
+        .p15(1'b0),
+        .p8(1'b0),
+        .p10(1'b0),
+        .p14(d_D21_p14),
+        .p13(d_D21_p13),
+        .p12(d_D21_p12),
+        .p11(d_D21_p11)
     );
 
     kr531le1 D23 (
@@ -3103,8 +3129,8 @@ module ns4 (
     assign n_AV13_H = d_D59_p4;
     assign n_BANK7_H = d_D85_p8;
     assign n_BLNK_H = d_D55_p10_oe ? d_D55_p10 : 1'b1;
-    assign n_BORDK_L = x_D13_p14_oe ? x_D13_p14 : 1'b1;
-    assign n_BORDS_L = x_D21_p14_oe ? x_D21_p14 : 1'b1;
+    assign n_BORDK_L = d_D13_p14;
+    assign n_BORDS_L = d_D21_p14;
     assign n_CHT51_L = d_D79_p11;
     assign n_CHTMAG_H = 1'b0;
     assign n_CHTN_H = x_XP4_p30_oe ? x_XP4_p30 : 1'b1;
@@ -3216,7 +3242,7 @@ module ns4 (
     assign n_OSTANOV_L = d_D89_p16_oe ? d_D89_p16 : 1'b1;
     assign n_OST_L = x_XP8_p21_oe ? x_XP8_p21 : 1'b1;
     assign n_PKL_H = d_D59_p9;
-    assign n_PKSI_L = x_D13_p12_oe ? x_D13_p12 : 1'b1;
+    assign n_PKSI_L = d_D13_p12;
     assign n_PMLB_L = (d_D83_p28_oe | x_XS1_p71_oe) ? ((d_D83_p28_oe & d_D83_p28) | (x_XS1_p71_oe & x_XS1_p71)) : 1'b1;
     assign n_POVER_H = x_D76_p1_oe ? x_D76_p1 : 1'b1;
     assign n_PRD1_H = x_D22_p19_oe ? x_D22_p19 : 1'b1;
@@ -3263,21 +3289,21 @@ module ns4 (
     assign n_RPRRT_H = d_D97_p2;
     assign n_RVB0_H = d_D97_p5;
     assign n_RVB1_H = d_D97_p7;
-    assign n_RVK1_H = (x_D13_p16_oe | x_D76_p22_oe) ? ((x_D13_p16_oe & x_D13_p16) | (x_D76_p22_oe & x_D76_p22)) : 1'b1;
+    assign n_RVK1_H = x_D76_p22_oe ? x_D76_p22 : 1'b1;
     assign n_RVU0_H = x_D76_p4_oe ? x_D76_p4 : 1'b1;
     assign n_RVU1_H = x_D76_p3_oe ? x_D76_p3 : 1'b1;
     assign n_RZP_H = x_D1_p30_oe ? x_D1_p30 : 1'b1;
     assign n_RZP_L = d_D64_p10 & (x_XP4_p24_oe ? x_XP4_p24 : 1'b1);
     assign n_SBRAV_H = d_D95_p3_oe ? d_D95_p3 : 1'b1;
-    assign n_SBRKS_L = x_D13_p11_oe ? x_D13_p11 : 1'b1;
-    assign n_SBRSS_L = x_D21_p11_oe ? x_D21_p11 : 1'b1;
+    assign n_SBRKS_L = d_D13_p11;
+    assign n_SBRSS_L = d_D21_p11;
     assign n_SBRT_L = d_D7_p12;
     assign n_SBRVZU_L = d_D95_p5_oe ? d_D95_p5 : 1'b1;
     assign n_SBR_OST_L = d_D80_p7;
     assign n_SC_H = d_D63_p7;
     assign n_SDLV_H = x_D1_p17_oe ? x_D1_p17 : 1'b1;
     assign n_SDPR_H = x_D1_p18_oe ? x_D1_p18 : 1'b1;
-    assign n_SGI_L = (x_D13_p13_oe | x_D21_p13_oe) ? ((x_D13_p13_oe & x_D13_p13) | (x_D21_p13_oe & x_D21_p13)) : 1'b1;
+    assign n_SGI_L = d_D13_p13 & d_D21_p13;
     assign n_SHAG_H = x_D1_p15_oe ? x_D1_p15 : 1'b1;
     assign n_SHAG_L = d_D64_p6 & (x_XP4_p20_oe ? x_XP4_p20 : 1'b1);
     assign n_SIGN_L = d_D25_p8;
@@ -3292,7 +3318,7 @@ module ns4 (
     assign n_SR1_L = d_D96_p7;
     assign n_SR2_L = d_D96_p14;
     assign n_SR3_L = d_D96_p6;
-    assign n_SSI_L = x_D21_p12_oe ? x_D21_p12 : 1'b1;
+    assign n_SSI_L = d_D21_p12;
     assign n_ST1_H = d_D16_p9;
     assign n_START_H = d_D16_p10;
     assign n_STRB_H = d_D97_p10;
@@ -3607,14 +3633,12 @@ module ns4 (
     assign contention_at[59] = $countones({d_D83_p27_oe, x_XS1_p72_oe}) > 1;
     assign contention_at[60] = $countones({x_D65_p27_oe, x_D77_p27_oe}) > 1;
     assign contention_at[61] = $countones({x_D9_p11_oe, x_D9_p14_oe}) > 1;
-    assign contention_at[62] = $countones({x_D13_p16_oe, x_D76_p22_oe}) > 1;
-    assign contention_at[63] = $countones({x_D13_p13_oe, x_D21_p13_oe}) > 1;
-    assign contention_at[64] = $countones({x_D9_p10_oe, x_D22_p9_oe, x_D22_p25_oe}) > 1;
-    assign contention_at[65] = $countones({x_D9_p13_oe, x_D38_p9_oe, x_D38_p25_oe}) > 1;
-    assign contention_at[66] = $countones({x_D9_p16_oe, x_D76_p10_oe}) > 1;
-    assign contention_at[67] = $countones({x_XP6_p10_oe, x_XS2_p3_oe}) > 1;
-    assign contention_at[68] = $countones({x_D76_p24_oe, x_XP3_p11_oe}) > 1;
-    assign contention_at[69] = $countones({x_D1_p38_oe, x_D76_p19_oe}) > 1;
-    assign contention_at[70] = $countones({x_D1_p36_oe, x_XP4_p28_oe}) > 1;
+    assign contention_at[62] = $countones({x_D9_p10_oe, x_D22_p9_oe, x_D22_p25_oe}) > 1;
+    assign contention_at[63] = $countones({x_D9_p13_oe, x_D38_p9_oe, x_D38_p25_oe}) > 1;
+    assign contention_at[64] = $countones({x_D9_p16_oe, x_D76_p10_oe}) > 1;
+    assign contention_at[65] = $countones({x_XP6_p10_oe, x_XS2_p3_oe}) > 1;
+    assign contention_at[66] = $countones({x_D76_p24_oe, x_XP3_p11_oe}) > 1;
+    assign contention_at[67] = $countones({x_D1_p38_oe, x_D76_p19_oe}) > 1;
+    assign contention_at[68] = $countones({x_D1_p36_oe, x_XP4_p28_oe}) > 1;
     assign contention = |contention_at;
 endmodule
