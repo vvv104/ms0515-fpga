@@ -57,6 +57,11 @@ ms0515_model(Vcrystal "${MS0515_CHIPS}/crystal.sv" crystal)
 ms0515_model(Vcrystal_15 "${MS0515_CHIPS}/crystal.sv" crystal ARGS -GPERIOD=8 -GHIGH=4)
 ms0515_test(test_crystal chips/test_crystal.cpp Vcrystal Vcrystal_15)
 
+# a delay line, three ticks long
+ms0515_model(Vdelay_line "${MS0515_CHIPS}/delay_line.sv" delay_line ARGS -GTICKS=3)
+ms0515_model(Vdelay_line_asym "${MS0515_CHIPS}/delay_line.sv" delay_line ARGS -GTICKS=3 -GFALL=1)
+ms0515_test(test_delay_line chips/test_delay_line.cpp Vdelay_line Vdelay_line_asym)
+
 # a PROM is tested programmed with a pattern (chips/kr556rt12_bench.sv)
 ms0515_model(Vkr556rt12_bench "${CMAKE_CURRENT_SOURCE_DIR}/chips/kr556rt12_bench.sv" kr556rt12_bench)
 ms0515_test(test_kr556rt12 chips/test_kr556rt12.cpp Vkr556rt12_bench)
@@ -82,3 +87,9 @@ ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
 # the board model's speed (not a test): sim/board/bench_board.cpp
 add_executable(bench_board board/bench_board.cpp)
 target_link_libraries(bench_board PRIVATE Vns4)
+
+# run_board: the board for a stretch of machine time - fetches against the
+# emulator, frames off the video DAC's inputs (not a test)
+add_executable(run_board board/run_board.cpp)
+target_link_libraries(run_board PRIVATE Vns4 ms0515_core)
+target_compile_definitions(run_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")

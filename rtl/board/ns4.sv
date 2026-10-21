@@ -757,33 +757,61 @@ module ns4 (
     logic d_D1_p38;
     logic d_D1_p39;
     logic d_D2_p14;
+    logic r_D2_p14;
     logic d_D2_p14_oe;
+    logic r_D2_p14_oe;
     logic d_D3_p14;
+    logic r_D3_p14;
     logic d_D3_p14_oe;
+    logic r_D3_p14_oe;
     logic d_D4_p2;
+    logic r_D4_p2;
     logic d_D4_p4;
+    logic r_D4_p4;
     logic d_D4_p6;
+    logic r_D4_p6;
     logic d_D4_p8;
+    logic r_D4_p8;
     logic d_D4_p10;
+    logic r_D4_p10;
     logic d_D4_p12;
+    logic r_D4_p12;
     logic d_D5_p14;
+    logic r_D5_p14;
     logic d_D5_p14_oe;
+    logic r_D5_p14_oe;
     logic d_D6_p14;
+    logic r_D6_p14;
     logic d_D6_p14_oe;
+    logic r_D6_p14_oe;
     logic d_D7_p4;
+    logic r_D7_p4;
     logic d_D7_p5;
+    logic r_D7_p5;
     logic d_D7_p6;
+    logic r_D7_p6;
     logic d_D7_p7;
+    logic r_D7_p7;
     logic d_D7_p12;
+    logic r_D7_p12;
     logic d_D7_p11;
+    logic r_D7_p11;
     logic d_D7_p10;
+    logic r_D7_p10;
     logic d_D7_p9;
+    logic r_D7_p9;
     logic d_D8_p2;
+    logic r_D8_p2;
     logic d_D8_p4;
+    logic r_D8_p4;
     logic d_D8_p6;
+    logic r_D8_p6;
     logic d_D8_p8;
+    logic r_D8_p8;
     logic d_D8_p10;
+    logic r_D8_p10;
     logic d_D8_p12;
+    logic r_D8_p12;
     logic d_D9_p1;
     logic d_D9_p1_oe;
     logic d_D9_p2;
@@ -804,51 +832,95 @@ module ns4 (
     logic d_D9_p13;
     logic d_D9_p17;
     logic d_D10_p2;
+    logic r_D10_p2;
     logic d_D10_p5;
+    logic r_D10_p5;
     logic d_D10_p7;
+    logic r_D10_p7;
     logic d_D10_p10;
+    logic r_D10_p10;
     logic d_D10_p12;
+    logic r_D10_p12;
     logic d_D10_p15;
+    logic r_D10_p15;
     logic d_D11_p14;
+    logic r_D11_p14;
     logic d_D11_p14_oe;
+    logic r_D11_p14_oe;
     logic d_D12_p14;
+    logic r_D12_p14;
     logic d_D12_p14_oe;
+    logic r_D12_p14_oe;
     logic d_D13_p14;
+    logic r_D13_p14;
     logic d_D13_p13;
+    logic r_D13_p13;
     logic d_D13_p12;
+    logic r_D13_p12;
     logic d_D13_p11;
+    logic r_D13_p11;
     logic d_D14_p3;
+    logic r_D14_p3;
     logic d_D14_p6;
+    logic r_D14_p6;
     logic d_D14_p8;
+    logic r_D14_p8;
     logic d_D14_p11;
+    logic r_D14_p11;
     logic d_D15_p2;
+    logic r_D15_p2;
     logic d_D15_p4;
+    logic r_D15_p4;
     logic d_D15_p6;
+    logic r_D15_p6;
     logic d_D15_p8;
+    logic r_D15_p8;
     logic d_D15_p10;
+    logic r_D15_p10;
     logic d_D15_p12;
+    logic r_D15_p12;
     logic d_D16_p3;
+    logic r_D16_p3;
     logic d_D16_p4;
+    logic r_D16_p4;
     logic d_D16_p5;
+    logic r_D16_p5;
     logic d_D16_p6;
+    logic r_D16_p6;
     logic d_D16_p11;
+    logic r_D16_p11;
     logic d_D16_p10;
+    logic r_D16_p10;
     logic d_D16_p9;
+    logic r_D16_p9;
     logic d_D16_p8;
+    logic r_D16_p8;
     logic d_D17_p5;
+    logic r_D17_p5;
     logic d_D17_p6;
+    logic r_D17_p6;
     logic d_D17_p9;
+    logic r_D17_p9;
     logic d_D17_p8;
+    logic r_D17_p8;
     logic d_D18_p14;
+    logic r_D18_p14;
     logic d_D18_p14_oe;
+    logic r_D18_p14_oe;
     logic d_D19_p14;
+    logic r_D19_p14;
     logic d_D19_p14_oe;
+    logic r_D19_p14_oe;
     logic d_D20_p7;
     logic d_D20_p6;
     logic d_D21_p14;
+    logic r_D21_p14;
     logic d_D21_p13;
+    logic r_D21_p13;
     logic d_D21_p12;
+    logic r_D21_p12;
     logic d_D21_p11;
+    logic r_D21_p11;
     logic d_D22_p8;
     logic d_D22_p8_oe;
     logic d_D22_p7;
@@ -881,48 +953,89 @@ module ns4 (
     logic d_D24_p9;
     logic d_D24_p8;
     logic d_D25_p8;
+    logic r_D25_p8;
     logic d_D25_p6;
+    logic r_D25_p6;
     logic d_D26_p14;
+    logic r_D26_p14;
     logic d_D26_p14_oe;
+    logic r_D26_p14_oe;
     logic d_D27_p14;
+    logic r_D27_p14;
     logic d_D27_p14_oe;
+    logic r_D27_p14_oe;
     logic d_D28_p7;
     logic d_D28_p6;
     logic d_D29_p14;
+    logic r_D29_p14;
     logic d_D29_p13;
+    logic r_D29_p13;
     logic d_D29_p12;
+    logic r_D29_p12;
     logic d_D29_p11;
+    logic r_D29_p11;
     logic d_D29_p15;
+    logic r_D29_p15;
     logic d_D30_p14;
+    logic r_D30_p14;
     logic d_D30_p13;
+    logic r_D30_p13;
     logic d_D30_p12;
+    logic r_D30_p12;
     logic d_D30_p11;
+    logic r_D30_p11;
     logic d_D30_p15;
+    logic r_D30_p15;
     logic d_D31_p12;
+    logic r_D31_p12;
     logic d_D31_p6;
+    logic r_D31_p6;
     logic d_D31_p8;
+    logic r_D31_p8;
     logic d_D32_p5;
+    logic r_D32_p5;
     logic d_D32_p5_oe;
+    logic r_D32_p5_oe;
     logic d_D32_p6;
+    logic r_D32_p6;
     logic d_D32_p6_oe;
+    logic r_D32_p6_oe;
     logic d_D33_p5;
+    logic r_D33_p5;
     logic d_D33_p6;
+    logic r_D33_p6;
     logic d_D33_p9;
+    logic r_D33_p9;
     logic d_D33_p8;
+    logic r_D33_p8;
     logic d_D34_p14;
+    logic r_D34_p14;
     logic d_D34_p14_oe;
+    logic r_D34_p14_oe;
     logic d_D35_p14;
+    logic r_D35_p14;
     logic d_D35_p14_oe;
+    logic r_D35_p14_oe;
     logic d_D36_p14;
+    logic r_D36_p14;
     logic d_D36_p13;
+    logic r_D36_p13;
     logic d_D36_p12;
+    logic r_D36_p12;
     logic d_D36_p11;
+    logic r_D36_p11;
     logic d_D36_p15;
+    logic r_D36_p15;
     logic d_D37_p14;
+    logic r_D37_p14;
     logic d_D37_p13;
+    logic r_D37_p13;
     logic d_D37_p12;
+    logic r_D37_p12;
     logic d_D37_p11;
+    logic r_D37_p11;
     logic d_D37_p15;
+    logic r_D37_p15;
     logic d_D38_p8;
     logic d_D38_p8_oe;
     logic d_D38_p7;
@@ -947,236 +1060,467 @@ module ns4 (
     logic d_D38_p24;
     logic d_D38_p23;
     logic d_D39_p3;
+    logic r_D39_p3;
     logic d_D39_p6;
+    logic r_D39_p6;
     logic d_D39_p8;
+    logic r_D39_p8;
     logic d_D39_p11;
+    logic r_D39_p11;
     logic d_D40_p2;
+    logic r_D40_p2;
     logic d_D40_p7;
+    logic r_D40_p7;
     logic d_D40_p10;
+    logic r_D40_p10;
     logic d_D40_p15;
+    logic r_D40_p15;
     logic d_D40_p3;
+    logic r_D40_p3;
     logic d_D40_p6;
+    logic r_D40_p6;
     logic d_D40_p11;
+    logic r_D40_p11;
     logic d_D40_p14;
+    logic r_D40_p14;
     logic d_D41_p5;
+    logic r_D41_p5;
     logic d_D41_p6;
+    logic r_D41_p6;
     logic d_D41_p9;
+    logic r_D41_p9;
     logic d_D41_p8;
+    logic r_D41_p8;
     logic d_D42_p14;
+    logic r_D42_p14;
     logic d_D42_p13;
+    logic r_D42_p13;
     logic d_D42_p12;
+    logic r_D42_p12;
     logic d_D42_p11;
+    logic r_D42_p11;
     logic d_D42_p15;
+    logic r_D42_p15;
     logic d_D43_p2;
+    logic r_D43_p2;
     logic d_D43_p7;
+    logic r_D43_p7;
     logic d_D43_p10;
+    logic r_D43_p10;
     logic d_D43_p15;
+    logic r_D43_p15;
     logic d_D43_p3;
+    logic r_D43_p3;
     logic d_D43_p6;
+    logic r_D43_p6;
     logic d_D43_p11;
+    logic r_D43_p11;
     logic d_D43_p14;
+    logic r_D43_p14;
     logic d_D44_p14;
+    logic r_D44_p14;
     logic d_D44_p14_oe;
+    logic r_D44_p14_oe;
     logic d_D45_p14;
+    logic r_D45_p14;
     logic d_D45_p14_oe;
+    logic r_D45_p14_oe;
     logic d_D46_p3;
+    logic r_D46_p3;
     logic d_D46_p4;
+    logic r_D46_p4;
     logic d_D46_p5;
+    logic r_D46_p5;
     logic d_D46_p6;
+    logic r_D46_p6;
     logic d_D46_p11;
+    logic r_D46_p11;
     logic d_D46_p10;
+    logic r_D46_p10;
     logic d_D46_p9;
+    logic r_D46_p9;
     logic d_D46_p8;
+    logic r_D46_p8;
     logic d_D47_p5;
+    logic r_D47_p5;
     logic d_D47_p6;
+    logic r_D47_p6;
     logic d_D47_p9;
+    logic r_D47_p9;
     logic d_D47_p8;
+    logic r_D47_p8;
     logic d_D48_p3;
+    logic r_D48_p3;
     logic d_D48_p3_oe;
+    logic r_D48_p3_oe;
     logic d_D48_p5;
+    logic r_D48_p5;
     logic d_D48_p5_oe;
+    logic r_D48_p5_oe;
     logic d_D48_p11;
+    logic r_D48_p11;
     logic d_D48_p11_oe;
+    logic r_D48_p11_oe;
     logic d_D48_p13;
+    logic r_D48_p13;
     logic d_D48_p13_oe;
+    logic r_D48_p13_oe;
     logic d_D49_p13;
+    logic r_D49_p13;
     logic d_D49_p13_oe;
+    logic r_D49_p13_oe;
     logic d_D49_p12;
+    logic r_D49_p12;
     logic d_D49_p12_oe;
+    logic r_D49_p12_oe;
     logic d_D49_p11;
+    logic r_D49_p11;
     logic d_D49_p11_oe;
+    logic r_D49_p11_oe;
     logic d_D49_p10;
+    logic r_D49_p10;
     logic d_D49_p10_oe;
+    logic r_D49_p10_oe;
     logic d_D50_p13;
+    logic r_D50_p13;
     logic d_D50_p13_oe;
+    logic r_D50_p13_oe;
     logic d_D50_p12;
+    logic r_D50_p12;
     logic d_D50_p12_oe;
+    logic r_D50_p12_oe;
     logic d_D50_p11;
+    logic r_D50_p11;
     logic d_D50_p11_oe;
+    logic r_D50_p11_oe;
     logic d_D50_p10;
+    logic r_D50_p10;
     logic d_D50_p10_oe;
+    logic r_D50_p10_oe;
     logic d_D51_p2;
+    logic r_D51_p2;
     logic d_D51_p2_oe;
+    logic r_D51_p2_oe;
     logic d_D51_p5;
+    logic r_D51_p5;
     logic d_D51_p5_oe;
+    logic r_D51_p5_oe;
     logic d_D51_p6;
+    logic r_D51_p6;
     logic d_D51_p6_oe;
+    logic r_D51_p6_oe;
     logic d_D51_p9;
+    logic r_D51_p9;
     logic d_D51_p9_oe;
+    logic r_D51_p9_oe;
     logic d_D51_p12;
+    logic r_D51_p12;
     logic d_D51_p12_oe;
+    logic r_D51_p12_oe;
     logic d_D51_p15;
+    logic r_D51_p15;
     logic d_D51_p15_oe;
+    logic r_D51_p15_oe;
     logic d_D51_p16;
+    logic r_D51_p16;
     logic d_D51_p16_oe;
+    logic r_D51_p16_oe;
     logic d_D51_p19;
+    logic r_D51_p19;
     logic d_D51_p19_oe;
+    logic r_D51_p19_oe;
     logic d_D52_p18;
+    logic r_D52_p18;
     logic d_D52_p18_oe;
+    logic r_D52_p18_oe;
     logic d_D52_p16;
+    logic r_D52_p16;
     logic d_D52_p16_oe;
+    logic r_D52_p16_oe;
     logic d_D52_p14;
+    logic r_D52_p14;
     logic d_D52_p14_oe;
+    logic r_D52_p14_oe;
     logic d_D52_p12;
+    logic r_D52_p12;
     logic d_D52_p12_oe;
+    logic r_D52_p12_oe;
     logic d_D52_p9;
+    logic r_D52_p9;
     logic d_D52_p9_oe;
+    logic r_D52_p9_oe;
     logic d_D52_p7;
+    logic r_D52_p7;
     logic d_D52_p7_oe;
+    logic r_D52_p7_oe;
     logic d_D52_p5;
+    logic r_D52_p5;
     logic d_D52_p5_oe;
+    logic r_D52_p5_oe;
     logic d_D52_p3;
+    logic r_D52_p3;
     logic d_D52_p3_oe;
+    logic r_D52_p3_oe;
     logic d_D53_p14;
+    logic r_D53_p14;
     logic d_D53_p14_oe;
+    logic r_D53_p14_oe;
     logic d_D54_p14;
+    logic r_D54_p14;
     logic d_D54_p14_oe;
+    logic r_D54_p14_oe;
     logic d_D55_p13;
+    logic r_D55_p13;
     logic d_D55_p13_oe;
+    logic r_D55_p13_oe;
     logic d_D55_p12;
+    logic r_D55_p12;
     logic d_D55_p12_oe;
+    logic r_D55_p12_oe;
     logic d_D55_p11;
+    logic r_D55_p11;
     logic d_D55_p11_oe;
+    logic r_D55_p11_oe;
     logic d_D55_p10;
+    logic r_D55_p10;
     logic d_D55_p10_oe;
+    logic r_D55_p10_oe;
     logic d_D56_p13;
+    logic r_D56_p13;
     logic d_D56_p13_oe;
+    logic r_D56_p13_oe;
     logic d_D56_p12;
+    logic r_D56_p12;
     logic d_D56_p12_oe;
+    logic r_D56_p12_oe;
     logic d_D56_p11;
+    logic r_D56_p11;
     logic d_D56_p11_oe;
+    logic r_D56_p11_oe;
     logic d_D56_p10;
+    logic r_D56_p10;
     logic d_D56_p10_oe;
+    logic r_D56_p10_oe;
     logic d_D57_p2;
+    logic r_D57_p2;
     logic d_D57_p2_oe;
+    logic r_D57_p2_oe;
     logic d_D57_p5;
+    logic r_D57_p5;
     logic d_D57_p5_oe;
+    logic r_D57_p5_oe;
     logic d_D57_p6;
+    logic r_D57_p6;
     logic d_D57_p6_oe;
+    logic r_D57_p6_oe;
     logic d_D57_p9;
+    logic r_D57_p9;
     logic d_D57_p9_oe;
+    logic r_D57_p9_oe;
     logic d_D57_p12;
+    logic r_D57_p12;
     logic d_D57_p12_oe;
+    logic r_D57_p12_oe;
     logic d_D57_p15;
+    logic r_D57_p15;
     logic d_D57_p15_oe;
+    logic r_D57_p15_oe;
     logic d_D57_p16;
+    logic r_D57_p16;
     logic d_D57_p16_oe;
+    logic r_D57_p16_oe;
     logic d_D57_p19;
+    logic r_D57_p19;
     logic d_D57_p19_oe;
+    logic r_D57_p19_oe;
     logic d_D58_p18;
+    logic r_D58_p18;
     logic d_D58_p18_oe;
+    logic r_D58_p18_oe;
     logic d_D58_p16;
+    logic r_D58_p16;
     logic d_D58_p16_oe;
+    logic r_D58_p16_oe;
     logic d_D58_p14;
+    logic r_D58_p14;
     logic d_D58_p14_oe;
+    logic r_D58_p14_oe;
     logic d_D58_p12;
+    logic r_D58_p12;
     logic d_D58_p12_oe;
+    logic r_D58_p12_oe;
     logic d_D58_p9;
+    logic r_D58_p9;
     logic d_D58_p9_oe;
+    logic r_D58_p9_oe;
     logic d_D58_p7;
+    logic r_D58_p7;
     logic d_D58_p7_oe;
+    logic r_D58_p7_oe;
     logic d_D58_p5;
+    logic r_D58_p5;
     logic d_D58_p5_oe;
+    logic r_D58_p5_oe;
     logic d_D58_p3;
+    logic r_D58_p3;
     logic d_D58_p3_oe;
+    logic r_D58_p3_oe;
     logic d_D59_p3;
+    logic r_D59_p3;
     logic d_D59_p4;
+    logic r_D59_p4;
     logic d_D59_p5;
+    logic r_D59_p5;
     logic d_D59_p6;
+    logic r_D59_p6;
     logic d_D59_p11;
+    logic r_D59_p11;
     logic d_D59_p10;
+    logic r_D59_p10;
     logic d_D59_p9;
+    logic r_D59_p9;
     logic d_D59_p8;
+    logic r_D59_p8;
     logic d_D60_p5;
+    logic r_D60_p5;
     logic d_D60_p6;
+    logic r_D60_p6;
     logic d_D60_p9;
+    logic r_D60_p9;
     logic d_D60_p8;
+    logic r_D60_p8;
     logic d_D61_p7;
+    logic r_D61_p7;
     logic d_D61_p9;
+    logic r_D61_p9;
     logic d_D62_p7;
+    logic r_D62_p7;
     logic d_D62_p9;
+    logic r_D62_p9;
     logic d_D63_p7;
+    logic r_D63_p7;
     logic d_D63_p9;
+    logic r_D63_p9;
     logic d_D64_p2;
+    logic r_D64_p2;
     logic d_D64_p4;
+    logic r_D64_p4;
     logic d_D64_p6;
+    logic r_D64_p6;
     logic d_D64_p8;
+    logic r_D64_p8;
     logic d_D64_p10;
+    logic r_D64_p10;
     logic d_D64_p12;
+    logic r_D64_p12;
     logic d_D65_p11;
+    logic r_D65_p11;
     logic d_D65_p11_oe;
+    logic r_D65_p11_oe;
     logic d_D65_p12;
+    logic r_D65_p12;
     logic d_D65_p12_oe;
+    logic r_D65_p12_oe;
     logic d_D65_p13;
+    logic r_D65_p13;
     logic d_D65_p13_oe;
+    logic r_D65_p13_oe;
     logic d_D65_p15;
+    logic r_D65_p15;
     logic d_D65_p15_oe;
+    logic r_D65_p15_oe;
     logic d_D65_p16;
+    logic r_D65_p16;
     logic d_D65_p16_oe;
+    logic r_D65_p16_oe;
     logic d_D65_p17;
+    logic r_D65_p17;
     logic d_D65_p17_oe;
+    logic r_D65_p17_oe;
     logic d_D65_p18;
+    logic r_D65_p18;
     logic d_D65_p18_oe;
+    logic r_D65_p18_oe;
     logic d_D65_p19;
+    logic r_D65_p19;
     logic d_D65_p19_oe;
+    logic r_D65_p19_oe;
     logic d_D66_p3;
+    logic r_D66_p3;
     logic d_D66_p6;
+    logic r_D66_p6;
     logic d_D66_p8;
+    logic r_D66_p8;
     logic d_D66_p11;
+    logic r_D66_p11;
     logic d_D67_p7;
+    logic r_D67_p7;
     logic d_D67_p9;
+    logic r_D67_p9;
     logic d_D68_p7;
+    logic r_D68_p7;
     logic d_D68_p9;
+    logic r_D68_p9;
     logic d_D69_p7;
+    logic r_D69_p7;
     logic d_D69_p9;
+    logic r_D69_p9;
     logic d_D70_p4;
+    logic r_D70_p4;
     logic d_D70_p4_oe;
+    logic r_D70_p4_oe;
     logic d_D70_p7;
+    logic r_D70_p7;
     logic d_D70_p7_oe;
+    logic r_D70_p7_oe;
     logic d_D70_p9;
+    logic r_D70_p9;
     logic d_D70_p9_oe;
+    logic r_D70_p9_oe;
     logic d_D70_p12;
+    logic r_D70_p12;
     logic d_D70_p12_oe;
+    logic r_D70_p12_oe;
     logic d_D71_p6;
+    logic r_D71_p6;
     logic d_D71_p8;
+    logic r_D71_p8;
     logic d_D72_p3;
+    logic r_D72_p3;
     logic d_D72_p6;
+    logic r_D72_p6;
     logic d_D72_p8;
+    logic r_D72_p8;
     logic d_D72_p11;
+    logic r_D72_p11;
     logic d_D73_p3;
+    logic r_D73_p3;
     logic d_D73_p6;
+    logic r_D73_p6;
     logic d_D73_p8;
+    logic r_D73_p8;
     logic d_D73_p11;
+    logic r_D73_p11;
     logic d_D74_p3;
+    logic r_D74_p3;
     logic d_D74_p6;
+    logic r_D74_p6;
     logic d_D74_p8;
+    logic r_D74_p8;
     logic d_D74_p11;
+    logic r_D74_p11;
     logic d_D75_p2;
+    logic r_D75_p2;
     logic d_D75_p4;
+    logic r_D75_p4;
     logic d_D75_p6;
+    logic r_D75_p6;
     logic d_D75_p8;
+    logic r_D75_p8;
     logic d_D75_p10;
+    logic r_D75_p10;
     logic d_D75_p12;
+    logic r_D75_p12;
     logic d_D76_p27;
     logic d_D76_p27_oe;
     logic d_D76_p28;
@@ -1242,53 +1586,101 @@ module ns4 (
     logic d_D76_p14;
     logic d_D76_p14_oe;
     logic d_D77_p11;
+    logic r_D77_p11;
     logic d_D77_p11_oe;
+    logic r_D77_p11_oe;
     logic d_D77_p12;
+    logic r_D77_p12;
     logic d_D77_p12_oe;
+    logic r_D77_p12_oe;
     logic d_D77_p13;
+    logic r_D77_p13;
     logic d_D77_p13_oe;
+    logic r_D77_p13_oe;
     logic d_D77_p15;
+    logic r_D77_p15;
     logic d_D77_p15_oe;
+    logic r_D77_p15_oe;
     logic d_D77_p16;
+    logic r_D77_p16;
     logic d_D77_p16_oe;
+    logic r_D77_p16_oe;
     logic d_D77_p17;
+    logic r_D77_p17;
     logic d_D77_p17_oe;
+    logic r_D77_p17_oe;
     logic d_D77_p18;
+    logic r_D77_p18;
     logic d_D77_p18_oe;
+    logic r_D77_p18_oe;
     logic d_D77_p19;
+    logic r_D77_p19;
     logic d_D77_p19_oe;
+    logic r_D77_p19_oe;
     logic d_D78_p2;
+    logic r_D78_p2;
     logic d_D78_p2_oe;
+    logic r_D78_p2_oe;
     logic d_D78_p5;
+    logic r_D78_p5;
     logic d_D78_p5_oe;
+    logic r_D78_p5_oe;
     logic d_D78_p6;
+    logic r_D78_p6;
     logic d_D78_p6_oe;
+    logic r_D78_p6_oe;
     logic d_D78_p9;
+    logic r_D78_p9;
     logic d_D78_p9_oe;
+    logic r_D78_p9_oe;
     logic d_D78_p12;
+    logic r_D78_p12;
     logic d_D78_p12_oe;
+    logic r_D78_p12_oe;
     logic d_D78_p15;
+    logic r_D78_p15;
     logic d_D78_p15_oe;
+    logic r_D78_p15_oe;
     logic d_D78_p16;
+    logic r_D78_p16;
     logic d_D78_p16_oe;
+    logic r_D78_p16_oe;
     logic d_D78_p19;
+    logic r_D78_p19;
     logic d_D78_p19_oe;
+    logic r_D78_p19_oe;
     logic d_D79_p3;
+    logic r_D79_p3;
     logic d_D79_p6;
+    logic r_D79_p6;
     logic d_D79_p8;
+    logic r_D79_p8;
     logic d_D79_p11;
+    logic r_D79_p11;
     logic d_D80_p15;
+    logic r_D80_p15;
     logic d_D80_p14;
+    logic r_D80_p14;
     logic d_D80_p13;
+    logic r_D80_p13;
     logic d_D80_p12;
+    logic r_D80_p12;
     logic d_D80_p11;
+    logic r_D80_p11;
     logic d_D80_p10;
+    logic r_D80_p10;
     logic d_D80_p9;
+    logic r_D80_p9;
     logic d_D80_p7;
+    logic r_D80_p7;
     logic d_D81_p3;
+    logic r_D81_p3;
     logic d_D81_p6;
+    logic r_D81_p6;
     logic d_D81_p8;
+    logic r_D81_p8;
     logic d_D81_p11;
+    logic r_D81_p11;
     logic d_D82_p27;
     logic d_D82_p27_oe;
     logic d_D82_p28;
@@ -1397,114 +1789,207 @@ module ns4 (
     logic d_D83_p30;
     logic d_D83_p31;
     logic d_D84_p3;
+    logic r_D84_p3;
     logic d_D84_p6;
+    logic r_D84_p6;
     logic d_D84_p8;
+    logic r_D84_p8;
     logic d_D84_p11;
+    logic r_D84_p11;
     logic d_D85_p12;
+    logic r_D85_p12;
     logic d_D85_p6;
+    logic r_D85_p6;
     logic d_D85_p8;
+    logic r_D85_p8;
     logic d_D86_p5;
+    logic r_D86_p5;
     logic d_D86_p5_oe;
+    logic r_D86_p5_oe;
     logic d_D86_p6;
+    logic r_D86_p6;
     logic d_D86_p6_oe;
+    logic r_D86_p6_oe;
     logic d_D87_p7;
+    logic r_D87_p7;
     logic d_D87_p9;
+    logic r_D87_p9;
     logic d_D88_p8;
+    logic r_D88_p8;
     logic d_D89_p2;
+    logic r_D89_p2;
     logic d_D89_p2_oe;
+    logic r_D89_p2_oe;
     logic d_D89_p5;
+    logic r_D89_p5;
     logic d_D89_p5_oe;
+    logic r_D89_p5_oe;
     logic d_D89_p6;
+    logic r_D89_p6;
     logic d_D89_p6_oe;
+    logic r_D89_p6_oe;
     logic d_D89_p9;
+    logic r_D89_p9;
     logic d_D89_p9_oe;
+    logic r_D89_p9_oe;
     logic d_D89_p12;
+    logic r_D89_p12;
     logic d_D89_p12_oe;
+    logic r_D89_p12_oe;
     logic d_D89_p15;
+    logic r_D89_p15;
     logic d_D89_p15_oe;
+    logic r_D89_p15_oe;
     logic d_D89_p16;
+    logic r_D89_p16;
     logic d_D89_p16_oe;
+    logic r_D89_p16_oe;
     logic d_D89_p19;
+    logic r_D89_p19;
     logic d_D89_p19_oe;
+    logic r_D89_p19_oe;
     logic d_D90_p9;
+    logic r_D90_p9;
     logic d_D91_p2;
+    logic r_D91_p2;
     logic d_D91_p4;
+    logic r_D91_p4;
     logic d_D91_p6;
+    logic r_D91_p6;
     logic d_D91_p8;
+    logic r_D91_p8;
     logic d_D91_p10;
+    logic r_D91_p10;
     logic d_D91_p12;
+    logic r_D91_p12;
     logic d_D92_p2;
     logic d_D92_p2_oe;
+    logic r_D92_p2_oe;
     logic d_D92_p5;
     logic d_D92_p5_oe;
+    logic r_D92_p5_oe;
     logic d_D92_p6;
     logic d_D92_p6_oe;
+    logic r_D92_p6_oe;
     logic d_D92_p9;
     logic d_D92_p9_oe;
+    logic r_D92_p9_oe;
     logic d_D92_p12;
     logic d_D92_p12_oe;
+    logic r_D92_p12_oe;
     logic d_D92_p15;
     logic d_D92_p15_oe;
+    logic r_D92_p15_oe;
     logic d_D92_p16;
     logic d_D92_p16_oe;
+    logic r_D92_p16_oe;
     logic d_D92_p19;
     logic d_D92_p19_oe;
+    logic r_D92_p19_oe;
     logic d_D93_p3;
+    logic r_D93_p3;
     logic d_D93_p6;
+    logic r_D93_p6;
     logic d_D93_p8;
+    logic r_D93_p8;
     logic d_D93_p11;
+    logic r_D93_p11;
     logic d_D94_p2;
     logic d_D94_p2_oe;
+    logic r_D94_p2_oe;
     logic d_D94_p5;
     logic d_D94_p5_oe;
+    logic r_D94_p5_oe;
     logic d_D94_p6;
     logic d_D94_p6_oe;
+    logic r_D94_p6_oe;
     logic d_D94_p9;
     logic d_D94_p9_oe;
+    logic r_D94_p9_oe;
     logic d_D94_p12;
     logic d_D94_p12_oe;
+    logic r_D94_p12_oe;
     logic d_D94_p15;
     logic d_D94_p15_oe;
+    logic r_D94_p15_oe;
     logic d_D94_p16;
     logic d_D94_p16_oe;
+    logic r_D94_p16_oe;
     logic d_D94_p19;
     logic d_D94_p19_oe;
+    logic r_D94_p19_oe;
     logic d_D95_p18;
+    logic r_D95_p18;
     logic d_D95_p18_oe;
+    logic r_D95_p18_oe;
     logic d_D95_p16;
+    logic r_D95_p16;
     logic d_D95_p16_oe;
+    logic r_D95_p16_oe;
     logic d_D95_p14;
+    logic r_D95_p14;
     logic d_D95_p14_oe;
+    logic r_D95_p14_oe;
     logic d_D95_p12;
+    logic r_D95_p12;
     logic d_D95_p12_oe;
+    logic r_D95_p12_oe;
     logic d_D95_p9;
+    logic r_D95_p9;
     logic d_D95_p9_oe;
+    logic r_D95_p9_oe;
     logic d_D95_p7;
+    logic r_D95_p7;
     logic d_D95_p7_oe;
+    logic r_D95_p7_oe;
     logic d_D95_p5;
+    logic r_D95_p5;
     logic d_D95_p5_oe;
+    logic r_D95_p5_oe;
     logic d_D95_p3;
+    logic r_D95_p3;
     logic d_D95_p3_oe;
+    logic r_D95_p3_oe;
     logic d_D96_p9;
+    logic r_D96_p9;
     logic d_D96_p7;
+    logic r_D96_p7;
     logic d_D96_p6;
+    logic r_D96_p6;
     logic d_D96_p14;
+    logic r_D96_p14;
     logic d_D97_p2;
+    logic r_D97_p2;
     logic d_D97_p5;
+    logic r_D97_p5;
     logic d_D97_p7;
+    logic r_D97_p7;
     logic d_D97_p10;
+    logic r_D97_p10;
     logic d_D97_p12;
+    logic r_D97_p12;
     logic d_D97_p15;
+    logic r_D97_p15;
     logic d_D98_p5;
+    logic r_D98_p5;
     logic d_D98_p6;
+    logic r_D98_p6;
     logic d_D98_p9;
+    logic r_D98_p9;
     logic d_D98_p8;
+    logic r_D98_p8;
     logic d_D99_p2;
+    logic r_D99_p2;
     logic d_D99_p4;
+    logic r_D99_p4;
     logic d_D99_p6;
+    logic r_D99_p6;
     logic d_D99_p8;
+    logic r_D99_p8;
     logic d_D99_p10;
+    logic r_D99_p10;
     logic d_D99_p12;
+    logic r_D99_p12;
     logic q_x_DA2_p1;
     logic q_x_DA2_p1_oe;
     logic q_x_DA2_p2;
@@ -2011,8 +2496,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D2_p14),
-        .p14_oe(d_D2_p14_oe)
+        .p14(r_D2_p14),
+        .p14_oe(r_D2_p14_oe)
     );
 
     kr565ru5 D3 (
@@ -2029,23 +2514,23 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D3_p14),
-        .p14_oe(d_D3_p14_oe)
+        .p14(r_D3_p14),
+        .p14_oe(r_D3_p14_oe)
     );
 
     k555tl2 D4 (
         .p1(n_VAS_L),
-        .p2(d_D4_p2),
+        .p2(r_D4_p2),
         .p3(nx_D10_12),
-        .p4(d_D4_p4),
+        .p4(r_D4_p4),
         .p5(n_GTV_L),
-        .p6(d_D4_p6),
+        .p6(r_D4_p6),
         .p9(nx_D10_10),
-        .p8(d_D4_p8),
+        .p8(r_D4_p8),
         .p11(n_FAZA_H),
-        .p10(d_D4_p10),
+        .p10(r_D4_p10),
         .p13(n_CHTN_H),
-        .p12(d_D4_p12)
+        .p12(r_D4_p12)
     );
 
     kr565ru5 D5 (
@@ -2062,8 +2547,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D5_p14),
-        .p14_oe(d_D5_p14_oe)
+        .p14(r_D5_p14),
+        .p14_oe(r_D5_p14_oe)
     );
 
     kr565ru5 D6 (
@@ -2080,40 +2565,40 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D6_p14),
-        .p14_oe(d_D6_p14_oe)
+        .p14(r_D6_p14),
+        .p14_oe(r_D6_p14_oe)
     );
 
     kr531id14 D7 (
         .p1(1'b0),
         .p2(n_RVU0_H),
         .p3(n_RVU1_H),
-        .p4(d_D7_p4),
-        .p5(d_D7_p5),
-        .p6(d_D7_p6),
-        .p7(d_D7_p7),
+        .p4(r_D7_p4),
+        .p5(r_D7_p5),
+        .p6(r_D7_p6),
+        .p7(r_D7_p7),
         .p15(nx_D66_3),
         .p14(n_MK08_H),
         .p13(nx_D72_3),
-        .p12(d_D7_p12),
-        .p11(d_D7_p11),
-        .p10(d_D7_p10),
-        .p9(d_D7_p9)
+        .p12(r_D7_p12),
+        .p11(r_D7_p11),
+        .p10(r_D7_p10),
+        .p9(r_D7_p9)
     );
 
     k155lp9 D8 (
         .p1(nx_D7_4),
-        .p2(d_D8_p2),
+        .p2(r_D8_p2),
         .p3(nx_D7_5),
-        .p4(d_D8_p4),
+        .p4(r_D8_p4),
         .p5(nx_D7_6),
-        .p6(d_D8_p6),
+        .p6(r_D8_p6),
         .p9(nx_D7_7),
-        .p8(d_D8_p8),
+        .p8(r_D8_p8),
         .p11(n_VKLDV_H),
-        .p10(d_D8_p10),
+        .p10(r_D8_p10),
         .p13(n_POVER_H),
-        .p12(d_D8_p12)
+        .p12(r_D8_p12)
     );
 
     kr580vi53 D9 (
@@ -2168,12 +2653,12 @@ module ns4 (
         .p11(nx_D10_7),
         .p13(nx_D10_10),
         .p14(nx_D10_14),
-        .p2(d_D10_p2),
-        .p5(d_D10_p5),
-        .p7(d_D10_p7),
-        .p10(d_D10_p10),
-        .p12(d_D10_p12),
-        .p15(d_D10_p15)
+        .p2(r_D10_p2),
+        .p5(r_D10_p5),
+        .p7(r_D10_p7),
+        .p10(r_D10_p10),
+        .p12(r_D10_p12),
+        .p15(r_D10_p15)
     );
 
     kr565ru5 D11 (
@@ -2190,8 +2675,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D11_p14),
-        .p14_oe(d_D11_p14_oe)
+        .p14(r_D11_p14),
+        .p14_oe(r_D11_p14_oe)
     );
 
     kr565ru5 D12 (
@@ -2208,8 +2693,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D12_p14),
-        .p14_oe(d_D12_p14_oe)
+        .p14(r_D12_p14),
+        .p14_oe(r_D12_p14_oe)
     );
 
     kr556rt12 #(.CONTENTS(4096'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeeeeeeeeeeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6eeeffffffffcccccccc8ccceeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeeeeeeeefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6eeffffffffccccccc8cceeeeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc8cceeeefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6eeeeeeeeeeeeeeeeeeecccccccccffffffffeeeeeeeeeeeeeeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)) D13 (
@@ -2225,56 +2710,56 @@ module ns4 (
         .p15(1'b0),
         .p8(1'b0),
         .p10(1'b0),
-        .p14(d_D13_p14),
-        .p13(d_D13_p13),
-        .p12(d_D13_p12),
-        .p11(d_D13_p11)
+        .p14(r_D13_p14),
+        .p13(r_D13_p13),
+        .p12(r_D13_p12),
+        .p11(r_D13_p11)
     );
 
     k555la3 D14 (
         .p1(n_BORDS_L),
         .p2(n_BORDK_L),
-        .p3(d_D14_p3),
+        .p3(r_D14_p3),
         .p4(n_PMLB_L),
         .p5(n_PSTB_L),
-        .p6(d_D14_p6),
+        .p6(r_D14_p6),
         .p9(n_SGI_L),
         .p10(n_SGI_L),
-        .p8(d_D14_p8),
+        .p8(r_D14_p8),
         .p12(nx_D47_9),
         .p13(n_RAZR_OZU_L),
-        .p11(d_D14_p11)
+        .p11(r_D14_p11)
     );
 
     k555ln1 D15 (
         .p1(n_VU_H),
-        .p2(d_D15_p2),
+        .p2(r_D15_p2),
         .p3(n_PVAS_H),
-        .p4(d_D15_p4),
+        .p4(r_D15_p4),
         .p5(nx_D15_4),
-        .p6(d_D15_p6),
+        .p6(r_D15_p6),
         .p9(n_TS8M_L),
-        .p8(d_D15_p8),
+        .p8(r_D15_p8),
         .p11(nx_D15_11),
-        .p10(d_D15_p10),
+        .p10(r_D15_p10),
         .p13(nx_C5_2),
-        .p12(d_D15_p12)
+        .p12(r_D15_p12)
     );
 
     k555ie19 D16 (
         .clk(clk),
         .p1(nx_D15_8),
         .p2(1'b0),
-        .p3(d_D16_p3),
-        .p4(d_D16_p4),
-        .p5(d_D16_p5),
-        .p6(d_D16_p6),
+        .p3(r_D16_p3),
+        .p4(r_D16_p4),
+        .p5(r_D16_p5),
+        .p6(r_D16_p6),
         .p13(nx_D84_6),
         .p12(nx_D95_7),
-        .p11(d_D16_p11),
-        .p10(d_D16_p10),
-        .p9(d_D16_p9),
-        .p8(d_D16_p8)
+        .p11(r_D16_p11),
+        .p10(r_D16_p10),
+        .p9(r_D16_p9),
+        .p8(r_D16_p8)
     );
 
     k555tm2 D17 (
@@ -2283,14 +2768,14 @@ module ns4 (
         .p2(n_R14_H),
         .p3(n_IMP_CHT_H),
         .p4(n_R14_H),
-        .p5(d_D17_p5),
-        .p6(d_D17_p6),
+        .p5(r_D17_p5),
+        .p6(r_D17_p6),
         .p13(n_R13_H),
         .p12(nx_D17_8),
         .p11(n_FAZA_H),
         .p10(n_R13_H),
-        .p9(d_D17_p9),
-        .p8(d_D17_p8)
+        .p9(r_D17_p9),
+        .p8(r_D17_p8)
     );
 
     kr565ru5 D18 (
@@ -2307,8 +2792,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D18_p14),
-        .p14_oe(d_D18_p14_oe)
+        .p14(r_D18_p14),
+        .p14_oe(r_D18_p14_oe)
     );
 
     kr565ru5 D19 (
@@ -2325,8 +2810,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D19_p14),
-        .p14_oe(d_D19_p14_oe)
+        .p14(r_D19_p14),
+        .p14_oe(r_D19_p14_oe)
     );
 
     kr1102ap15 D20 (
@@ -2350,10 +2835,10 @@ module ns4 (
         .p15(1'b0),
         .p8(1'b0),
         .p10(1'b0),
-        .p14(d_D21_p14),
-        .p13(d_D21_p13),
-        .p12(d_D21_p12),
-        .p11(d_D21_p11)
+        .p14(r_D21_p14),
+        .p13(r_D21_p13),
+        .p12(r_D21_p12),
+        .p11(r_D21_p11)
     );
 
     kr580vv51 D22 (
@@ -2440,12 +2925,12 @@ module ns4 (
         .p9(nx_D33_5),
         .p10(nx_D10_2),
         .p11(nx_D33_8),
-        .p8(d_D25_p8),
+        .p8(r_D25_p8),
         .p2(nx_D10_12),
         .p3(n_SIGN_L),
         .p4(1'b0),
         .p5(1'b0),
-        .p6(d_D25_p6)
+        .p6(r_D25_p6)
     );
 
     kr565ru5 D26 (
@@ -2462,8 +2947,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D26_p14),
-        .p14_oe(d_D26_p14_oe)
+        .p14(r_D26_p14),
+        .p14_oe(r_D26_p14_oe)
     );
 
     kr565ru5 D27 (
@@ -2480,8 +2965,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D27_p14),
-        .p14_oe(d_D27_p14_oe)
+        .p14(r_D27_p14),
+        .p14_oe(r_D27_p14_oe)
     );
 
     kr1102ap15 D28 (
@@ -2503,11 +2988,11 @@ module ns4 (
         .p4(n_R10_H),
         .p5(n_R10_H),
         .p6(n_R10_H),
-        .p14(d_D29_p14),
-        .p13(d_D29_p13),
-        .p12(d_D29_p12),
-        .p11(d_D29_p11),
-        .p15(d_D29_p15)
+        .p14(r_D29_p14),
+        .p13(r_D29_p13),
+        .p12(r_D29_p12),
+        .p11(r_D29_p11),
+        .p15(r_D29_p15)
     );
 
     k555ie10 D30 (
@@ -2521,26 +3006,26 @@ module ns4 (
         .p4(n_R3_H),
         .p5(n_R3_H),
         .p6(n_R3_H),
-        .p14(d_D30_p14),
-        .p13(d_D30_p13),
-        .p12(d_D30_p12),
-        .p11(d_D30_p11),
-        .p15(d_D30_p15)
+        .p14(r_D30_p14),
+        .p13(r_D30_p13),
+        .p12(r_D30_p12),
+        .p11(r_D30_p11),
+        .p15(r_D30_p15)
     );
 
     k555la4 D31 (
         .p1(nx_D15_6),
         .p2(n_VU_L),
         .p13(nx_D24_6),
-        .p12(d_D31_p12),
+        .p12(r_D31_p12),
         .p3(n_TS15_H),
         .p4(n_TS15_H),
         .p5(n_TS15_H),
-        .p6(d_D31_p6),
+        .p6(r_D31_p6),
         .p9(n_RAZR_L),
         .p10(n_TM_H),
         .p11(n_BLNK_H),
-        .p8(d_D31_p8)
+        .p8(r_D31_p8)
     );
 
     k555kp15 D32 (
@@ -2556,10 +3041,10 @@ module ns4 (
         .p14(nx_D40_2),
         .p13(nx_D40_10),
         .p12(1'b0),
-        .p5(d_D32_p5),
-        .p5_oe(d_D32_p5_oe),
-        .p6(d_D32_p6),
-        .p6_oe(d_D32_p6_oe)
+        .p5(r_D32_p5),
+        .p5_oe(r_D32_p5_oe),
+        .p6(r_D32_p6),
+        .p6_oe(r_D32_p6_oe)
     );
 
     k555tm2 D33 (
@@ -2568,14 +3053,14 @@ module ns4 (
         .p2(nx_D10_12),
         .p3(n_IMP_CHT_H),
         .p4(n_R14_H),
-        .p5(d_D33_p5),
-        .p6(d_D33_p6),
+        .p5(r_D33_p5),
+        .p6(r_D33_p6),
         .p13(n_UST_L),
         .p12(nx_D17_6),
         .p11(nx_D4_10),
         .p10(nx_D10_12),
-        .p9(d_D33_p9),
-        .p8(d_D33_p8)
+        .p9(r_D33_p9),
+        .p8(r_D33_p8)
     );
 
     kr565ru5 D34 (
@@ -2592,8 +3077,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D34_p14),
-        .p14_oe(d_D34_p14_oe)
+        .p14(r_D34_p14),
+        .p14_oe(r_D34_p14_oe)
     );
 
     kr565ru5 D35 (
@@ -2610,8 +3095,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D35_p14),
-        .p14_oe(d_D35_p14_oe)
+        .p14(r_D35_p14),
+        .p14_oe(r_D35_p14_oe)
     );
 
     k555ie10 D36 (
@@ -2625,11 +3110,11 @@ module ns4 (
         .p4(n_R10_H),
         .p5(n_R10_H),
         .p6(n_R10_H),
-        .p14(d_D36_p14),
-        .p13(d_D36_p13),
-        .p12(d_D36_p12),
-        .p11(d_D36_p11),
-        .p15(d_D36_p15)
+        .p14(r_D36_p14),
+        .p13(r_D36_p13),
+        .p12(r_D36_p12),
+        .p11(r_D36_p11),
+        .p15(r_D36_p15)
     );
 
     k555ie10 D37 (
@@ -2643,11 +3128,11 @@ module ns4 (
         .p4(n_R3_H),
         .p5(n_R3_H),
         .p6(n_R3_H),
-        .p14(d_D37_p14),
-        .p13(d_D37_p13),
-        .p12(d_D37_p12),
-        .p11(d_D37_p11),
-        .p15(d_D37_p15)
+        .p14(r_D37_p14),
+        .p13(r_D37_p13),
+        .p12(r_D37_p12),
+        .p11(r_D37_p11),
+        .p15(r_D37_p15)
     );
 
     kr580vv51 D38 (
@@ -2699,16 +3184,16 @@ module ns4 (
     k555lp5 D39 (
         .p1(n_OKSN_H),
         .p2(n_RAZR_H),
-        .p3(d_D39_p3),
+        .p3(r_D39_p3),
         .p4(n_OKKR_H),
         .p5(n_RAZR_H),
-        .p6(d_D39_p6),
+        .p6(r_D39_p6),
         .p9(nx_D31_8),
         .p10(n_DPSL_H),
-        .p8(d_D39_p8),
+        .p8(r_D39_p8),
         .p12(n_OKZL_H),
         .p13(n_RAZR_H),
-        .p11(d_D39_p11)
+        .p11(r_D39_p11)
     );
 
     k555tm8 D40 (
@@ -2719,14 +3204,14 @@ module ns4 (
         .p5(nx_D40_2),
         .p12(nx_D40_7),
         .p13(1'b0),
-        .p2(d_D40_p2),
-        .p7(d_D40_p7),
-        .p10(d_D40_p10),
-        .p15(d_D40_p15),
-        .p3(d_D40_p3),
-        .p6(d_D40_p6),
-        .p11(d_D40_p11),
-        .p14(d_D40_p14)
+        .p2(r_D40_p2),
+        .p7(r_D40_p7),
+        .p10(r_D40_p10),
+        .p15(r_D40_p15),
+        .p3(r_D40_p3),
+        .p6(r_D40_p6),
+        .p11(r_D40_p11),
+        .p14(r_D40_p14)
     );
 
     k555tm2 D41 (
@@ -2735,14 +3220,14 @@ module ns4 (
         .p2(nx_D41_6),
         .p3(nx_D36_15),
         .p4(n_R11_H),
-        .p5(d_D41_p5),
-        .p6(d_D41_p6),
+        .p5(r_D41_p5),
+        .p6(r_D41_p6),
         .p13(n_PKSI_L),
         .p12(nx_D79_8),
         .p11(n_TS6_H),
         .p10(n_R3_H),
-        .p9(d_D41_p9),
-        .p8(d_D41_p8)
+        .p9(r_D41_p9),
+        .p8(r_D41_p8)
     );
 
     k555ie10 D42 (
@@ -2756,11 +3241,11 @@ module ns4 (
         .p4(n_R3_H),
         .p5(n_R3_H),
         .p6(n_R3_H),
-        .p14(d_D42_p14),
-        .p13(d_D42_p13),
-        .p12(d_D42_p12),
-        .p11(d_D42_p11),
-        .p15(d_D42_p15)
+        .p14(r_D42_p14),
+        .p13(r_D42_p13),
+        .p12(r_D42_p12),
+        .p11(r_D42_p11),
+        .p15(r_D42_p15)
     );
 
     k555tm8 D43 (
@@ -2771,14 +3256,14 @@ module ns4 (
         .p5(nx_D79_6),
         .p12(nx_D43_7),
         .p13(nx_D43_10),
-        .p2(d_D43_p2),
-        .p7(d_D43_p7),
-        .p10(d_D43_p10),
-        .p15(d_D43_p15),
-        .p3(d_D43_p3),
-        .p6(d_D43_p6),
-        .p11(d_D43_p11),
-        .p14(d_D43_p14)
+        .p2(r_D43_p2),
+        .p7(r_D43_p7),
+        .p10(r_D43_p10),
+        .p15(r_D43_p15),
+        .p3(r_D43_p3),
+        .p6(r_D43_p6),
+        .p11(r_D43_p11),
+        .p14(r_D43_p14)
     );
 
     kr565ru5 D44 (
@@ -2795,8 +3280,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D44_p14),
-        .p14_oe(d_D44_p14_oe)
+        .p14(r_D44_p14),
+        .p14_oe(r_D44_p14_oe)
     );
 
     kr565ru5 D45 (
@@ -2813,24 +3298,24 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D45_p14),
-        .p14_oe(d_D45_p14_oe)
+        .p14(r_D45_p14),
+        .p14_oe(r_D45_p14_oe)
     );
 
     k555ie19 D46 (
         .clk(clk),
         .p1(n_VTAKT_H),
         .p2(n_SBRAV_H),
-        .p3(d_D46_p3),
-        .p4(d_D46_p4),
-        .p5(d_D46_p5),
-        .p6(d_D46_p6),
+        .p3(r_D46_p3),
+        .p4(r_D46_p4),
+        .p5(r_D46_p5),
+        .p6(r_D46_p6),
         .p13(n_AV07_H),
         .p12(n_SBRAV_H),
-        .p11(d_D46_p11),
-        .p10(d_D46_p10),
-        .p9(d_D46_p9),
-        .p8(d_D46_p8)
+        .p11(r_D46_p11),
+        .p10(r_D46_p10),
+        .p9(r_D46_p9),
+        .p8(r_D46_p8)
     );
 
     k555tm2 D47 (
@@ -2839,14 +3324,14 @@ module ns4 (
         .p2(n_R1_H),
         .p3(nx_D4_12),
         .p4(n_R1_H),
-        .p5(d_D47_p5),
-        .p6(d_D47_p6),
+        .p5(r_D47_p5),
+        .p6(r_D47_p6),
         .p13(nx_D14_11),
         .p12(nx_D43_15),
         .p11(n_TS15_L),
         .p10(n_R9_H),
-        .p9(d_D47_p9),
-        .p8(d_D47_p8)
+        .p9(r_D47_p9),
+        .p8(r_D47_p8)
     );
 
     kr559ip11 D48 (
@@ -2854,20 +3339,20 @@ module ns4 (
         .p12(1'b0),
         .p2(1'b0),
         .p1(nx_XP5_3),
-        .p3(d_D48_p3),
-        .p3_oe(d_D48_p3_oe),
+        .p3(r_D48_p3),
+        .p3_oe(r_D48_p3_oe),
         .p6(1'b0),
         .p7(nx_XP5_6),
-        .p5(d_D48_p5),
-        .p5_oe(d_D48_p5_oe),
+        .p5(r_D48_p5),
+        .p5_oe(r_D48_p5_oe),
         .p10(nx_D48_10),
         .p9(n_VBKL_L),
-        .p11(d_D48_p11),
-        .p11_oe(d_D48_p11_oe),
+        .p11(r_D48_p11),
+        .p11_oe(r_D48_p11_oe),
         .p14(1'b0),
         .p15(n_VHKL_L),
-        .p13(d_D48_p13),
-        .p13_oe(d_D48_p13_oe)
+        .p13(r_D48_p13),
+        .p13_oe(r_D48_p13_oe)
     );
 
     k555ir16 D49 (
@@ -2880,14 +3365,14 @@ module ns4 (
         .p3(n_DV05_H),
         .p4(n_DV06_H),
         .p5(n_DV07_H),
-        .p13(d_D49_p13),
-        .p13_oe(d_D49_p13_oe),
-        .p12(d_D49_p12),
-        .p12_oe(d_D49_p12_oe),
-        .p11(d_D49_p11),
-        .p11_oe(d_D49_p11_oe),
-        .p10(d_D49_p10),
-        .p10_oe(d_D49_p10_oe)
+        .p13(r_D49_p13),
+        .p13_oe(r_D49_p13_oe),
+        .p12(r_D49_p12),
+        .p12_oe(r_D49_p12_oe),
+        .p11(r_D49_p11),
+        .p11_oe(r_D49_p11_oe),
+        .p10(r_D49_p10),
+        .p10_oe(r_D49_p10_oe)
     );
 
     k555ir16 D50 (
@@ -2900,14 +3385,14 @@ module ns4 (
         .p3(n_DV01_H),
         .p4(n_DV02_H),
         .p5(n_DV03_H),
-        .p13(d_D50_p13),
-        .p13_oe(d_D50_p13_oe),
-        .p12(d_D50_p12),
-        .p12_oe(d_D50_p12_oe),
-        .p11(d_D50_p11),
-        .p11_oe(d_D50_p11_oe),
-        .p10(d_D50_p10),
-        .p10_oe(d_D50_p10_oe)
+        .p13(r_D50_p13),
+        .p13_oe(r_D50_p13_oe),
+        .p12(r_D50_p12),
+        .p12_oe(r_D50_p12_oe),
+        .p11(r_D50_p11),
+        .p11_oe(r_D50_p11_oe),
+        .p10(r_D50_p10),
+        .p10_oe(r_D50_p10_oe)
     );
 
     k555ir23 D51 (
@@ -2922,22 +3407,22 @@ module ns4 (
         .p14(n_D05_H),
         .p17(n_D06_H),
         .p18(n_D07_H),
-        .p2(d_D51_p2),
-        .p2_oe(d_D51_p2_oe),
-        .p5(d_D51_p5),
-        .p5_oe(d_D51_p5_oe),
-        .p6(d_D51_p6),
-        .p6_oe(d_D51_p6_oe),
-        .p9(d_D51_p9),
-        .p9_oe(d_D51_p9_oe),
-        .p12(d_D51_p12),
-        .p12_oe(d_D51_p12_oe),
-        .p15(d_D51_p15),
-        .p15_oe(d_D51_p15_oe),
-        .p16(d_D51_p16),
-        .p16_oe(d_D51_p16_oe),
-        .p19(d_D51_p19),
-        .p19_oe(d_D51_p19_oe)
+        .p2(r_D51_p2),
+        .p2_oe(r_D51_p2_oe),
+        .p5(r_D51_p5),
+        .p5_oe(r_D51_p5_oe),
+        .p6(r_D51_p6),
+        .p6_oe(r_D51_p6_oe),
+        .p9(r_D51_p9),
+        .p9_oe(r_D51_p9_oe),
+        .p12(r_D51_p12),
+        .p12_oe(r_D51_p12_oe),
+        .p15(r_D51_p15),
+        .p15_oe(r_D51_p15_oe),
+        .p16(r_D51_p16),
+        .p16_oe(r_D51_p16_oe),
+        .p19(r_D51_p19),
+        .p19_oe(r_D51_p19_oe)
     );
 
     k555ap5 D52 (
@@ -2946,27 +3431,27 @@ module ns4 (
         .p4(n_D01_H),
         .p6(n_D02_H),
         .p8(n_D03_H),
-        .p18(d_D52_p18),
-        .p18_oe(d_D52_p18_oe),
-        .p16(d_D52_p16),
-        .p16_oe(d_D52_p16_oe),
-        .p14(d_D52_p14),
-        .p14_oe(d_D52_p14_oe),
-        .p12(d_D52_p12),
-        .p12_oe(d_D52_p12_oe),
+        .p18(r_D52_p18),
+        .p18_oe(r_D52_p18_oe),
+        .p16(r_D52_p16),
+        .p16_oe(r_D52_p16_oe),
+        .p14(r_D52_p14),
+        .p14_oe(r_D52_p14_oe),
+        .p12(r_D52_p12),
+        .p12_oe(r_D52_p12_oe),
         .p19(n_STROB_CHT_L),
         .p11(n_D04_H),
         .p13(n_D05_H),
         .p15(n_D06_H),
         .p17(n_D07_H),
-        .p9(d_D52_p9),
-        .p9_oe(d_D52_p9_oe),
-        .p7(d_D52_p7),
-        .p7_oe(d_D52_p7_oe),
-        .p5(d_D52_p5),
-        .p5_oe(d_D52_p5_oe),
-        .p3(d_D52_p3),
-        .p3_oe(d_D52_p3_oe)
+        .p9(r_D52_p9),
+        .p9_oe(r_D52_p9_oe),
+        .p7(r_D52_p7),
+        .p7_oe(r_D52_p7_oe),
+        .p5(r_D52_p5),
+        .p5_oe(r_D52_p5_oe),
+        .p3(r_D52_p3),
+        .p3_oe(r_D52_p3_oe)
     );
 
     kr565ru5 D53 (
@@ -2983,8 +3468,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D53_p14),
-        .p14_oe(d_D53_p14_oe)
+        .p14(r_D53_p14),
+        .p14_oe(r_D53_p14_oe)
     );
 
     kr565ru5 D54 (
@@ -3001,8 +3486,8 @@ module ns4 (
         .p10(n_A5_H),
         .p13(n_A6_H),
         .p9(n_A7_H),
-        .p14(d_D54_p14),
-        .p14_oe(d_D54_p14_oe)
+        .p14(r_D54_p14),
+        .p14_oe(r_D54_p14_oe)
     );
 
     k555ir16 D55 (
@@ -3015,14 +3500,14 @@ module ns4 (
         .p3(n_DV13_H),
         .p4(n_DV14_H),
         .p5(n_DV15_H),
-        .p13(d_D55_p13),
-        .p13_oe(d_D55_p13_oe),
-        .p12(d_D55_p12),
-        .p12_oe(d_D55_p12_oe),
-        .p11(d_D55_p11),
-        .p11_oe(d_D55_p11_oe),
-        .p10(d_D55_p10),
-        .p10_oe(d_D55_p10_oe)
+        .p13(r_D55_p13),
+        .p13_oe(r_D55_p13_oe),
+        .p12(r_D55_p12),
+        .p12_oe(r_D55_p12_oe),
+        .p11(r_D55_p11),
+        .p11_oe(r_D55_p11_oe),
+        .p10(r_D55_p10),
+        .p10_oe(r_D55_p10_oe)
     );
 
     k555ir16 D56 (
@@ -3035,14 +3520,14 @@ module ns4 (
         .p3(n_DV09_H),
         .p4(n_DV10_H),
         .p5(n_DV11_H),
-        .p13(d_D56_p13),
-        .p13_oe(d_D56_p13_oe),
-        .p12(d_D56_p12),
-        .p12_oe(d_D56_p12_oe),
-        .p11(d_D56_p11),
-        .p11_oe(d_D56_p11_oe),
-        .p10(d_D56_p10),
-        .p10_oe(d_D56_p10_oe)
+        .p13(r_D56_p13),
+        .p13_oe(r_D56_p13_oe),
+        .p12(r_D56_p12),
+        .p12_oe(r_D56_p12_oe),
+        .p11(r_D56_p11),
+        .p11_oe(r_D56_p11_oe),
+        .p10(r_D56_p10),
+        .p10_oe(r_D56_p10_oe)
     );
 
     k555ir23 D57 (
@@ -3057,22 +3542,22 @@ module ns4 (
         .p14(n_D13_H),
         .p17(n_D14_H),
         .p18(n_D15_H),
-        .p2(d_D57_p2),
-        .p2_oe(d_D57_p2_oe),
-        .p5(d_D57_p5),
-        .p5_oe(d_D57_p5_oe),
-        .p6(d_D57_p6),
-        .p6_oe(d_D57_p6_oe),
-        .p9(d_D57_p9),
-        .p9_oe(d_D57_p9_oe),
-        .p12(d_D57_p12),
-        .p12_oe(d_D57_p12_oe),
-        .p15(d_D57_p15),
-        .p15_oe(d_D57_p15_oe),
-        .p16(d_D57_p16),
-        .p16_oe(d_D57_p16_oe),
-        .p19(d_D57_p19),
-        .p19_oe(d_D57_p19_oe)
+        .p2(r_D57_p2),
+        .p2_oe(r_D57_p2_oe),
+        .p5(r_D57_p5),
+        .p5_oe(r_D57_p5_oe),
+        .p6(r_D57_p6),
+        .p6_oe(r_D57_p6_oe),
+        .p9(r_D57_p9),
+        .p9_oe(r_D57_p9_oe),
+        .p12(r_D57_p12),
+        .p12_oe(r_D57_p12_oe),
+        .p15(r_D57_p15),
+        .p15_oe(r_D57_p15_oe),
+        .p16(r_D57_p16),
+        .p16_oe(r_D57_p16_oe),
+        .p19(r_D57_p19),
+        .p19_oe(r_D57_p19_oe)
     );
 
     k555ap5 D58 (
@@ -3081,43 +3566,43 @@ module ns4 (
         .p4(n_D09_H),
         .p6(n_D10_H),
         .p8(n_D11_H),
-        .p18(d_D58_p18),
-        .p18_oe(d_D58_p18_oe),
-        .p16(d_D58_p16),
-        .p16_oe(d_D58_p16_oe),
-        .p14(d_D58_p14),
-        .p14_oe(d_D58_p14_oe),
-        .p12(d_D58_p12),
-        .p12_oe(d_D58_p12_oe),
+        .p18(r_D58_p18),
+        .p18_oe(r_D58_p18_oe),
+        .p16(r_D58_p16),
+        .p16_oe(r_D58_p16_oe),
+        .p14(r_D58_p14),
+        .p14_oe(r_D58_p14_oe),
+        .p12(r_D58_p12),
+        .p12_oe(r_D58_p12_oe),
         .p19(n_STROB_CHT_L),
         .p11(n_D12_H),
         .p13(n_D13_H),
         .p15(n_D14_H),
         .p17(n_D15_H),
-        .p9(d_D58_p9),
-        .p9_oe(d_D58_p9_oe),
-        .p7(d_D58_p7),
-        .p7_oe(d_D58_p7_oe),
-        .p5(d_D58_p5),
-        .p5_oe(d_D58_p5_oe),
-        .p3(d_D58_p3),
-        .p3_oe(d_D58_p3_oe)
+        .p9(r_D58_p9),
+        .p9_oe(r_D58_p9_oe),
+        .p7(r_D58_p7),
+        .p7_oe(r_D58_p7_oe),
+        .p5(r_D58_p5),
+        .p5_oe(r_D58_p5_oe),
+        .p3(r_D58_p3),
+        .p3_oe(r_D58_p3_oe)
     );
 
     k555ie19 D59 (
         .clk(clk),
         .p1(n_AV11_H),
         .p2(n_SBRAV_H),
-        .p3(d_D59_p3),
-        .p4(d_D59_p4),
-        .p5(d_D59_p5),
-        .p6(d_D59_p6),
+        .p3(r_D59_p3),
+        .p4(r_D59_p4),
+        .p5(r_D59_p5),
+        .p6(r_D59_p6),
         .p13(n_KSI_H),
         .p12(1'b0),
-        .p11(d_D59_p11),
-        .p10(d_D59_p10),
-        .p9(d_D59_p9),
-        .p8(d_D59_p8)
+        .p11(r_D59_p11),
+        .p10(r_D59_p10),
+        .p9(r_D59_p9),
+        .p8(r_D59_p8)
     );
 
     k555tm2 D60 (
@@ -3126,14 +3611,14 @@ module ns4 (
         .p2(n_RPRRT_H),
         .p3(n_KSI_H),
         .p4(n_R4_H),
-        .p5(d_D60_p5),
-        .p6(d_D60_p6),
+        .p5(r_D60_p5),
+        .p6(r_D60_p6),
         .p13(n_SBR_OST_L),
         .p12(n_R5_H),
         .p11(nx_D91_8),
         .p10(n_R5_H),
-        .p9(d_D60_p9),
-        .p8(d_D60_p8)
+        .p9(r_D60_p9),
+        .p8(r_D60_p8)
     );
 
     k555kp2 D61 (
@@ -3144,13 +3629,13 @@ module ns4 (
         .p5(n_AD09_H),
         .p4(n_AV01_H),
         .p3(n_AV09_H),
-        .p7(d_D61_p7),
+        .p7(r_D61_p7),
         .p15(1'b0),
         .p10(n_AD02_H),
         .p11(n_AD10_H),
         .p12(n_AV02_H),
         .p13(n_AV10_H),
-        .p9(d_D61_p9)
+        .p9(r_D61_p9)
     );
 
     k555kp2 D62 (
@@ -3161,13 +3646,13 @@ module ns4 (
         .p5(n_A13_H),
         .p4(n_AV05_H),
         .p3(n_R3_H),
-        .p7(d_D62_p7),
+        .p7(r_D62_p7),
         .p15(1'b0),
         .p10(n_AD06_H),
         .p11(n_A14_H),
         .p12(n_AV06_H),
         .p13(n_R3_H),
-        .p9(d_D62_p9)
+        .p9(r_D62_p9)
     );
 
     k555kp2 D63 (
@@ -3178,28 +3663,28 @@ module ns4 (
         .p5(n_SNF_H),
         .p4(n_OKRSN_H),
         .p3(n_OKSN_H),
-        .p7(d_D63_p7),
+        .p7(r_D63_p7),
         .p15(n_VK7_H),
         .p10(n_KR_H),
         .p11(n_KRF_H),
         .p12(n_OKRKR_H),
         .p13(n_OKKR_H),
-        .p9(d_D63_p9)
+        .p9(r_D63_p9)
     );
 
     k555ln2 D64 (
         .p1(n_IND1_H),
-        .p2(d_D64_p2),
+        .p2(r_D64_p2),
         .p3(n_ZAP_H),
-        .p4(d_D64_p4),
+        .p4(r_D64_p4),
         .p5(n_SHAG_H),
-        .p6(d_D64_p6),
+        .p6(r_D64_p6),
         .p9(n_NPR_H),
-        .p8(d_D64_p8),
+        .p8(r_D64_p8),
         .p11(n_RZP_H),
-        .p10(d_D64_p10),
+        .p10(r_D64_p10),
         .p13(n_IND2_H),
-        .p12(d_D64_p12)
+        .p12(r_D64_p12)
     );
 
     k573rf4 #(.CONTENTS(65536'h00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004356000000c9dad2c120cbc9ef0d7e8e44684a04f6f6e4c028a0766e68361c4b4842085052400a2f4a48000d400d9877d35ff004df7a770507c505c5f8c50720c18e7784c6dfc608dff080df8744d0c84800c100c00fc608dff01f0ff0df873206df48c330dffc2201df02c13207df87c2f8c3838383f8c283422d382c3533312e307c2a00683f767a006429627b006f27746e00702520612473753f7e637e6621097f7b3a00482f565a004439425b004f37544e00503520413453552f5e437e4631097fd877047724775a800256c0095697055fc00364970b67c0131bc003077197156ec0037c97d19bc07ed1919bd119d1d97ec9915bd11bd121d10ad3dff8c159c21b8a97c205c0cf1f5277cf5f04cfdf0c839778771bc0093fd11bd119d1f8c140c05cf2dffc8092c216929715091bd111d1f8c15080a1c20ca197c8770909d1f8c180c0024017057fc008f004df0cd3df0d20c010c112c316f004df1ad3dfe0c010d4df80bac2fbc30478c205c305c1bcc2cec3d2c134a1d3df1af7f004df13c30ec007f004df11c30fc008f004dffcb297bc4cf713c30211c303d2dfd25f0db097ccd49f03af97d2d41fce1f05b3c2d003c9033eb497f877e3ce9f0504ae97bcf702f6df00c220c2f3c5022202df0fc387818283b1d789f880820ac8f7f8c1e6a66687fd04f700d7d4c720c1d5c1d7cc2020201b1b1b381b0a2e2ed9c5d3d3cacecfc3d2d020cbd5c7dad4c420d7d4c7e4e7094a4800c9c520f9eff8f5202d20cfcf20cee4e74b205900d7d4c7c520d2d4c9c1eb381bd7d4c5c520c5295900cbc6e4361b3534343332313030c1cfd3c3d220d3f4341bd4c5c5295900202020d4c52559002020c5cec5d0c9295900c5ceccd4cecfcf295900cac22000202020c5cecfd3295900d7d4c5c520c5255900f5faef20d3f4281b202020202020202020202020261b202020202020202020202020251b202020202020202020202020241bff8701ffc084c6dfc6e0df0401ffc084c0df54dfc354df30c456b6df84e0df8502f74387980477cc0a77bf1077b91677981c7780fe4cfe4c0cd2fcc103cc016e77ea1fcf3c7784c6dfc608dff080df6a77cc00df1277ea1f04eadf50f780d0dfd00fdfa7007a771801a4d704f7e2df0410ccc068378463703705c20f0106a4d704f7e2df0410ccc0923784439a3705c214d6dadf0410cc4100c11db8370601f4a2a4dfeb43cc374100c103d8378c7702e2df0f10ccc0ee37e20adf44c1ffc303c180d0dfd018df01c5a0c40a004a7748f711c3e9c020c0fc2202dff101c020c015e9e2df62f78e008077fac20c2202df0230abdffc2201df20c1e20adf3207df9af77dba77cf25cc8cc2b8f723c2c0f7da87c8f7c2fdc30701d6f7c2dcf7e8bfeaafeca8eeefb8f1a8f3b2f5a2f7b4f9a4fba1fdb1cf01e5cc4c18f7c91ef7c98c26f789428930f7498c38f749420942f70948f7c94ef7c954f7895af74960f709ff7200787705c2cc4c78f70686c182f74188f75902c192f70286f19cf7fac901c9a8f786e1b0f701d1b8f78641c0f71ec1c8f78686dfaf000fc0c080c4801f054e00f6774300fe7704c0fc00c1400000c1330018770300207758f7c05ef7c0cc00df66c30262c303fcdf1f4c770300507788f7c08ef7c0cc00df46f7007fdffec1003fdf0b007e7703008677bef7c0c4f7c0cc00df7cf7fec1efaa77dd00ae77cc00b677b000be779400c6777800ce773077eaffdf8cc6bee0dfbc00dff61f00c0dfc07fdf8e00c04700d4fc1f020c00c100c402c2ffc0fc1f00ffdf604099001fd24efe5f0245b10584f8c444444444840e26ffc3fec602c2007fdf02c15f4098001fd256fe5f0245b10584f8c444444444840e0effc30602c2007fdf02c1008b001fc51414141400c304007fdf02c2451414141400c100c4ffc000ffdf81fcc05cdf0243cc5f87801ff0c0c08760c3c3fd01830380c172771c770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005c5a0058561b4d4b49474542440052500848707880f8f88028282800000000000606c6c6fed6d6c67c06067cfed6d6c67c06067cf6dac6c6fcc6c0c0fc6666fcd67c7cd67806c6c6783030fc3cc0c03cf06066fcc636c67ec6c6c6fe7cc6c67cccccccccc6d6fec6c666661ec6d8d8c6c6f6ce38c6f6cec6c66c38c6f06060fe3c7edb18fe6868fefe6c6c3cfeccccccfc6660feccfccc30ccd6d6cc7c7ce0000c7ccc00fed6d600fc1efc00fed6d60078187800f6f6c600fcfcc000f8f8f800d67cd6007c3ec6003030fc007cc07c00c0c6fc00c67e7e00c6c6fe007cc67c00c6fec600c6fec600e6661e00cef0cc0066cec60c66cec600c638c600c0c0fc0018db180078fc7800fe6c3c00fecccc00fcfcfc007e7c7800ccf6cc00000000000000280070101000080808000e0808007c107c0004444400441044002854440010284400384444000c1038007838380020201c0004443c00404478003844380044447800545468000c1010002430280024040000381000004444400004443c00101010003c7838003c4404001c201c003c2220003c3c38003c5e4a00000000001010380070101000041040000e0808007e100400101044004218240024424200184242003c424200101010003c024000427c42003c524200407c42003c424200424a6200424266007e404000424848003c4202003e080800424242003c4e4200404040007e404000784244003c4042007c424200427e42003c5e4a000808420010041000000000000410040010001000100000003c3e42003c424200100802003c4240003c024000084818003c0242007e3c42003e0828003c5246002008020018000000003e000008000000083e0800143e14002010100004080800000010003a2a28004610640082447c0024247e00000024001010100000000000f283005f01f7d2005f0187005f0183005f0104d2005f018708ca8708ca8710ca8710ca8740ca8740cace058954545454545454544cf742c2c281c2c2c24217c2c3c180c50584f0f7ffc2c2c2fcca8e7789151515151515151528c2896464646464646464acf700c480c542c2c281c2c2c24217c2c3c1fdca87c3df03c3dfe24a0550c3fff308c48382c14fc1c2c300f780f7fcca1a770450c20a08c44a0550c301f308c483c2c14fc1c2c33af7bef74fc2ffc2c2c21fca87f21f87f201df4f4d4b49403020100087c25f4fc10250570520c108285706f0df81fe81aac2c2c1018702ca8704ca8704ca8701ca873206df30a7df03f9fef6042201df3207dffe368e77d687c21f87c31f8701c3df87c21f8701c2df87c3df8701c318df04f2df08c319dfc39f87c2df8701c228df8706c250df05cac29f87c31f8701c318df04f2df08c319dfc39fc21f8701c228df8706c250df05f0dfc29f87c21fa877095454545454545454b0f70101f0df80808080c000c00330c484f78716848400c0dfc080df8450c40c00c0dfc080df08c226c050c08716d48400c0dfc080df8450c44c00c0dfc080df08c226c028c01acaccc1c2c3cac487ca9f00c200c20403c000df05c000dfc20201f0df83c2ffc383c2c2487796f7c9545454545454545428c302f2df0506f0df28c3ccc5c9545454545454545428c302f2dfc0c380c500c4e0f78700c0dfc080df8700c0dfc080df87f41f14f75000f200ca0550724af020df07f0df28f7e0c2acf715f008dfcaf72ec317df04f2df35c318dfc3df02f2dfc318df15c2dfd8f77ef7805f80c58950c44cc10101805f098850c44c4101805f128450c40c805f07f040df14f0df08c2cac438c00238c000c005001708f004dfc0c0c020c080c0b2771700c0c0c0c040c01f38c0c0c0c006c0c015801714ffc019d3df3138c0c0c0c061c02263c02561c00e10ca48f780c5d0c5ccc30004fef8f2ece672d0489c103c48cabcc48210ccee1e314755594a70513d48434100386c66323210322c7860000f0c080d1b807700fdfad504cc04146cc560c40c010fc0030ec007d3df94770220171b03cac21f00014fc0044fc00727c00a27c006ca0e20c01403c13501cac31f020117c0060518c004f2df0d20c01302c14398c582c401ca0701c13afcc181f0c284f75000f200ca0550724a20cc0b20cc09cce0c29ef71608ccf0c428f700c09877e017f4df87f41fd4f750724ad0f7e0c2cac24ce017f4df20c11408cc17ccf0c4dc7787858483828180de0c85662666a6e62687f41f80d0dfd00fdfd000df09d000df04d0dff401df03f401df80fd01ccfd01cc0c0cd6fbc8df05ccc81fa0c4d0771501e09fdc9f00c2e40adf03e402dfde01df0adf9fda0adf31ad0cccd6770210cc3ac0cc3ddadf0ffccc417dc1f7063403fb01cc044c8906740cfb01cc044cf7060518fb01cc044c89061521fb01cc044c1220c0a0fd01cc0cebfbc8df04ccc8ffdf02c1e0c204b4e8c0dcc50a77bddadf0510cc4100c11df43706f41002f4a0c4030150d7dec30ac202e4c242b104c203fac20cdfc2a2a4dfe5e2df403e374100c1034a3737e2dff7dadf1210ccc06237da0adfe203df44c1ffc303c180d0dfd004df0cd004df80d0dfe09fde5fdc1fe45ffd0ac1c1440541f8844500c50200c5f9c4c2e81f02a0c403c2c0d01f80fec0c0c2c2fdc242c2d00bdfc180c4c5d8c36077e017f4dfe8f65f00000000efe4aa77005f021cf7d000dfd886dfd47784c6dfc65fc607dff8c5dc20c10de2f7cc5fc5118454845484548454845484548454845401c4e8c008f7adf0dfb020c1487700c5858585eaa41fbcb8dfbebadfbcc7ba1f86858483828180aac6b85fbc5f05e7a6c2ea420220c102c2e140c1e210c19ba890779cc20240c14201a6c20320c100c1f710c1c67710c1a277c4bac240c1e67702c00147c1f8c00e30c387c3aac21053c0aef703faf720c100c106771c88f783ccf72fc0d4f730c0f8c040e2f752c00107c1f8c034b8f700c18300f72fc0caf78300c10fc0b8c202a8c2ef02c21980aac202bac20a80c1401500c102c21080c16940c14ade40c10420c160f70dc07510c16ef70ac080c10680c145a6c87710c14a014a0a10c50540c10910c10c20c1aaf70ac0107778f78340c1420320c110c12a77d0f77fc0874ef708c056f720c05ef708c00cc201df0e7fc0aa8704f720c00400c1f2404340430006c422f730c040430006c4a6df9ca6df8700c187f8c000c10530c387c358f703a4f74c04c2c4c4faf5cb031384b0c3ffc4a877f405c5c5c520c10900c136f70520c1a4e8778cc66ef7bcc3a8fa77018cc62e7702eadf04f711c322f7ab1c77e017f81ff21fc81fd61fd41fd21f80d0dfd01fdfc41f84c6dfc608df03c608df04f0dfc607dfcc00dfca1fc21ff07fdf053feadf2666a6e6266666bce6bee6bcc6b69fbe9fbc9ff8dfc077801f8cc2c127c94ec940c909090922c102c200421adf4656df401adf4616df8407df60ffdf8682df668bdf0e770877fc77f677107788772e77587700000000003c3c0042663c00c8c8f8ca7e187e1818000018187e181818183c00187f180018fe1800000006180000601830c000000c0300003c7c3c147e6060280000ffff0f0f0f0ff0f0f0f0ffff0000ffffffff18ff1818181f181800ff181818f8181818ff00001818181800ff0000001f181800f8181818f80000181f000018ffff1836ff3636dbdbdbdb555555552222222236f7f7363637373600fff73636f6f63636f7ff003636363600ffff00003f373600fef63636f6fe0036373f00363f000036373636181f1f1800f8f81800fe3636181f1f00001f1f18003f363636ff000018f8f80036fe000036f6363618f8f81818ffff0000ff363600ffff18ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)) D65 (
@@ -3219,37 +3704,37 @@ module ns4 (
         .p20(n_VBRPZU_L),
         .p22(n_DCHT_L),
         .p27(n_R3_H),
-        .p11(d_D65_p11),
-        .p11_oe(d_D65_p11_oe),
-        .p12(d_D65_p12),
-        .p12_oe(d_D65_p12_oe),
-        .p13(d_D65_p13),
-        .p13_oe(d_D65_p13_oe),
-        .p15(d_D65_p15),
-        .p15_oe(d_D65_p15_oe),
-        .p16(d_D65_p16),
-        .p16_oe(d_D65_p16_oe),
-        .p17(d_D65_p17),
-        .p17_oe(d_D65_p17_oe),
-        .p18(d_D65_p18),
-        .p18_oe(d_D65_p18_oe),
-        .p19(d_D65_p19),
-        .p19_oe(d_D65_p19_oe)
+        .p11(r_D65_p11),
+        .p11_oe(r_D65_p11_oe),
+        .p12(r_D65_p12),
+        .p12_oe(r_D65_p12_oe),
+        .p13(r_D65_p13),
+        .p13_oe(r_D65_p13_oe),
+        .p15(r_D65_p15),
+        .p15_oe(r_D65_p15_oe),
+        .p16(r_D65_p16),
+        .p16_oe(r_D65_p16_oe),
+        .p17(r_D65_p17),
+        .p17_oe(r_D65_p17_oe),
+        .p18(r_D65_p18),
+        .p18_oe(r_D65_p18_oe),
+        .p19(r_D65_p19),
+        .p19_oe(r_D65_p19_oe)
     );
 
     k555la3 D66 (
         .p1(n_PVAS_H),
         .p2(n_REZH1_H),
-        .p3(d_D66_p3),
+        .p3(r_D66_p3),
         .p4(nx_D48_11),
         .p5(n_PKL_H),
-        .p6(d_D66_p6),
+        .p6(r_D66_p6),
         .p9(n_VBREG_L),
         .p10(n_VU_H),
-        .p8(d_D66_p8),
+        .p8(r_D66_p8),
         .p12(n_RAZR_H),
         .p13(n_RAZR_H),
-        .p11(d_D66_p11)
+        .p11(r_D66_p11)
     );
 
     k555kp2 D67 (
@@ -3260,13 +3745,13 @@ module ns4 (
         .p5(n_AD11_H),
         .p4(n_AV03_H),
         .p3(n_AV11_H),
-        .p7(d_D67_p7),
+        .p7(r_D67_p7),
         .p15(1'b0),
         .p10(n_AD04_H),
         .p11(n_AD12_H),
         .p12(n_AV04_H),
         .p13(n_AV12_H),
-        .p9(d_D67_p9)
+        .p9(r_D67_p9)
     );
 
     k555kp2 D68 (
@@ -3277,13 +3762,13 @@ module ns4 (
         .p5(n_A15_H),
         .p4(n_AV07_H),
         .p3(n_R3_H),
-        .p7(d_D68_p7),
+        .p7(r_D68_p7),
         .p15(1'b0),
         .p10(n_AD08_H),
         .p11(n_RASSH_H),
         .p12(n_AV08_H),
         .p13(n_AV13_H),
-        .p9(d_D68_p9)
+        .p9(r_D68_p9)
     );
 
     k555kp2 D69 (
@@ -3294,13 +3779,13 @@ module ns4 (
         .p5(n_ZLF_H),
         .p4(n_OKRZL_H),
         .p3(n_OKZL_H),
-        .p7(d_D69_p7),
+        .p7(r_D69_p7),
         .p15(n_VK7_H),
         .p10(n_INT_H),
         .p11(n_INT_H),
         .p12(n_IND3_H),
         .p13(n_IND3_H),
-        .p9(d_D69_p9)
+        .p9(r_D69_p9)
     );
 
     k555kp11 D70 (
@@ -3308,20 +3793,20 @@ module ns4 (
         .p15(1'b0),
         .p2(n_TS1_H),
         .p3(n_TS15_L),
-        .p4(d_D70_p4),
-        .p4_oe(d_D70_p4_oe),
+        .p4(r_D70_p4),
+        .p4_oe(r_D70_p4_oe),
         .p5(nx_D71_8),
         .p6(n_TS15_L),
-        .p7(d_D70_p7),
-        .p7_oe(d_D70_p7_oe),
+        .p7(r_D70_p7),
+        .p7_oe(r_D70_p7_oe),
         .p11(n_STROB_H),
         .p10(nx_D71_8),
-        .p9(d_D70_p9),
-        .p9_oe(d_D70_p9_oe),
+        .p9(r_D70_p9),
+        .p9_oe(r_D70_p9_oe),
         .p14(nx_D70_14),
         .p13(nx_D70_13),
-        .p12(d_D70_p12),
-        .p12_oe(d_D70_p12_oe)
+        .p12(r_D70_p12),
+        .p12_oe(r_D70_p12_oe)
     );
 
     k555li6 D71 (
@@ -3329,72 +3814,72 @@ module ns4 (
         .p2(nx_D71_8),
         .p4(nx_D71_8),
         .p5(nx_D71_8),
-        .p6(d_D71_p6),
+        .p6(r_D71_p6),
         .p9(n_TS1_H),
         .p10(n_TS2_H),
         .p12(n_TS3_H),
         .p13(n_TS4_H),
-        .p8(d_D71_p8)
+        .p8(r_D71_p8)
     );
 
     k555ll1 D72 (
         .p1(n_MK10_H),
         .p2(n_MK11_H),
-        .p3(d_D72_p3),
+        .p3(r_D72_p3),
         .p4(n_RAZR_OZU_L),
         .p5(n_PSTB_L),
-        .p6(d_D72_p6),
+        .p6(r_D72_p6),
         .p9(n_RAZR_OZU_L),
         .p10(n_PMLB_L),
-        .p8(d_D72_p8),
+        .p8(r_D72_p8),
         .p12(n_RAZR_OZU_L),
         .p13(n_DCHT_L),
-        .p11(d_D72_p11)
+        .p11(r_D72_p11)
     );
 
     k555li1 D73 (
         .p1(n_TRVZU_H),
         .p2(n_RAZR_OZU_L),
-        .p3(d_D73_p3),
+        .p3(r_D73_p3),
         .p4(n_ARB_H),
         .p5(nx_D43_2),
-        .p6(d_D73_p6),
+        .p6(r_D73_p6),
         .p9(n_BORDS_L),
         .p10(n_AV03_H),
-        .p8(d_D73_p8),
+        .p8(r_D73_p8),
         .p12(n_SSI_L),
         .p13(n_KSI_L),
-        .p11(d_D73_p11)
+        .p11(r_D73_p11)
     );
 
     k555ll1 D74 (
         .p1(nx_D14_3),
         .p2(n_RAZR_H),
-        .p3(d_D74_p3),
+        .p3(r_D74_p3),
         .p4(n_AD13_H),
         .p5(n_BANK7_H),
-        .p6(d_D74_p6),
+        .p6(r_D74_p6),
         .p9(n_AD14_H),
         .p10(n_BANK7_H),
-        .p8(d_D74_p8),
+        .p8(r_D74_p8),
         .p12(n_AD15_H),
         .p13(n_BANK7_H),
-        .p11(d_D74_p11)
+        .p11(r_D74_p11)
     );
 
     k155ln5 D75 (
         .p1(n_SC_H),
-        .p2(d_D75_p2),
+        .p2(r_D75_p2),
         .p3(n_KC_H),
-        .p4(d_D75_p4),
+        .p4(r_D75_p4),
         .p5(n_ZC_H),
-        .p6(d_D75_p6),
+        .p6(r_D75_p6),
         .p9(n_PSS_H),
-        .p8(d_D75_p8),
+        .p8(r_D75_p8),
         .p11(n_SC_H),
-        .p10(d_D75_p10),
+        .p10(r_D75_p10),
         .p13(n_KC_H),
-        .p12(d_D75_p12)
+        .p12(r_D75_p12)
     );
 
     kr580vv55 D76 (
@@ -3520,22 +4005,22 @@ module ns4 (
         .p20(n_VBRPZU_L),
         .p22(n_DCHT_L),
         .p27(n_R3_H),
-        .p11(d_D77_p11),
-        .p11_oe(d_D77_p11_oe),
-        .p12(d_D77_p12),
-        .p12_oe(d_D77_p12_oe),
-        .p13(d_D77_p13),
-        .p13_oe(d_D77_p13_oe),
-        .p15(d_D77_p15),
-        .p15_oe(d_D77_p15_oe),
-        .p16(d_D77_p16),
-        .p16_oe(d_D77_p16_oe),
-        .p17(d_D77_p17),
-        .p17_oe(d_D77_p17_oe),
-        .p18(d_D77_p18),
-        .p18_oe(d_D77_p18_oe),
-        .p19(d_D77_p19),
-        .p19_oe(d_D77_p19_oe)
+        .p11(r_D77_p11),
+        .p11_oe(r_D77_p11_oe),
+        .p12(r_D77_p12),
+        .p12_oe(r_D77_p12_oe),
+        .p13(r_D77_p13),
+        .p13_oe(r_D77_p13_oe),
+        .p15(r_D77_p15),
+        .p15_oe(r_D77_p15_oe),
+        .p16(r_D77_p16),
+        .p16_oe(r_D77_p16_oe),
+        .p17(r_D77_p17),
+        .p17_oe(r_D77_p17_oe),
+        .p18(r_D77_p18),
+        .p18_oe(r_D77_p18_oe),
+        .p19(r_D77_p19),
+        .p19_oe(r_D77_p19_oe)
     );
 
     k555ir23 D78 (
@@ -3550,37 +4035,37 @@ module ns4 (
         .p14(n_MK05_H),
         .p17(n_MK06_H),
         .p18(n_MK07_H),
-        .p2(d_D78_p2),
-        .p2_oe(d_D78_p2_oe),
-        .p5(d_D78_p5),
-        .p5_oe(d_D78_p5_oe),
-        .p6(d_D78_p6),
-        .p6_oe(d_D78_p6_oe),
-        .p9(d_D78_p9),
-        .p9_oe(d_D78_p9_oe),
-        .p12(d_D78_p12),
-        .p12_oe(d_D78_p12_oe),
-        .p15(d_D78_p15),
-        .p15_oe(d_D78_p15_oe),
-        .p16(d_D78_p16),
-        .p16_oe(d_D78_p16_oe),
-        .p19(d_D78_p19),
-        .p19_oe(d_D78_p19_oe)
+        .p2(r_D78_p2),
+        .p2_oe(r_D78_p2_oe),
+        .p5(r_D78_p5),
+        .p5_oe(r_D78_p5_oe),
+        .p6(r_D78_p6),
+        .p6_oe(r_D78_p6_oe),
+        .p9(r_D78_p9),
+        .p9_oe(r_D78_p9_oe),
+        .p12(r_D78_p12),
+        .p12_oe(r_D78_p12_oe),
+        .p15(r_D78_p15),
+        .p15_oe(r_D78_p15_oe),
+        .p16(r_D78_p16),
+        .p16_oe(r_D78_p16_oe),
+        .p19(r_D78_p19),
+        .p19_oe(r_D78_p19_oe)
     );
 
     k555ll1 D79 (
         .p1(n_DZP_L),
         .p2(nx_D80_15),
-        .p3(d_D79_p3),
+        .p3(r_D79_p3),
         .p4(nx_D23_13),
         .p5(n_VB1_H),
-        .p6(d_D79_p6),
+        .p6(r_D79_p6),
         .p9(n_BORDS_L),
         .p10(n_KSI_L),
-        .p8(d_D79_p8),
+        .p8(r_D79_p8),
         .p12(n_DCHT_L),
         .p13(n_AD04_H),
-        .p11(d_D79_p11)
+        .p11(r_D79_p11)
     );
 
     k555id7 D80 (
@@ -3590,29 +4075,29 @@ module ns4 (
         .p4(n_VBREG_L),
         .p5(n_VBREG_L),
         .p6(n_PVAS_H),
-        .p15(d_D80_p15),
-        .p14(d_D80_p14),
-        .p13(d_D80_p13),
-        .p12(d_D80_p12),
-        .p11(d_D80_p11),
-        .p10(d_D80_p10),
-        .p9(d_D80_p9),
-        .p7(d_D80_p7)
+        .p15(r_D80_p15),
+        .p14(r_D80_p14),
+        .p13(r_D80_p13),
+        .p12(r_D80_p12),
+        .p11(r_D80_p11),
+        .p10(r_D80_p10),
+        .p9(r_D80_p9),
+        .p7(r_D80_p7)
     );
 
     k555la13 D81 (
         .p1(nx_D69_9),
         .p2(n_SC_H),
-        .p3(d_D81_p3),
+        .p3(r_D81_p3),
         .p4(nx_D69_9),
         .p5(n_KC_H),
-        .p6(d_D81_p6),
+        .p6(r_D81_p6),
         .p9(nx_D69_9),
         .p10(n_ZC_H),
-        .p8(d_D81_p8),
+        .p8(r_D81_p8),
         .p12(n_ZC_H),
         .p13(n_ZC_H),
-        .p11(d_D81_p11)
+        .p11(r_D81_p11)
     );
 
     kr580vv55 D82 (
@@ -3799,31 +4284,31 @@ module ns4 (
     k555ll1 D84 (
         .p1(n_PVAK_L),
         .p2(n_PMLB_L),
-        .p3(d_D84_p3),
+        .p3(r_D84_p3),
         .p4(n_APK7_H),
         .p5(n_ST1_H),
-        .p6(d_D84_p6),
+        .p6(r_D84_p6),
         .p9(nx_D14_6),
         .p10(n_PVAK_L),
-        .p8(d_D84_p8),
+        .p8(r_D84_p8),
         .p12(n_AD13_H),
         .p13(n_DPZU_H),
-        .p11(d_D84_p11)
+        .p11(r_D84_p11)
     );
 
     k555li3 D85 (
         .p1(n_AD14_H),
         .p2(n_AD15_H),
         .p13(nx_D84_11),
-        .p12(d_D85_p12),
+        .p12(r_D85_p12),
         .p3(nx_D49_10),
         .p4(n_BORDS_L),
         .p5(n_BORDK_L),
-        .p6(d_D85_p6),
+        .p6(r_D85_p6),
         .p9(n_VB7_H),
         .p10(nx_D87_7),
         .p11(nx_D87_9),
-        .p8(d_D85_p8)
+        .p8(r_D85_p8)
     );
 
     k555kp15 D86 (
@@ -3839,10 +4324,10 @@ module ns4 (
         .p14(nx_D78_15),
         .p13(nx_D78_16),
         .p12(n_AD13_H),
-        .p5(d_D86_p5),
-        .p5_oe(d_D86_p5_oe),
-        .p6(d_D86_p6),
-        .p6_oe(d_D86_p6_oe)
+        .p5(r_D86_p5),
+        .p5_oe(r_D86_p5_oe),
+        .p6(r_D86_p6),
+        .p6_oe(r_D86_p6_oe)
     );
 
     k555kp2 D87 (
@@ -3853,13 +4338,13 @@ module ns4 (
         .p5(n_AD14_H),
         .p4(nx_D99_10),
         .p3(nx_D99_10),
-        .p7(d_D87_p7),
+        .p7(r_D87_p7),
         .p15(1'b0),
         .p10(nx_D99_6),
         .p11(nx_D99_6),
         .p12(n_AD15_H),
         .p13(n_AD15_H),
-        .p9(d_D87_p9)
+        .p9(r_D87_p9)
     );
 
     k555la2 D88 (
@@ -3871,7 +4356,7 @@ module ns4 (
         .p6(n_AD11_H),
         .p11(n_AD12_H),
         .p12(n_AD13_H),
-        .p8(d_D88_p8)
+        .p8(r_D88_p8)
     );
 
     k555ir23 D89 (
@@ -3886,43 +4371,43 @@ module ns4 (
         .p14(n_ZAPR_KL_L),
         .p17(n_ZAPR_OST_L),
         .p18(nx_D89_18),
-        .p2(d_D89_p2),
-        .p2_oe(d_D89_p2_oe),
-        .p5(d_D89_p5),
-        .p5_oe(d_D89_p5_oe),
-        .p6(d_D89_p6),
-        .p6_oe(d_D89_p6_oe),
-        .p9(d_D89_p9),
-        .p9_oe(d_D89_p9_oe),
-        .p12(d_D89_p12),
-        .p12_oe(d_D89_p12_oe),
-        .p15(d_D89_p15),
-        .p15_oe(d_D89_p15_oe),
-        .p16(d_D89_p16),
-        .p16_oe(d_D89_p16_oe),
-        .p19(d_D89_p19),
-        .p19_oe(d_D89_p19_oe)
+        .p2(r_D89_p2),
+        .p2_oe(r_D89_p2_oe),
+        .p5(r_D89_p5),
+        .p5_oe(r_D89_p5_oe),
+        .p6(r_D89_p6),
+        .p6_oe(r_D89_p6_oe),
+        .p9(r_D89_p9),
+        .p9_oe(r_D89_p9_oe),
+        .p12(r_D89_p12),
+        .p12_oe(r_D89_p12_oe),
+        .p15(r_D89_p15),
+        .p15_oe(r_D89_p15_oe),
+        .p16(r_D89_p16),
+        .p16_oe(r_D89_p16_oe),
+        .p19(r_D89_p19),
+        .p19_oe(r_D89_p19_oe)
     );
 
     k554sa3 D90 (
         .p3(nx_D90_3),
         .p4(nx_C72_2),
-        .p9(d_D90_p9)
+        .p9(r_D90_p9)
     );
 
     k555ln1 D91 (
         .p1(nx_C79_2),
-        .p2(d_D91_p2),
+        .p2(r_D91_p2),
         .p3(nx_D91_2),
-        .p4(d_D91_p4),
+        .p4(r_D91_p4),
         .p5(nx_D91_4),
-        .p6(d_D91_p6),
+        .p6(r_D91_p6),
         .p9(n_OST_L),
-        .p8(d_D91_p8),
+        .p8(r_D91_p8),
         .p11(n_ZAPRM_H),
-        .p10(d_D91_p10),
+        .p10(r_D91_p10),
         .p13(n_TPRKL_H),
-        .p12(d_D91_p12)
+        .p12(r_D91_p12)
     );
 
     k555ir22 D92 (
@@ -3938,36 +4423,36 @@ module ns4 (
         .p17(n_MK06_H),
         .p18(n_MK07_H),
         .p2(d_D92_p2),
-        .p2_oe(d_D92_p2_oe),
+        .p2_oe(r_D92_p2_oe),
         .p5(d_D92_p5),
-        .p5_oe(d_D92_p5_oe),
+        .p5_oe(r_D92_p5_oe),
         .p6(d_D92_p6),
-        .p6_oe(d_D92_p6_oe),
+        .p6_oe(r_D92_p6_oe),
         .p9(d_D92_p9),
-        .p9_oe(d_D92_p9_oe),
+        .p9_oe(r_D92_p9_oe),
         .p12(d_D92_p12),
-        .p12_oe(d_D92_p12_oe),
+        .p12_oe(r_D92_p12_oe),
         .p15(d_D92_p15),
-        .p15_oe(d_D92_p15_oe),
+        .p15_oe(r_D92_p15_oe),
         .p16(d_D92_p16),
-        .p16_oe(d_D92_p16_oe),
+        .p16_oe(r_D92_p16_oe),
         .p19(d_D92_p19),
-        .p19_oe(d_D92_p19_oe)
+        .p19_oe(r_D92_p19_oe)
     );
 
     k555la13 D93 (
         .p1(n_UPR_GR_H),
         .p2(n_RAZR_GR_H),
-        .p3(d_D93_p3),
+        .p3(r_D93_p3),
         .p4(n_RAZR_GR_H),
         .p5(n_SINHR3_L),
-        .p6(d_D93_p6),
+        .p6(r_D93_p6),
         .p9(n_IND3_H),
         .p10(n_IND3_H),
-        .p8(d_D93_p8),
+        .p8(r_D93_p8),
         .p12(n_IMP_CHT_H),
         .p13(n_IMP_CHT_H),
-        .p11(d_D93_p11)
+        .p11(r_D93_p11)
     );
 
     k555ir22 D94 (
@@ -3983,21 +4468,21 @@ module ns4 (
         .p17(n_MK14_H),
         .p18(n_MK15_H),
         .p2(d_D94_p2),
-        .p2_oe(d_D94_p2_oe),
+        .p2_oe(r_D94_p2_oe),
         .p5(d_D94_p5),
-        .p5_oe(d_D94_p5_oe),
+        .p5_oe(r_D94_p5_oe),
         .p6(d_D94_p6),
-        .p6_oe(d_D94_p6_oe),
+        .p6_oe(r_D94_p6_oe),
         .p9(d_D94_p9),
-        .p9_oe(d_D94_p9_oe),
+        .p9_oe(r_D94_p9_oe),
         .p12(d_D94_p12),
-        .p12_oe(d_D94_p12_oe),
+        .p12_oe(r_D94_p12_oe),
         .p15(d_D94_p15),
-        .p15_oe(d_D94_p15_oe),
+        .p15_oe(r_D94_p15_oe),
         .p16(d_D94_p16),
-        .p16_oe(d_D94_p16_oe),
+        .p16_oe(r_D94_p16_oe),
         .p19(d_D94_p19),
-        .p19_oe(d_D94_p19_oe)
+        .p19_oe(r_D94_p19_oe)
     );
 
     k555ap3 D95 (
@@ -4006,27 +4491,27 @@ module ns4 (
         .p4(n_R2_H),
         .p6(n_R2_H),
         .p8(n_R2_H),
-        .p18(d_D95_p18),
-        .p18_oe(d_D95_p18_oe),
-        .p16(d_D95_p16),
-        .p16_oe(d_D95_p16_oe),
-        .p14(d_D95_p14),
-        .p14_oe(d_D95_p14_oe),
-        .p12(d_D95_p12),
-        .p12_oe(d_D95_p12_oe),
+        .p18(r_D95_p18),
+        .p18_oe(r_D95_p18_oe),
+        .p16(r_D95_p16),
+        .p16_oe(r_D95_p16_oe),
+        .p14(r_D95_p14),
+        .p14_oe(r_D95_p14_oe),
+        .p12(r_D95_p12),
+        .p12_oe(r_D95_p12_oe),
         .p19(1'b0),
         .p11(n_ZAPR_MON_H),
         .p13(nx_VD11_1),
         .p15(n_CHT_VZU_H),
         .p17(n_SBRKS_L),
-        .p9(d_D95_p9),
-        .p9_oe(d_D95_p9_oe),
-        .p7(d_D95_p7),
-        .p7_oe(d_D95_p7_oe),
-        .p5(d_D95_p5),
-        .p5_oe(d_D95_p5_oe),
-        .p3(d_D95_p3),
-        .p3_oe(d_D95_p3_oe)
+        .p9(r_D95_p9),
+        .p9_oe(r_D95_p9_oe),
+        .p7(r_D95_p7),
+        .p7_oe(r_D95_p7_oe),
+        .p5(r_D95_p5),
+        .p5_oe(r_D95_p5_oe),
+        .p3(r_D95_p3),
+        .p3_oe(r_D95_p3_oe)
     );
 
     k555iv3 D96 (
@@ -4039,10 +4524,10 @@ module ns4 (
         .p4(nx_D89_12),
         .p5(n_R4_H),
         .p10(nx_D89_15),
-        .p9(d_D96_p9),
-        .p7(d_D96_p7),
-        .p6(d_D96_p6),
-        .p14(d_D96_p14)
+        .p9(r_D96_p9),
+        .p7(r_D96_p7),
+        .p6(r_D96_p6),
+        .p14(r_D96_p14)
     );
 
     k555tm9 D97 (
@@ -4055,12 +4540,12 @@ module ns4 (
         .p11(n_MK12_H),
         .p13(n_MK13_H),
         .p14(n_MK08_H),
-        .p2(d_D97_p2),
-        .p5(d_D97_p5),
-        .p7(d_D97_p7),
-        .p10(d_D97_p10),
-        .p12(d_D97_p12),
-        .p15(d_D97_p15)
+        .p2(r_D97_p2),
+        .p5(r_D97_p5),
+        .p7(r_D97_p7),
+        .p10(r_D97_p10),
+        .p12(r_D97_p12),
+        .p15(r_D97_p15)
     );
 
     kr1533tm2 D98 (
@@ -4069,30 +4554,517 @@ module ns4 (
         .p2(n_R5_H),
         .p3(n_STROB_H),
         .p4(n_R5_H),
-        .p5(d_D98_p5),
-        .p6(d_D98_p6),
+        .p5(r_D98_p5),
+        .p6(r_D98_p6),
         .p13(n_R8_H),
         .p12(n_VBREG_L),
         .p11(n_PVAK_H),
         .p10(n_PSINH_H),
-        .p9(d_D98_p9),
-        .p8(d_D98_p8)
+        .p9(r_D98_p9),
+        .p8(r_D98_p8)
     );
 
     k555ln1 D99 (
         .p1(nx_D83_21),
-        .p2(d_D99_p2),
+        .p2(r_D99_p2),
         .p3(n_PVAS_L),
-        .p4(d_D99_p4),
+        .p4(r_D99_p4),
         .p5(n_AD15_H),
-        .p6(d_D99_p6),
+        .p6(r_D99_p6),
         .p9(n_PVAK_L),
-        .p8(d_D99_p8),
+        .p8(r_D99_p8),
         .p11(n_AD14_H),
-        .p10(d_D99_p10),
+        .p10(r_D99_p10),
         .p13(n_ZAPRD_H),
-        .p12(d_D99_p12)
+        .p12(r_D99_p12)
     );
+
+    // the chips' propagation delays (netlist/delays.csv)
+    delay_line #(.TICKS(13)) l_D2_p14 (.clk(clk), .i(r_D2_p14), .o(d_D2_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D2_p14_oe (.clk(clk), .i(r_D2_p14_oe), .o(d_D2_p14_oe));
+    delay_line #(.TICKS(13)) l_D3_p14 (.clk(clk), .i(r_D3_p14), .o(d_D3_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D3_p14_oe (.clk(clk), .i(r_D3_p14_oe), .o(d_D3_p14_oe));
+    delay_line #(.TICKS(2)) l_D4_p2 (.clk(clk), .i(r_D4_p2), .o(d_D4_p2));
+    delay_line #(.TICKS(2)) l_D4_p4 (.clk(clk), .i(r_D4_p4), .o(d_D4_p4));
+    delay_line #(.TICKS(2)) l_D4_p6 (.clk(clk), .i(r_D4_p6), .o(d_D4_p6));
+    delay_line #(.TICKS(2)) l_D4_p8 (.clk(clk), .i(r_D4_p8), .o(d_D4_p8));
+    delay_line #(.TICKS(2)) l_D4_p10 (.clk(clk), .i(r_D4_p10), .o(d_D4_p10));
+    delay_line #(.TICKS(2)) l_D4_p12 (.clk(clk), .i(r_D4_p12), .o(d_D4_p12));
+    delay_line #(.TICKS(13)) l_D5_p14 (.clk(clk), .i(r_D5_p14), .o(d_D5_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D5_p14_oe (.clk(clk), .i(r_D5_p14_oe), .o(d_D5_p14_oe));
+    delay_line #(.TICKS(13)) l_D6_p14 (.clk(clk), .i(r_D6_p14), .o(d_D6_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D6_p14_oe (.clk(clk), .i(r_D6_p14_oe), .o(d_D6_p14_oe));
+    delay_line #(.TICKS(1)) l_D7_p4 (.clk(clk), .i(r_D7_p4), .o(d_D7_p4));
+    delay_line #(.TICKS(1)) l_D7_p5 (.clk(clk), .i(r_D7_p5), .o(d_D7_p5));
+    delay_line #(.TICKS(1)) l_D7_p6 (.clk(clk), .i(r_D7_p6), .o(d_D7_p6));
+    delay_line #(.TICKS(1)) l_D7_p7 (.clk(clk), .i(r_D7_p7), .o(d_D7_p7));
+    delay_line #(.TICKS(1)) l_D7_p12 (.clk(clk), .i(r_D7_p12), .o(d_D7_p12));
+    delay_line #(.TICKS(1)) l_D7_p11 (.clk(clk), .i(r_D7_p11), .o(d_D7_p11));
+    delay_line #(.TICKS(1)) l_D7_p10 (.clk(clk), .i(r_D7_p10), .o(d_D7_p10));
+    delay_line #(.TICKS(1)) l_D7_p9 (.clk(clk), .i(r_D7_p9), .o(d_D7_p9));
+    delay_line #(.TICKS(2)) l_D8_p2 (.clk(clk), .i(r_D8_p2), .o(d_D8_p2));
+    delay_line #(.TICKS(2)) l_D8_p4 (.clk(clk), .i(r_D8_p4), .o(d_D8_p4));
+    delay_line #(.TICKS(2)) l_D8_p6 (.clk(clk), .i(r_D8_p6), .o(d_D8_p6));
+    delay_line #(.TICKS(2)) l_D8_p8 (.clk(clk), .i(r_D8_p8), .o(d_D8_p8));
+    delay_line #(.TICKS(2)) l_D8_p10 (.clk(clk), .i(r_D8_p10), .o(d_D8_p10));
+    delay_line #(.TICKS(2)) l_D8_p12 (.clk(clk), .i(r_D8_p12), .o(d_D8_p12));
+    delay_line #(.TICKS(1)) l_D10_p2 (.clk(clk), .i(r_D10_p2), .o(d_D10_p2));
+    delay_line #(.TICKS(1)) l_D10_p5 (.clk(clk), .i(r_D10_p5), .o(d_D10_p5));
+    delay_line #(.TICKS(1)) l_D10_p7 (.clk(clk), .i(r_D10_p7), .o(d_D10_p7));
+    delay_line #(.TICKS(1)) l_D10_p10 (.clk(clk), .i(r_D10_p10), .o(d_D10_p10));
+    delay_line #(.TICKS(1)) l_D10_p12 (.clk(clk), .i(r_D10_p12), .o(d_D10_p12));
+    delay_line #(.TICKS(1)) l_D10_p15 (.clk(clk), .i(r_D10_p15), .o(d_D10_p15));
+    delay_line #(.TICKS(13)) l_D11_p14 (.clk(clk), .i(r_D11_p14), .o(d_D11_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D11_p14_oe (.clk(clk), .i(r_D11_p14_oe), .o(d_D11_p14_oe));
+    delay_line #(.TICKS(13)) l_D12_p14 (.clk(clk), .i(r_D12_p14), .o(d_D12_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D12_p14_oe (.clk(clk), .i(r_D12_p14_oe), .o(d_D12_p14_oe));
+    delay_line #(.TICKS(5)) l_D13_p14 (.clk(clk), .i(r_D13_p14), .o(d_D13_p14));
+    delay_line #(.TICKS(5)) l_D13_p13 (.clk(clk), .i(r_D13_p13), .o(d_D13_p13));
+    delay_line #(.TICKS(5)) l_D13_p12 (.clk(clk), .i(r_D13_p12), .o(d_D13_p12));
+    delay_line #(.TICKS(5)) l_D13_p11 (.clk(clk), .i(r_D13_p11), .o(d_D13_p11));
+    delay_line #(.TICKS(1)) l_D14_p3 (.clk(clk), .i(r_D14_p3), .o(d_D14_p3));
+    delay_line #(.TICKS(1)) l_D14_p6 (.clk(clk), .i(r_D14_p6), .o(d_D14_p6));
+    delay_line #(.TICKS(1)) l_D14_p8 (.clk(clk), .i(r_D14_p8), .o(d_D14_p8));
+    delay_line #(.TICKS(1)) l_D14_p11 (.clk(clk), .i(r_D14_p11), .o(d_D14_p11));
+    delay_line #(.TICKS(1)) l_D15_p2 (.clk(clk), .i(r_D15_p2), .o(d_D15_p2));
+    delay_line #(.TICKS(1)) l_D15_p4 (.clk(clk), .i(r_D15_p4), .o(d_D15_p4));
+    delay_line #(.TICKS(1)) l_D15_p6 (.clk(clk), .i(r_D15_p6), .o(d_D15_p6));
+    delay_line #(.TICKS(1)) l_D15_p8 (.clk(clk), .i(r_D15_p8), .o(d_D15_p8));
+    delay_line #(.TICKS(1)) l_D15_p10 (.clk(clk), .i(r_D15_p10), .o(d_D15_p10));
+    delay_line #(.TICKS(1)) l_D15_p12 (.clk(clk), .i(r_D15_p12), .o(d_D15_p12));
+    delay_line #(.TICKS(1)) l_D16_p3 (.clk(clk), .i(r_D16_p3), .o(d_D16_p3));
+    delay_line #(.TICKS(1)) l_D16_p4 (.clk(clk), .i(r_D16_p4), .o(d_D16_p4));
+    delay_line #(.TICKS(1)) l_D16_p5 (.clk(clk), .i(r_D16_p5), .o(d_D16_p5));
+    delay_line #(.TICKS(1)) l_D16_p6 (.clk(clk), .i(r_D16_p6), .o(d_D16_p6));
+    delay_line #(.TICKS(1)) l_D16_p11 (.clk(clk), .i(r_D16_p11), .o(d_D16_p11));
+    delay_line #(.TICKS(1)) l_D16_p10 (.clk(clk), .i(r_D16_p10), .o(d_D16_p10));
+    delay_line #(.TICKS(1)) l_D16_p9 (.clk(clk), .i(r_D16_p9), .o(d_D16_p9));
+    delay_line #(.TICKS(1)) l_D16_p8 (.clk(clk), .i(r_D16_p8), .o(d_D16_p8));
+    delay_line #(.TICKS(1)) l_D17_p5 (.clk(clk), .i(r_D17_p5), .o(d_D17_p5));
+    delay_line #(.TICKS(1)) l_D17_p6 (.clk(clk), .i(r_D17_p6), .o(d_D17_p6));
+    delay_line #(.TICKS(1)) l_D17_p9 (.clk(clk), .i(r_D17_p9), .o(d_D17_p9));
+    delay_line #(.TICKS(1)) l_D17_p8 (.clk(clk), .i(r_D17_p8), .o(d_D17_p8));
+    delay_line #(.TICKS(13)) l_D18_p14 (.clk(clk), .i(r_D18_p14), .o(d_D18_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D18_p14_oe (.clk(clk), .i(r_D18_p14_oe), .o(d_D18_p14_oe));
+    delay_line #(.TICKS(13)) l_D19_p14 (.clk(clk), .i(r_D19_p14), .o(d_D19_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D19_p14_oe (.clk(clk), .i(r_D19_p14_oe), .o(d_D19_p14_oe));
+    delay_line #(.TICKS(5)) l_D21_p14 (.clk(clk), .i(r_D21_p14), .o(d_D21_p14));
+    delay_line #(.TICKS(5)) l_D21_p13 (.clk(clk), .i(r_D21_p13), .o(d_D21_p13));
+    delay_line #(.TICKS(5)) l_D21_p12 (.clk(clk), .i(r_D21_p12), .o(d_D21_p12));
+    delay_line #(.TICKS(5)) l_D21_p11 (.clk(clk), .i(r_D21_p11), .o(d_D21_p11));
+    delay_line #(.TICKS(1)) l_D25_p8 (.clk(clk), .i(r_D25_p8), .o(d_D25_p8));
+    delay_line #(.TICKS(1)) l_D25_p6 (.clk(clk), .i(r_D25_p6), .o(d_D25_p6));
+    delay_line #(.TICKS(13)) l_D26_p14 (.clk(clk), .i(r_D26_p14), .o(d_D26_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D26_p14_oe (.clk(clk), .i(r_D26_p14_oe), .o(d_D26_p14_oe));
+    delay_line #(.TICKS(13)) l_D27_p14 (.clk(clk), .i(r_D27_p14), .o(d_D27_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D27_p14_oe (.clk(clk), .i(r_D27_p14_oe), .o(d_D27_p14_oe));
+    delay_line #(.TICKS(1)) l_D29_p14 (.clk(clk), .i(r_D29_p14), .o(d_D29_p14));
+    delay_line #(.TICKS(1)) l_D29_p13 (.clk(clk), .i(r_D29_p13), .o(d_D29_p13));
+    delay_line #(.TICKS(1)) l_D29_p12 (.clk(clk), .i(r_D29_p12), .o(d_D29_p12));
+    delay_line #(.TICKS(1)) l_D29_p11 (.clk(clk), .i(r_D29_p11), .o(d_D29_p11));
+    delay_line #(.TICKS(1)) l_D29_p15 (.clk(clk), .i(r_D29_p15), .o(d_D29_p15));
+    delay_line #(.TICKS(1)) l_D30_p14 (.clk(clk), .i(r_D30_p14), .o(d_D30_p14));
+    delay_line #(.TICKS(1)) l_D30_p13 (.clk(clk), .i(r_D30_p13), .o(d_D30_p13));
+    delay_line #(.TICKS(1)) l_D30_p12 (.clk(clk), .i(r_D30_p12), .o(d_D30_p12));
+    delay_line #(.TICKS(1)) l_D30_p11 (.clk(clk), .i(r_D30_p11), .o(d_D30_p11));
+    delay_line #(.TICKS(1)) l_D30_p15 (.clk(clk), .i(r_D30_p15), .o(d_D30_p15));
+    delay_line #(.TICKS(1)) l_D31_p12 (.clk(clk), .i(r_D31_p12), .o(d_D31_p12));
+    delay_line #(.TICKS(1)) l_D31_p6 (.clk(clk), .i(r_D31_p6), .o(d_D31_p6));
+    delay_line #(.TICKS(1)) l_D31_p8 (.clk(clk), .i(r_D31_p8), .o(d_D31_p8));
+    delay_line #(.TICKS(2)) l_D32_p5 (.clk(clk), .i(r_D32_p5), .o(d_D32_p5));
+    delay_line #(.TICKS(3)) l_D32_p5_oe (.clk(clk), .i(r_D32_p5_oe), .o(d_D32_p5_oe));
+    delay_line #(.TICKS(2)) l_D32_p6 (.clk(clk), .i(r_D32_p6), .o(d_D32_p6));
+    delay_line #(.TICKS(3)) l_D32_p6_oe (.clk(clk), .i(r_D32_p6_oe), .o(d_D32_p6_oe));
+    delay_line #(.TICKS(1)) l_D33_p5 (.clk(clk), .i(r_D33_p5), .o(d_D33_p5));
+    delay_line #(.TICKS(1)) l_D33_p6 (.clk(clk), .i(r_D33_p6), .o(d_D33_p6));
+    delay_line #(.TICKS(1)) l_D33_p9 (.clk(clk), .i(r_D33_p9), .o(d_D33_p9));
+    delay_line #(.TICKS(1)) l_D33_p8 (.clk(clk), .i(r_D33_p8), .o(d_D33_p8));
+    delay_line #(.TICKS(13)) l_D34_p14 (.clk(clk), .i(r_D34_p14), .o(d_D34_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D34_p14_oe (.clk(clk), .i(r_D34_p14_oe), .o(d_D34_p14_oe));
+    delay_line #(.TICKS(13)) l_D35_p14 (.clk(clk), .i(r_D35_p14), .o(d_D35_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D35_p14_oe (.clk(clk), .i(r_D35_p14_oe), .o(d_D35_p14_oe));
+    delay_line #(.TICKS(1)) l_D36_p14 (.clk(clk), .i(r_D36_p14), .o(d_D36_p14));
+    delay_line #(.TICKS(1)) l_D36_p13 (.clk(clk), .i(r_D36_p13), .o(d_D36_p13));
+    delay_line #(.TICKS(1)) l_D36_p12 (.clk(clk), .i(r_D36_p12), .o(d_D36_p12));
+    delay_line #(.TICKS(1)) l_D36_p11 (.clk(clk), .i(r_D36_p11), .o(d_D36_p11));
+    delay_line #(.TICKS(1)) l_D36_p15 (.clk(clk), .i(r_D36_p15), .o(d_D36_p15));
+    delay_line #(.TICKS(1)) l_D37_p14 (.clk(clk), .i(r_D37_p14), .o(d_D37_p14));
+    delay_line #(.TICKS(1)) l_D37_p13 (.clk(clk), .i(r_D37_p13), .o(d_D37_p13));
+    delay_line #(.TICKS(1)) l_D37_p12 (.clk(clk), .i(r_D37_p12), .o(d_D37_p12));
+    delay_line #(.TICKS(1)) l_D37_p11 (.clk(clk), .i(r_D37_p11), .o(d_D37_p11));
+    delay_line #(.TICKS(1)) l_D37_p15 (.clk(clk), .i(r_D37_p15), .o(d_D37_p15));
+    delay_line #(.TICKS(2)) l_D39_p3 (.clk(clk), .i(r_D39_p3), .o(d_D39_p3));
+    delay_line #(.TICKS(2)) l_D39_p6 (.clk(clk), .i(r_D39_p6), .o(d_D39_p6));
+    delay_line #(.TICKS(2)) l_D39_p8 (.clk(clk), .i(r_D39_p8), .o(d_D39_p8));
+    delay_line #(.TICKS(2)) l_D39_p11 (.clk(clk), .i(r_D39_p11), .o(d_D39_p11));
+    delay_line #(.TICKS(1)) l_D40_p2 (.clk(clk), .i(r_D40_p2), .o(d_D40_p2));
+    delay_line #(.TICKS(1)) l_D40_p7 (.clk(clk), .i(r_D40_p7), .o(d_D40_p7));
+    delay_line #(.TICKS(1)) l_D40_p10 (.clk(clk), .i(r_D40_p10), .o(d_D40_p10));
+    delay_line #(.TICKS(1)) l_D40_p15 (.clk(clk), .i(r_D40_p15), .o(d_D40_p15));
+    delay_line #(.TICKS(1)) l_D40_p3 (.clk(clk), .i(r_D40_p3), .o(d_D40_p3));
+    delay_line #(.TICKS(1)) l_D40_p6 (.clk(clk), .i(r_D40_p6), .o(d_D40_p6));
+    delay_line #(.TICKS(1)) l_D40_p11 (.clk(clk), .i(r_D40_p11), .o(d_D40_p11));
+    delay_line #(.TICKS(1)) l_D40_p14 (.clk(clk), .i(r_D40_p14), .o(d_D40_p14));
+    delay_line #(.TICKS(1)) l_D41_p5 (.clk(clk), .i(r_D41_p5), .o(d_D41_p5));
+    delay_line #(.TICKS(1)) l_D41_p6 (.clk(clk), .i(r_D41_p6), .o(d_D41_p6));
+    delay_line #(.TICKS(1)) l_D41_p9 (.clk(clk), .i(r_D41_p9), .o(d_D41_p9));
+    delay_line #(.TICKS(1)) l_D41_p8 (.clk(clk), .i(r_D41_p8), .o(d_D41_p8));
+    delay_line #(.TICKS(1)) l_D42_p14 (.clk(clk), .i(r_D42_p14), .o(d_D42_p14));
+    delay_line #(.TICKS(1)) l_D42_p13 (.clk(clk), .i(r_D42_p13), .o(d_D42_p13));
+    delay_line #(.TICKS(1)) l_D42_p12 (.clk(clk), .i(r_D42_p12), .o(d_D42_p12));
+    delay_line #(.TICKS(1)) l_D42_p11 (.clk(clk), .i(r_D42_p11), .o(d_D42_p11));
+    delay_line #(.TICKS(1)) l_D42_p15 (.clk(clk), .i(r_D42_p15), .o(d_D42_p15));
+    delay_line #(.TICKS(1)) l_D43_p2 (.clk(clk), .i(r_D43_p2), .o(d_D43_p2));
+    delay_line #(.TICKS(1)) l_D43_p7 (.clk(clk), .i(r_D43_p7), .o(d_D43_p7));
+    delay_line #(.TICKS(1)) l_D43_p10 (.clk(clk), .i(r_D43_p10), .o(d_D43_p10));
+    delay_line #(.TICKS(1)) l_D43_p15 (.clk(clk), .i(r_D43_p15), .o(d_D43_p15));
+    delay_line #(.TICKS(1)) l_D43_p3 (.clk(clk), .i(r_D43_p3), .o(d_D43_p3));
+    delay_line #(.TICKS(1)) l_D43_p6 (.clk(clk), .i(r_D43_p6), .o(d_D43_p6));
+    delay_line #(.TICKS(1)) l_D43_p11 (.clk(clk), .i(r_D43_p11), .o(d_D43_p11));
+    delay_line #(.TICKS(1)) l_D43_p14 (.clk(clk), .i(r_D43_p14), .o(d_D43_p14));
+    delay_line #(.TICKS(13)) l_D44_p14 (.clk(clk), .i(r_D44_p14), .o(d_D44_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D44_p14_oe (.clk(clk), .i(r_D44_p14_oe), .o(d_D44_p14_oe));
+    delay_line #(.TICKS(13)) l_D45_p14 (.clk(clk), .i(r_D45_p14), .o(d_D45_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D45_p14_oe (.clk(clk), .i(r_D45_p14_oe), .o(d_D45_p14_oe));
+    delay_line #(.TICKS(1)) l_D46_p3 (.clk(clk), .i(r_D46_p3), .o(d_D46_p3));
+    delay_line #(.TICKS(1)) l_D46_p4 (.clk(clk), .i(r_D46_p4), .o(d_D46_p4));
+    delay_line #(.TICKS(1)) l_D46_p5 (.clk(clk), .i(r_D46_p5), .o(d_D46_p5));
+    delay_line #(.TICKS(1)) l_D46_p6 (.clk(clk), .i(r_D46_p6), .o(d_D46_p6));
+    delay_line #(.TICKS(1)) l_D46_p11 (.clk(clk), .i(r_D46_p11), .o(d_D46_p11));
+    delay_line #(.TICKS(1)) l_D46_p10 (.clk(clk), .i(r_D46_p10), .o(d_D46_p10));
+    delay_line #(.TICKS(1)) l_D46_p9 (.clk(clk), .i(r_D46_p9), .o(d_D46_p9));
+    delay_line #(.TICKS(1)) l_D46_p8 (.clk(clk), .i(r_D46_p8), .o(d_D46_p8));
+    delay_line #(.TICKS(1)) l_D47_p5 (.clk(clk), .i(r_D47_p5), .o(d_D47_p5));
+    delay_line #(.TICKS(1)) l_D47_p6 (.clk(clk), .i(r_D47_p6), .o(d_D47_p6));
+    delay_line #(.TICKS(1)) l_D47_p9 (.clk(clk), .i(r_D47_p9), .o(d_D47_p9));
+    delay_line #(.TICKS(1)) l_D47_p8 (.clk(clk), .i(r_D47_p8), .o(d_D47_p8));
+    delay_line #(.TICKS(3)) l_D48_p3 (.clk(clk), .i(r_D48_p3), .o(d_D48_p3));
+    delay_line #(.TICKS(2), .FALL(3)) l_D48_p3_oe (.clk(clk), .i(r_D48_p3_oe), .o(d_D48_p3_oe));
+    delay_line #(.TICKS(3)) l_D48_p5 (.clk(clk), .i(r_D48_p5), .o(d_D48_p5));
+    delay_line #(.TICKS(2), .FALL(3)) l_D48_p5_oe (.clk(clk), .i(r_D48_p5_oe), .o(d_D48_p5_oe));
+    delay_line #(.TICKS(3)) l_D48_p11 (.clk(clk), .i(r_D48_p11), .o(d_D48_p11));
+    delay_line #(.TICKS(2), .FALL(3)) l_D48_p11_oe (.clk(clk), .i(r_D48_p11_oe), .o(d_D48_p11_oe));
+    delay_line #(.TICKS(3)) l_D48_p13 (.clk(clk), .i(r_D48_p13), .o(d_D48_p13));
+    delay_line #(.TICKS(2), .FALL(3)) l_D48_p13_oe (.clk(clk), .i(r_D48_p13_oe), .o(d_D48_p13_oe));
+    delay_line #(.TICKS(7)) l_D49_p13 (.clk(clk), .i(r_D49_p13), .o(d_D49_p13));
+    delay_line #(.TICKS(7)) l_D49_p13_oe (.clk(clk), .i(r_D49_p13_oe), .o(d_D49_p13_oe));
+    delay_line #(.TICKS(7)) l_D49_p12 (.clk(clk), .i(r_D49_p12), .o(d_D49_p12));
+    delay_line #(.TICKS(7)) l_D49_p12_oe (.clk(clk), .i(r_D49_p12_oe), .o(d_D49_p12_oe));
+    delay_line #(.TICKS(7)) l_D49_p11 (.clk(clk), .i(r_D49_p11), .o(d_D49_p11));
+    delay_line #(.TICKS(7)) l_D49_p11_oe (.clk(clk), .i(r_D49_p11_oe), .o(d_D49_p11_oe));
+    delay_line #(.TICKS(7)) l_D49_p10 (.clk(clk), .i(r_D49_p10), .o(d_D49_p10));
+    delay_line #(.TICKS(7)) l_D49_p10_oe (.clk(clk), .i(r_D49_p10_oe), .o(d_D49_p10_oe));
+    delay_line #(.TICKS(7)) l_D50_p13 (.clk(clk), .i(r_D50_p13), .o(d_D50_p13));
+    delay_line #(.TICKS(7)) l_D50_p13_oe (.clk(clk), .i(r_D50_p13_oe), .o(d_D50_p13_oe));
+    delay_line #(.TICKS(7)) l_D50_p12 (.clk(clk), .i(r_D50_p12), .o(d_D50_p12));
+    delay_line #(.TICKS(7)) l_D50_p12_oe (.clk(clk), .i(r_D50_p12_oe), .o(d_D50_p12_oe));
+    delay_line #(.TICKS(7)) l_D50_p11 (.clk(clk), .i(r_D50_p11), .o(d_D50_p11));
+    delay_line #(.TICKS(7)) l_D50_p11_oe (.clk(clk), .i(r_D50_p11_oe), .o(d_D50_p11_oe));
+    delay_line #(.TICKS(7)) l_D50_p10 (.clk(clk), .i(r_D50_p10), .o(d_D50_p10));
+    delay_line #(.TICKS(7)) l_D50_p10_oe (.clk(clk), .i(r_D50_p10_oe), .o(d_D50_p10_oe));
+    delay_line #(.TICKS(1)) l_D51_p2 (.clk(clk), .i(r_D51_p2), .o(d_D51_p2));
+    delay_line #(.TICKS(1)) l_D51_p2_oe (.clk(clk), .i(r_D51_p2_oe), .o(d_D51_p2_oe));
+    delay_line #(.TICKS(1)) l_D51_p5 (.clk(clk), .i(r_D51_p5), .o(d_D51_p5));
+    delay_line #(.TICKS(1)) l_D51_p5_oe (.clk(clk), .i(r_D51_p5_oe), .o(d_D51_p5_oe));
+    delay_line #(.TICKS(1)) l_D51_p6 (.clk(clk), .i(r_D51_p6), .o(d_D51_p6));
+    delay_line #(.TICKS(1)) l_D51_p6_oe (.clk(clk), .i(r_D51_p6_oe), .o(d_D51_p6_oe));
+    delay_line #(.TICKS(1)) l_D51_p9 (.clk(clk), .i(r_D51_p9), .o(d_D51_p9));
+    delay_line #(.TICKS(1)) l_D51_p9_oe (.clk(clk), .i(r_D51_p9_oe), .o(d_D51_p9_oe));
+    delay_line #(.TICKS(1)) l_D51_p12 (.clk(clk), .i(r_D51_p12), .o(d_D51_p12));
+    delay_line #(.TICKS(1)) l_D51_p12_oe (.clk(clk), .i(r_D51_p12_oe), .o(d_D51_p12_oe));
+    delay_line #(.TICKS(1)) l_D51_p15 (.clk(clk), .i(r_D51_p15), .o(d_D51_p15));
+    delay_line #(.TICKS(1)) l_D51_p15_oe (.clk(clk), .i(r_D51_p15_oe), .o(d_D51_p15_oe));
+    delay_line #(.TICKS(1)) l_D51_p16 (.clk(clk), .i(r_D51_p16), .o(d_D51_p16));
+    delay_line #(.TICKS(1)) l_D51_p16_oe (.clk(clk), .i(r_D51_p16_oe), .o(d_D51_p16_oe));
+    delay_line #(.TICKS(1)) l_D51_p19 (.clk(clk), .i(r_D51_p19), .o(d_D51_p19));
+    delay_line #(.TICKS(1)) l_D51_p19_oe (.clk(clk), .i(r_D51_p19_oe), .o(d_D51_p19_oe));
+    delay_line #(.TICKS(1)) l_D52_p18 (.clk(clk), .i(r_D52_p18), .o(d_D52_p18));
+    delay_line #(.TICKS(2)) l_D52_p18_oe (.clk(clk), .i(r_D52_p18_oe), .o(d_D52_p18_oe));
+    delay_line #(.TICKS(1)) l_D52_p16 (.clk(clk), .i(r_D52_p16), .o(d_D52_p16));
+    delay_line #(.TICKS(2)) l_D52_p16_oe (.clk(clk), .i(r_D52_p16_oe), .o(d_D52_p16_oe));
+    delay_line #(.TICKS(1)) l_D52_p14 (.clk(clk), .i(r_D52_p14), .o(d_D52_p14));
+    delay_line #(.TICKS(2)) l_D52_p14_oe (.clk(clk), .i(r_D52_p14_oe), .o(d_D52_p14_oe));
+    delay_line #(.TICKS(1)) l_D52_p12 (.clk(clk), .i(r_D52_p12), .o(d_D52_p12));
+    delay_line #(.TICKS(2)) l_D52_p12_oe (.clk(clk), .i(r_D52_p12_oe), .o(d_D52_p12_oe));
+    delay_line #(.TICKS(1)) l_D52_p9 (.clk(clk), .i(r_D52_p9), .o(d_D52_p9));
+    delay_line #(.TICKS(2)) l_D52_p9_oe (.clk(clk), .i(r_D52_p9_oe), .o(d_D52_p9_oe));
+    delay_line #(.TICKS(1)) l_D52_p7 (.clk(clk), .i(r_D52_p7), .o(d_D52_p7));
+    delay_line #(.TICKS(2)) l_D52_p7_oe (.clk(clk), .i(r_D52_p7_oe), .o(d_D52_p7_oe));
+    delay_line #(.TICKS(1)) l_D52_p5 (.clk(clk), .i(r_D52_p5), .o(d_D52_p5));
+    delay_line #(.TICKS(2)) l_D52_p5_oe (.clk(clk), .i(r_D52_p5_oe), .o(d_D52_p5_oe));
+    delay_line #(.TICKS(1)) l_D52_p3 (.clk(clk), .i(r_D52_p3), .o(d_D52_p3));
+    delay_line #(.TICKS(2)) l_D52_p3_oe (.clk(clk), .i(r_D52_p3_oe), .o(d_D52_p3_oe));
+    delay_line #(.TICKS(13)) l_D53_p14 (.clk(clk), .i(r_D53_p14), .o(d_D53_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D53_p14_oe (.clk(clk), .i(r_D53_p14_oe), .o(d_D53_p14_oe));
+    delay_line #(.TICKS(13)) l_D54_p14 (.clk(clk), .i(r_D54_p14), .o(d_D54_p14));
+    delay_line #(.TICKS(13), .FALL(6)) l_D54_p14_oe (.clk(clk), .i(r_D54_p14_oe), .o(d_D54_p14_oe));
+    delay_line #(.TICKS(7)) l_D55_p13 (.clk(clk), .i(r_D55_p13), .o(d_D55_p13));
+    delay_line #(.TICKS(7)) l_D55_p13_oe (.clk(clk), .i(r_D55_p13_oe), .o(d_D55_p13_oe));
+    delay_line #(.TICKS(7)) l_D55_p12 (.clk(clk), .i(r_D55_p12), .o(d_D55_p12));
+    delay_line #(.TICKS(7)) l_D55_p12_oe (.clk(clk), .i(r_D55_p12_oe), .o(d_D55_p12_oe));
+    delay_line #(.TICKS(7)) l_D55_p11 (.clk(clk), .i(r_D55_p11), .o(d_D55_p11));
+    delay_line #(.TICKS(7)) l_D55_p11_oe (.clk(clk), .i(r_D55_p11_oe), .o(d_D55_p11_oe));
+    delay_line #(.TICKS(7)) l_D55_p10 (.clk(clk), .i(r_D55_p10), .o(d_D55_p10));
+    delay_line #(.TICKS(7)) l_D55_p10_oe (.clk(clk), .i(r_D55_p10_oe), .o(d_D55_p10_oe));
+    delay_line #(.TICKS(7)) l_D56_p13 (.clk(clk), .i(r_D56_p13), .o(d_D56_p13));
+    delay_line #(.TICKS(7)) l_D56_p13_oe (.clk(clk), .i(r_D56_p13_oe), .o(d_D56_p13_oe));
+    delay_line #(.TICKS(7)) l_D56_p12 (.clk(clk), .i(r_D56_p12), .o(d_D56_p12));
+    delay_line #(.TICKS(7)) l_D56_p12_oe (.clk(clk), .i(r_D56_p12_oe), .o(d_D56_p12_oe));
+    delay_line #(.TICKS(7)) l_D56_p11 (.clk(clk), .i(r_D56_p11), .o(d_D56_p11));
+    delay_line #(.TICKS(7)) l_D56_p11_oe (.clk(clk), .i(r_D56_p11_oe), .o(d_D56_p11_oe));
+    delay_line #(.TICKS(7)) l_D56_p10 (.clk(clk), .i(r_D56_p10), .o(d_D56_p10));
+    delay_line #(.TICKS(7)) l_D56_p10_oe (.clk(clk), .i(r_D56_p10_oe), .o(d_D56_p10_oe));
+    delay_line #(.TICKS(1)) l_D57_p2 (.clk(clk), .i(r_D57_p2), .o(d_D57_p2));
+    delay_line #(.TICKS(1)) l_D57_p2_oe (.clk(clk), .i(r_D57_p2_oe), .o(d_D57_p2_oe));
+    delay_line #(.TICKS(1)) l_D57_p5 (.clk(clk), .i(r_D57_p5), .o(d_D57_p5));
+    delay_line #(.TICKS(1)) l_D57_p5_oe (.clk(clk), .i(r_D57_p5_oe), .o(d_D57_p5_oe));
+    delay_line #(.TICKS(1)) l_D57_p6 (.clk(clk), .i(r_D57_p6), .o(d_D57_p6));
+    delay_line #(.TICKS(1)) l_D57_p6_oe (.clk(clk), .i(r_D57_p6_oe), .o(d_D57_p6_oe));
+    delay_line #(.TICKS(1)) l_D57_p9 (.clk(clk), .i(r_D57_p9), .o(d_D57_p9));
+    delay_line #(.TICKS(1)) l_D57_p9_oe (.clk(clk), .i(r_D57_p9_oe), .o(d_D57_p9_oe));
+    delay_line #(.TICKS(1)) l_D57_p12 (.clk(clk), .i(r_D57_p12), .o(d_D57_p12));
+    delay_line #(.TICKS(1)) l_D57_p12_oe (.clk(clk), .i(r_D57_p12_oe), .o(d_D57_p12_oe));
+    delay_line #(.TICKS(1)) l_D57_p15 (.clk(clk), .i(r_D57_p15), .o(d_D57_p15));
+    delay_line #(.TICKS(1)) l_D57_p15_oe (.clk(clk), .i(r_D57_p15_oe), .o(d_D57_p15_oe));
+    delay_line #(.TICKS(1)) l_D57_p16 (.clk(clk), .i(r_D57_p16), .o(d_D57_p16));
+    delay_line #(.TICKS(1)) l_D57_p16_oe (.clk(clk), .i(r_D57_p16_oe), .o(d_D57_p16_oe));
+    delay_line #(.TICKS(1)) l_D57_p19 (.clk(clk), .i(r_D57_p19), .o(d_D57_p19));
+    delay_line #(.TICKS(1)) l_D57_p19_oe (.clk(clk), .i(r_D57_p19_oe), .o(d_D57_p19_oe));
+    delay_line #(.TICKS(1)) l_D58_p18 (.clk(clk), .i(r_D58_p18), .o(d_D58_p18));
+    delay_line #(.TICKS(2)) l_D58_p18_oe (.clk(clk), .i(r_D58_p18_oe), .o(d_D58_p18_oe));
+    delay_line #(.TICKS(1)) l_D58_p16 (.clk(clk), .i(r_D58_p16), .o(d_D58_p16));
+    delay_line #(.TICKS(2)) l_D58_p16_oe (.clk(clk), .i(r_D58_p16_oe), .o(d_D58_p16_oe));
+    delay_line #(.TICKS(1)) l_D58_p14 (.clk(clk), .i(r_D58_p14), .o(d_D58_p14));
+    delay_line #(.TICKS(2)) l_D58_p14_oe (.clk(clk), .i(r_D58_p14_oe), .o(d_D58_p14_oe));
+    delay_line #(.TICKS(1)) l_D58_p12 (.clk(clk), .i(r_D58_p12), .o(d_D58_p12));
+    delay_line #(.TICKS(2)) l_D58_p12_oe (.clk(clk), .i(r_D58_p12_oe), .o(d_D58_p12_oe));
+    delay_line #(.TICKS(1)) l_D58_p9 (.clk(clk), .i(r_D58_p9), .o(d_D58_p9));
+    delay_line #(.TICKS(2)) l_D58_p9_oe (.clk(clk), .i(r_D58_p9_oe), .o(d_D58_p9_oe));
+    delay_line #(.TICKS(1)) l_D58_p7 (.clk(clk), .i(r_D58_p7), .o(d_D58_p7));
+    delay_line #(.TICKS(2)) l_D58_p7_oe (.clk(clk), .i(r_D58_p7_oe), .o(d_D58_p7_oe));
+    delay_line #(.TICKS(1)) l_D58_p5 (.clk(clk), .i(r_D58_p5), .o(d_D58_p5));
+    delay_line #(.TICKS(2)) l_D58_p5_oe (.clk(clk), .i(r_D58_p5_oe), .o(d_D58_p5_oe));
+    delay_line #(.TICKS(1)) l_D58_p3 (.clk(clk), .i(r_D58_p3), .o(d_D58_p3));
+    delay_line #(.TICKS(2)) l_D58_p3_oe (.clk(clk), .i(r_D58_p3_oe), .o(d_D58_p3_oe));
+    delay_line #(.TICKS(1)) l_D59_p3 (.clk(clk), .i(r_D59_p3), .o(d_D59_p3));
+    delay_line #(.TICKS(1)) l_D59_p4 (.clk(clk), .i(r_D59_p4), .o(d_D59_p4));
+    delay_line #(.TICKS(1)) l_D59_p5 (.clk(clk), .i(r_D59_p5), .o(d_D59_p5));
+    delay_line #(.TICKS(1)) l_D59_p6 (.clk(clk), .i(r_D59_p6), .o(d_D59_p6));
+    delay_line #(.TICKS(1)) l_D59_p11 (.clk(clk), .i(r_D59_p11), .o(d_D59_p11));
+    delay_line #(.TICKS(1)) l_D59_p10 (.clk(clk), .i(r_D59_p10), .o(d_D59_p10));
+    delay_line #(.TICKS(1)) l_D59_p9 (.clk(clk), .i(r_D59_p9), .o(d_D59_p9));
+    delay_line #(.TICKS(1)) l_D59_p8 (.clk(clk), .i(r_D59_p8), .o(d_D59_p8));
+    delay_line #(.TICKS(1)) l_D60_p5 (.clk(clk), .i(r_D60_p5), .o(d_D60_p5));
+    delay_line #(.TICKS(1)) l_D60_p6 (.clk(clk), .i(r_D60_p6), .o(d_D60_p6));
+    delay_line #(.TICKS(1)) l_D60_p9 (.clk(clk), .i(r_D60_p9), .o(d_D60_p9));
+    delay_line #(.TICKS(1)) l_D60_p8 (.clk(clk), .i(r_D60_p8), .o(d_D60_p8));
+    delay_line #(.TICKS(2)) l_D61_p7 (.clk(clk), .i(r_D61_p7), .o(d_D61_p7));
+    delay_line #(.TICKS(2)) l_D61_p9 (.clk(clk), .i(r_D61_p9), .o(d_D61_p9));
+    delay_line #(.TICKS(2)) l_D62_p7 (.clk(clk), .i(r_D62_p7), .o(d_D62_p7));
+    delay_line #(.TICKS(2)) l_D62_p9 (.clk(clk), .i(r_D62_p9), .o(d_D62_p9));
+    delay_line #(.TICKS(2)) l_D63_p7 (.clk(clk), .i(r_D63_p7), .o(d_D63_p7));
+    delay_line #(.TICKS(2)) l_D63_p9 (.clk(clk), .i(r_D63_p9), .o(d_D63_p9));
+    delay_line #(.TICKS(2)) l_D64_p2 (.clk(clk), .i(r_D64_p2), .o(d_D64_p2));
+    delay_line #(.TICKS(2)) l_D64_p4 (.clk(clk), .i(r_D64_p4), .o(d_D64_p4));
+    delay_line #(.TICKS(2)) l_D64_p6 (.clk(clk), .i(r_D64_p6), .o(d_D64_p6));
+    delay_line #(.TICKS(2)) l_D64_p8 (.clk(clk), .i(r_D64_p8), .o(d_D64_p8));
+    delay_line #(.TICKS(2)) l_D64_p10 (.clk(clk), .i(r_D64_p10), .o(d_D64_p10));
+    delay_line #(.TICKS(2)) l_D64_p12 (.clk(clk), .i(r_D64_p12), .o(d_D64_p12));
+    delay_line #(.TICKS(54)) l_D65_p11 (.clk(clk), .i(r_D65_p11), .o(d_D65_p11));
+    delay_line #(.TICKS(18), .FALL(16)) l_D65_p11_oe (.clk(clk), .i(r_D65_p11_oe), .o(d_D65_p11_oe));
+    delay_line #(.TICKS(54)) l_D65_p12 (.clk(clk), .i(r_D65_p12), .o(d_D65_p12));
+    delay_line #(.TICKS(18), .FALL(16)) l_D65_p12_oe (.clk(clk), .i(r_D65_p12_oe), .o(d_D65_p12_oe));
+    delay_line #(.TICKS(54)) l_D65_p13 (.clk(clk), .i(r_D65_p13), .o(d_D65_p13));
+    delay_line #(.TICKS(18), .FALL(16)) l_D65_p13_oe (.clk(clk), .i(r_D65_p13_oe), .o(d_D65_p13_oe));
+    delay_line #(.TICKS(54)) l_D65_p15 (.clk(clk), .i(r_D65_p15), .o(d_D65_p15));
+    delay_line #(.TICKS(18), .FALL(16)) l_D65_p15_oe (.clk(clk), .i(r_D65_p15_oe), .o(d_D65_p15_oe));
+    delay_line #(.TICKS(54)) l_D65_p16 (.clk(clk), .i(r_D65_p16), .o(d_D65_p16));
+    delay_line #(.TICKS(18), .FALL(16)) l_D65_p16_oe (.clk(clk), .i(r_D65_p16_oe), .o(d_D65_p16_oe));
+    delay_line #(.TICKS(54)) l_D65_p17 (.clk(clk), .i(r_D65_p17), .o(d_D65_p17));
+    delay_line #(.TICKS(18), .FALL(16)) l_D65_p17_oe (.clk(clk), .i(r_D65_p17_oe), .o(d_D65_p17_oe));
+    delay_line #(.TICKS(54)) l_D65_p18 (.clk(clk), .i(r_D65_p18), .o(d_D65_p18));
+    delay_line #(.TICKS(18), .FALL(16)) l_D65_p18_oe (.clk(clk), .i(r_D65_p18_oe), .o(d_D65_p18_oe));
+    delay_line #(.TICKS(54)) l_D65_p19 (.clk(clk), .i(r_D65_p19), .o(d_D65_p19));
+    delay_line #(.TICKS(18), .FALL(16)) l_D65_p19_oe (.clk(clk), .i(r_D65_p19_oe), .o(d_D65_p19_oe));
+    delay_line #(.TICKS(1)) l_D66_p3 (.clk(clk), .i(r_D66_p3), .o(d_D66_p3));
+    delay_line #(.TICKS(1)) l_D66_p6 (.clk(clk), .i(r_D66_p6), .o(d_D66_p6));
+    delay_line #(.TICKS(1)) l_D66_p8 (.clk(clk), .i(r_D66_p8), .o(d_D66_p8));
+    delay_line #(.TICKS(1)) l_D66_p11 (.clk(clk), .i(r_D66_p11), .o(d_D66_p11));
+    delay_line #(.TICKS(2)) l_D67_p7 (.clk(clk), .i(r_D67_p7), .o(d_D67_p7));
+    delay_line #(.TICKS(2)) l_D67_p9 (.clk(clk), .i(r_D67_p9), .o(d_D67_p9));
+    delay_line #(.TICKS(2)) l_D68_p7 (.clk(clk), .i(r_D68_p7), .o(d_D68_p7));
+    delay_line #(.TICKS(2)) l_D68_p9 (.clk(clk), .i(r_D68_p9), .o(d_D68_p9));
+    delay_line #(.TICKS(2)) l_D69_p7 (.clk(clk), .i(r_D69_p7), .o(d_D69_p7));
+    delay_line #(.TICKS(2)) l_D69_p9 (.clk(clk), .i(r_D69_p9), .o(d_D69_p9));
+    delay_line #(.TICKS(1)) l_D70_p4 (.clk(clk), .i(r_D70_p4), .o(d_D70_p4));
+    delay_line #(.TICKS(2)) l_D70_p4_oe (.clk(clk), .i(r_D70_p4_oe), .o(d_D70_p4_oe));
+    delay_line #(.TICKS(1)) l_D70_p7 (.clk(clk), .i(r_D70_p7), .o(d_D70_p7));
+    delay_line #(.TICKS(2)) l_D70_p7_oe (.clk(clk), .i(r_D70_p7_oe), .o(d_D70_p7_oe));
+    delay_line #(.TICKS(1)) l_D70_p9 (.clk(clk), .i(r_D70_p9), .o(d_D70_p9));
+    delay_line #(.TICKS(2)) l_D70_p9_oe (.clk(clk), .i(r_D70_p9_oe), .o(d_D70_p9_oe));
+    delay_line #(.TICKS(1)) l_D70_p12 (.clk(clk), .i(r_D70_p12), .o(d_D70_p12));
+    delay_line #(.TICKS(2)) l_D70_p12_oe (.clk(clk), .i(r_D70_p12_oe), .o(d_D70_p12_oe));
+    delay_line #(.TICKS(1)) l_D71_p6 (.clk(clk), .i(r_D71_p6), .o(d_D71_p6));
+    delay_line #(.TICKS(1)) l_D71_p8 (.clk(clk), .i(r_D71_p8), .o(d_D71_p8));
+    delay_line #(.TICKS(2)) l_D72_p3 (.clk(clk), .i(r_D72_p3), .o(d_D72_p3));
+    delay_line #(.TICKS(2)) l_D72_p6 (.clk(clk), .i(r_D72_p6), .o(d_D72_p6));
+    delay_line #(.TICKS(2)) l_D72_p8 (.clk(clk), .i(r_D72_p8), .o(d_D72_p8));
+    delay_line #(.TICKS(2)) l_D72_p11 (.clk(clk), .i(r_D72_p11), .o(d_D72_p11));
+    delay_line #(.TICKS(1)) l_D73_p3 (.clk(clk), .i(r_D73_p3), .o(d_D73_p3));
+    delay_line #(.TICKS(1)) l_D73_p6 (.clk(clk), .i(r_D73_p6), .o(d_D73_p6));
+    delay_line #(.TICKS(1)) l_D73_p8 (.clk(clk), .i(r_D73_p8), .o(d_D73_p8));
+    delay_line #(.TICKS(1)) l_D73_p11 (.clk(clk), .i(r_D73_p11), .o(d_D73_p11));
+    delay_line #(.TICKS(2)) l_D74_p3 (.clk(clk), .i(r_D74_p3), .o(d_D74_p3));
+    delay_line #(.TICKS(2)) l_D74_p6 (.clk(clk), .i(r_D74_p6), .o(d_D74_p6));
+    delay_line #(.TICKS(2)) l_D74_p8 (.clk(clk), .i(r_D74_p8), .o(d_D74_p8));
+    delay_line #(.TICKS(2)) l_D74_p11 (.clk(clk), .i(r_D74_p11), .o(d_D74_p11));
+    delay_line #(.TICKS(2)) l_D75_p2 (.clk(clk), .i(r_D75_p2), .o(d_D75_p2));
+    delay_line #(.TICKS(2)) l_D75_p4 (.clk(clk), .i(r_D75_p4), .o(d_D75_p4));
+    delay_line #(.TICKS(2)) l_D75_p6 (.clk(clk), .i(r_D75_p6), .o(d_D75_p6));
+    delay_line #(.TICKS(2)) l_D75_p8 (.clk(clk), .i(r_D75_p8), .o(d_D75_p8));
+    delay_line #(.TICKS(2)) l_D75_p10 (.clk(clk), .i(r_D75_p10), .o(d_D75_p10));
+    delay_line #(.TICKS(2)) l_D75_p12 (.clk(clk), .i(r_D75_p12), .o(d_D75_p12));
+    delay_line #(.TICKS(54)) l_D77_p11 (.clk(clk), .i(r_D77_p11), .o(d_D77_p11));
+    delay_line #(.TICKS(18), .FALL(16)) l_D77_p11_oe (.clk(clk), .i(r_D77_p11_oe), .o(d_D77_p11_oe));
+    delay_line #(.TICKS(54)) l_D77_p12 (.clk(clk), .i(r_D77_p12), .o(d_D77_p12));
+    delay_line #(.TICKS(18), .FALL(16)) l_D77_p12_oe (.clk(clk), .i(r_D77_p12_oe), .o(d_D77_p12_oe));
+    delay_line #(.TICKS(54)) l_D77_p13 (.clk(clk), .i(r_D77_p13), .o(d_D77_p13));
+    delay_line #(.TICKS(18), .FALL(16)) l_D77_p13_oe (.clk(clk), .i(r_D77_p13_oe), .o(d_D77_p13_oe));
+    delay_line #(.TICKS(54)) l_D77_p15 (.clk(clk), .i(r_D77_p15), .o(d_D77_p15));
+    delay_line #(.TICKS(18), .FALL(16)) l_D77_p15_oe (.clk(clk), .i(r_D77_p15_oe), .o(d_D77_p15_oe));
+    delay_line #(.TICKS(54)) l_D77_p16 (.clk(clk), .i(r_D77_p16), .o(d_D77_p16));
+    delay_line #(.TICKS(18), .FALL(16)) l_D77_p16_oe (.clk(clk), .i(r_D77_p16_oe), .o(d_D77_p16_oe));
+    delay_line #(.TICKS(54)) l_D77_p17 (.clk(clk), .i(r_D77_p17), .o(d_D77_p17));
+    delay_line #(.TICKS(18), .FALL(16)) l_D77_p17_oe (.clk(clk), .i(r_D77_p17_oe), .o(d_D77_p17_oe));
+    delay_line #(.TICKS(54)) l_D77_p18 (.clk(clk), .i(r_D77_p18), .o(d_D77_p18));
+    delay_line #(.TICKS(18), .FALL(16)) l_D77_p18_oe (.clk(clk), .i(r_D77_p18_oe), .o(d_D77_p18_oe));
+    delay_line #(.TICKS(54)) l_D77_p19 (.clk(clk), .i(r_D77_p19), .o(d_D77_p19));
+    delay_line #(.TICKS(18), .FALL(16)) l_D77_p19_oe (.clk(clk), .i(r_D77_p19_oe), .o(d_D77_p19_oe));
+    delay_line #(.TICKS(1)) l_D78_p2 (.clk(clk), .i(r_D78_p2), .o(d_D78_p2));
+    delay_line #(.TICKS(1)) l_D78_p2_oe (.clk(clk), .i(r_D78_p2_oe), .o(d_D78_p2_oe));
+    delay_line #(.TICKS(1)) l_D78_p5 (.clk(clk), .i(r_D78_p5), .o(d_D78_p5));
+    delay_line #(.TICKS(1)) l_D78_p5_oe (.clk(clk), .i(r_D78_p5_oe), .o(d_D78_p5_oe));
+    delay_line #(.TICKS(1)) l_D78_p6 (.clk(clk), .i(r_D78_p6), .o(d_D78_p6));
+    delay_line #(.TICKS(1)) l_D78_p6_oe (.clk(clk), .i(r_D78_p6_oe), .o(d_D78_p6_oe));
+    delay_line #(.TICKS(1)) l_D78_p9 (.clk(clk), .i(r_D78_p9), .o(d_D78_p9));
+    delay_line #(.TICKS(1)) l_D78_p9_oe (.clk(clk), .i(r_D78_p9_oe), .o(d_D78_p9_oe));
+    delay_line #(.TICKS(1)) l_D78_p12 (.clk(clk), .i(r_D78_p12), .o(d_D78_p12));
+    delay_line #(.TICKS(1)) l_D78_p12_oe (.clk(clk), .i(r_D78_p12_oe), .o(d_D78_p12_oe));
+    delay_line #(.TICKS(1)) l_D78_p15 (.clk(clk), .i(r_D78_p15), .o(d_D78_p15));
+    delay_line #(.TICKS(1)) l_D78_p15_oe (.clk(clk), .i(r_D78_p15_oe), .o(d_D78_p15_oe));
+    delay_line #(.TICKS(1)) l_D78_p16 (.clk(clk), .i(r_D78_p16), .o(d_D78_p16));
+    delay_line #(.TICKS(1)) l_D78_p16_oe (.clk(clk), .i(r_D78_p16_oe), .o(d_D78_p16_oe));
+    delay_line #(.TICKS(1)) l_D78_p19 (.clk(clk), .i(r_D78_p19), .o(d_D78_p19));
+    delay_line #(.TICKS(1)) l_D78_p19_oe (.clk(clk), .i(r_D78_p19_oe), .o(d_D78_p19_oe));
+    delay_line #(.TICKS(2)) l_D79_p3 (.clk(clk), .i(r_D79_p3), .o(d_D79_p3));
+    delay_line #(.TICKS(2)) l_D79_p6 (.clk(clk), .i(r_D79_p6), .o(d_D79_p6));
+    delay_line #(.TICKS(2)) l_D79_p8 (.clk(clk), .i(r_D79_p8), .o(d_D79_p8));
+    delay_line #(.TICKS(2)) l_D79_p11 (.clk(clk), .i(r_D79_p11), .o(d_D79_p11));
+    delay_line #(.TICKS(2)) l_D80_p15 (.clk(clk), .i(r_D80_p15), .o(d_D80_p15));
+    delay_line #(.TICKS(2)) l_D80_p14 (.clk(clk), .i(r_D80_p14), .o(d_D80_p14));
+    delay_line #(.TICKS(2)) l_D80_p13 (.clk(clk), .i(r_D80_p13), .o(d_D80_p13));
+    delay_line #(.TICKS(2)) l_D80_p12 (.clk(clk), .i(r_D80_p12), .o(d_D80_p12));
+    delay_line #(.TICKS(2)) l_D80_p11 (.clk(clk), .i(r_D80_p11), .o(d_D80_p11));
+    delay_line #(.TICKS(2)) l_D80_p10 (.clk(clk), .i(r_D80_p10), .o(d_D80_p10));
+    delay_line #(.TICKS(2)) l_D80_p9 (.clk(clk), .i(r_D80_p9), .o(d_D80_p9));
+    delay_line #(.TICKS(2)) l_D80_p7 (.clk(clk), .i(r_D80_p7), .o(d_D80_p7));
+    delay_line #(.TICKS(2)) l_D81_p3 (.clk(clk), .i(r_D81_p3), .o(d_D81_p3));
+    delay_line #(.TICKS(2)) l_D81_p6 (.clk(clk), .i(r_D81_p6), .o(d_D81_p6));
+    delay_line #(.TICKS(2)) l_D81_p8 (.clk(clk), .i(r_D81_p8), .o(d_D81_p8));
+    delay_line #(.TICKS(2)) l_D81_p11 (.clk(clk), .i(r_D81_p11), .o(d_D81_p11));
+    delay_line #(.TICKS(2)) l_D84_p3 (.clk(clk), .i(r_D84_p3), .o(d_D84_p3));
+    delay_line #(.TICKS(2)) l_D84_p6 (.clk(clk), .i(r_D84_p6), .o(d_D84_p6));
+    delay_line #(.TICKS(2)) l_D84_p8 (.clk(clk), .i(r_D84_p8), .o(d_D84_p8));
+    delay_line #(.TICKS(2)) l_D84_p11 (.clk(clk), .i(r_D84_p11), .o(d_D84_p11));
+    delay_line #(.TICKS(1)) l_D85_p12 (.clk(clk), .i(r_D85_p12), .o(d_D85_p12));
+    delay_line #(.TICKS(1)) l_D85_p6 (.clk(clk), .i(r_D85_p6), .o(d_D85_p6));
+    delay_line #(.TICKS(1)) l_D85_p8 (.clk(clk), .i(r_D85_p8), .o(d_D85_p8));
+    delay_line #(.TICKS(2)) l_D86_p5 (.clk(clk), .i(r_D86_p5), .o(d_D86_p5));
+    delay_line #(.TICKS(3)) l_D86_p5_oe (.clk(clk), .i(r_D86_p5_oe), .o(d_D86_p5_oe));
+    delay_line #(.TICKS(2)) l_D86_p6 (.clk(clk), .i(r_D86_p6), .o(d_D86_p6));
+    delay_line #(.TICKS(3)) l_D86_p6_oe (.clk(clk), .i(r_D86_p6_oe), .o(d_D86_p6_oe));
+    delay_line #(.TICKS(2)) l_D87_p7 (.clk(clk), .i(r_D87_p7), .o(d_D87_p7));
+    delay_line #(.TICKS(2)) l_D87_p9 (.clk(clk), .i(r_D87_p9), .o(d_D87_p9));
+    delay_line #(.TICKS(1)) l_D88_p8 (.clk(clk), .i(r_D88_p8), .o(d_D88_p8));
+    delay_line #(.TICKS(1)) l_D89_p2 (.clk(clk), .i(r_D89_p2), .o(d_D89_p2));
+    delay_line #(.TICKS(1)) l_D89_p2_oe (.clk(clk), .i(r_D89_p2_oe), .o(d_D89_p2_oe));
+    delay_line #(.TICKS(1)) l_D89_p5 (.clk(clk), .i(r_D89_p5), .o(d_D89_p5));
+    delay_line #(.TICKS(1)) l_D89_p5_oe (.clk(clk), .i(r_D89_p5_oe), .o(d_D89_p5_oe));
+    delay_line #(.TICKS(1)) l_D89_p6 (.clk(clk), .i(r_D89_p6), .o(d_D89_p6));
+    delay_line #(.TICKS(1)) l_D89_p6_oe (.clk(clk), .i(r_D89_p6_oe), .o(d_D89_p6_oe));
+    delay_line #(.TICKS(1)) l_D89_p9 (.clk(clk), .i(r_D89_p9), .o(d_D89_p9));
+    delay_line #(.TICKS(1)) l_D89_p9_oe (.clk(clk), .i(r_D89_p9_oe), .o(d_D89_p9_oe));
+    delay_line #(.TICKS(1)) l_D89_p12 (.clk(clk), .i(r_D89_p12), .o(d_D89_p12));
+    delay_line #(.TICKS(1)) l_D89_p12_oe (.clk(clk), .i(r_D89_p12_oe), .o(d_D89_p12_oe));
+    delay_line #(.TICKS(1)) l_D89_p15 (.clk(clk), .i(r_D89_p15), .o(d_D89_p15));
+    delay_line #(.TICKS(1)) l_D89_p15_oe (.clk(clk), .i(r_D89_p15_oe), .o(d_D89_p15_oe));
+    delay_line #(.TICKS(1)) l_D89_p16 (.clk(clk), .i(r_D89_p16), .o(d_D89_p16));
+    delay_line #(.TICKS(1)) l_D89_p16_oe (.clk(clk), .i(r_D89_p16_oe), .o(d_D89_p16_oe));
+    delay_line #(.TICKS(1)) l_D89_p19 (.clk(clk), .i(r_D89_p19), .o(d_D89_p19));
+    delay_line #(.TICKS(1)) l_D89_p19_oe (.clk(clk), .i(r_D89_p19_oe), .o(d_D89_p19_oe));
+    delay_line #(.TICKS(17)) l_D90_p9 (.clk(clk), .i(r_D90_p9), .o(d_D90_p9));
+    delay_line #(.TICKS(1)) l_D91_p2 (.clk(clk), .i(r_D91_p2), .o(d_D91_p2));
+    delay_line #(.TICKS(1)) l_D91_p4 (.clk(clk), .i(r_D91_p4), .o(d_D91_p4));
+    delay_line #(.TICKS(1)) l_D91_p6 (.clk(clk), .i(r_D91_p6), .o(d_D91_p6));
+    delay_line #(.TICKS(1)) l_D91_p8 (.clk(clk), .i(r_D91_p8), .o(d_D91_p8));
+    delay_line #(.TICKS(1)) l_D91_p10 (.clk(clk), .i(r_D91_p10), .o(d_D91_p10));
+    delay_line #(.TICKS(1)) l_D91_p12 (.clk(clk), .i(r_D91_p12), .o(d_D91_p12));
+    delay_line #(.TICKS(1)) l_D92_p2_oe (.clk(clk), .i(r_D92_p2_oe), .o(d_D92_p2_oe));
+    delay_line #(.TICKS(1)) l_D92_p5_oe (.clk(clk), .i(r_D92_p5_oe), .o(d_D92_p5_oe));
+    delay_line #(.TICKS(1)) l_D92_p6_oe (.clk(clk), .i(r_D92_p6_oe), .o(d_D92_p6_oe));
+    delay_line #(.TICKS(1)) l_D92_p9_oe (.clk(clk), .i(r_D92_p9_oe), .o(d_D92_p9_oe));
+    delay_line #(.TICKS(1)) l_D92_p12_oe (.clk(clk), .i(r_D92_p12_oe), .o(d_D92_p12_oe));
+    delay_line #(.TICKS(1)) l_D92_p15_oe (.clk(clk), .i(r_D92_p15_oe), .o(d_D92_p15_oe));
+    delay_line #(.TICKS(1)) l_D92_p16_oe (.clk(clk), .i(r_D92_p16_oe), .o(d_D92_p16_oe));
+    delay_line #(.TICKS(1)) l_D92_p19_oe (.clk(clk), .i(r_D92_p19_oe), .o(d_D92_p19_oe));
+    delay_line #(.TICKS(2)) l_D93_p3 (.clk(clk), .i(r_D93_p3), .o(d_D93_p3));
+    delay_line #(.TICKS(2)) l_D93_p6 (.clk(clk), .i(r_D93_p6), .o(d_D93_p6));
+    delay_line #(.TICKS(2)) l_D93_p8 (.clk(clk), .i(r_D93_p8), .o(d_D93_p8));
+    delay_line #(.TICKS(2)) l_D93_p11 (.clk(clk), .i(r_D93_p11), .o(d_D93_p11));
+    delay_line #(.TICKS(1)) l_D94_p2_oe (.clk(clk), .i(r_D94_p2_oe), .o(d_D94_p2_oe));
+    delay_line #(.TICKS(1)) l_D94_p5_oe (.clk(clk), .i(r_D94_p5_oe), .o(d_D94_p5_oe));
+    delay_line #(.TICKS(1)) l_D94_p6_oe (.clk(clk), .i(r_D94_p6_oe), .o(d_D94_p6_oe));
+    delay_line #(.TICKS(1)) l_D94_p9_oe (.clk(clk), .i(r_D94_p9_oe), .o(d_D94_p9_oe));
+    delay_line #(.TICKS(1)) l_D94_p12_oe (.clk(clk), .i(r_D94_p12_oe), .o(d_D94_p12_oe));
+    delay_line #(.TICKS(1)) l_D94_p15_oe (.clk(clk), .i(r_D94_p15_oe), .o(d_D94_p15_oe));
+    delay_line #(.TICKS(1)) l_D94_p16_oe (.clk(clk), .i(r_D94_p16_oe), .o(d_D94_p16_oe));
+    delay_line #(.TICKS(1)) l_D94_p19_oe (.clk(clk), .i(r_D94_p19_oe), .o(d_D94_p19_oe));
+    delay_line #(.TICKS(1)) l_D95_p18 (.clk(clk), .i(r_D95_p18), .o(d_D95_p18));
+    delay_line #(.TICKS(2)) l_D95_p18_oe (.clk(clk), .i(r_D95_p18_oe), .o(d_D95_p18_oe));
+    delay_line #(.TICKS(1)) l_D95_p16 (.clk(clk), .i(r_D95_p16), .o(d_D95_p16));
+    delay_line #(.TICKS(2)) l_D95_p16_oe (.clk(clk), .i(r_D95_p16_oe), .o(d_D95_p16_oe));
+    delay_line #(.TICKS(1)) l_D95_p14 (.clk(clk), .i(r_D95_p14), .o(d_D95_p14));
+    delay_line #(.TICKS(2)) l_D95_p14_oe (.clk(clk), .i(r_D95_p14_oe), .o(d_D95_p14_oe));
+    delay_line #(.TICKS(1)) l_D95_p12 (.clk(clk), .i(r_D95_p12), .o(d_D95_p12));
+    delay_line #(.TICKS(2)) l_D95_p12_oe (.clk(clk), .i(r_D95_p12_oe), .o(d_D95_p12_oe));
+    delay_line #(.TICKS(1)) l_D95_p9 (.clk(clk), .i(r_D95_p9), .o(d_D95_p9));
+    delay_line #(.TICKS(2)) l_D95_p9_oe (.clk(clk), .i(r_D95_p9_oe), .o(d_D95_p9_oe));
+    delay_line #(.TICKS(1)) l_D95_p7 (.clk(clk), .i(r_D95_p7), .o(d_D95_p7));
+    delay_line #(.TICKS(2)) l_D95_p7_oe (.clk(clk), .i(r_D95_p7_oe), .o(d_D95_p7_oe));
+    delay_line #(.TICKS(1)) l_D95_p5 (.clk(clk), .i(r_D95_p5), .o(d_D95_p5));
+    delay_line #(.TICKS(2)) l_D95_p5_oe (.clk(clk), .i(r_D95_p5_oe), .o(d_D95_p5_oe));
+    delay_line #(.TICKS(1)) l_D95_p3 (.clk(clk), .i(r_D95_p3), .o(d_D95_p3));
+    delay_line #(.TICKS(2)) l_D95_p3_oe (.clk(clk), .i(r_D95_p3_oe), .o(d_D95_p3_oe));
+    delay_line #(.TICKS(2)) l_D96_p9 (.clk(clk), .i(r_D96_p9), .o(d_D96_p9));
+    delay_line #(.TICKS(2)) l_D96_p7 (.clk(clk), .i(r_D96_p7), .o(d_D96_p7));
+    delay_line #(.TICKS(2)) l_D96_p6 (.clk(clk), .i(r_D96_p6), .o(d_D96_p6));
+    delay_line #(.TICKS(2)) l_D96_p14 (.clk(clk), .i(r_D96_p14), .o(d_D96_p14));
+    delay_line #(.TICKS(1)) l_D97_p2 (.clk(clk), .i(r_D97_p2), .o(d_D97_p2));
+    delay_line #(.TICKS(1)) l_D97_p5 (.clk(clk), .i(r_D97_p5), .o(d_D97_p5));
+    delay_line #(.TICKS(1)) l_D97_p7 (.clk(clk), .i(r_D97_p7), .o(d_D97_p7));
+    delay_line #(.TICKS(1)) l_D97_p10 (.clk(clk), .i(r_D97_p10), .o(d_D97_p10));
+    delay_line #(.TICKS(1)) l_D97_p12 (.clk(clk), .i(r_D97_p12), .o(d_D97_p12));
+    delay_line #(.TICKS(1)) l_D97_p15 (.clk(clk), .i(r_D97_p15), .o(d_D97_p15));
+    delay_line #(.TICKS(1)) l_D98_p5 (.clk(clk), .i(r_D98_p5), .o(d_D98_p5));
+    delay_line #(.TICKS(1)) l_D98_p6 (.clk(clk), .i(r_D98_p6), .o(d_D98_p6));
+    delay_line #(.TICKS(1)) l_D98_p9 (.clk(clk), .i(r_D98_p9), .o(d_D98_p9));
+    delay_line #(.TICKS(1)) l_D98_p8 (.clk(clk), .i(r_D98_p8), .o(d_D98_p8));
+    delay_line #(.TICKS(1)) l_D99_p2 (.clk(clk), .i(r_D99_p2), .o(d_D99_p2));
+    delay_line #(.TICKS(1)) l_D99_p4 (.clk(clk), .i(r_D99_p4), .o(d_D99_p4));
+    delay_line #(.TICKS(1)) l_D99_p6 (.clk(clk), .i(r_D99_p6), .o(d_D99_p6));
+    delay_line #(.TICKS(1)) l_D99_p8 (.clk(clk), .i(r_D99_p8), .o(d_D99_p8));
+    delay_line #(.TICKS(1)) l_D99_p10 (.clk(clk), .i(r_D99_p10), .o(d_D99_p10));
+    delay_line #(.TICKS(1)) l_D99_p12 (.clk(clk), .i(r_D99_p12), .o(d_D99_p12));
 
     assign n_A0_H = d_D61_p7;
     assign n_A1_H = d_D61_p9;

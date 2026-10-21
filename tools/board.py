@@ -26,6 +26,9 @@ the owner's board's changes (netlist/rev3a.csv) applied:
   of two obvious rules: a part with all its pins on power is left out
   (decoupling), a resistor with a pin on +5V pulls its other nets up.
 
+netlist/delays.csv   type,ns,oe_ns,off_ns,...: each chip type's delay; every
+                     output of a chip goes through an inertial delay line of
+                     that many master ticks (docs/timing.md)
 netlist/analog.csv   ref,treatment,pins,reason
     short / wire   joins the nets of the pin pairs in `pins` ("1-2 3-18";
                    empty for 1-2): a fitted jumper, a closed switch, a part
@@ -153,6 +156,7 @@ class Sources:
     analog: str
     chips: str
     firmware: str = None        # ref,file,format; files relative to the folder above it
+    delays: str = None          # type,ns,source: each chip's typical propagation delay
 
 
 def ns4_sources():
@@ -160,7 +164,36 @@ def ns4_sources():
     return Sources(os.path.join(n, "parts.csv"), os.path.join(n, "pinouts.csv"),
                    os.path.join(n, "nets.csv"), os.path.join(n, "rev3a.csv"),
                    os.path.join(n, "analog.csv"), os.path.join(REPO, "rtl", "chips"),
-                   os.path.join(n, "firmware.csv"))
+                   os.path.join(n, "firmware.csv"), os.path.join(n, "delays.csv"))
+
+
+TICK_NS = 1000.0 / MASTER_MHZ
+
+
+def delay_ticks(ns, clocked):
+    """A propagation delay in master ticks, to the nearest; a clocked
+    chip's model already shows its new state a tick after the edge."""
+    ticks = int(ns / TICK_NS + 0.5)
+    return max(0, ticks - 1) if clocked else ticks
+
+
+def load_delays(path):
+    """{chip type: (its outputs' delay, its output enables' delay) in ns,
+    the second the first unless oe_ns gives it; or None for a model that
+    keeps its own timing ("model")}, or None without the file."""
+    if not path:
+        return None
+    out = {}
+    for r in nl.rows(path):
+        if r["ns"].strip() == "model":
+            out[r["type"]] = None
+            continue
+        ns = float(r["ns"])
+        on = (r.get("oe_ns") or "").strip()
+        on = float(on) if on else ns
+        off = (r.get("off_ns") or "").strip()
+        out[r["type"]] = (ns, on, float(off) if off else on)
+    return out
 
 
 def contents(data, fmt):
@@ -268,6 +301,7 @@ class Builder:
         self.analog = load_analog(src.analog)
         self.modules = load_modules(src.chips)
         self.firmware = load_firmware(src.firmware)
+        self.delays = load_delays(src.delays)
         self.pins = defaultdict(dict)
         for c in conns:
             self.pins[c.ref][c.pin] = c.net
@@ -277,6 +311,7 @@ class Builder:
         self.ports = []         # brought-out inputs, in order
         self.out = []           # (ref, why) parts brought out
         self.wires = []         # internal driver wires
+        self.lines = []         # delay lines: (ticks, from, to)
         self.tied = []          # chip inputs on no net
 
     def treatments(self):
@@ -324,6 +359,7 @@ class Builder:
         pins = self.pins.get(ref, {})
         if "clk" in module.ports:
             conns.append(("clk", "clk"))
+        ticks, oe_ticks = self.ticks_of(ref, part, "clk" in module.ports)
         for port, way in module.ports.items():
             m = re.fullmatch(r"p(\d+)(_in)?", port)     # pN_in: a driven pin's level
             if not m:
@@ -338,12 +374,10 @@ class Builder:
                 conns.append((port, self.read(name, ref, pin)))
                 continue
             wire = f"d_{ref}_{port}"
-            conns.append((port, wire))
-            self.wires.append(wire)
+            conns.append((port, self.delayed(wire, ticks)))
             net = self.net(name)
             if port + "_oe" in module.ports:
-                conns.append((port + "_oe", wire + "_oe"))
-                self.wires.append(wire + "_oe")
+                conns.append((port + "_oe", self.delayed(wire + "_oe", oe_ticks)))
                 net.tri.append((wire, wire + "_oe"))
             elif module.open_collector:
                 net.oc.append(wire)
@@ -355,6 +389,32 @@ class Builder:
                 self.problems.error(f"{ref}.{pin} on '{pins[pin]}': not a pin of {module.name}")
         image = self.firmware.get(ref)
         self.instances.append((ref, module.name, conns, {"CONTENTS": image} if image else {}))
+
+    def ticks_of(self, ref, part, clocked):
+        """The master ticks a chip's outputs lag by, and its output enables
+        as they turn on and off (delays.csv): (rise, fall) pairs.  None
+        without the file, and none for a chip whose model keeps its own."""
+        none = ((0, 0), (0, 0))
+        if self.delays is None:
+            return none
+        if part.type not in self.delays:
+            self.problems.error(f"{ref} ({part.type}): no delay in netlist/delays.csv")
+            return none
+        if self.delays[part.type] is None:
+            return none
+        ns, on, off = (delay_ticks(v, clocked) for v in self.delays[part.type])
+        return (ns, ns), (on, off)
+
+    def delayed(self, wire, ticks):
+        """The wire a chip's output port drives: the net's driver itself, or
+        r_... feeding a delay line into it; ticks is (rise, fall)."""
+        self.wires.append(wire)
+        if ticks == (0, 0):
+            return wire
+        raw = "r_" + wire[2:]
+        self.wires.append(raw)
+        self.lines.append((ticks, raw, wire))
+        return raw
 
     def place_crystal(self, ref, part):
         """A crystal and its oscillator: a square wave on pin 1, the one
@@ -468,7 +528,7 @@ def emit(b, levels, busy):
     """The text of the board module."""
     nets = sorted(levels, key=lambda n: natural(ident(n)))
     fought = [n for n in nets if busy[n]]
-    clocked = any(port == "clk" for _, _, conns, _ in b.instances for port, _ in conns)
+    clocked = bool(b.lines) or any(port == "clk" for _, _, conns, _ in b.instances for port, _ in conns)
     ports = (["input  logic clk"] if clocked else []) + \
         [f"input  logic {p}" for p in b.ports] + \
         [f"output logic {ident(n)}" for n in nets] + ["output logic contention"]
@@ -504,6 +564,11 @@ def emit(b, levels, busy):
         lines += [f"        .{port}({expr})," for port, expr in conns[:-1]]
         port, expr = conns[-1]
         lines += [f"        .{port}({expr})", "    );"]
+    if b.lines:
+        lines += ["", "    // the chips' propagation delays (netlist/delays.csv)"]
+        for (rise, fall), raw, to in b.lines:
+            params = f".TICKS({rise})" + ("" if fall == rise else f", .FALL({fall})")
+            lines.append(f"    delay_line #({params}) l_{to[2:]} (.clk(clk), .i({raw}), .o({to}));")
     lines.append("")
     lines += [f"    assign {ident(n)} = {levels[n]};" for n in nets]
     lines += [f"    assign contention_at[{i}] = {busy[n]};" for i, n in enumerate(fought)]

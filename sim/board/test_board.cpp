@@ -62,10 +62,14 @@ int rises(Board& b, int ticks, Net net)
 
 TEST_CASE("the 8 MHz crystal comes out on ТС8М L through D15's gates 6 and 5")
 {
+    // two К555ЛН1 gates of about 9.5 ns each: two master ticks
     Board b;
+    std::vector<int> crystal;                           // BQ1 pin 1, tick by tick
     for (int i = 0; i < 100; ++i) {
         b.tick();
-        CHECK(b.m().n_TS8M_L == b.m().nx_C5_2);         // BQ1 pin 1
+        crystal.push_back(b.m().nx_C5_2);
+        if (i >= 2)
+            CHECK(b.m().n_TS8M_L == crystal[static_cast<std::size_t>(i - 2)]);
     }
     CHECK(rises(b, 100 * kMasterMhz, [](Vns4& m) { return m.nx_C5_2; }) ==
           doctest::Approx(800).epsilon(0.01));
@@ -87,9 +91,12 @@ TEST_CASE("the 15 MHz crystal comes out on ТС15 H and ТС15 L")
     Board b;
     const int us = 100 * kMasterMhz;
     CHECK(rises(b, us, [](Vns4& m) { return m.n_TS15_H; }) == doctest::Approx(1500).epsilon(0.01));
+    // ТС15 L is ТС15 H through D31's NAND, a tick later
+    int was = b.m().n_TS15_H;
     for (int i = 0; i < 100; ++i) {
         b.tick();
-        CHECK(b.m().n_TS15_L != b.m().n_TS15_H);
+        CHECK(b.m().n_TS15_L == !was);
+        was = b.m().n_TS15_H;
     }
 }
 
@@ -153,6 +160,36 @@ std::vector<std::uint16_t> emulator_fetches(std::size_t n)
     return pcs;
 }
 
+// Two drivers on one net.  As one lets a bus go and the next takes it, the
+// first may still drive for its worst-case turn-off (an EPROM's tDF of
+// 130 ns, from a datasheet that gives maximums only) while the next drives
+// at its typical time: an overlap of a tick or two, as on a real board at
+// its worst.  Up to kHandover ticks is such a handover, counted; longer is
+// a fight - a driver on that should not be.
+struct Fights {
+    static constexpr int kHandover = 3;
+    int handovers = 0;
+    std::vector<int> run = std::vector<int>(32 * 4, 0);
+
+    // the bits fighting longer than a handover, as text; empty if none
+    template <class V>
+    std::string see(const V& m)
+    {
+        std::string bad;
+        for (int n = 0; n < static_cast<int>(run.size()); ++n) {
+            auto& r = run[static_cast<std::size_t>(n)];
+            if (bit_of(m.contention_at, n)) {
+                if (++r > kHandover)
+                    bad += std::to_string(n) + " ";
+            } else {
+                handovers += r > 0 ? 1 : 0;
+                r = 0;
+            }
+        }
+        return bad;
+    }
+};
+
 std::string octal(unsigned v)
 {
     std::ostringstream s;
@@ -171,6 +208,7 @@ TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in t
 {
     Board b;
     Falls line, frame;
+    Fights fights;
     std::int64_t start_rose = -1, start_fell = -1;
     std::vector<std::uint16_t> fetches;
     bool ras_was = true;
@@ -185,18 +223,20 @@ TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in t
         if (start_fell >= 0 && !m.n_PVAS_L && ras_was && m.n_REZH0_H)
             fetches.push_back(mk(m));
         ras_was = m.n_PVAS_L != 0;
-        if (start_fell >= 0 && m.contention) {
-            std::string bits;
-            for (int n = 0; n < 32 * 4; ++n)
-                if (bit_of(m.contention_at, n))
-                    bits += std::to_string(n) + " ";
-            FAIL("contention at " << t / kMasterMhz << " us on bits " << bits << "(ns4.sv's header)");
+        if (start_fell >= 0) {
+            const std::string bits = fights.see(m);
+            if (!bits.empty())
+                FAIL("contention at " << t / kMasterMhz << " us on bits " << bits << "(ns4.sv's header)");
         }
     }
+    MESSAGE(fights.handovers << " bus handovers overlapped by at most " << Fights::kHandover << " ticks");
     REQUIRE(line.at.size() > 100);
     CHECK(line.period_us(1) == doctest::Approx(64.0).epsilon(0.001));
     REQUIRE(frame.at.size() >= 4);
-    CHECK(frame.period_us(1) == doctest::Approx(260 * 64.0).epsilon(0.01));    // after the first frame
+    // The last frame: until СТАРТ resets D76 (КР580ВВ55), whose state is
+    // undefined before a RESET, its port B may drive РВК1 low and give the
+    // sync PROM D13 the 50 Hz page - the first frames' length is not fixed.
+    CHECK(frame.period_us(frame.at.size() - 2) == doctest::Approx(260 * 64.0).epsilon(0.01));
     // D16 counts АПК7: the processor is held from its 2nd fall to its 4th
     REQUIRE(start_rose > 0);
     REQUIRE(start_fell > start_rose);

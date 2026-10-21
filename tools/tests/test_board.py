@@ -343,6 +343,71 @@ class Crystals(unittest.TestCase):
         self.assertNotIn("x_BQ1", text)
 
 
+DELAY_LINE = """// A delay line.
+module delay_line #(
+    parameter int TICKS = 1
+) (
+    input  logic clk,
+    input  logic i,
+    output logic o
+);
+    assign o = i;
+endmodule
+"""
+
+
+class Delays(unittest.TestCase):
+    def test_nanoseconds_become_master_ticks(self):
+        self.assertEqual(board.delay_ticks(10.0, clocked=False), 1)
+        self.assertEqual(board.delay_ticks(3.0, clocked=False), 0)
+        self.assertEqual(board.delay_ticks(21.0, clocked=False), 3)
+        # a clocked chip's own model already takes a tick
+        self.assertEqual(board.delay_ticks(21.0, clocked=True), 2)
+        self.assertEqual(board.delay_ticks(5.0, clocked=True), 0)
+
+    def generate(self, delays, modules):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nD2,К555АП5,,20,10,20,,,\n",
+                    "A,D1,1,,1,\nB,D1,2,,1,\nE,D2,1,,1,\nB,D2,2,,1,\nY,D2,18,,1,\n",
+                    modules=modules)
+        f.write("delays.csv", "type,ns,source\n" + delays)
+        with f.dir as d:
+            return board.generate(board.Sources(
+                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+                nets=os.path.join(d, "nets.csv"), changes=None,
+                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"),
+                delays=os.path.join(d, "delays.csv")))
+
+    def test_an_output_comes_through_a_delay_line(self):
+        text, problems = self.generate("К555ЛН1,20,a datasheet\nК555АП5,3,a datasheet\n",
+                                       (INVERTER, BUFFER, DELAY_LINE))
+        self.assertEqual(errors(problems), [])
+        self.assertIn(".p2(r_D1_p2)", text)
+        self.assertIn("delay_line #(.TICKS(2)) l_D1_p2 (.clk(clk), .i(r_D1_p2), .o(d_D1_p2));", text)
+        self.assertIn("input  logic clk", text)
+        # under a tick: straight through, no line
+        self.assertIn(".p18(d_D2_p18)", text)
+        self.assertNotIn("l_D2_p18", text)
+
+    def test_an_enable_has_a_delay_of_its_own(self):
+        f = Fixture("D2,К555АП5,,20,10,20,,,\n", "E,D2,1,,1,\nB,D2,2,,1,\nY,D2,18,,1,\n",
+                    modules=(BUFFER, DELAY_LINE))
+        f.write("delays.csv", "type,ns,oe_ns,off_ns,source\nК555АП5,20,40,10,a datasheet\n")
+        with f.dir as d:
+            text, problems = board.generate(board.Sources(
+                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+                nets=os.path.join(d, "nets.csv"), changes=None,
+                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"),
+                delays=os.path.join(d, "delays.csv")))
+        self.assertEqual(errors(problems), [])
+        self.assertIn("delay_line #(.TICKS(2)) l_D2_p18 (.clk(clk), .i(r_D2_p18), .o(d_D2_p18));", text)
+        self.assertIn("delay_line #(.TICKS(5), .FALL(1)) l_D2_p18_oe (.clk(clk), .i(r_D2_p18_oe), "
+                      ".o(d_D2_p18_oe));", text)
+
+    def test_a_chip_type_without_a_delay_is_an_error(self):
+        _, problems = self.generate("К555ЛН1,10,a datasheet\n", (INVERTER, BUFFER, DELAY_LINE))
+        self.assertTrue(any("К555АП5" in e and "delays.csv" in e for e in errors(problems)))
+
+
 class TheBoard(unittest.TestCase):
     def test_ns4_generates_without_errors_and_matches_the_committed_file(self):
         text, problems = board.generate(board.ns4_sources())

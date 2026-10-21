@@ -1,0 +1,60 @@
+# Each chip type's propagation delay, for tools/board.py: it puts a delay
+# line of round(ns / 8.33) master ticks after every output of the chip (a
+# tick less for a clocked chip, whose model already takes one).  ns is the
+# mean of the typical tPLH and tPHL of the path named; "max" in kind marks
+# a datasheet that gives maximums only, used as they are; "model" is a chip
+# whose model keeps its own datasheet timing.  oe_ns is a three-state
+# output's enable delay (tPZH/tPZL, an EPROM's tOE), ns when empty; off_ns
+# its disable (tPHZ/tPLZ, an EPROM's tDF, a DRAM's turn-off), oe_ns when
+# empty.  One
+# delay per chip is a
+# simplification: where paths differ (a mux's select and data, a ripple
+# counter's stages) the path named is the one taken.  The sources' test
+# loads: LS 2 kOhm 15 pF; LS three-state parts and LS38 667 Ohm 45 pF;
+# S 280 Ohm 15 pF.
+type,ns,oe_ns,off_ns,path,kind,source
+К555ЛА3,9.5,,,A/B->Y,typ,"TI SN74LS00 SDLS025D sec 6.10, https://www.ti.com/lit/ds/symlink/sn74ls00.pdf"
+К555ЛА4,9.5,,,A/B/C->Y,typ,"TI SN74LS10 SDLS035A p.4, https://www.ti.com/lit/ds/symlink/sn74ls10.pdf"
+К555ЛА2,10.5,,,any->Y,typ,"TI SN74LS30 SDLS099 p.4, https://www.ti.com/lit/ds/symlink/sn74ls30.pdf"
+К555ЛА13,19,,,A/B->Y (open collector),typ,"TI SN74LS38 SDLS105 p.4, https://www.ti.com/lit/ds/symlink/sn74ls38.pdf"
+К555ЛИ1,9,,,A/B->Y,typ,"TI SN74LS08 SDLS033 p.4, https://www.ti.com/lit/ds/symlink/sn74ls08.pdf"
+К555ЛИ3,9,,,A/B/C->Y,typ,"TI SN74LS11 SDLS131 p.3, https://www.ti.com/lit/ds/symlink/sn74ls11.pdf"
+К555ЛИ6,9,,,any->Y,typ,"TI SN74LS21 SDLS139 p.3, https://www.ti.com/lit/ds/symlink/sn74ls21.pdf"
+К555ЛЛ1,14,,,A/B->Y,typ,"TI SN74LS32 p.4, https://www.ti.com/lit/ds/symlink/sn74ls32.pdf"
+КР531ЛЕ1,3.5,,,A/B->Y,typ,"TI SN74S02 p.5, https://www.ti.com/lit/ds/symlink/sn74s02.pdf"
+К555ЛП5,13.75,,,A/B->Y (mean of the other input low and high),typ,"TI SN74LS86A SDLS124 p.4, https://www.ti.com/lit/ds/symlink/sn74ls86a.pdf"
+К555ЛН1,9.5,,,A->Y,typ,"TI SN74LS04 SDLS029C, https://www.ti.com/lit/ds/symlink/sn74ls04.pdf"
+К555ЛН2,16,,,A->Y (open collector),typ,"TI SN74LS05 SDLS030A, https://www.ti.com/lit/ds/symlink/sn74ls05.pdf"
+К155ЛН5,12.5,,,A->Y (open collector),typ,"TI SN7416 SDLS031A, https://www.ti.com/lit/ds/symlink/sn7416.pdf"
+К155ЛП9,13,,,A->Y (open collector),typ,"TI SN7407 SDLS032H sec 6.6, https://www.ti.com/lit/ds/symlink/sn7407.pdf"
+К555ТЛ2,15,,,A->Y,typ,"TI SN74LS14 SDLS049C sec 6.6, https://www.ti.com/lit/ds/symlink/sn74ls14.pdf"
+К555ЛР11,12.25,,,any->Y,typ,"TI SN74LS51 SDLS113 p.5, https://www.ti.com/lit/ds/symlink/sn74ls51.pdf"
+К555ИД7,17.5,,,A/B/C->Y (mean of 2 and 3 levels),typ,"TI SN74LS138 p.4, https://www.ti.com/lit/ds/symlink/sn74ls138.pdf"
+КР531ИД14,6.6,,,A/B->Y (mean of 2 and 3 levels),typ,"TI SN74S139A p.4, https://www.ti.com/lit/ds/symlink/sn74s139a.pdf"
+К555КП2,13.5,,,data->Y (select->Y 22),typ,"TI SN74LS153 SDLS055A p.5, https://www.ti.com/lit/ds/symlink/sn74ls153.pdf"
+К555КП11,9,17,17,data->Y (select->Y 16.5),typ,"TI SN74LS257B SDLS148 p.4, https://www.ti.com/lit/ds/symlink/sn74ls257b.pdf"
+К555КП15,17.5,28,22.5,D->Y,typ,"TI SN74LS251 SDLS085 p.6, https://www.ti.com/lit/ds/symlink/sn74ls251.pdf"
+К555ИВ3,15,,,any->any (mean of in- and out-of-phase),typ,"TI SN74LS147 SDLS053B p.10, https://www.ti.com/lit/ds/sdls053/sdls053.pdf"
+К555АП3,10.5,17.5,12.5,A->Y,typ,"TI SN74LS240 SDLS144D sec 6.7, https://www.ti.com/lit/ds/symlink/sn74ls240.pdf"
+К555АП5,12,17.5,12.5,A->Y,typ,"TI SN74LS244 SDLS144D sec 6.7, https://www.ti.com/lit/ds/symlink/sn74ls244.pdf"
+К555ТМ2,19,,,CLK/CLR/PRE->Q (one row in the datasheet),typ,"TI SN74LS74A SDLS119 p.5, https://www.ti.com/lit/ds/symlink/sn74ls74a.pdf"
+КР531ТМ2,6,,,CLK->Q,typ,"TI SN74S74 SDLS119 p.6, https://www.ti.com/lit/ds/symlink/sn74s74.pdf"
+КР1533ТМ2,17,,,CLK->Q (CL 50 pF),max,"TI SN74ALS74A SDAS143C p.4, https://www.ti.com/lit/ds/symlink/sn74als74a.pdf"
+К555ТМ8,14.5,,,CLK->Q,typ,"TI SN74LS175 SDLS068A p.5, https://www.ti.com/lit/ds/symlink/sn74ls175.pdf"
+К555ТМ9,20.5,,,CLK->Q,typ,"TI SN74LS174 SDLS068A p.5, https://www.ti.com/lit/ds/symlink/sn74ls174.pdf"
+К555ИР22,12,20,13.5,D->Q (latch transparent),typ,"TI SN74LS373 SDLS165B p.7, https://www.ti.com/lit/ds/symlink/sn74ls373.pdf"
+К555ИР23,17,20.5,13.5,CLK->Q,typ,"TI SN74LS374 SDLS165B p.7, https://www.ti.com/lit/ds/symlink/sn74ls374.pdf"
+К555ИР16,65,,,C->Q3,max,"eandc К555ИР16 sheet (TI SN74LS295B not found), https://eandc.ru/pdf/mikroskhema/k555ir16.pdf"
+К555ИЕ10,15.5,,,CLK->Q,typ,"TI SN74LS161A SDLS060 p.15, https://www.ti.com/lit/ds/symlink/sn74ls161a.pdf"
+К555ИЕ19,12.5,,,A->QA (QD ripples to 40),typ,"TI SN74LS393 SDLS107 p.8, https://www.ti.com/lit/ds/symlink/sn74ls393.pdf"
+К554СА3А,140,,,input->output (LM311 analogue),typ,"TI LM311 SLCS007K sec 6.7, https://www.ti.com/lit/ds/symlink/lm311.pdf"
+КР559ИП11,21,18.5,25.5,A/B->Y (Am26LS32A analogue),typ,"TI AM26LS32A SLLS115G sec 6.6, https://www.ti.com/lit/ds/symlink/am26ls32a.pdf"
+КР1102АП15,0,,,none given (an RS-232 driver into a cable: only its slew of microseconds),-,"TI uA9636AC SLLS110B p.3, https://www.ti.com/lit/ds/symlink/ua9636a.pdf"
+КР556РТ12,40,,,address->out tAA (82S136 analogue),typ,"Signetics 1977 Bipolar & MOS Memory p.123, https://xdevs.com/doc/eBooks/1977_Signetics_Bipolar_and_MOS_Memory.pdf"
+К573РФ4Б,450,150,130,address->data tACC; tOE; tDF,max,"НПП Восток К573РФ4 6КО.348.422-04ТУ p.2 (tACC tOE), https://eandc.ru/pdf/mikroskhema/k573rf4.pdf; ST M2764A-4 Table 7B p.5 (tDF), https://archive.org/download/2764_EPROM/2764_EPROM.pdf"
+КР565РУ5Г,120,120,60,CAS->data tCAC; turn-off after CAS,max,"eandc К565РУ5 sheet p.2, https://eandc.ru/pdf/mikroskhema/k565ru5.pdf"
+КР1807ВМ1,model,,,its bus timing (docs/t11-model.md),model,T-11 Engineering Specification
+КР580ВИ53,model,,,its bus timing (docs/vi53.md),model,docs/vi53.md
+КР580ВВ55А,model,,,its bus timing (docs/vv55.md),model,docs/vv55.md
+КР580ВВ51А,model,,,its bus timing (docs/vv51.md),model,docs/vv51.md
+КР1818ВГ93,model,,,its bus timing (docs/vg93.md),model,docs/vg93.md
