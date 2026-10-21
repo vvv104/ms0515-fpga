@@ -29,6 +29,13 @@ def durations(spans):
     return out
 
 
+def canvas_height(heights):
+    """The film's height: the frames' most common one.  A film's frames
+    are one size; the few after power-on, before the sync settles, are cut
+    or filled out to it, as a monitor would show them."""
+    return max(set(heights), key=heights.count)
+
+
 def main(argv):
     from PIL import Image
 
@@ -39,10 +46,14 @@ def main(argv):
         for line in f:
             n, start, end = (int(v) for v in line.split())
             rows.append((n, start, end))
+    images = [Image.open(os.path.join(folder, f"{n:05d}.bmp")).convert("RGB") for n, _, _ in rows]
+    width = max(i.width for i in images)
+    height = canvas_height([i.height for i in images])
     frames = []
-    for n, _, _ in rows:
-        image = Image.open(os.path.join(folder, f"{n:05d}.bmp")).convert("RGB")
-        frames.append(image.resize((image.width, image.height * 2), Image.NEAREST))
+    for image in images:
+        canvas = Image.new("RGB", (width, height))
+        canvas.paste(image.crop((0, 0, width, min(height, image.height))), (0, 0))
+        frames.append(canvas.resize((width, height * 2), Image.NEAREST))
     ms = durations([(s, e) for _, s, e in rows])
     frames[0].save(film, save_all=True, append_images=frames[1:], duration=ms, loop=0, lossless=True)
     print(f"{film}: {len(frames)} frames, {sum(ms) / 1000:.2f} s of the machine")

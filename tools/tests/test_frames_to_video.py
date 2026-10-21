@@ -24,5 +24,11 @@ class Durations(unittest.TestCase):
         self.assertEqual(frames_to_video.durations([(0, 2 * 1996800)]), [33])
 
 
+class Canvas(unittest.TestCase):
+    def test_the_film_is_as_tall_as_most_frames(self):
+        # the first frames after power-on are of other lengths
+        self.assertEqual(frames_to_video.canvas_height([251, 284, 260, 260, 260]), 260)
+
+
 if __name__ == "__main__":
     unittest.main()
