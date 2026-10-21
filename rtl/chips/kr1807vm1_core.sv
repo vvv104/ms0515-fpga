@@ -86,14 +86,14 @@ module kr1807vm1_core (
     end
 
     // ── the next step and its request ───────────────────────────────────
-    prog_t next_service;
+    // (the whole service is built only as it begins: an 85-bit program
+    // worked out every tick would cost the simulation half its time)
     step_t nxt;
     logic  boundary, looping, dmg;
     assign boundary     = upc == len;
     // WAIT goes round its loop while nothing is to be served
     assign looping      = boundary && cur == U_WAIT && serve == S_FETCH;
-    assign next_service = service(serve, serve == S_INT && !seen[5]);
-    assign nxt          = looping ? prog[1] : boundary ? next_service.ops[0] : prog[upc[3:0]];
+    assign nxt          = looping ? prog[1] : boundary ? service_first(serve) : prog[upc[3:0]];
     // a DMA grant comes between transactions, never inside a read-modify-write
     assign dmg          = dma && !(cur == U_RD_D && nxt == U_WR_D);
 
@@ -321,17 +321,19 @@ module kr1807vm1_core (
         dreg   <= d.dreg;
         vec    <= d.vec;
         rep    <= d.rep;
-        for (int i = 0; i < 16; i++)
-            prog[i] <= d.prog.ops[i];
-        len <= d.prog.len;
+        load_steps(steps(d.kind, d.writes, d.smode, d.dmode));
         upc <= 5'd0;
+    endtask
+
+    task automatic load_steps(input prog_t p);
+        for (int i = 0; i < 12; i++)
+            prog[i] <= p.ops[i];
+        len <= {1'b0, p.len};
     endtask
 
     // a service begins: its steps from the second on, its vector
     task automatic begin_service(input prog_t p);
-        for (int i = 0; i < 16; i++)
-            prog[i] <= p.ops[i];
-        len <= p.len;
+        load_steps(p);
         upc <= 5'd1;
         case (serve)
             S_PF:    begin vec <= 8'o24; pf_req <= 1'b0; end
@@ -350,7 +352,7 @@ module kr1807vm1_core (
             cur <= nxt;
             upc <= 5'd2;
         end else if (boundary) begin
-            begin_service(next_service);
+            begin_service(service(serve, serve == S_INT && !seen[5]));
             cur <= nxt;
             at_take(nxt);
         end else begin

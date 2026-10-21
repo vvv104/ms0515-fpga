@@ -2,22 +2,27 @@
 // transaction a step, as docs/t11-model.md builds them from the T-11
 // Engineering Specification (App. B microcycles, App. E transactions) and
 // the User's Guide (Table A-3 sequences).  16-bit bus.
+//
+// Every value here is at most 64 bits wide: Verilator keeps a wider one as
+// an array it clears and copies at every call, and the core's functions are
+// laid out at every tick - that once cost the board model half its time.
 package kr1807vm1_steps_pkg;
     import kr1807vm1_pkg::*;
 
     // what an instruction's U_EXEC step does
     typedef enum logic [3:0] {
         K_ALU, K_BR, K_SOB, K_JMP, K_JSR, K_RTS, K_CCC, K_MFPT, K_MTPS,
-        K_HALT, K_RTI, K_RTT, K_WAIT, K_NONE
+        K_HALT, K_RTI, K_RTT, K_WAIT, K_NONE, K_TRAP, K_RESET
     } kind_t;
 
+    // up to 12 steps (the longest, an interrupt with an external vector,
+    // takes 11): 64 bits
     typedef struct packed {
-        step_t [15:0] ops;
-        logic  [4:0]  len;
+        step_t [11:0] ops;
+        logic  [3:0]  len;
     } prog_t;
 
     typedef struct packed {
-        prog_t       prog;
         kind_t       kind;
         alu_op_t     aop;
         logic        bw;            // a byte operation
@@ -31,8 +36,8 @@ package kr1807vm1_steps_pkg;
     typedef enum logic [2:0] { S_FETCH, S_HALT, S_PF, S_TRACE, S_INT } serve_t;
 
     function automatic prog_t add(input prog_t p, input step_t s);
-        p.ops[p.len[3:0]] = s;
-        p.len = p.len + 5'd1;
+        p.ops[p.len] = s;
+        p.len = p.len + 4'd1;
         return p;
     endfunction
 
@@ -81,6 +86,15 @@ package kr1807vm1_steps_pkg;
         return p;
     endfunction
 
+    // the first step of service(s, ...), without building the rest
+    function automatic step_t service_first(input serve_t s);
+        case (s)
+            S_FETCH: return U_FETCH;
+            S_INT:   return U_IACK;
+            default: return U_N;
+        endcase
+    endfunction
+
     // an operand's address: (R)+ and (R) need no step of their own, @(R)+
     // reads the pointer, -(R) a NOP, @-(R) both, X(R) the index word and a
     // NOP, @X(R) those and the pointer
@@ -122,10 +136,40 @@ package kr1807vm1_steps_pkg;
         return p;
     endfunction
 
+    // RESET: 4 N, -BCLR for rep + 1 NOPs, N, then an ASPI and an N
+    function automatic prog_t reset_steps();
+        prog_t p = '0;
+        p = add2(add2(p, U_N, U_N), U_N, U_N);
+        p = add2(add2(p, U_BCLR_ON, U_REP), U_BCLR_OFF, U_N);
+        return add2(p, U_ASPI, U_N);
+    endfunction
+
+    // the steps of a decoded instruction (an ALU operation without a source
+    // has smode 0, which adds none)
+    function automatic prog_t steps(input kind_t kind, input logic writes,
+                                    input logic [2:0] smode, input logic [2:0] dmode);
+        prog_t p = '0;
+        case (kind)
+            K_ALU:   p = destination(source(p, smode), dmode, writes);
+            K_MTPS:  p = add(add2(add2(source(p, smode), U_N, U_N), U_N, U_N), U_EXEC);
+            K_HALT:  p = halt_steps();
+            K_WAIT:  p = add2(add2(p, U_N, U_N), U_N, U_WAIT);
+            K_RTI, K_RTT: p = add(add2(p, U_POP_PC, U_POP_PS), U_EXEC);
+            K_MFPT:  p = add2(p, U_N, U_EXEC);
+            K_JMP:   p = add(jump(p, dmode), U_EXEC);
+            K_RTS:   p = add(add2(p, U_EXEC, U_POP_R), U_N);
+            K_CCC, K_SOB: p = add(add2(p, U_N, U_N), U_EXEC);
+            K_BR:    p = add(p, U_EXEC);
+            K_JSR:   p = add2(add2(jump(p, dmode), U_N, U_PUSH_T), U_N, U_EXEC);
+            K_RESET: p = reset_steps();
+            default: p = trap_steps();
+        endcase
+        return p;
+    endfunction
+
     function automatic decoded_t trap(input decoded_t d, input logic [7:0] v);
-        d.kind = K_NONE;
+        d.kind = K_TRAP;
         d.vec  = v;
-        d.prog = trap_steps();
         return d;
     endfunction
 
@@ -141,7 +185,6 @@ package kr1807vm1_steps_pkg;
         endcase
         d.bw     = op[3] && op[2:0] != 3'd6;
         d.writes = d.aop != A_CMP && d.aop != A_BIT;
-        d.prog   = destination(source('0, d.smode), d.dmode, d.writes);
         return d;
     endfunction
 
@@ -161,60 +204,42 @@ package kr1807vm1_steps_pkg;
                 d.kind  = K_MTPS;
                 d.smode = d.dmode;
                 d.sreg  = d.dreg;
-                d.prog  = add(add2(add2(source('0, d.smode), U_N, U_N), U_N, U_N), U_EXEC);
                 return d;
             end
             default: return trap(d, 8'o10);                 // MFPI MTPI MFPD MTPD
         endcase
         if (d.aop == A_SXT) d.bw = 1'b0;
         d.writes = d.aop != A_TST;
-        d.prog   = destination('0, d.dmode, d.writes);
         return d;
     endfunction
 
     // 000000-000377: HALT .. MFPT, JMP, RTS, CCC/SCC, SWAB, and BR
     function automatic decoded_t group_zero(input decoded_t d, input logic [8:0] ir);
-        prog_t p = '0;
         case (ir[8:6])
             3'd0:
                 case (ir[5:0])
-                    6'o00: begin d.kind = K_HALT; d.prog = halt_steps(); end
-                    6'o01: begin d.kind = K_WAIT; d.prog = add2(add2(p, U_N, U_N), U_N, U_WAIT); end
-                    6'o02: begin d.kind = K_RTI; d.prog = add(add2(p, U_POP_PC, U_POP_PS), U_EXEC); end
+                    6'o00: d.kind = K_HALT;
+                    6'o01: d.kind = K_WAIT;
+                    6'o02: d.kind = K_RTI;
                     6'o03: d = trap(d, 8'o14);
                     6'o04: d = trap(d, 8'o20);
-                    6'o05: begin
-                        d.kind = K_NONE;
-                        d.rep  = 8'd26;
-                        p = add2(add2(p, U_N, U_N), U_N, U_N);
-                        p = add2(add2(p, U_BCLR_ON, U_REP), U_BCLR_OFF, U_N);
-                        d.prog = add2(p, U_ASPI, U_N);
-                    end
-                    6'o06: begin d.kind = K_RTT; d.prog = add(add2(p, U_POP_PC, U_POP_PS), U_EXEC); end
-                    6'o07: begin d.kind = K_MFPT; d.prog = add2(p, U_N, U_EXEC); end
+                    6'o05: begin d.kind = K_RESET; d.rep = 8'd26; end
+                    6'o06: d.kind = K_RTT;
+                    6'o07: d.kind = K_MFPT;
                     default: d = trap(d, 8'o10);
                 endcase
             3'd1:
                 if (ir[5:3] == 0) d = trap(d, 8'o10);       // JMP R traps
-                else begin d.kind = K_JMP; d.prog = add(jump(p, ir[5:3]), U_EXEC); end
+                else d.kind = K_JMP;
             3'd2:
                 case (ir[5:3])
-                    3'd0: begin d.kind = K_RTS; d.prog = add(add2(p, U_EXEC, U_POP_R), U_N); end
-                    3'd4, 3'd5, 3'd6, 3'd7: begin d.kind = K_CCC; d.prog = add(add2(p, U_N, U_N), U_EXEC); end
+                    3'd0: d.kind = K_RTS;
+                    3'd4, 3'd5, 3'd6, 3'd7: d.kind = K_CCC;
                     default: d = trap(d, 8'o10);                // 000210-000237, SPL
                 endcase
-            3'd3: begin
-                d.kind = K_ALU; d.aop = A_SWAB; d.writes = 1'b1;
-                d.prog = destination(p, d.dmode, 1'b1);
-            end
-            default: begin d.kind = K_BR; d.prog = add(p, U_EXEC); end
+            3'd3: begin d.kind = K_ALU; d.aop = A_SWAB; d.writes = 1'b1; end
+            default: d.kind = K_BR;
         endcase
-        return d;
-    endfunction
-
-    function automatic decoded_t branch(input decoded_t d);
-        d.kind = K_BR;
-        d.prog = add('0, U_EXEC);
         return d;
     endfunction
 
@@ -233,28 +258,24 @@ package kr1807vm1_steps_pkg;
             case (ir[11:9])
                 3'd4: begin                                 // XOR
                     d.kind = K_ALU; d.aop = A_XOR; d.writes = 1'b1; d.smode = 3'd0;
-                    d.prog = destination('0, d.dmode, 1'b1);
                 end
-                3'd7: begin                                 // SOB
-                    d.kind = K_SOB;
-                    d.prog = add(add2('0, U_N, U_N), U_EXEC);
-                end
+                3'd7: d.kind = K_SOB;
                 default: d = trap(d, 8'o10);                // MUL DIV ASH ASHC FIS
             endcase
             return d;
         end
         // 000000-007777 and 100000-107777
         case (ir[11:9])
-            3'd0: return ir[15] ? branch(d) : group_zero(d, ir[8:0]);
-            3'd1, 3'd2, 3'd3: return branch(d);
+            3'd0: begin
+                if (ir[15]) d.kind = K_BR;
+                else d = group_zero(d, ir[8:0]);
+                return d;
+            end
+            3'd1, 3'd2, 3'd3: begin d.kind = K_BR; return d; end
             3'd4:
                 if (ir[15]) return trap(d, ir[8] ? 8'o34 : 8'o30);  // EMT, TRAP
                 else if (ir[5:3] == 0) return trap(d, 8'o10);       // JSR R traps
-                else begin
-                    d.kind = K_JSR;
-                    d.prog = add2(add2(jump('0, ir[5:3]), U_N, U_PUSH_T), U_N, U_EXEC);
-                    return d;
-                end
+                else begin d.kind = K_JSR; return d; end
             3'd5, 3'd6: return single_operand(d, ir[15], {!ir[9], ir[8:6]});  // 005x: 0x, 006x: 1x
             default: return trap(d, 8'o10);                 // 007000-007777, 107000-107777
         endcase
