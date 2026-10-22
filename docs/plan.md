@@ -95,6 +95,17 @@ Three places need care:
        minimum and at its maximum delay, and from random power-up states
        under load (Omega and ОСА to their prompts) - a board that runs
        only on lucky delays would not on the FPGA.
+       **So far** (`docs/timing.md`, "Corners"): both corners pass every
+       test; Omega and ОСА reach their prompts in both.  At the min
+       corner the screen is clean.  At the max corner some frames show
+       spoiled letters (ОСА from frame 1000, Omega 1150, 1250, 1400), a
+       different place each frame, while the frames between are clean and
+       every DRAM read returns what was written: the video memory holds
+       the right text, the picture is spoiled on its way out.  To find:
+       the word the К555ИР16s load against the cell it came from, at the
+       moment they load (not when the DRAM watch samples), the processor's
+       access next to it, and the path (РУ5 out, buffers, ВК4) whose margin
+       goes negative at the maximums - then its datasheet page checked.
    7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
        logic: the МС 5305's MFM stream for the ВГ93 from a disk image
        (MiSTer's SD block interface), the МС 7004's line from MiSTer's
