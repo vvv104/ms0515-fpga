@@ -5,6 +5,13 @@ OE on РПРРТ H»;
 the correction lives in `netlist/deviations.csv`.  Here are the pictures it
 rests on.
 
+## The schematic
+
+| File | What |
+|---|---|
+| `schematic-sheet2.jpg` | 3.858.420 Э3 sheet 2 (`mc0515-ed`, page 19), the place boxed; R62 at D92's EO (upper left) is drawn to ground too |
+| `schematic-r45.jpg` | the place: D78's EO (pin 1) through R43 to the ground sign (green); D86's EO (pin 7) through R45 down onto the line «2 РПРРТ Н (Л2)» - D97's Q0, the dispatcher's bit 9 - in a T without a dot (red) |
+
 ## The board model
 
 | File | What |
