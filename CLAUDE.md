@@ -39,7 +39,7 @@ rtl/
   board/   — the board generated from netlist/ (never edited by hand)
   top/     — per-FPGA-board tops: clocks, HDMI, SD card, keyboard line
 sim/       — Verilator test benches (C++), the emulator as reference model
-boards/    — FPGA-board constraints and build scripts (Tang Nano 20K first)
+boards/    — FPGA-board constraints and build scripts (MiSTer / DE10-Nano: docs/plan.md stage 7)
 tools/     — the netlist reader, the RTL generator, scan helpers (Python)
 docs/      — sources, plan, analog replacements, findings
 ```

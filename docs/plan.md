@@ -68,6 +68,42 @@ Three places need care:
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
-7. **The FPGA.**  Tang Nano 20K: master clock, RAM in the on-chip SDRAM,
-   HDMI out, disk images from the SD card, the keyboard line on a pin
-   (the PC first, a real МС 7004 later).
+7. **The FPGA: a MiSTer core** (decided 2026-10-22; the Tang Nano 20K of
+   the first plan dropped).  The target is MiSTer on Terasic's DE10-Nano
+   (Cyclone V 5CSEBA6, about 110K LE, 5.5 Mbit of block memory): the
+   platform the retro cores live on, whose framework (`sys/` of
+   Template_MiSTer) gives the HDMI scaler, USB keyboards, disk images
+   from the SD card and the menu.  The core is built with Quartus Prime
+   Lite 17.0.2, as MiSTer's cores are.  Whoever buys the board gets a
+   core already checked; everything up to 7e runs without one.
+   7a. **Synthesis.**  `ns4.sv` alone through Quartus for the 5CSEBA6:
+       what does not synthesise, the resources (the delay lines' flops,
+       the memories in M10K), and timing at the 120 MHz master clock -
+       the chains of fast gates that go straight through, with no
+       register, are the risk.  Should it not close: a lower master clock
+       or more registered lines, and the board re-checked on the model.
+   7b. **Margins.**  The board booted with every chip at its datasheet's
+       minimum and at its maximum delay, and from random power-up states
+       under load (Omega and ОСА to their prompts) - a board that runs
+       only on lucky delays would not on the FPGA.
+   7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
+       logic: the МС 5305's MFM stream for the ВГ93 from a disk image
+       (MiSTer's SD block interface), the МС 7004's line from MiSTer's
+       keyboard (its scan codes to LK201 codes), the video DAC's levels
+       to MiSTer's video interface (15 kHz, the scaler does HDMI); each
+       tested on the model against the C++ part it replaces.
+   7d. **The core.**  Template_MiSTer's `sys/` unchanged - a git
+       submodule, not copied in: no third-party HDL in the tree - the board and
+       the parts of 7c under `emu`, the menu: disk images, ROM-A/ROM-B,
+       the rev3a changes and the undecided places as switches.  Built,
+       timing closed; the post-fit netlist run on the bench against the
+       emulator as the RTL is.
+   7e. **On the board** (whoever has one): power-on, the ROM's self-test,
+       Omega and ОСА from SD images, the keyboard, the picture on HDMI and
+       on the IO board's VGA; then what is too long for the model -
+       minutes of work, games, the RAM disk.  An FPGA is reprogrammed at
+       will: nothing done here is final, a fix is a rebuild.
+   No SDRAM board is needed while the machine's memory fits the block
+   memory (128 KB RAM, 16 KB ROM, the VRAM inside it): DE10-Nano, a USB
+   hub and a microSD card are the whole kit; the IO board adds analog
+   video for a CRT.
