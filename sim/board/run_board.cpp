@@ -264,6 +264,10 @@ struct Options {
             else if (arg.rfind("spot=", 0) == 0 && arg.find(':') != std::string::npos)
                 spots.push_back(std::strtoul(arg.c_str() + 5, nullptr, 8) << 8 |
                                 std::strtoul(arg.c_str() + arg.find(':') + 1, nullptr, 8));
+            else {
+                std::fprintf(stderr, "run_board: what is %s?\n", arg.c_str());
+                return false;
+            }
         }
         return every > 0;
     }
