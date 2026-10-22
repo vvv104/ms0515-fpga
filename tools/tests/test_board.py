@@ -102,6 +102,17 @@ class Firmware(unittest.TestCase):
         self.assertEqual(board.contents(image, "even-bytes"), "16'h0301")
         self.assertEqual(board.contents(image, "odd-bytes"), "16'h0402")
 
+    def test_a_long_image_is_a_concatenation_a_line_a_piece(self):
+        text = board.contents(bytes(range(256)) * 2, "bytes")
+        per_line = board.LINE_DIGITS // 2                   # bytes
+        lines = text.split("\n")
+        self.assertEqual(len(lines), 1 + 512 // per_line)
+        self.assertEqual(lines[0], "{")
+        self.assertEqual(lines[1].strip(), f"{per_line * 8}'h" + "".join(
+            f"{b:02x}" for b in reversed(range(256 - per_line, 256))) + ",")
+        self.assertTrue(lines[-1].endswith("}"))
+        self.assertTrue(all(len(line) < 200 for line in lines))
+
     def test_a_chip_with_an_image_gets_it_as_its_contents(self):
         f = Fixture("D1,К555ЛН1,,14,7,14,,,\n", "A,D1,1,,1,\nB,D1,2,,1,\n")
         f.write("image.bin", "")

@@ -55,6 +55,7 @@ REPO = os.path.join(HERE, "..")
 POWER = {"GND": "1'b0", "+5V": "1'b1", "+12V": None, "-12V": None}
 ZERO = "1'b0"
 MASTER_MHZ = 120            # the clk the stateful chips take
+LINE_DIGITS = 128           # hex digits of a firmware image a line
 SUPPLIES = {"VCC", "VEE", "VDD", "VBB", "VSS", "GND", "BGND"}
 ANALOGUE = {"W-S"}              # a slew-rate resistor's pin (КР1102АП15)
 RESISTORS = ("С1-4", "С2-23", "НР1-11", "СП5-16")
@@ -213,7 +214,12 @@ def contents(data, fmt):
         raise ValueError(f"firmware format '{fmt}'")
     digits = width // 4
     text = "".join(f"{w:0{digits}x}" for w in reversed(words))
-    return f"{len(words) * width}'h{text}"
+    if len(text) <= LINE_DIGITS:
+        return f"{len(words) * width}'h{text}"
+    # a long image: a concatenation, a line a piece, so that no line of the
+    # board outgrows what a text tool shows
+    pieces = [text[i:i + LINE_DIGITS] for i in range(0, len(text), LINE_DIGITS)]
+    return "{\n" + ",\n".join(f"        {len(p) * 4}'h{p}" for p in pieces) + "}"
 
 
 def crystal_ticks(rating):
