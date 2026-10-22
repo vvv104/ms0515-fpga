@@ -13,6 +13,7 @@ extern "C" {
 #include <ms0515/core/cpu.h>
 }
 
+#include <algorithm>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -252,6 +253,40 @@ std::vector<State> run_model(Bench& b, const std::vector<std::uint16_t>& program
 }
 
 }  // namespace
+
+// The core acts on the bus's events - a transaction taken, read data, the
+// AI pins, a vector - and they come at least kEventGap master ticks apart:
+// what lets the FPGA give the core's arithmetic more than a tick.
+TEST_CASE("КР1807ВМ1: the bus's events reach the core ticks apart")
+{
+    constexpr std::uint64_t kEventGap = 3;
+    std::uint64_t closest = ~0ull, events = 0;
+    for (unsigned seed = 1; seed <= 40; ++seed) {
+        Generator g(seed);
+        const std::vector<std::uint16_t> program = g.program(40);
+        Bench b;
+        b.load(0172000, {000137, kProgram});
+        b.load(kProgram, program);
+        b.power_up();
+        std::uint64_t last = 0;
+        bool seen = false;
+        for (int t = 0; t < 40000; ++t) {
+            b.run_ticks(1);
+            auto* root = b.m().rootp;
+            const int n = root->kr1807vm1__DOT__take + root->kr1807vm1__DOT__data_valid +
+                          root->kr1807vm1__DOT__ai_valid + root->kr1807vm1__DOT__vector_valid;
+            if (n == 0) continue;
+            ++events;
+            CHECK(n == 1);                                  // never two at once
+            if (seen) closest = std::min(closest, b.now() - last);
+            last = b.now();
+            seen = true;
+        }
+    }
+    MESSAGE(events << " events, the closest " << closest << " ticks apart");
+    CHECK(events > 10000);
+    CHECK(closest >= kEventGap);
+}
 
 TEST_CASE("КР1807ВМ1 and the emulator's processor: random programs, state after each instruction")
 {

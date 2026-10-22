@@ -257,8 +257,6 @@ module kr1807vm1_core (
             end
             U_EXEC:     execute();
             U_PUSH_PS, U_PUSH_PC, U_PUSH_T: r[6] <= r[6] - 16'd2;
-            U_BCLR_ON:  bclr_reset <= 1'b1;
-            U_BCLR_OFF: bclr_reset <= 1'b0;
             U_START: begin
                 r[6] <= 16'o376;
                 r[7] <= start_address(mr[4:2]);
@@ -377,6 +375,18 @@ module kr1807vm1_core (
         end
     endtask
 
+    // The bus's events, acted on two master ticks late: they come at least
+    // three apart (test_kr1807vm1_lockstep), so nothing the core shows the
+    // bus changes - the next request is still taken from the state the
+    // last event left - and the core's arithmetic has two ticks on the
+    // FPGA (boards/de10nano/ns4.sdc).  Whatever the core reads at an event
+    // (the request, the data, the AI pins) holds until the next.
+    logic [3:0] early, late;            // take, data, vector, AI
+    always_ff @(posedge clk) begin
+        early <= run ? {ai_valid, vector_valid, data_valid, take} : 4'd0;
+        late  <= run ? early : 4'd0;
+    end
+
     always_ff @(posedge clk) begin
         if (!run) begin
             // power-up: 100 bus NOPs while -BCLR goes up at 100T, then the
@@ -397,13 +407,16 @@ module kr1807vm1_core (
             end
             if (bclr)
                 mr <= mode_in;
-            if (take)
+            // RESET's -BCLR goes out as its step is taken, not later
+            if (take && !dmg && !looping && nxt == U_BCLR_ON)  bclr_reset <= 1'b1;
+            if (take && !dmg && !looping && nxt == U_BCLR_OFF) bclr_reset <= 1'b0;
+            if (late[0])
                 took();
-            if (data_valid)
+            if (late[1])
                 at_data(cur, data);
-            if (vector_valid && !seen[5])
+            if (late[2] && !seen[5])
                 vec <= {data[7:2], 2'b00};
-            if (ai_valid)
+            if (late[3])
                 sampled();
         end
     end
