@@ -216,7 +216,7 @@ class Generate(unittest.TestCase):
         self.assertEqual(errors(problems), [])
         self.assertIn("assign n_Y = (d_D1_p18_oe | d_D2_p18_oe) ? "
                       "((d_D1_p18_oe & d_D1_p18) | (d_D2_p18_oe & d_D2_p18)) : 1'b1;", text)
-        self.assertIn("assign contention_at[0] = $countones({d_D1_p18_oe, d_D2_p18_oe}) > 1;", text)
+        self.assertIn("assign contention_at[0] = (d_D1_p18_oe & d_D2_p18_oe);", text)
 
     def test_a_chip_with_no_module_is_brought_out(self):
         f = Fixture("D1,К555ЛН1,,14,7,14,,,\nD9,КР1807ВМ1,,40,20,40,,,\n",

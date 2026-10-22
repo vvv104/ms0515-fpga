@@ -16,10 +16,11 @@ package kr1807vm1_steps_pkg;
     } kind_t;
 
     // up to 12 steps (the longest, an interrupt with an external vector,
-    // takes 11): 64 bits
+    // takes 11): 64 bits.  The steps are kept as their codes: Quartus takes
+    // no packed array of an enum.
     typedef struct packed {
-        step_t [11:0] ops;
-        logic  [3:0]  len;
+        logic [11:0][4:0] ops;     // step_t is 5 bits
+        logic  [3:0]  steps;       // how many (named apart from the core's len: Quartus mixes them up)
     } prog_t;
 
     typedef struct packed {
@@ -36,8 +37,8 @@ package kr1807vm1_steps_pkg;
     typedef enum logic [2:0] { S_FETCH, S_HALT, S_PF, S_TRACE, S_INT } serve_t;
 
     function automatic prog_t add(input prog_t p, input step_t s);
-        p.ops[p.len] = s;
-        p.len = p.len + 4'd1;
+        p.ops[p.steps] = s;
+        p.steps = p.steps + 4'd1;
         return p;
     endfunction
 

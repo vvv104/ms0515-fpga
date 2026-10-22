@@ -65,6 +65,9 @@ committed file is stale); `sim/board/test_board.cpp` runs it.
 `python tools/kicad.py` regenerates the KiCad schematic `kicad/` the same
 way; with KiCad's command line (`$KICAD_CLI` or `kicad-cli` on the PATH) a
 tool test reads the nets back out of it and compares them with the netlist.
+`quartus_sh -t boards/de10nano/synth.tcl` (Quartus Prime Lite 17.0.2, the
+MiSTer's version) takes the board through Quartus into `build/quartus`:
+synthesis, fit and timing at the 120 MHz master clock (plan stage 7a).
 
 ## Sources
 `docs/sources.md` lists every document, scan and forum thread the board is

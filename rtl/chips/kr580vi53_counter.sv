@@ -136,6 +136,7 @@ module kr580vi53_counter (
         logic [15:0] n;
         logic        gated;
         gated = (mode == 3'd1 || mode == 3'd5) || gate_s;
+        n = minus(ce, 2'd1, bcd);
         if (!gated) return;
         case (mode)
             3'd2: begin
@@ -149,7 +150,6 @@ module kr580vi53_counter (
                 else ce <= n;
             end
             default: begin                      // 0, 1, 4, 5
-                n = minus(ce, 2'd1, bcd);
                 ce <= n;
                 if (n == 16'd0) begin
                     if (mode == 3'd0 || mode == 3'd1) out_q <= 1'b1;

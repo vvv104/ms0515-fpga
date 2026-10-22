@@ -48,14 +48,15 @@ module kr580vi53 (
         if (read_end && a_was != 2'b11) read_done[a_was] = 1'b1;
     end
 
-    for (genvar i = 0; i < 3; i++) begin : counter
+    genvar i;
+    generate for (i = 0; i < 3; i = i + 1) begin : counter
         kr580vi53_counter c (
             .clk, .clk_pin(clk_pin[i]), .gate_pin(gate_pin[i]),
             .cw_we(cw_we[i]), .cw(d_was[5:0]), .latch_we(latch_we[i]),
             .data_we(data_we[i]), .data(d_was), .read_done(read_done[i]),
             .out(out_pin[i]), .read_byte(rd_byte[i])
         );
-    end
+    end endgenerate
 
     logic reading;
     assign reading = !p21 && !p22 && {p20, p19} != 2'b11;

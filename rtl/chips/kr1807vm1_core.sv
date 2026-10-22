@@ -43,7 +43,7 @@ module kr1807vm1_core (
     logic        bw, writes;
     logic [2:0]  smode, sreg, dmode, dreg;
     logic [7:0]  vec;
-    step_t       prog [16];
+    step_t       prog [12];
     logic [4:0]  len, upc;              // the steps, and the next one's index
     logic [7:0]  rep;
     step_t       cur;                   // the step on the bus
@@ -327,8 +327,8 @@ module kr1807vm1_core (
 
     task automatic load_steps(input prog_t p);
         for (int i = 0; i < 12; i++)
-            prog[i] <= p.ops[i];
-        len <= {1'b0, p.len};
+            prog[i] <= step_t'(p.ops[i]);
+        len <= {1'b0, p.steps};
     endtask
 
     // a service begins: its steps from the second on, its vector

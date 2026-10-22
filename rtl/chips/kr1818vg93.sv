@@ -232,13 +232,13 @@ module kr1818vg93 (
     task automatic type1_loop();
         logic seek, in;
         seek = cr[7:5] == 3'b000;                       // Restore, Seek
+        in = seek ? dr > tr : (cr[6] ? !cr[5] : dirc);
         if (seek && tr == dr) begin
             if (cr[7:4] == 4'h0 && p34) begin s_seek <= 1'b1; state <= DONE; end  // no track 0
             else type1_end();
             return;
         end
         if (!seek && stepped) begin type1_end(); return; end
-        in = seek ? dr > tr : (cr[6] ? !cr[5] : dirc);
         dirc <= in;
         stepped <= 1'b1;
         if (seek || cr[4]) tr <= in ? tr + 8'd1 : tr - 8'd1;

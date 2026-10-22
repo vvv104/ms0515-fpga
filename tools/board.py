@@ -47,6 +47,7 @@ import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
+from itertools import combinations
 
 import netlist as nl
 
@@ -516,7 +517,8 @@ def resolve(net, problems):
         else:
             chosen = " | ".join(f"({oe} & {v})" for v, oe in net.tri)
             level = f"({' | '.join(enables)}) ? ({chosen}) : {pull}"
-            busy = f"$countones({{{', '.join(enables)}}}) > 1"
+            # two enables on at once, spelled out: Quartus synthesizes no $countones
+            busy = " | ".join(f"({a} & {b})" for a, b in combinations(enables, 2))
     elif not net.oc and not net.pulls:
         problems.warn(f"'{net.name}': nothing drives it")
     if net.oc:
