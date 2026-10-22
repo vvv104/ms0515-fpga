@@ -30,6 +30,12 @@ foreach f [lsort [glob [file join $root rtl chips *.sv]]] {
 }
 set_global_assignment -name SYSTEMVERILOG_FILE [file join $root rtl board ns4.sv]
 set_global_assignment -name SDC_FILE [file join $here ns4.sdc]
+# Registers moved through the logic between them, cycle for cycle the same
+# behaviour: the delay lines' stages are where the slack is.
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 foreach ports {x_* nx_* n_* contention*} {
     set_instance_assignment -name VIRTUAL_PIN ON -to $ports
 }

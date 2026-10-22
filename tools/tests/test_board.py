@@ -419,6 +419,35 @@ class Delays(unittest.TestCase):
         self.assertIn("delay_bank #(.TICKS(5), .FALL(1), .W(1)) b5_1_0 (.clk(clk), .i({r_D2_p18_oe}), "
                       ".o({d_D2_p18_oe}));", text)
 
+    def corner(self, name):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "delays-max.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("type,ns,oe_ns,off_ns,min_ns,min_oe_ns,min_off_ns,load,source,note\n"
+                        "К555ЛН1,15,,,,,,x,a datasheet,\n"
+                        "К555АП5,18,26,22,,,,x,a datasheet,\n"
+                        "КР1533ТМ2,17,,,5,,,x,a datasheet,\n"
+                        "К554СА3А,,,,,,,x,a datasheet,no maximum printed\n")
+            typ = {"К555ЛН1": (9.5, 9.5, 9.5), "К555АП5": (12, 17.5, 12.5), "КР1533ТМ2": (17, 17, 17),
+                   "К554СА3А": (140, 140, 140), "КР1807ВМ1": None}
+            return board.corner_delays(typ, path, name)
+
+    def test_the_max_corner_takes_the_datasheets_maximums(self):
+        d = self.corner("max")
+        self.assertEqual(d["К555ЛН1"], (15, 15, 15))           # no enable: its outputs' delay
+        self.assertEqual(d["К555АП5"], (18, 26, 22))
+        self.assertEqual(d["К554СА3А"], (140, 140, 140))       # none printed: the typical stays
+        self.assertIsNone(d["КР1807ВМ1"])                      # a model keeps its own timing
+
+    def test_the_min_corner_takes_a_printed_minimum_or_half_the_typical(self):
+        d = self.corner("min")
+        self.assertEqual(d["КР1533ТМ2"], (5, 5, 5))
+        self.assertEqual(d["К555АП5"], (6, 8.75, 6.25))
+        self.assertIsNone(d["КР1807ВМ1"])
+
+    def test_the_typical_corner_is_the_table(self):
+        self.assertEqual(self.corner("typ")["К555АП5"], (12, 17.5, 12.5))
+
     def test_a_chip_type_without_a_delay_is_an_error(self):
         _, problems = self.generate("К555ЛН1,10,a datasheet\n", (INVERTER, BUFFER, DELAY_BANK))
         self.assertTrue(any("К555АП5" in e and "delays.csv" in e for e in errors(problems)))

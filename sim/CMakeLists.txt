@@ -61,7 +61,10 @@ ms0515_test(test_crystal chips/test_crystal.cpp Vcrystal Vcrystal_15)
 ms0515_model(Vdelay_bank "${MS0515_CHIPS}/delay_bank.sv" delay_bank ARGS -GTICKS=3)
 ms0515_model(Vdelay_bank_asym "${MS0515_CHIPS}/delay_bank.sv" delay_bank ARGS -GTICKS=3 -GFALL=1)
 ms0515_model(Vdelay_bank_wide "${MS0515_CHIPS}/delay_bank.sv" delay_bank ARGS -GTICKS=3 -GW=3)
-ms0515_test(test_delay_bank chips/test_delay_bank.cpp Vdelay_bank Vdelay_bank_asym Vdelay_bank_wide)
+ms0515_model(Vdelay_bank_long "${MS0515_CHIPS}/delay_bank.sv" delay_bank ARGS -GTICKS=18 -GFALL=16)
+ms0515_model(Vdelay_bank_one "${MS0515_CHIPS}/delay_bank.sv" delay_bank ARGS -GTICKS=1)
+ms0515_test(test_delay_bank chips/test_delay_bank.cpp Vdelay_bank Vdelay_bank_asym Vdelay_bank_wide
+            Vdelay_bank_long Vdelay_bank_one)
 
 # a PROM is tested programmed with a pattern (chips/kr556rt12_bench.sv)
 ms0515_model(Vkr556rt12_bench "${CMAKE_CURRENT_SOURCE_DIR}/chips/kr556rt12_bench.sv" kr556rt12_bench)
@@ -77,12 +80,17 @@ ms0515_model(Vkr1807vm1_public "${MS0515_CHIPS}/kr1807vm1.sv" kr1807vm1
              PACKAGES ${MS0515_CPU_PACKAGES} ARGS --public-flat-rw)
 ms0515_test(test_kr1807vm1_lockstep chips/test_kr1807vm1_lockstep.cpp Vkr1807vm1_public ms0515_core)
 
-# The board generated from the netlist (tools/board.py writes rtl/board/ns4.sv).
-ms0515_model(Vns4 "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv" ns4
+# The board generated from the netlist (tools/board.py writes rtl/board/ns4.sv),
+# or a corner of its delays (conanfile.py's corner option).
+set(MS0515_BOARD_SV "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv" CACHE FILEPATH "the board the benches run")
+ms0515_model(Vns4 "${MS0515_BOARD_SV}" ns4
              PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv"
              ARGS --savable)
 ms0515_test(test_board board/test_board.cpp Vns4 ms0515_core)
 target_compile_definitions(test_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
+if(NOT MS0515_BOARD_SV STREQUAL "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv")
+    target_compile_definitions(test_board PRIVATE MS0515_DELAY_CORNER)
+endif()
 
 ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
 

@@ -20,7 +20,10 @@ the chip's propagation delay, as on the board.
   DRAM's turn-off), columns `oe_ns` and `off_ns`.
 - The delay is **inertial**, as a gate's is: an output takes a level once
   the input has held it for the whole delay; a pulse shorter than the delay
-  never comes out.
+  never comes out.  Whether it has held is worked out a tick ahead and
+  registered, so the line's output is a gate from flip-flops - what lets
+  the FPGA run it at 120 MHz (`sim/chips/test_delay_bank.cpp` holds it to
+  the rule on random input).
 - The LSI chips (КР1807ВМ1, КР580ВИ53, ВВ55, ВВ51, КР1818ВГ93) keep their
   own timing from their datasheets inside their models: `model` in the
   table.
@@ -60,6 +63,28 @@ taking time:
   model starts with port B an output at 0, which holds РВК1 low and gives
   D13 the 50 Hz page, so the first frames are not 260 lines.  The tests
   measure the frame after the reset.
+
+## Corners
+
+The board must work with every chip anywhere between its fastest and its
+slowest, as the real boards did, each with its own chips (plan stage 7b).
+`tools/board.py corner max|min DIR` generates the board at a corner of
+the delays; `conan build . -o "&:corner=max"` builds and tests it apart,
+in `build/max` (`build/min`):
+
+- **max**: the datasheets' maximum tPLH/tPHL (tPZH/tPZL, tPHZ/tPLZ) of
+  the same path from the same document, `netlist/delays-max.csv`, each row
+  with its page.  К554СА3А and КР1102АП15 print no maximum and keep their
+  typical delay.  The `max` rows of `delays.csv` are maximums already.
+- **min**: a printed minimum where a datasheet has one (КР1533ТМ2's 5 ns,
+  К573РФ4Б's tDF of 0); elsewhere **half the typical delay** - an
+  assumption, the LS datasheets printing no minimum.
+- The LSI models keep their own timing in every corner.
+
+The test loads of the datasheets differ (LS 2 kOhm 15 pF; LS three-state
+667 Ohm 45 pF, but the LS251's 2 kOhm 15 pF; the open-collector 7416 and
+7407 at 110 Ohm 15 pF; S 280 Ohm 15 pF); `delays-max.csv` keeps each
+row's load.
 
 ## The cost
 

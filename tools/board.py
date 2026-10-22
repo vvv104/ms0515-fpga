@@ -162,6 +162,8 @@ class Sources:
     firmware: str = None        # ref,file,format; files relative to the folder above it
     delays: str = None          # type,ns,source: each chip's typical propagation delay
     deviations: str = None      # ref,pin,from_net,to_net,evidence: where the model leaves Э3
+    delays_max: str = None      # the datasheets' maximums and printed minimums
+    corner: str = "typ"         # typ, max or min (corner_delays)
 
 
 def ns4_sources():
@@ -170,7 +172,7 @@ def ns4_sources():
                    os.path.join(n, "nets.csv"), os.path.join(n, "rev3a.csv"),
                    os.path.join(n, "analog.csv"), os.path.join(REPO, "rtl", "chips"),
                    os.path.join(n, "firmware.csv"), os.path.join(n, "delays.csv"),
-                   os.path.join(n, "deviations.csv"))
+                   os.path.join(n, "deviations.csv"), os.path.join(n, "delays-max.csv"))
 
 
 TICK_NS = 1000.0 / MASTER_MHZ
@@ -199,6 +201,42 @@ def load_delays(path):
         on = float(on) if on else ns
         off = (r.get("off_ns") or "").strip()
         out[r["type"]] = (ns, on, float(off) if off else on)
+    return out
+
+
+# The share of the typical delay taken for the min corner where a datasheet
+# prints no minimum - most do not (docs/timing.md, "Corners").
+MIN_SHARE = 0.5
+
+
+def corner_delays(typ, path, corner):
+    """The delays of a corner (docs/timing.md): "typ" the table as it is;
+    "max" the maximums of delays-max.csv where it gives them; "min" its
+    printed minimums, MIN_SHARE of the typical where none is printed.  An
+    enable without a value of its own follows the outputs, as in the
+    typical table."""
+    if corner == "typ" or typ is None:
+        return typ
+    prefix = {"max": "", "min": "min_"}[corner]
+    rows = {r["type"]: r for r in nl.rows(path)}
+    out = {}
+    for t, d in typ.items():
+        if d is None:
+            out[t] = None
+            continue
+        r = rows.get(t, {})
+
+        def value(column, typical, follows):
+            v = (r.get(prefix + column) or "").strip()
+            if v:
+                return float(v)
+            if follows is not None:         # no value of its own in the typical table either
+                return follows
+            return typical * MIN_SHARE if corner == "min" else typical
+
+        ns = value("ns", d[0], None)
+        on = value("oe_ns", d[1], ns if d[1] == d[0] else None)
+        out[t] = (ns, on, value("off_ns", d[2], on if d[2] == d[1] else None))
     return out
 
 
@@ -313,7 +351,7 @@ class Builder:
         self.analog = load_analog(src.analog)
         self.modules = load_modules(src.chips)
         self.firmware = load_firmware(src.firmware)
-        self.delays = load_delays(src.delays)
+        self.delays = corner_delays(load_delays(src.delays), src.delays_max, src.corner)
         self.pins = defaultdict(dict)
         for c in conns:
             self.pins[c.ref][c.pin] = c.net
@@ -643,12 +681,18 @@ def generate_all(src):
 
 
 def main(argv):
+    """board.py: rtl/board/ns4.sv from the netlist; board.py check: is it
+    stale; board.py corner max|min DIR: the board at a corner of the chips'
+    delays (docs/timing.md), into DIR - a variant for the margins, never
+    committed."""
     sys.stdout.reconfigure(encoding="utf-8")
-    text, problems, inputs = generate_all(ns4_sources())
+    src, out = ns4_sources(), os.path.join(REPO, "rtl", "board")
+    if len(argv) > 3 and argv[1] == "corner":
+        src.corner, out = argv[2], argv[3]
+    text, problems, inputs = generate_all(src)
     for p in problems:
         print(("error: " if p.error else "warning: ") + p.text)
-    files = {os.path.join(REPO, "rtl", "board", "ns4.sv"): text,
-             os.path.join(REPO, "rtl", "board", "ns4_inputs.inc"): inputs}
+    files = {os.path.join(out, "ns4.sv"): text, os.path.join(out, "ns4_inputs.inc"): inputs}
     if len(argv) > 1 and argv[1] == "check":
         stale = False
         for path, want in files.items():

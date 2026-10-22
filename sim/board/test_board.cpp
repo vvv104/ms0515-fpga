@@ -28,6 +28,14 @@ namespace {
 // ticks, the 15 MHz one of 8.
 constexpr int kMasterMhz = 120;
 
+// A board built at a corner of the chips' delays (docs/timing.md): the
+// cases that count the typical delays' ticks do not apply to it.
+#ifdef MS0515_DELAY_CORNER
+constexpr bool kCorner = true;
+#else
+constexpr bool kCorner = false;
+#endif
+
 // The state every register, latch and RAM cell powers up in: all zero
 // (seed 0), or Verilator's random values from the seed - the state the
 // datasheets leave undefined until a reset, which the board must come out
@@ -79,7 +87,7 @@ int rises(Board& b, int ticks, Net net)
 
 }  // namespace
 
-TEST_CASE("the 8 MHz crystal comes out on ТС8М L through D15's gates 6 and 5")
+TEST_CASE("the 8 MHz crystal comes out on ТС8М L through D15's gates 6 and 5" * doctest::skip(kCorner))
 {
     // two К555ЛН1 gates of about 9.5 ns each: two master ticks
     Board b;
@@ -105,7 +113,7 @@ TEST_CASE("D16 divides ТС8М into ТС4М, ТС2М and ТС1М")
     CHECK(rises(b, us, [](Vns4& m) { return m.n_TS1M_H; }) == doctest::Approx(100).epsilon(0.01));
 }
 
-TEST_CASE("the 15 MHz crystal comes out on ТС15 H and ТС15 L")
+TEST_CASE("the 15 MHz crystal comes out on ТС15 H and ТС15 L" * doctest::skip(kCorner))
 {
     Board b;
     const int us = 100 * kMasterMhz;
