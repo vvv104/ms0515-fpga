@@ -82,6 +82,15 @@ Three places need care:
        the chains of fast gates that go straight through, with no
        register, are the risk.  Should it not close: a lower master clock
        or more registered lines, and the board re-checked on the model.
+       **Done** (`boards/de10nano/synth.tcl`): 14 % of the ALMs, 19 % of
+       the block memory, 120 MHz met in every timing model (Fmax 125-130
+       MHz).  It took the delay lines' "held for the delay" registered a
+       tick ahead, the LSI chips' read data a tick after the strobe
+       (inside their tRD), the processor's core acting on the bus's events
+       two ticks late (they come three apart) with two ticks for its
+       arithmetic, and the ВИ53's next count worked out a tick ahead - none
+       of it changing what the chips' pins do beyond their datasheets.
+       Left: the К573РФ4s went from M10K into logic.
    7b. **Margins.**  The board booted with every chip at its datasheet's
        minimum and at its maximum delay, and from random power-up states
        under load (Omega and ОСА to their prompts) - a board that runs
