@@ -32,6 +32,7 @@ gold through the laminate; side 8 likewise with layer 7.
 |---|---|
 | `owner-board.jpg` | the owner's НС4 rev. 3А (`photos/known-machines/MC 0515 04.jpg`), the area below boxed |
 | `owner-d86.jpg` | that area: КР1533ИР23 (D78) left, КР1533КП15 (D86) right of the boxed resistors - left to right R41 (1 kOhm, `СБРКС L` to +5V), R43 (20 Ohm, D78.1 to GND), R45 (20 Ohm, banded like R43; no outer-layer copper at either end) |
+| `drawing-r41-r43-r45.jpg` | the assembly drawing 3.858.420 СБ (page 27, turned half round): R41, R43, R45 stacked between D78 and D86, R45 next to D86 - the order the copper gives |
 | `frolov-corner.jpg` | another machine (Sergei Frolov's museum photo, leningrad.su/museum, 2009; `mc0515-7.jpg`): the same corner turned 180 degrees - ИР23 above, the three resistors, «…15» below |
 
 The resistors were placed by mapping the photo onto the copper through

@@ -44,8 +44,10 @@ folder per case.
   on Frolov's (`mc0515-7.jpg`, the same corner).  By the copper: R41
   (1 kOhm, `СБРКС L` to +5V - its +5V end has no outer copper, the plane),
   R43 (20 Ohm, D78.1 to GND - its GND end likewise), and a third, banded
-  like R43, with no outer copper at either end - R45 by elimination, both
-  its wires inside the board.  The photos cannot show where they go.
+  like R43, with no outer copper at either end - R45, both its wires
+  inside the board; the assembly drawing (page 27) has R41, R43, R45
+  stacked there in that order, R45 next to D86.  The photos cannot show
+  where its wires go.
 - **Pictures**: [evidence/r45-d86-oe](evidence/r45-d86-oe/).
 - **Decided** (the user, 2026-10-22): R45 to GND, kept apart from Э3 as
   read, in `netlist/deviations.csv`.
@@ -147,9 +149,11 @@ layer px, under a pin pitch; the pin labels then sit on the pins):
 - **one end: D92 pin 9** - Q3 of the address latch, `АД03 Н`;
 - **the other end:** the upper lead of a discrete resistor between D80
   (К555ИД7, the register decoder) and D85, next to D80 pins 4/5 (G2A/G2B,
-  both `ВБРЕГ L` on Э3).  Its reference on the assembly drawing is
-  unreadable; in Mick's traces its pad is on the run the traces wrongly
-  merge (`АД13`/`Р3`), its other lead on a plane.  Not settled.
+  both `ВБРЕГ L` on Э3).  The assembly drawing (page 27) names it **R39**:
+  1 kOhm pulling `БОРДС L` up to +5V.  In Mick's traces its pad is on the
+  run the traces wrongly merge (`АД13`/`Р3`), its other lead on a plane.
+  Which lead the wire takes, and why, is not settled.
+- Pictures: [evidence/green-wire-ad03](evidence/green-wire-ad03/).
 
 Why it is there - a hypothesis the documents support:
 
@@ -253,7 +257,9 @@ Settled the same day: the owner sees **D70 pin 15 lifted** off its pad.
 So b) it is - D70.15 off `~D14.3` and on GND, D14.3 still driving D74.1;
 in `rev3a.csv`.  Not on the assembly drawing and not on the leningrad.su
 board as far as its photo shows: a later fix, most likely made by the
-plant with the RAM-disk upgrade.
+plant with the RAM-disk upgrade.  Pictures:
+[evidence/d70-oe-gnd](evidence/d70-oe-gnd/); of the factory patches:
+[evidence/factory-patches](evidence/factory-patches/).
 
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
@@ -287,7 +293,7 @@ lines beyond the tiles read, and any patch not yet found.
   9109 and 9010.
 
 The other photo is too small to follow pins; the routes are compared by
-shape only.
+shape only.  Both photos: [evidence/factory-patches](evidence/factory-patches/).
 
 ## The copper against the schematic: first pass (Mick's traces)
 
