@@ -58,8 +58,16 @@ module kr580vi53 (
         );
     end endgenerate
 
-    logic reading;
+    // D drives a master tick after -RD and -CS fall and floats a tick after
+    // they rise: inside tRD and tDF (docs/vi53.md), and a flip-flop away from
+    // the bus for the FPGA
+    logic       reading, driving;
+    logic [7:0] out_byte;
     assign reading = !p21 && !p22 && {p20, p19} != 2'b11;
-    assign {p1, p2, p3, p4, p5, p6, p7, p8} = reading ? rd_byte[{p20, p19}] : 8'h00;
-    assign {p1_oe, p2_oe, p3_oe, p4_oe, p5_oe, p6_oe, p7_oe, p8_oe} = {8{reading}};
+    always_ff @(posedge clk) begin
+        driving  <= reading;
+        out_byte <= reading ? rd_byte[{p20, p19}] : 8'h00;
+    end
+    assign {p1, p2, p3, p4, p5, p6, p7, p8} = out_byte;
+    assign {p1_oe, p2_oe, p3_oe, p4_oe, p5_oe, p6_oe, p7_oe, p8_oe} = {8{driving}};
 endmodule

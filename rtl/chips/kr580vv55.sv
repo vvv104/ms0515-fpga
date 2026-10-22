@@ -72,8 +72,17 @@ module kr580vv55 (
         endcase
     end
     assign reading = !p6 && !p5;
-    assign {p27, p28, p29, p30, p31, p32, p33, p34} = bus;
-    assign {p27_oe, p28_oe, p29_oe, p30_oe, p31_oe, p32_oe, p33_oe, p34_oe} = {8{reading}};
+    // D drives a master tick after -RD and -CS fall and floats a tick after
+    // they rise: inside tRD and tDF (docs/vv55.md), and a flip-flop away from
+    // the bus for the FPGA
+    logic       driving;
+    logic [7:0] out_byte;
+    always_ff @(posedge clk) begin
+        driving  <= reading;
+        out_byte <= reading ? bus : 8'h00;
+    end
+    assign {p27, p28, p29, p30, p31, p32, p33, p34} = out_byte;
+    assign {p27_oe, p28_oe, p29_oe, p30_oe, p31_oe, p32_oe, p33_oe, p34_oe} = {8{driving}};
 
     assign {p37, p38, p39, p40, p1, p2, p3, p4} = a_q;
     assign {p37_oe, p38_oe, p39_oe, p40_oe, p1_oe, p2_oe, p3_oe, p4_oe} = {8{!a_in}};

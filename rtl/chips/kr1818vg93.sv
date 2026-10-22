@@ -80,8 +80,17 @@ module kr1818vg93 (
             default: bus = dr;
         endcase
     end
-    assign {p14, p13, p12, p11, p10, p9, p8, p7} = bus;
-    assign {p14_oe, p13_oe, p12_oe, p11_oe, p10_oe, p9_oe, p8_oe, p7_oe} = {8{!p3 && !p4}};
+    // DAL drives a master tick after -RE and -CS fall and floats a tick after
+    // they rise: inside tDACC and the float time (docs/vg93.md), and a
+    // flip-flop away from the bus for the FPGA
+    logic       driving;
+    logic [7:0] out_byte;
+    always_ff @(posedge clk) begin
+        driving  <= !p3 && !p4;
+        out_byte <= !p3 && !p4 ? bus : 8'h00;
+    end
+    assign {p14, p13, p12, p11, p10, p9, p8, p7} = out_byte;
+    assign {p14_oe, p13_oe, p12_oe, p11_oe, p10_oe, p9_oe, p8_oe, p7_oe} = {8{driving}};
     assign {p15, p16, p17, p18} = {step, dirc, 1'b0, 1'b0};    // no precompensation asked
     assign {p25, p28, p29, p30} = {1'b0, hld, tg43, wg};       // RG not modelled
     assign {p38, p39} = {drq, intrq};

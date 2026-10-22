@@ -107,8 +107,17 @@ module kr580vv51 (
     assign status  = {!p22, p16, fe, oe, pe, !full && !busy, rxrdy, !full};
     assign reading = !p11 && !p13;
     assign bus     = p12 ? status : rx_buf;
-    assign {p8, p7, p6, p5, p2, p1, p28, p27} = bus;
-    assign {p8_oe, p7_oe, p6_oe, p5_oe, p2_oe, p1_oe, p28_oe, p27_oe} = {8{reading}};
+    // D drives a master tick after -RD and -CS fall and floats a tick after
+    // they rise: inside tRD and tDF (docs/vv51.md), and a flip-flop away from
+    // the bus for the FPGA
+    logic       driving;
+    logic [7:0] out_byte;
+    always_ff @(posedge clk) begin
+        driving  <= reading;
+        out_byte <= reading ? bus : 8'h00;
+    end
+    assign {p8, p7, p6, p5, p2, p1, p28, p27} = out_byte;
+    assign {p8_oe, p7_oe, p6_oe, p5_oe, p2_oe, p1_oe, p28_oe, p27_oe} = {8{driving}};
 
     assign p15 = !full && txen && !p17;     // the pin is gated, the status bit is not
     assign p18 = !full && !busy;

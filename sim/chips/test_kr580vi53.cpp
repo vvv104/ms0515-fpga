@@ -230,6 +230,28 @@ TEST_CASE("КР580ВИ53: reads LSB then MSB; the latch holds a count while it r
     CHECK(t.read(0) == 0x31);                   // released: running at 1231
 }
 
+TEST_CASE("КР580ВИ53: D drives a tick after -RD falls and floats a tick after it rises")
+{
+    // inside tRD (200 ns) and tDF (25..100 ns) of the datasheet: docs/vi53.md
+    Timer t;
+    t.program(0, 2, 0x1234);
+    t.clock();
+    t.address(0);
+    t.m().p21 = 0;
+    t.m().p22 = 0;
+    t.m().eval();
+    CHECK(!t.m().p1_oe);                        // not at once
+    t.idle(1);
+    CHECK(t.m().p1_oe);
+    t.m().p22 = 1;
+    t.m().eval();
+    CHECK(t.m().p1_oe);                         // still, for the tick
+    t.idle(1);
+    CHECK(!t.m().p1_oe);
+    t.m().p21 = 1;
+    t.idle(1);
+}
+
 TEST_CASE("КР580ВИ53: BCD counts in decades, 0 is 10000")
 {
     Timer t;
