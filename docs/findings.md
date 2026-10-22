@@ -15,42 +15,29 @@ folder per case.
 - **Open**: which revision the Э3 shows; the board scans (rev. 3А) are to be
   traced around D89/D96 to see whether the copper agrees with the sheet.
 
-## R45: D86's OE on РПРРТ H (Э3 sheet 2 vs. ТО 4.3)
+## R45: D86's OE - on GND, misread as on РПРРТ H (Э3 sheet 2)
 
-- **Э3 sheet 2** (page 19, checked on the scan): D86 К555КП15, the
-  multiplexer that makes `РАСШ H` (column bit A7 of the RAM: extended
-  memory and the upper half of the VRAM), has its OE (pin 7) through R45
-  (20 Ohm) on `РПРРТ H` = D97 Q0 = the dispatcher's bit 9.
-- **ТО 4.3**: bit 9 enables the timer interrupt, nothing else.
-- **Software** (board model as drawn, 2026-10-22): the ROM prints
-  «НГМД готов» with the dispatcher at 002377 and the text lands right;
-  Omega sets 003377 (the timer on), D86 lets go of `РАСШ H`, the floating
-  line reads 1, and Omega's first line goes into the cells of the VRAM's
-  upper half - on the screen at row ~15, column 32 instead of row 2,
-  column 0.  So wired, any system with the timer on would lose the
-  extended memory and the low half of the VRAM window.  With R45 on GND
-  the model boots Omega from power-on to its prompt with the text where
-  the emulator has it.
-- **The neighbours**: R24, R25, R43 - the same С1-4 20 Ohm - hold the OEs
-  of D51, D57, D78 to GND.
-- **The copper** (rev. 3А, Mick's layers 1, 2, 7, 8 and both scans):
-  `РПРРТ H` joins D97.2 and D60.2 through one via and nothing else - no
-  resistor pad; D86.7 has no copper on those layers at all, as a pin that
-  goes only to a plane.  Layers 3-6 are not traced, so this does not
-  prove the connection, it only does not contradict it.
-- **The assembled boards**: between D78 and D86 stand three resistors
-  side by side, on the owner's board (`photos/known-machines/MC 0515
-  04.jpg`, mapped onto the copper through the ROMs and the processor) and
-  on Frolov's (`mc0515-7.jpg`, the same corner).  By the copper: R41
-  (1 kOhm, `СБРКС L` to +5V - its +5V end has no outer copper, the plane),
-  R43 (20 Ohm, D78.1 to GND - its GND end likewise), and a third, banded
-  like R43, with no outer copper at either end - R45, both its wires
-  inside the board; the assembly drawing (page 27) has R41, R43, R45
-  stacked there in that order, R45 next to D86.  The photos cannot show
-  where its wires go.
+- **What happened**: the netlist had D86's OE (pin 7) through R45 (20
+  Ohm) on `РПРРТ H` = D97 Q0 = the dispatcher's bit 9.  On the board
+  model Omega, which sets bit 9 (the timer on, ТО 4.3), lost `РАСШ H` -
+  D86 off, the line floating to 1 - and wrote its first line into the
+  VRAM's upper half: at row ~15, column 32 instead of row 2, column 0.
+- **The sheet** (page 19): R45's wire ends in a ground sign, drawn right
+  over the label «РПРРТ Н (Л2)» of D97.2's wire below it; the sign's bar
+  merged with the letters in the reading (pointed out by the owner,
+  2026-10-22).  So Э3 has R45 on GND, as R43 (D78), R62 (D92), R24, R25
+  have their OEs: no drawing error - a misread, now corrected in
+  `nets.csv`.
+- **Everything else agrees**: with R45 on GND the model boots Omega from
+  power-on to its prompt with the text where the emulator has it; the
+  rev. 3А copper (Mick's layers 1, 2, 7, 8 and both scans) joins
+  `РПРРТ H` to D97.2 and D60.2 only, through one via, and D86.7 and both
+  ends of R45 have no outer-layer copper - pins on a plane; the assembly
+  drawing (page 27) and the photos of the owner's and Frolov's boards
+  have R41, R43, R45 stacked between D78 and D86, R45 next to D86.
+- **The lesson**: where a wire ends on a label, look at the scan at full
+  resolution for a sign under the letters before reading a net.
 - **Pictures**: [evidence/r45-d86-oe](evidence/r45-d86-oe/).
-- **Decided** (the user, 2026-10-22): R45 to GND, kept apart from Э3 as
-  read, in `netlist/deviations.csv`.
 
 ## XP5 pin 13 (Э3 sheet 2 vs. ПЭ3)
 
@@ -335,7 +322,8 @@ beyond doubt.  `python tools/netlist.py check rev3a` applies and checks
 them.  Where the drawing itself cannot be right - it contradicts the
 technical description and stops the machine's software - the correction
 lives apart again, in `netlist/deviations.csv`, in the same form, applied
-over Э3 before the board's changes (so far: R45, above).  The FPGA is built from Э3 with the rev. 3А changes, each one
+over Э3 before the board's changes (none so far: R45, the first taken
+for one, was a misread of the sheet).  The FPGA is built from Э3 with the rev. 3А changes, each one
 switchable; where a change matters, software on the model decides.
 
 In `rev3a.csv` so far: nothing - D40.9 was taken out again once the factory

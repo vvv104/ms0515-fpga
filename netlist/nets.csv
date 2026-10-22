@@ -115,7 +115,7 @@ GND,R43,2,,2,
 А15 H,D86,9,S2,2,
 ~D86.7,D86,7,OE,2,
 ~D86.7,R45,1,,2,
-РПРРТ H,R45,2,,2,R45 joins the РПРРТ H wire of D97.2
+GND,R45,2,,2,a ground sign at the end of R45's wire - drawn over the label РПРРТ Н of D97.2's wire below it
 РАСШ H,D86,5,Y,2,
 МК09 H,D97,3,D0,2,
 МК10 H,D97,4,D1,2,

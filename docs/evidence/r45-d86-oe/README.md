@@ -1,23 +1,24 @@
-# R45: D86's OE on РПРРТ H or on GND
+# R45: D86's OE on GND - once misread as on РПРРТ H
 
 The case is told in [findings.md](../../findings.md), section «R45: D86's
-OE on РПРРТ H»;
-the correction lives in `netlist/deviations.csv`.  Here are the pictures it
-rests on.
+OE - on GND, misread as on РПРРТ H»: the netlist had R45 on D97's
+`РПРРТ H`; the sheet has it on ground, the ground sign drawn over that
+wire's label.  Here are the pictures.
 
 ## The schematic
 
 | File | What |
 |---|---|
-| `schematic-sheet2.jpg` | 3.858.420 Э3 sheet 2 (`mc0515-ed`, page 19), the place boxed; R62 at D92's EO (upper left) is drawn to ground too |
-| `schematic-r45.jpg` | the place: D78's EO (pin 1) through R43 to the ground sign (green); D86's EO (pin 7) through R45 down onto the line «2 РПРРТ Н (Л2)» - D97's Q0, the dispatcher's bit 9 - in a T without a dot (red) |
+| `schematic-sheet2.jpg` | 3.858.420 Э3 sheet 2 (`mc0515-ed`, page 19), the place boxed; R62 at D92's EO (upper left) is drawn to ground as well |
+| `schematic-r45.jpg` | the place: D78's EO (pin 1) through R43 to a ground sign (green); D86's EO (pin 7) through R45 (red) - its wire going down towards the label «2 РПРРТ Н (Л2)» |
+| `schematic-r45-ground.jpg` | the same at the scan's full resolution: R45's wire ends in a ground sign whose bar lies on the top of the letters «РП» (ringed); D97.2's wire `РПРРТ Н` runs under the label |
 
 ## The board model
 
 | File | What |
 |---|---|
-| `screen-as-drawn.png` | the board as Э3 draws it, 11.26 s after power-on: Omega's first line («ОМЕГА SJ(S) V05.04») at the foot of the screen, the cursor still under «НГМД готов» |
-| `screen-r45-gnd.png` | R45 on GND, 12.5 s after power-on: the line right under «НГМД готов», as on the emulator |
+| `screen-as-drawn.png` | the board as the netlist misread it (R45 on `РПРРТ H`), 11.26 s after power-on: Omega's first line («ОМЕГА SJ(S) V05.04») at the foot of the screen, the cursor still under «НГМД готов» |
+| `screen-r45-gnd.png` | R45 on GND, as Э3 has it, 12.5 s after power-on: the line right under «НГМД готов», as on the emulator |
 
 ## The bare board, rev. 3А
 

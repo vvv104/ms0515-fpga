@@ -4,4 +4,4 @@
 # apart from nets.csv (Э3 as read) and from rev3a.csv (one real board's
 # changes); applied over Э3 before them.  docs/findings.md tells each case.
 ref,pin,from_net,to_net,evidence
-R45,2,РПРРТ H,GND,"Э3 sheet 2 draws D86's OE (pin 7) through R45 to РПРРТ H, the dispatcher's bit 9 (D97 Q0); ТО 4.3 gives bit 9 one job, enabling the timer interrupt, yet so wired it would cut off РАСШ H whenever the timer is on - Omega (dispatcher 003377) then writes its first line into the upper half of the VRAM (board model 2026-10-22). R24, R25, R43, the same 20 Ohm, hold the OEs of D51, D57, D78 to GND; on the rev. 3А copper (Mick's layers 1, 2, 7, 8 and both scans) РПРРТ H joins D97.2 and D60.2 through one via and nothing else, and D86.7 has no outer-layer copper at all, as a pin that goes only to a plane"
+# None so far: R45, the first, turned out a misread of the sheet (docs/findings.md).
