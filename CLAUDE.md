@@ -40,6 +40,7 @@ rtl/
   top/     — per-FPGA-board tops: clocks, HDMI, SD card, keyboard line
 sim/       — Verilator test benches (C++), the emulator as reference model
 boards/    — FPGA-board constraints and build scripts (MiSTer / DE10-Nano: docs/plan.md stage 7)
+kicad/     — the KiCad schematic generated from netlist/ (tools/kicad.py; never edited by hand)
 tools/     — the netlist reader, the RTL generator, scan helpers (Python)
 docs/      — sources, plan, analog replacements, findings
 ```
@@ -61,6 +62,9 @@ left out.  `python -m unittest discover -s tools/tests` tests the tools.
 `python tools/board.py` regenerates `rtl/board/ns4.sv` after a change to
 `netlist/` or to a chip module's ports (a tool test fails while the
 committed file is stale); `sim/board/test_board.cpp` runs it.
+`python tools/kicad.py` regenerates the KiCad schematic `kicad/` the same
+way; with KiCad's command line (`$KICAD_CLI` or `kicad-cli` on the PATH) a
+tool test reads the nets back out of it and compares them with the netlist.
 
 ## Sources
 `docs/sources.md` lists every document, scan and forum thread the board is
