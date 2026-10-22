@@ -14,6 +14,32 @@ decided it.
 - **Open**: which revision the Э3 shows; the board scans (rev. 3А) are to be
   traced around D89/D96 to see whether the copper agrees with the sheet.
 
+## R45: D86's OE on РПРРТ H (Э3 sheet 2 vs. ТО 4.3)
+
+- **Э3 sheet 2** (page 19, checked on the scan): D86 К555КП15, the
+  multiplexer that makes `РАСШ H` (column bit A7 of the RAM: extended
+  memory and the upper half of the VRAM), has its OE (pin 7) through R45
+  (20 Ohm) on `РПРРТ H` = D97 Q0 = the dispatcher's bit 9.
+- **ТО 4.3**: bit 9 enables the timer interrupt, nothing else.
+- **Software** (board model as drawn, 2026-10-22): the ROM prints
+  «НГМД готов» with the dispatcher at 002377 and the text lands right;
+  Omega sets 003377 (the timer on), D86 lets go of `РАСШ H`, the floating
+  line reads 1, and Omega's first line goes into the cells of the VRAM's
+  upper half - on the screen at row ~15, column 32 instead of row 2,
+  column 0.  So wired, any system with the timer on would lose the
+  extended memory and the low half of the VRAM window.  With R45 on GND
+  the model boots Omega from power-on to its prompt with the text where
+  the emulator has it.
+- **The neighbours**: R24, R25, R43 - the same С1-4 20 Ohm - hold the OEs
+  of D51, D57, D78 to GND.
+- **The copper** (rev. 3А, Mick's layers 1, 2, 7, 8 and both scans):
+  `РПРРТ H` joins D97.2 and D60.2 through one via and nothing else - no
+  resistor pad; D86.7 has no copper on those layers at all, as a pin that
+  goes only to a plane.  Layers 3-6 are not traced, so this does not
+  prove the connection, it only does not contradict it.
+- **Decided** (the user, 2026-10-22): R45 to GND, kept apart from Э3 as
+  read, in `netlist/deviations.csv`.
+
 ## XP5 pin 13 (Э3 sheet 2 vs. ПЭ3)
 
 - **Э3 sheet 2**: D97 Q4 (pin 12) `НАЧ Н` goes out as `ХР5:13` (read
@@ -290,7 +316,10 @@ documents we have come from unknown copies - neither source wins by rule.
 `netlist/<board>.csv` (`rev3a.csv` for НС4 rev. 3А), one moved pin per row
 with its evidence, and go in only when the copper or a photo shows them
 beyond doubt.  `python tools/netlist.py check rev3a` applies and checks
-them.  The FPGA is built from Э3 with the rev. 3А changes, each one
+them.  Where the drawing itself cannot be right - it contradicts the
+technical description and stops the machine's software - the correction
+lives apart again, in `netlist/deviations.csv`, in the same form, applied
+over Э3 before the board's changes (so far: R45, above).  The FPGA is built from Э3 with the rev. 3А changes, each one
 switchable; where a change matters, software on the model decides.
 
 In `rev3a.csv` so far: nothing - D40.9 was taken out again once the factory

@@ -38,7 +38,7 @@ R79,open,,bias of D91 gate 2
 # --- series resistors: conductors to the logic ---
 R13,wire,,33 Ohm damping on ВАК L (CAS of the RAM)
 R16,wire,,33 Ohm damping on ВАС L (RAS of the RAM)
-R45,wire,,20 Ohm from РПРРТ Н to D86's OE
+R45,wire,,20 Ohm to D86's OE from РПРРТ Н as drawn - from GND by deviations.csv
 R78,wire,,620 Ohm from D93.11 to D47's reset (with C82)
 R61,wire,,43 Ohm from D93's paired outputs to the speaker
 # --- strong pull-downs: the net is held low ---

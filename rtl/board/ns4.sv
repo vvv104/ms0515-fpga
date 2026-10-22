@@ -4318,7 +4318,7 @@ module ns4 (
         .p11(n_A13_H),
         .p10(n_A14_H),
         .p9(n_A15_H),
-        .p7(n_RPRRT_H),
+        .p7(1'b0),
         .p4(nx_D78_2),
         .p3(nx_D78_5),
         .p2(nx_D78_6),

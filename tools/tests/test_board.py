@@ -428,6 +428,29 @@ class Inputs(unittest.TestCase):
         self.assertNotIn("NS4_INPUT(clk)", text)
 
 
+class Deviations(unittest.TestCase):
+    def build(self, deviations, changes):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\n", "A,D1,1,,1,\nB,D1,2,,1,\n")
+        header = "ref,pin,from_net,to_net,evidence\n"
+        f.write("deviations.csv", header + deviations)
+        f.write("changes.csv", header + changes)
+        with f.dir as d:
+            return board.Builder(board.Sources(
+                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+                nets=os.path.join(d, "nets.csv"), changes=os.path.join(d, "changes.csv"),
+                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"),
+                deviations=os.path.join(d, "deviations.csv")))
+
+    def test_deviations_go_over_the_drawing_before_the_boards_changes(self):
+        b = self.build("D1,1,A,C,the drawing cannot be right\n", "D1,1,C,E,a photo\n")
+        self.assertEqual(errors(b.problems), [])
+        self.assertEqual(b.pins["D1"][1], "E")
+
+    def test_a_deviation_without_evidence_is_an_error(self):
+        b = self.build("D1,1,A,C,\n", "")
+        self.assertTrue(any("no evidence" in e for e in errors(b.problems)))
+
+
 class TheBoard(unittest.TestCase):
     def test_ns4_generates_without_errors_and_matches_the_committed_file(self):
         text, problems, inputs = board.generate_all(board.ns4_sources())

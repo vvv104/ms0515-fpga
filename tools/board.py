@@ -6,7 +6,8 @@
                                      the committed file is stale or wrong)
 
 The board is the chips of netlist/parts.csv wired by netlist/nets.csv, with
-the owner's board's changes (netlist/rev3a.csv) applied:
+the places where the drawing cannot be right (netlist/deviations.csv) and
+then the owner's board's changes (netlist/rev3a.csv) applied:
 
 - a chip whose type has a module in rtl/chips/ is an instance of it; a chip
   with none yet (the processor, the large chips) and a connector are
@@ -158,6 +159,7 @@ class Sources:
     chips: str
     firmware: str = None        # ref,file,format; files relative to the folder above it
     delays: str = None          # type,ns,source: each chip's typical propagation delay
+    deviations: str = None      # ref,pin,from_net,to_net,evidence: where the model leaves Э3
 
 
 def ns4_sources():
@@ -165,7 +167,8 @@ def ns4_sources():
     return Sources(os.path.join(n, "parts.csv"), os.path.join(n, "pinouts.csv"),
                    os.path.join(n, "nets.csv"), os.path.join(n, "rev3a.csv"),
                    os.path.join(n, "analog.csv"), os.path.join(REPO, "rtl", "chips"),
-                   os.path.join(n, "firmware.csv"), os.path.join(n, "delays.csv"))
+                   os.path.join(n, "firmware.csv"), os.path.join(n, "delays.csv"),
+                   os.path.join(n, "deviations.csv"))
 
 
 TICK_NS = 1000.0 / MASTER_MHZ
@@ -296,9 +299,10 @@ class Builder:
     def __init__(self, src):
         self.problems = Problems()
         self.parts, self.pinouts, conns = nl.load(src.parts, src.pinouts, src.nets)
-        if src.changes:
-            conns, errors = nl.apply_changes(conns, nl.load_changes(src.changes))
-            self.problems.extend(errors)
+        for changes in (src.deviations, src.changes):
+            if changes:
+                conns, errors = nl.apply_changes(conns, nl.load_changes(changes))
+                self.problems.extend(errors)
         self.analog = load_analog(src.analog)
         self.modules = load_modules(src.chips)
         self.firmware = load_firmware(src.firmware)
