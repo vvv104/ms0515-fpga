@@ -2,7 +2,8 @@
 
 Places where the sources disagree with each other, with the board, or with
 the software.  Each entry: what each source says, what was decided, and who
-decided it.
+decided it.  The pictures behind an entry are in [evidence/](evidence/), a
+folder per case.
 
 ## Interrupt priority (Э3 sheet 2 vs. OSA)
 
@@ -45,6 +46,7 @@ decided it.
   R43 (20 Ohm, D78.1 to GND - its GND end likewise), and a third, banded
   like R43, with no outer copper at either end - R45 by elimination, both
   its wires inside the board.  The photos cannot show where they go.
+- **Pictures**: [evidence/r45-d86-oe](evidence/r45-d86-oe/).
 - **Decided** (the user, 2026-10-22): R45 to GND, kept apart from Э3 as
   read, in `netlist/deviations.csv`.
 
