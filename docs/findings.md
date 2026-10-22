@@ -37,6 +37,14 @@ decided it.
   resistor pad; D86.7 has no copper on those layers at all, as a pin that
   goes only to a plane.  Layers 3-6 are not traced, so this does not
   prove the connection, it only does not contradict it.
+- **The assembled boards**: between D78 and D86 stand three resistors
+  side by side, on the owner's board (`photos/known-machines/MC 0515
+  04.jpg`, mapped onto the copper through the ROMs and the processor) and
+  on Frolov's (`mc0515-7.jpg`, the same corner).  By the copper: R41
+  (1 kOhm, `СБРКС L` to +5V - its +5V end has no outer copper, the plane),
+  R43 (20 Ohm, D78.1 to GND - its GND end likewise), and a third, banded
+  like R43, with no outer copper at either end - R45 by elimination, both
+  its wires inside the board.  The photos cannot show where they go.
 - **Decided** (the user, 2026-10-22): R45 to GND, kept apart from Э3 as
   read, in `netlist/deviations.csv`.
 
