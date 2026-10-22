@@ -15,7 +15,7 @@ plays, in `sim/board/`, at the board's connectors.
 
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
 [disk=IMAGE] [layout=omega|vvv|fdz] [keyboard] [save=FILE@MS] [load=FILE]
-[rom=IMAGE] [watch=LO-HI] [spot=ROW:COLUMN]`
+[rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN]`
 
 - the processor's fetches against the emulator's (from power-on only: a
   run from a snapshot is not followed), every Nth frame against its
@@ -29,6 +29,12 @@ plays, in `sim/board/`, at the board's connectors.
   written into D65/D77's cells before power-on (`sim/board/rom_socket.h`),
   the emulator given the same; ROM-A is `firmware/ms0515-roma.rom`.  A
   snapshot carries the ROM it was taken with;
+- `keys=FILE` (with `keyboard`): the keys the stub presses - a line
+  `MS CODE CODE ...`, the machine time in ms and the МС 7004's codes in
+  octal (LK201 make codes: a letter alone, СУ 257 before a control key,
+  ALL-UP 263 when a modifier is let go), sent one after another; `#`
+  begins a comment.  From a snapshot, the lines before its time are passed
+  over;
 - `watch=LO-HI` (octal, may repeat): every write of the processor to
   those addresses - the time, the address, word or byte, the data, and
   the DRAM cell (row:column, octal) it went to, if it went to the DRAM;

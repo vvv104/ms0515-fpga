@@ -4,7 +4,7 @@
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
 //             [disk=IMAGE] [layout=omega|vvv|fdz] [keyboard] [save=FILE@MS] [load=FILE]
-//             [rom=IMAGE] [watch=LO-HI] [spot=ROW:COLUMN]
+//             [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
@@ -56,6 +56,7 @@ extern "C" {
 #include <iterator>
 #include <memory>
 #include <span>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -219,6 +220,7 @@ struct Options {
     std::vector<std::pair<std::uint64_t, std::string>> saves;  // snapshots: (machine ms, file)
     std::string load;                   // a snapshot the run goes on from
     std::string rom;                    // another ROM image in the sockets (sim/board/rom_socket.h)
+    std::string keys;                   // the keys the stub presses: lines "MS CODE ..." (codes octal)
     std::vector<std::pair<unsigned, unsigned>> watch;  // writes logged: address ranges, octal
     std::vector<std::size_t> spots;     // DRAM cells (row:column, octal) whose video reads are placed
 
@@ -254,6 +256,8 @@ struct Options {
                 load = arg.substr(5);
             else if (arg.rfind("rom=", 0) == 0)
                 rom = arg.substr(4);
+            else if (arg.rfind("keys=", 0) == 0)
+                keys = arg.substr(5);
             else if (arg.rfind("watch=", 0) == 0 && arg.find('-') != std::string::npos)
                 watch.emplace_back(static_cast<unsigned>(std::strtoul(arg.c_str() + 6, nullptr, 8)),
                                    static_cast<unsigned>(std::strtoul(arg.c_str() + arg.find('-') + 1, nullptr, 8)));
@@ -427,6 +431,46 @@ private:
     bool ksi_was_ = true, ssi_was_ = true, ts15_was_ = false;
 };
 
+// The keys the stub presses (keys=FILE): a line "MS CODE CODE ...", the
+// machine time in ms and the МС 7004's codes, octal, sent one after
+// another from then; '#' begins a comment.
+class Keys {
+public:
+    explicit Keys(const std::string& path)
+    {
+        if (path.empty()) return;
+        std::ifstream f(path);
+        std::string line;
+        while (std::getline(f, line)) {
+            std::istringstream s(line.substr(0, line.find('#')));
+            std::uint64_t ms = 0;
+            if (!(s >> ms)) continue;
+            std::vector<std::uint8_t> codes;
+            std::string code;
+            while (s >> code) codes.push_back(static_cast<std::uint8_t>(std::strtoul(code.c_str(), nullptr, 8)));
+            at_.emplace_back(ms * 1000 * kMasterMhz, std::move(codes));
+        }
+        std::sort(at_.begin(), at_.end());
+    }
+
+    // press what is due at tick t; start past what a snapshot's time left behind
+    void see(keyboard::Stub& kbd, std::uint64_t t)
+    {
+        while (next_ < at_.size() && at_[next_].first <= t) {
+            if (at_[next_].first + kMasterMhz * 1000 > t) {
+                kbd.press(t, at_[next_].second);
+                std::printf("%.3f s: keys pressed (%zu codes)\n", static_cast<double>(t) / (1e6 * kMasterMhz),
+                            at_[next_].second.size());
+            }
+            ++next_;
+        }
+    }
+
+private:
+    std::vector<std::pair<std::uint64_t, std::vector<std::uint8_t>>> at_;
+    std::size_t next_ = 0;
+};
+
 // Where on the screen the video reads the DRAM cells asked for
 // (spot=ROW:COLUMN, octal): the frame's line and sample of the first read
 // of each cell in each frame.
@@ -551,6 +595,7 @@ int main(int argc, char** argv)
     Camera camera(o);
     Spots spots(o.spots);
     keyboard::Stub kbd;
+    Keys keys(o.keys);
     std::size_t heard = 0;
     std::unique_ptr<drive::Mc5305> fdd;
     if (!o.disk.empty()) {
@@ -580,6 +625,7 @@ int main(int argc, char** argv)
         if (fdd)
             xp4_drive(*m, fdd->tick(t, xp4_lines(*m)));
         if (o.keyboard) {
+            keys.see(kbd, t);
             xs2_keyboard(*m, kbd, t);
             if (kbd.heard().size() != heard) {
                 std::printf("%.3f s: the keyboard heard %03o\n", static_cast<double>(t) / (1e6 * kMasterMhz),
