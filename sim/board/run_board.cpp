@@ -651,6 +651,9 @@ int main(int argc, char** argv)
             std::fflush(stdout);
         }
     }
+    // a snapshot asked for at the run's last moment: the state it ends in
+    while (next_save < saves.size() && saves[next_save].first * 1000 * kMasterMhz == ticks)
+        save_snapshot(saves[next_save++].second, parts, ticks);
     write_bmp(o.folder + "/last.bmp", camera.frame);
     report(o, fetches, camera, emu, dram);
     return 0;
