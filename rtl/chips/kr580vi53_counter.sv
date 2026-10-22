@@ -131,27 +131,38 @@ module kr580vi53_counter (
             step();      // (not before a new count is in)
     endtask
 
+    // What a CLK fall of counting would make of the element, worked out the
+    // tick before: the element, BCD and OUT change only at a CLK fall, or
+    // with a control word, which stops the count, and CLK falls are ticks
+    // apart.  The same count, and no BCD borrow chain the FPGA must ripple
+    // through in the tick of the fall.
+    logic [15:0] less1, less3;          // the element less one; mode 3's step
+    logic        zero1, zero3;
+    always_ff @(posedge clk) begin
+        less1 <= minus(ce, 2'd1, bcd);
+        less3 <= minus(ce, ce[0] ? (out_q ? 2'd1 : 2'd3) : 2'd2, bcd);
+        zero1 <= minus(ce, 2'd1, bcd) == 16'd0;
+        zero3 <= minus(ce, ce[0] ? (out_q ? 2'd1 : 2'd3) : 2'd2, bcd) == 16'd0;
+    end
+
     // one CLK fall of counting
     task automatic step();
-        logic [15:0] n;
-        logic        gated;
+        logic gated;
         gated = (mode == 3'd1 || mode == 3'd5) || gate_s;
-        n = minus(ce, 2'd1, bcd);
         if (!gated) return;
         case (mode)
             3'd2: begin
                 if (ce == 16'd2)      begin ce <= 16'd1; out_q <= 1'b0; end
                 else if (ce == 16'd1) begin ce <= cr;    out_q <= 1'b1; end
-                else ce <= minus(ce, 2'd1, bcd);
+                else ce <= less1;
             end
             3'd3: begin
-                n = minus(ce, ce[0] ? (out_q ? 2'd1 : 2'd3) : 2'd2, bcd);
-                if (n == 16'd0) begin ce <= cr; out_q <= !out_q; end
-                else ce <= n;
+                if (zero3) begin ce <= cr; out_q <= !out_q; end
+                else ce <= less3;
             end
             default: begin                      // 0, 1, 4, 5
-                ce <= n;
-                if (n == 16'd0) begin
+                ce <= less1;
+                if (zero1) begin
                     if (mode == 3'd0 || mode == 3'd1) out_q <= 1'b1;
                     else begin out_q <= 1'b0; strobe <= 1'b1; end
                     if (mode != 3'd0) counting <= 1'b0;
