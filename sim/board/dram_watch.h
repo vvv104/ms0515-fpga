@@ -92,6 +92,11 @@ public:
 
     const Stats& stats() const { return stats_; }
 
+    // the cell (row << 8 | column) the last write went to
+    std::size_t last_write() const { return last_write_; }
+    // and the cell the last video read came from
+    std::size_t last_video() const { return last_video_; }
+
     // the word at a cell, and which of its bytes were ever written
     std::uint16_t word(std::size_t cell) const { return cells_[cell]; }
     std::uint8_t known(std::size_t cell) const { return known_[cell]; }
@@ -139,6 +144,7 @@ private:
 
     void write(const Vns4& m, bool lo, bool hi)
     {
+        last_write_ = cell();
         const std::uint16_t d = data_in(m);
         std::uint16_t& w = cells_[cell()];
         if (lo) w = static_cast<std::uint16_t>((w & 0xFF00) | (d & 0x00FF));
@@ -156,6 +162,7 @@ private:
         ++stats_.reads;
         if (video_) {
             ++stats_.video_reads;
+            last_video_ = cell();
             video_cells_[cell()] = 1;
             if (last_ == 0x47FF) ++stats_.video_fills;
             if (last_ != 0) ++stats_.video_nonzero;
@@ -174,6 +181,7 @@ private:
     std::vector<std::uint8_t> video_cells_ = std::vector<std::uint8_t>(65536, 0);
     bool video_ = false;
     std::uint8_t a_was_ = 0, row_ = 0, column_ = 0;
+    std::size_t last_write_ = 0, last_video_ = 0;
     bool ras_was_ = true, cas_was_ = true, we_lo_was_ = false, we_hi_was_ = false, reading_ = false;
     std::uint16_t last_ = 0;
     Stats stats_;

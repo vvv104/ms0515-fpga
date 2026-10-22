@@ -52,6 +52,7 @@ extern "C" {
 #include <memory>
 #include <span>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -212,6 +213,8 @@ struct Options {
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
     std::vector<std::pair<std::uint64_t, std::string>> saves;  // snapshots: (machine ms, file)
     std::string load;                   // a snapshot the run goes on from
+    std::vector<std::pair<unsigned, unsigned>> watch;  // writes logged: address ranges, octal
+    std::vector<std::size_t> spots;     // DRAM cells (row:column, octal) whose video reads are placed
 
     drive::Layout track_layout() const
     {
@@ -243,9 +246,71 @@ struct Options {
                                    arg.substr(5, arg.find('@') - 5));
             else if (arg.rfind("load=", 0) == 0)
                 load = arg.substr(5);
+            else if (arg.rfind("watch=", 0) == 0 && arg.find('-') != std::string::npos)
+                watch.emplace_back(static_cast<unsigned>(std::strtoul(arg.c_str() + 6, nullptr, 8)),
+                                   static_cast<unsigned>(std::strtoul(arg.c_str() + arg.find('-') + 1, nullptr, 8)));
+            else if (arg.rfind("spot=", 0) == 0 && arg.find(':') != std::string::npos)
+                spots.push_back(std::strtoul(arg.c_str() + 5, nullptr, 8) << 8 |
+                                std::strtoul(arg.c_str() + arg.find(':') + 1, nullptr, 8));
         }
         return every > 0;
     }
+};
+
+// The processor's writes to the address ranges asked for (watch=LO-HI,
+// octal): the address off АД as the row strobe falls, the bytes written
+// (ПМЛБ / ПСТБ low), the data off МК as the processor's column strobe rises.
+class Writes {
+public:
+    std::vector<std::pair<unsigned, unsigned>> ranges;
+
+    void see(const Vns4& m, std::uint64_t t, const DramWatch& dram)
+    {
+        if (ranges.empty()) return;
+        const bool ras = m.n_PVAS_L != 0;
+        if (!ras && ras_was_) {
+            at_ = ad(m);
+            lo_ = hi_ = false;
+            ram_writes_ = dram.stats().writes;
+        }
+        if (!ras) {
+            lo_ = lo_ || !m.n_PMLB_L;
+            hi_ = hi_ || !m.n_PSTB_L;
+            if (m.n_PVAK_L && !cas_was_ && (lo_ || hi_)) data_ = mk(m);
+        }
+        if (ras && !ras_was_ && (lo_ || hi_) && wanted(at_)) {
+            std::printf("%.6f s: write %06o %s %06o", static_cast<double>(t) / (1e6 * kMasterMhz), at_,
+                        lo_ && hi_ ? "word" : lo_ ? "low " : "high", data_);
+            if (dram.stats().writes != ram_writes_)
+                std::printf(" cell %03zo:%03zo", dram.last_write() >> 8, dram.last_write() & 0xFF);
+            std::printf("\n");
+        }
+        ras_was_ = ras;
+        cas_was_ = m.n_PVAK_L != 0;
+    }
+
+private:
+    // АД00..АД15 as a word
+    static unsigned ad(const Vns4& m)
+    {
+        const CData b[16] = {m.n_AD00_H, m.n_AD01_H, m.n_AD02_H, m.n_AD03_H, m.n_AD04_H, m.n_AD05_H,
+                             m.n_AD06_H, m.n_AD07_H, m.n_AD08_H, m.n_AD09_H, m.n_AD10_H, m.n_AD11_H,
+                             m.n_AD12_H, m.n_AD13_H, m.n_AD14_H, m.n_AD15_H};
+        unsigned v = 0;
+        for (int i = 0; i < 16; ++i) v |= (b[i] & 1u) << i;
+        return v;
+    }
+
+    bool wanted(unsigned a) const
+    {
+        for (const auto& [lo, hi] : ranges)
+            if (a >= lo && a <= hi) return true;
+        return false;
+    }
+
+    bool ras_was_ = true, cas_was_ = true, lo_ = false, hi_ = false;
+    unsigned at_ = 0, data_ = 0;
+    std::uint64_t ram_writes_ = 0;      // the DRAM's writes as the cycle began: a cell only if one more
 };
 
 // The processor's fetches (a row strobe of a fetch once СТАРТ is over)
@@ -354,6 +419,33 @@ private:
     bool ksi_was_ = true, ssi_was_ = true, ts15_was_ = false;
 };
 
+// Where on the screen the video reads the DRAM cells asked for
+// (spot=ROW:COLUMN, octal): the frame's line and sample of the first read
+// of each cell in each frame.
+class Spots {
+public:
+    explicit Spots(std::vector<std::size_t> cells) : cells_(std::move(cells)), seen_(cells_.size(), -1) {}
+
+    void see(const DramWatch& dram, const Camera& camera, std::uint64_t t)
+    {
+        if (cells_.empty() || dram.stats().video_reads == reads_) return;
+        reads_ = dram.stats().video_reads;
+        const auto spot = std::find(cells_.begin(), cells_.end(), dram.last_video());
+        if (spot == cells_.end() || camera.frame.lines.empty()) return;
+        int& seen = seen_[static_cast<std::size_t>(spot - cells_.begin())];
+        if (seen == camera.frames) return;
+        seen = camera.frames;
+        std::printf("%.6f s: video reads cell %03zo:%03zo at line %zu, sample %zu\n",
+                    static_cast<double>(t) / (1e6 * kMasterMhz), *spot >> 8, *spot & 0xFF,
+                    camera.frame.lines.size() - 1, camera.frame.lines.back().size());
+    }
+
+private:
+    std::vector<std::size_t> cells_;
+    std::vector<int> seen_;
+    std::uint64_t reads_ = 0;
+};
+
 void report(const Options& o, const Fetches& f, const Camera& cam, const Emulator& emu, const DramWatch& dram)
 {
     using ull = unsigned long long;
@@ -439,7 +531,10 @@ int main(int argc, char** argv)
     Emulator emu(MS0515_FIRMWARE_DIR "/ms0515-romb.rom");
     DramWatch dram;
     Fetches fetches;
+    Writes writes;
+    writes.ranges = o.watch;
     Camera camera(o);
+    Spots spots(o.spots);
     keyboard::Stub kbd;
     std::size_t heard = 0;
     std::unique_ptr<drive::Mc5305> fdd;
@@ -483,7 +578,9 @@ int main(int argc, char** argv)
         m->eval();
         dram.see(*m);
         fetches.see(*m, emu, t);
+        writes.see(*m, t, dram);
         camera.see(*m, t, emu, fetches.started());
+        spots.see(dram, camera, t);
         if (t % (10000ull * kMasterMhz) == 0 && t != 0) {
             const double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - wall).count();
             std::printf("%llu ms: %llu fetches, %llu as the emulator's, %d frames (%.0f s)\n",

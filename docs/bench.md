@@ -14,7 +14,8 @@ plays, in `sim/board/`, at the board's connectors.
 ## Runs
 
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
-[disk=IMAGE] [layout=omega|vvv|fdz] [keyboard] [save=FILE@MS] [load=FILE]`
+[disk=IMAGE] [layout=omega|vvv|fdz] [keyboard] [save=FILE@MS] [load=FILE]
+[watch=LO-HI] [spot=ROW:COLUMN]`
 
 - the processor's fetches against the emulator's (from power-on only: a
   run from a snapshot is not followed), every Nth frame against its
@@ -23,7 +24,14 @@ plays, in `sim/board/`, at the board's connectors.
   `tools/frames_to_video.py`;
 - `save=FILE@MS` / `load=FILE`: a snapshot at machine time MS, a run
   from one to <machine ms>.  Pass the same disk and keyboard to the run
-  that goes on (the drive's state comes from the snapshot, its image too).
+  that goes on (the drive's state comes from the snapshot, its image too);
+- `watch=LO-HI` (octal, may repeat): every write of the processor to
+  those addresses - the time, the address, word or byte, the data, and
+  the DRAM cell (row:column, octal) it went to, if it went to the DRAM;
+- `spot=ROW:COLUMN` (octal, may repeat): where on the screen the video
+  reads that DRAM cell - the frame's line and sample, once a frame.
+  With `watch` it tells where a write shows up (it found R45,
+  `docs/findings.md`).
 
 `tools/run_many.py` runs several side by side, a power-up state each.
 
