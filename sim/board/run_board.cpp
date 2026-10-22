@@ -4,6 +4,7 @@
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
 //             [disk=IMAGE] [layout=omega|vvv|fdz] [keyboard] [save=FILE@MS] [load=FILE]
+//             [rom=IMAGE] [watch=LO-HI] [spot=ROW:COLUMN]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
@@ -15,7 +16,10 @@
 // `keyboard` puts the stub on XS2 that answers ROM-B's ID request.
 // save=FILE@MS (as many as wanted) writes a snapshot of the board and the bench at machine
 // time MS; load=FILE goes on from one, to machine time <machine ms> (no
-// lockstep then: the emulator starts at power-on).  The last line,
+// lockstep then: the emulator starts at power-on).  rom=IMAGE puts another
+// ROM pair in the sockets (ROM-A: firmware/ms0515-roma.rom), the emulator
+// too; a snapshot carries the ROM it was taken with.  watch= and spot=:
+// docs/bench.md.  The last line,
 // "summary: key=value ...", is for tools/run_many.py.
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
@@ -33,6 +37,7 @@
 #include "screen_compare.h"
 #include "snapshot.h"
 #include "snapshot_file.h"
+#include "rom_socket.h"
 
 extern "C" {
 #include <ms0515/core/board.h>
@@ -213,6 +218,7 @@ struct Options {
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
     std::vector<std::pair<std::uint64_t, std::string>> saves;  // snapshots: (machine ms, file)
     std::string load;                   // a snapshot the run goes on from
+    std::string rom;                    // another ROM image in the sockets (sim/board/rom_socket.h)
     std::vector<std::pair<unsigned, unsigned>> watch;  // writes logged: address ranges, octal
     std::vector<std::size_t> spots;     // DRAM cells (row:column, octal) whose video reads are placed
 
@@ -246,6 +252,8 @@ struct Options {
                                    arg.substr(5, arg.find('@') - 5));
             else if (arg.rfind("load=", 0) == 0)
                 load = arg.substr(5);
+            else if (arg.rfind("rom=", 0) == 0)
+                rom = arg.substr(4);
             else if (arg.rfind("watch=", 0) == 0 && arg.find('-') != std::string::npos)
                 watch.emplace_back(static_cast<unsigned>(std::strtoul(arg.c_str() + 6, nullptr, 8)),
                                    static_cast<unsigned>(std::strtoul(arg.c_str() + arg.find('-') + 1, nullptr, 8)));
@@ -528,7 +536,14 @@ int main(int argc, char** argv)
     Verilated::randSeed(o.seed);
     auto m = std::make_unique<Vns4>();
     disconnect(*m);
-    Emulator emu(MS0515_FIRMWARE_DIR "/ms0515-romb.rom");
+    Emulator emu(o.rom.empty() ? MS0515_FIRMWARE_DIR "/ms0515-romb.rom" : o.rom);
+    if (!o.rom.empty() && o.load.empty()) {
+        std::ifstream f(o.rom, std::ios::binary);
+        if (!plug_rom(*m, {std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()})) {
+            std::fprintf(stderr, "%s: not a 16 KB ROM image\n", o.rom.c_str());
+            return 2;
+        }
+    }
     DramWatch dram;
     Fetches fetches;
     Writes writes;

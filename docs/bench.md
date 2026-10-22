@@ -15,7 +15,7 @@ plays, in `sim/board/`, at the board's connectors.
 
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
 [disk=IMAGE] [layout=omega|vvv|fdz] [keyboard] [save=FILE@MS] [load=FILE]
-[watch=LO-HI] [spot=ROW:COLUMN]`
+[rom=IMAGE] [watch=LO-HI] [spot=ROW:COLUMN]`
 
 - the processor's fetches against the emulator's (from power-on only: a
   run from a snapshot is not followed), every Nth frame against its
@@ -25,6 +25,10 @@ plays, in `sim/board/`, at the board's connectors.
 - `save=FILE@MS` / `load=FILE`: a snapshot at machine time MS, a run
   from one to <machine ms>.  Pass the same disk and keyboard to the run
   that goes on (the drive's state comes from the snapshot, its image too);
+- `rom=IMAGE`: another ROM pair in the sockets XS3/XS4 - the 16 KB image
+  written into D65/D77's cells before power-on (`sim/board/rom_socket.h`),
+  the emulator given the same; ROM-A is `firmware/ms0515-roma.rom`.  A
+  snapshot carries the ROM it was taken with;
 - `watch=LO-HI` (octal, may repeat): every write of the processor to
   those addresses - the time, the address, word or byte, the data, and
   the DRAM cell (row:column, octal) it went to, if it went to the DRAM;

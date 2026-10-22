@@ -6,6 +6,7 @@
 
 #include "Vns4.h"
 #include "power.h"
+#include "rom_socket.h"
 
 extern "C" {
 #include <ms0515/core/board.h>
@@ -159,16 +160,23 @@ std::uint16_t mk(const Vns4& m)
     return w;
 }
 
-// The emulator from reset with ROM-B: the PC of each of its first n instructions.
-std::vector<std::uint16_t> emulator_fetches(std::size_t n)
+const std::string kRomA = MS0515_FIRMWARE_DIR "/ms0515-roma.rom";
+const std::string kRomB = MS0515_FIRMWARE_DIR "/ms0515-romb.rom";
+
+std::vector<std::uint8_t> read_rom(const std::string& path)
 {
-    std::ifstream f(MS0515_FIRMWARE_DIR "/ms0515-romb.rom", std::ios::binary);
+    std::ifstream f(path, std::ios::binary);
     REQUIRE(f);
-    const std::vector<char> rom{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
+    return {std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
+}
+
+// The emulator from reset with a ROM: the PC of each of its first n instructions.
+std::vector<std::uint16_t> emulator_fetches(std::size_t n, const std::string& rom_path)
+{
+    const std::vector<std::uint8_t> rom = read_rom(rom_path);
     auto board = std::make_unique<ms0515_board_t>();
     board_init(board.get());
-    board_load_rom(board.get(), reinterpret_cast<const std::uint8_t*>(rom.data()),
-                   static_cast<std::uint32_t>(rom.size()));
+    board_load_rom(board.get(), rom.data(), static_cast<std::uint32_t>(rom.size()));
     board_reset(board.get());
     std::vector<std::uint16_t> pcs;
     while (pcs.size() < n) {
@@ -219,13 +227,15 @@ std::string octal(unsigned v)
 
 // The first 100 ms after power-on: the sync PROMs' timing, D16's reset pulse
 // and the processor let go, from then on no net with two drivers on, and
-// the processor running ROM-B as the emulator does.  The owner's jumpers
-// (E4 fitted, E3 open: РВК0 low, РВК1 high) are the 60 Hz row of the ТО's
-// Table 10.
-static void power_on(int seed)
+// the processor running the ROM in the sockets as the emulator does (ROM-B
+// as built, or another image put in).  The owner's jumpers (E4 fitted, E3
+// open: РВК0 low, РВК1 high) are the 60 Hz row of the ТО's Table 10.
+static void power_on(int seed, const std::string& rom_path = kRomB)
 {
-    INFO("power-up state seed " << seed);
+    INFO("power-up state seed " << seed << ", ROM " << rom_path);
     Board b(seed);
+    if (rom_path != kRomB)
+        REQUIRE(plug_rom(b.m(), read_rom(rom_path)));
     Falls line, frame;
     Fights fights;
     std::int64_t start_rose = -1, start_fell = -1;
@@ -265,7 +275,7 @@ static void power_on(int seed)
           doctest::Approx(2 * 128 * 2 * 64.0).epsilon(0.02));
 
     REQUIRE(fetches.size() > 100);
-    const std::vector<std::uint16_t> expected = emulator_fetches(fetches.size());
+    const std::vector<std::uint16_t> expected = emulator_fetches(fetches.size(), rom_path);
     std::size_t same = 0;
     while (same < fetches.size() && fetches[same] == expected[same])
         ++same;
@@ -280,6 +290,12 @@ static void power_on(int seed)
 TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in the emulator")
 {
     power_on(0);
+}
+
+// The other ROM pair in the sockets: ROM-A, which OSA needs.
+TEST_CASE("power-on with ROM-A put in the sockets: the processor runs it as the emulator does")
+{
+    power_on(0, kRomA);
 }
 
 // The same from undefined power-up states: the board must reset itself.

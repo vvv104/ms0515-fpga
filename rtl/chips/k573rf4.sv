@@ -1,6 +1,8 @@
 // К573РФ4 (2764): an 8K x 8 EPROM, read: the outputs driven while CE (pin
 // 20) and OE (pin 22) are low and PGM (pin 27) high.  CONTENTS holds the
-// byte at address a in bits 8a+7..8a.
+// byte at address a in bits 8a+7..8a; the cells start as CONTENTS, and a
+// test bench may write them - another chip put in the socket (the board's
+// ROMs stand in XS3/XS4).
 module k573rf4 #(
     parameter logic [65535:0] CONTENTS = '1
 ) (
@@ -16,8 +18,10 @@ module k573rf4 #(
 );
     logic [12:0] a;
     logic        on;
+    logic [7:0]  cells [8192] /*verilator public_flat_rw*/;
+    initial for (int i = 0; i < 8192; i++) cells[i] = CONTENTS[8 * i +: 8];
     assign a  = {p2, p23, p21, p24, p25, p3, p4, p5, p6, p7, p8, p9, p10};
     assign on = !p20 && !p22 && p27;
-    assign {p19, p18, p17, p16, p15, p13, p12, p11} = CONTENTS[{a, 3'b000} +: 8];
+    assign {p19, p18, p17, p16, p15, p13, p12, p11} = cells[a];
     assign {p19_oe, p18_oe, p17_oe, p16_oe, p15_oe, p13_oe, p12_oe, p11_oe} = {8{on}};
 endmodule
