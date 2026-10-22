@@ -70,3 +70,17 @@ TEST_CASE("keyboard stub: other bytes are heard and not answered")
     CHECK(decode(answer, step).empty());
     CHECK(s.heard() == std::vector<std::uint8_t>{0x11, 0x90});
 }
+
+TEST_CASE("keyboard stub: keys pressed go out one after another, after an answer in progress")
+{
+    keyboard::Stub s;
+    const std::uint64_t step = kBit / 16;
+    std::vector<bool> line;
+    std::uint64_t t = 0;
+    for (const bool level : frame(0xAB))
+        for (int k = 0; k < 16; ++k, t += step) line.push_back(s.tick(t, level));
+    s.press(t, {0257, 0316});                       // СУ and S while 01 00 still waits to go
+    s.press(t + 1, {0263});
+    for (int i = 0; i < 16 * 80; ++i, t += step) line.push_back(s.tick(t, false));
+    CHECK(decode(line, step) == std::vector<std::uint8_t>{0x01, 0x00, 0257, 0316, 0263});
+}

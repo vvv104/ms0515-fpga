@@ -1,5 +1,6 @@
 // keyboard_stub: the bench's stand-in for the МС 7004 on XS2, until the
-// keyboard has a model of its own - it only answers ROM-B's question.
+// keyboard has a model of its own - it answers the ROMs' question and
+// sends the keys the bench presses.
 // ROM-B (173570..173740) sets the USART to 8N1 x16, sends AB (an LK201's
 // "request keyboard ID") and waits for 01 then 00; without them it prints
 // «Клавиатура не готова» and tries eleven times, about a second each,
@@ -12,6 +13,7 @@
 // 2 MHz / 26 (ROM-B's divisor) / 16 (the USART's x16), about 4808 baud.
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include <deque>
 #include <vector>
@@ -31,6 +33,17 @@ public:
     }
 
     const std::vector<std::uint8_t>& heard() const { return heard_; }
+
+    // keys pressed at master tick t: their codes (an МС 7004's, LK201 make
+    // codes) sent one after another, after whatever is still to go out
+    void press(std::uint64_t t, const std::vector<std::uint8_t>& codes)
+    {
+        std::uint64_t at = t;
+        for (const std::uint8_t code : codes) {
+            if (!bits_.empty()) at = std::max(at, bits_.back().at + 2 * kBitTicks);
+            queue(code, at);
+        }
+    }
 
     // everything that changes as it runs, for a snapshot (sim/board/snapshot.h)
     template <class Archive>
