@@ -14,12 +14,16 @@ plays, in `sim/board/`, at the board's connectors.
 ## Runs
 
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
-[disk=IMAGE] [layout=omega|vvv|fdz] [keyboard] [save=FILE@MS] [load=FILE]
+[disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
 [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN]`
 
 - the processor's fetches against the emulator's (from power-on only: a
   run from a snapshot is not followed), every Nth frame against its
   screen, point for point;
+- `drive=logic` (with `disk=`): the MiSTer core's drive
+  (`rtl/parts/mc5305.sv`) on XP4 in place of the bench's, the image served
+  through MiSTer's block interface (`sim/board/logic_drive.h`); from a
+  snapshot it starts as at power-on, its image mounted anew;
 - `seed=N`: a random power-up state; `video`: every frame, for
   `tools/frames_to_video.py`;
 - `save=FILE@MS` / `load=FILE`: a snapshot at machine time MS, a run

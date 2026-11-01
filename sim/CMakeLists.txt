@@ -118,5 +118,5 @@ target_link_libraries(bench_board PRIVATE Vns4)
 # run_board: the board for a stretch of machine time - fetches against the
 # emulator, frames off the video DAC's inputs (not a test)
 add_executable(run_board board/run_board.cpp)
-target_link_libraries(run_board PRIVATE Vns4 ms0515_core)
+target_link_libraries(run_board PRIVATE Vns4 Vmc5305 ms0515_core)
 target_compile_definitions(run_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")

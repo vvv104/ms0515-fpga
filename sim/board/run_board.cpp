@@ -3,7 +3,7 @@
 // picture taken off the video DAC's digital inputs, frame by frame.
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
-//             [disk=IMAGE] [layout=omega|vvv|fdz] [keyboard] [save=FILE@MS] [load=FILE]
+//             [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
 //             [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
@@ -12,7 +12,8 @@
 // makes them a film in the machine's own time.  seed=N powers the board up
 // in Verilator's random state from seed N (0, the default: all zero).
 // disk=IMAGE puts the image in drive 0, the МС 5305 on XP4 (sim/board/
-// drive.h), its tracks laid out as the formatter `layout` writes them;
+// drive.h), its tracks laid out as the formatter `layout` writes them -
+// with drive=logic the MiSTer core's drive instead (logic_drive.h);
 // `keyboard` puts the stub on XS2 that answers ROM-B's ID request.
 // save=FILE@MS (as many as wanted) writes a snapshot of the board and the bench at machine
 // time MS; load=FILE goes on from one, to machine time <machine ms> (no
@@ -34,6 +35,7 @@
 #include "power.h"
 #include "keyboard_stub.h"
 #include "xp4.h"
+#include "logic_drive.h"
 #include "dram_watch.h"
 #include "video_watch.h"
 #include "screen_compare.h"
@@ -219,6 +221,7 @@ struct Options {
     std::string disk;                   // an image in drive 0, the МС 5305 (none: no disk)
     std::string layout = "omega";       // the formatter its tracks are laid out as
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
+    bool logic_drive = false;           // the MiSTer core's drive in place of the bench's (logic_drive.h)
     std::vector<std::pair<std::uint64_t, std::string>> saves;  // snapshots: (machine ms, file)
     std::string load;                   // a snapshot the run goes on from
     std::string rom;                    // another ROM image in the sockets (sim/board/rom_socket.h)
@@ -249,6 +252,8 @@ struct Options {
                 disk = arg.substr(5);
             else if (arg.rfind("layout=", 0) == 0)
                 layout = arg.substr(7);
+            else if (arg == "drive=logic")
+                logic_drive = true;
             else if (arg == "keyboard")
                 keyboard = true;
             else if (arg.rfind("save=", 0) == 0 && arg.find('@') != std::string::npos)
@@ -605,10 +610,13 @@ int main(int argc, char** argv)
     Keys keys(o.keys);
     std::size_t heard = 0;
     std::unique_ptr<drive::Mc5305> fdd;
+    std::unique_ptr<LogicDrive> logic;
     if (!o.disk.empty()) {
         std::ifstream f(o.disk, std::ios::binary);
         std::vector<std::uint8_t> image{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
         std::printf("drive 0: %s, %zu bytes, laid out as %s's\n", o.disk.c_str(), image.size(), o.layout.c_str());
+        if (o.logic_drive)
+            logic = std::make_unique<LogicDrive>(image, o.layout);
         fdd = std::make_unique<drive::Mc5305>(std::move(image), o.track_layout());
     }
 
@@ -629,7 +637,9 @@ int main(int argc, char** argv)
         while (next_save < saves.size() && t == saves[next_save].first * 1000 * kMasterMhz)
             save_snapshot(saves[next_save++].second, parts, t);
         power(*m, t);
-        if (fdd)
+        if (logic)
+            xp4_drive(*m, logic->tick(xp4_lines(*m)));
+        else if (fdd)
             xp4_drive(*m, fdd->tick(t, xp4_lines(*m)));
         if (o.keyboard) {
             keys.see(kbd, t);
@@ -665,5 +675,7 @@ int main(int argc, char** argv)
     write_bmp(o.folder + "/last.bmp", camera.frame);
     report(o, fetches, camera, emu, dram);
     video.report();
+    if (logic)
+        std::printf("the logic's drive: %d blocks read, %d written\n", logic->reads(), logic->writes());
     return 0;
 }
