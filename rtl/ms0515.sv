@@ -26,6 +26,14 @@
 module ms0515 (
     input  logic        clk,            // the 120 MHz master clock
     input  logic        reset,
+    // another ROM in the sockets XS3/XS4 (the menu loads ROM-A, which OSA
+    // wants): its 16 KB, 160000..177777 as little-endian words, a byte a tick
+    input  logic        rom_we,
+    input  logic [13:0] rom_addr,
+    input  logic [7:0]  rom_data,
+    // the owner's board's changes (netlist/rev3a.csv) taken back to Э3:
+    // D70.15 on ~D14.3 as drawn, not on GND
+    input  logic        d70_drawn,
     // the keyboard
     input  logic [1:0]  kbd_source,
     input  logic [10:0] ps2_key,
@@ -87,7 +95,10 @@ module ms0515 (
         .n_DV_H(dv), .n_KC_H(kc), .n_KSI_L(ksi), .n_NPR_L(npr), .n_RZP_L(rzp),
         .n_SC_H(sc), .n_SGI_L(sgi), .n_SHAG_L(shag), .n_SSI_L(ssi), .n_TS15_H(ts15),
         .n_VBP_H(vbp), .n_VN0_H(vn0), .n_VYHKL_L(vyhkl), .n_ZAP_L(zap), .n_ZC_H(zc),
-        .nx_D69_9(bright)
+        .nx_D69_9(bright),
+        .l_D65_we(rom_we && !rom_addr[0]), .l_D65_a(rom_addr[13:1]), .l_D65_d(rom_data),
+        .l_D77_we(rom_we && rom_addr[0]),  .l_D77_a(rom_addr[13:1]), .l_D77_d(rom_data),
+        .s_D70_15(d70_drawn)
     );
 
     mc5305 drive (

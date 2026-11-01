@@ -96,3 +96,29 @@ TEST_CASE("К573РФ4: the pins answer a master tick after the address and the s
     chip.tick();
     CHECK_FALSE(chip.driven(11));
 }
+
+TEST_CASE("К573РФ4: another chip in the socket - its cells loaded through load_we, load_a, load_d")
+{
+    using V = Vk573rf4_bench;
+    Chip<V> chip({PIN(2), PIN(3), PIN(4), PIN(5), PIN(6), PIN(7), PIN(8), PIN(9), PIN(10),
+                  PIN(11), PIN(12), PIN(13), PIN(15), PIN(16), PIN(17), PIN(18), PIN(19),
+                  PIN(20), PIN(21), PIN(22), PIN(23), PIN(24), PIN(25), PIN(27)},
+                 {OE(11), OE(12), OE(13), OE(15), OE(16), OE(17), OE(18), OE(19)});
+    const int address_pins[13] = {10, 9, 8, 7, 6, 5, 4, 3, 25, 24, 21, 23, 2};
+    const int data_pins[8] = {11, 12, 13, 15, 16, 17, 18, 19};
+    chip.model().load_we = 1;
+    chip.model().load_a = 0x0ABC;
+    chip.model().load_d = 0x3C;
+    chip.tick();
+    chip.model().load_we = 0;
+    chip.set(20, false);
+    chip.set(22, false);
+    chip.set(27, true);
+    for (int k = 0; k < 13; ++k)
+        chip.set(address_pins[k], ((0x0ABCu >> k) & 1u) != 0);
+    chip.tick();
+    unsigned byte = 0;
+    for (int k = 0; k < 8; ++k)
+        byte |= (chip.get(data_pins[k]) ? 1u : 0u) << k;
+    CHECK(byte == 0x3Cu);
+}

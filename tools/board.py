@@ -12,7 +12,10 @@ is plugged in there, and what reaches none of the nets taken left out.
 
 The board is the chips of netlist/parts.csv wired by netlist/nets.csv, with
 the places where the drawing cannot be right (netlist/deviations.csv) and
-then the owner's board's changes (netlist/rev3a.csv) applied:
+then the owner's board's changes (netlist/rev3a.csv) applied - each of
+these a switch: a board input s_<ref>_<pin> takes the moved chip input
+back to Э3's net while 1; a chip's socket ports (load_*) come out as
+board inputs l_<ref>_<name>, its cells loaded from outside:
 
 - a chip whose type has a module in rtl/chips/ is an instance of it; a chip
   with none yet (the processor, the large chips) and a connector are
@@ -99,6 +102,7 @@ class Module:
     name: str
     ports: dict
     open_collector: bool
+    ranges: dict = field(default_factory=dict)     # a port's [msb:lsb], "" for a bit
 
 
 def closing(text, start):
@@ -111,22 +115,27 @@ def closing(text, start):
     raise ValueError("unbalanced parentheses")
 
 
-def parse_ports(text):
+def parse_ports(text, ranges=None):
     """The ports of a module's ANSI port list (the text after its name):
-    each name with its direction, a list like `input logic a, b` included."""
+    each name with its direction, a list like `input logic a, b` included;
+    ranges, if given, gets each port's [msb:lsb] ("" for a bit)."""
     body = re.sub(r"//[^\n]*", "", text).lstrip()
     if body.startswith("#"):                    # a parameter list comes first
         body = body[closing(body, body.index("(") + 1) + 1:]
     body = body[body.index("(") + 1:]
     end = closing(body, 0)
-    ports, way = {}, None
+    ports, way, width = {}, None, ""
     for item in body[:end].split(","):
         words = re.findall(r"\w+", re.sub(r"\[[^]]*\]", "", item))
         if not words:
             continue
         if words[0] in ("input", "output"):
             way = words[0]
+            bracket = re.search(r"\[[^]]*\]", item)
+            width = bracket.group(0) if bracket else ""
         ports[words[-1]] = way
+        if ranges is not None:
+            ranges[words[-1]] = width
     return ports
 
 
@@ -141,9 +150,10 @@ def load_modules(folder):
         if not m:
             continue
         header = text[:m.start()].lower()
-        ports = parse_ports(text[m.end():])
+        ranges = {}
+        ports = parse_ports(text[m.end():], ranges)
         modules[m.group(1)] = Module(m.group(1), ports, "open-collector" in header or
-                                     "open collector" in header)
+                                     "open collector" in header, ranges)
     return modules
 
 
@@ -375,10 +385,16 @@ class Builder:
         self.name, self.title = src.name, src.title
         self.problems = Problems()
         self.parts, self.pinouts, conns = nl.load(src.parts, src.pinouts, src.nets)
+        # the board's changes are switches: a moved input reads Э3's net instead
+        # while s_<ref>_<pin> is 1 (place_chip); the deviations are not
+        self.switches = {}
         for changes in (src.deviations, src.changes):
             if changes:
-                conns, errors = nl.apply_changes(conns, nl.load_changes(changes))
+                rows = nl.load_changes(changes)
+                conns, errors = nl.apply_changes(conns, rows)
                 self.problems.extend(errors)
+                if changes is src.changes:
+                    self.switches.update({(c.ref, c.pin): c.from_net for c in rows})
         self.analog = load_analog(src.analog)
         self.modules = load_modules(src.chips)
         self.firmware = load_firmware(src.firmware)
@@ -394,6 +410,7 @@ class Builder:
         self.wires = []         # internal driver wires
         self.lines = []         # delay lines: (ticks, from, to)
         self.tied = []          # chip inputs on no net
+        self.loads = []         # (port, range): a socket's loading, a change's switch
 
     def treatments(self):
         found = {}
@@ -442,11 +459,24 @@ class Builder:
             conns.append(("clk", "clk"))
         ticks, oe_ticks = self.ticks_of(ref, part, "clk" in module.ports)
         for port, way in module.ports.items():
+            if port.startswith("load_") and way == "input":    # a socket: its cells loaded
+                name = f"l_{ref}_{port[5:]}"
+                conns.append((port, name))
+                self.loads.append((name, module.ranges.get(port, "")))
+                continue
             m = re.fullmatch(r"p(\d+)(_in)?", port)     # pN_in: a driven pin's level
             if not m:
                 continue
             pin = int(m.group(1))
             name = pins.get(pin) or f"~{ref}.{pin}"
+            if (ref, pin) in self.switches and (way != "input" or m.group(2)):
+                self.problems.error(f"{ref}.{pin}: a board's change on a pin it drives - no switch for it")
+            if way == "input" and (ref, pin) in self.switches:
+                switch = f"s_{ref}_{pin}"
+                self.loads.append((switch, ""))
+                drawn = self.read(self.switches[(ref, pin)], ref, pin)
+                conns.append((port, f"{switch} ? {drawn} : {self.read(name, ref, pin)}"))
+                continue
             if way == "input":
                 if pin not in pins and not m.group(2):
                     self.tied.append(f"{ref}.{pin}")
@@ -623,6 +653,7 @@ def emit(b, levels, busy, outputs=None):
     fought = [n for n in nets if busy[n]]
     clocked = bool(b.lines) or any(port == "clk" for _, _, conns, _ in b.instances for port, _ in conns)
     ports = (["input  logic clk"] if clocked else []) + [f"input  logic {p}" for p in b.ports]
+    ports += [f"input  logic {r + ' ' if r else ''}{p}" for p, r in b.loads]
     if outputs is None:
         ports += [f"output logic {ident(n)}" for n in nets] + ["output logic contention"]
     else:
@@ -733,7 +764,7 @@ def generate_all(src):
     """The board's text, the problems found on the way, and the list of its
     inputs (inputs_text)."""
     b, levels, busy = built(src)
-    return emit(b, levels, busy), b.problems, inputs_text(b.ports, src.name)
+    return emit(b, levels, busy), b.problems, inputs_text(b.ports + [p for p, _ in b.loads], src.name)
 
 
 # The board inside the machine, the MiSTer core (docs/plan.md, stage 7d):

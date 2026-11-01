@@ -1,4 +1,5 @@
 """The board generator, on small boards made up for each case."""
+import dataclasses
 import os
 import sys
 import tempfile
@@ -350,6 +351,53 @@ module crystal_frac #(
     assign p1 = 1'b0;
 endmodule
 """
+
+
+SOCKETED = """// A made-up ROM whose cells a test bench or the core may load.
+module k573rf9 (
+    input  logic clk,
+    input  logic p1, output logic p2,
+    input  logic load_we, input  logic [3:0] load_a, input  logic [7:0] load_d
+);
+    assign p2 = p1;
+endmodule
+"""
+
+
+class Sockets(unittest.TestCase):
+    def test_a_chips_load_ports_come_out_as_board_inputs(self):
+        f = Fixture("D1,К573РФ9,,2,,,,,\n", "A,D1,1,,1,\nB,D1,2,,1,\n", modules=(SOCKETED,))
+        with f.dir:
+            text, problems, inputs = board.generate_all(f.sources())
+        self.assertEqual(errors(problems), [])
+        self.assertIn("input  logic [3:0] l_D1_a", text)
+        self.assertIn("input  logic l_D1_we", text)
+        self.assertIn(".load_a(l_D1_a)", text)
+        self.assertIn("NS4_INPUT(l_D1_d)", inputs)
+
+
+class Switches(unittest.TestCase):
+    """A board's change (netlist/rev3a.csv) on a chip's input is a switch:
+    the pin reads the board's net, or Э3's when s_<ref>_<pin> is 1."""
+
+    def build(self, changes):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nD2,К555ЛН1,,14,7,14,,,\n",
+                    "A,D1,1,,1,\nB,D1,2,,1,\nB,D2,1,,1,\nC,D2,2,,1,\n")
+        f.write("changes.csv", "ref,pin,from_net,to_net,evidence\n" + changes)
+        with f.dir as d:
+            src = dataclasses.replace(f.sources(), changes=os.path.join(d, "changes.csv"))
+            return board.generate_all(src)
+
+    def test_a_moved_input_reads_either_net(self):
+        text, problems, inputs = self.build("D2,1,B,A,a photo\n")
+        self.assertEqual(errors(problems), [])
+        self.assertIn("input  logic s_D2_1", text)
+        self.assertIn(".p1(s_D2_1 ? n_B : n_A)", text)
+        self.assertIn("NS4_INPUT(s_D2_1)", inputs)
+
+    def test_a_moved_output_is_refused(self):
+        _, problems, _ = self.build("D1,2,B,A,a photo\n")
+        self.assertTrue(any("switch" in e for e in errors(problems)))
 
 
 class Crystals(unittest.TestCase):

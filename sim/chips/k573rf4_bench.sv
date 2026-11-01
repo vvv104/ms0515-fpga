@@ -7,6 +7,7 @@ module k573rf4_bench (
     input  logic p25, input  logic p24, input  logic p21, input  logic p23,
     input  logic p2,
     input  logic p20, input  logic p22, input  logic p27,
+    input  logic load_we, input  logic [12:0] load_a, input  logic [7:0] load_d,
     output logic p11, output logic p12, output logic p13, output logic p15,
     output logic p16, output logic p17, output logic p18, output logic p19,
     output logic p11_oe, output logic p12_oe, output logic p13_oe, output logic p15_oe,

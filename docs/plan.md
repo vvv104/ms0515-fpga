@@ -177,8 +177,14 @@ Three places need care:
        register.  The menu: the disk image and its layout, the keyboard
        (the МС 7004 with MiSTer's USB keyboard, by character or by
        position; a serial one on the user port or the HPS UART; none),
-       the aspect, reset.  Left for 7d: ROM-A in the menu and the rev3a
-       switches; the post-fit netlist on the bench.
+       the aspect, reset; Load ROM puts another 16 KB ROM (ROM-A, which
+       OSA wants) in the sockets XS3/XS4 - the cells of D65/D77 written
+       through the generator's socket ports (`load_*` of a chip) while the
+       machine is held in reset.  The owner's board's changes
+       (`netlist/rev3a.csv`) are switches: the generator gives each moved
+       input an `s_<ref>_<pin>` that takes it back to Э3's net, and the
+       menu has one for D70.15 (on GND, or as drawn).  Left for 7d: the
+       post-fit netlist on the bench.
    7e. **On the board** (whoever has one): power-on, the ROM's self-test,
        Omega and ОСА from SD images, the keyboard, the picture on HDMI and
        on the IO board's VGA; then what is too long for the model -

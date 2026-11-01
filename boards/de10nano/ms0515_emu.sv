@@ -17,6 +17,14 @@
 // USB-UART cable, or the МС 7004 itself through a level shifter - on the
 // user port (USER_IO[0] in, USER_IO[1] out, open drain, the IO board's
 // pull-up) or on the HPS's UART (Linux's /dev/ttyS1); or none.
+//
+// The menu's Load ROM puts another ROM in the board's sockets XS3/XS4:
+// a 16 KB image (160000..177777 as little-endian words), ROM-A for OSA,
+// written into the cells of D65/D77 while the machine is held in reset.
+// It stays there until the core is loaded again.
+//
+// The board is the owner's НС4 rev. 3А (netlist/rev3a.csv); its one change
+// from Э3, D70.15 lifted onto GND, can be taken back in the menu.
 module emu
 (
     `include "sys/emu_ports.vh"
@@ -45,9 +53,12 @@ module emu
         "-;",
         "S0,DSKIMG,Drive 0;",
         "O[2:1],Disk layout,Omega,vvv,FDZ;",
+        "F1,ROM,Load ROM;",
         "-;",
         "O[4:3],Keyboard,MS 7004 (USB),User port,HPS UART,None;",
         "O[5],Keys,By character,By position;",
+        "-;",
+        "O[6],D70.15 (rev. 3A),On GND,As drawn (E3);",
         "-;",
         "O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
         "-;",
@@ -70,13 +81,19 @@ module emu
     wire [13:0]  sd_buff_addr;          // hps_io's; a 512-byte block takes the low 9 bits
     wire [7:0]   sd_buff_dout, sd_buff_din;
     wire         sd_buff_wr;
+    wire         ioctl_download, ioctl_wr;
+    wire [15:0]  ioctl_index;
+    wire [26:0]  ioctl_addr;
+    wire [7:0]   ioctl_dout;
 
     hps_io #(.CONF_STR(CONF_STR)) hps_io (
         .clk_sys, .HPS_BUS, .EXT_BUS(), .gamma_bus(),
         .buttons, .status, .status_menumask(16'd0), .ps2_key,
         .img_mounted, .img_readonly, .img_size,
         .sd_lba('{sd_lba}), .sd_blk_cnt('{6'd0}), .sd_rd, .sd_wr, .sd_ack,
-        .sd_buff_addr, .sd_buff_dout, .sd_buff_din('{sd_buff_din}), .sd_buff_wr
+        .sd_buff_addr, .sd_buff_dout, .sd_buff_din('{sd_buff_din}), .sd_buff_wr,
+        .ioctl_download, .ioctl_index, .ioctl_wr, .ioctl_addr, .ioctl_dout,
+        .ioctl_wait(1'b0)
     );
 
     // ---- the master clock: 120 MHz from 50 (boards/de10nano/pll.sv) ---------
@@ -84,7 +101,10 @@ module emu
     pll pll (.refclk(CLK_50M), .rst(RESET), .outclk_0(clk_sys), .outclk_1(clk_video), .locked(locked));
 
     // ---- the machine -------------------------------------------------------
-    wire       reset = RESET | status[0] | buttons[1] | !locked;
+    // a ROM image coming from the menu: the machine held in reset meanwhile
+    wire       rom_loading = ioctl_download && ioctl_index[5:0] == 6'd1;
+    wire       rom_we = rom_loading && ioctl_wr && ioctl_addr[26:14] == 13'd0;
+    wire       reset = RESET | status[0] | buttons[1] | !locked | rom_loading;
     wire       ce_pix, hs, vs, hblank, vblank;
     wire [7:0] red, green, blue;
 
@@ -102,6 +122,8 @@ module emu
 
     ms0515 machine (
         .clk(clk_sys), .reset,
+        .rom_we, .rom_addr(ioctl_addr[13:0]), .rom_data(ioctl_dout),
+        .d70_drawn(status[6]),
         .kbd_source(kbd_inside ? 2'd1 : on_user || on_uart ? 2'd2 : 2'd0),
         .ps2_key, .kbd_mode(status[5]), .kbd_rx(rx_sync[1]), .kbd_tx,
         .kbd_leds(), .kbd_bell,

@@ -1,8 +1,9 @@
 // К573РФ4 (2764): an 8K x 8 EPROM, read: the outputs driven while CE (pin
 // 20) and OE (pin 22) are low and PGM (pin 27) high.  CONTENTS holds the
-// byte at address a in bits 8a+7..8a; the cells start as CONTENTS, and a
-// test bench may write them - another chip put in the socket (the board's
-// ROMs stand in XS3/XS4).
+// byte at address a in bits 8a+7..8a; the cells start as CONTENTS, and may
+// be written through load_* - another chip put in the socket (the board's
+// ROMs stand in XS3/XS4): the core loads one from its menu, a test bench
+// may also write the cells directly.
 //
 // The read is registered on the master tick, the outputs and their enables
 // a tick after the pins: the FPGA's block memory reads only so.  The tick
@@ -17,6 +18,9 @@ module k573rf4 #(
     input  logic p25, input  logic p24, input  logic p21, input  logic p23,  // A8..A11
     input  logic p2,                                                         // A12
     input  logic p20, input  logic p22, input  logic p27,                    // CE OE PGM
+    // the socket: another chip put in, its cells written a byte a tick (the
+    // core loads a ROM image from its menu; the generator brings these out)
+    input  logic load_we, input  logic [12:0] load_a, input  logic [7:0] load_d,
     output logic p11, output logic p12, output logic p13, output logic p15,  // D0..D7
     output logic p16, output logic p17, output logic p18, output logic p19,
     output logic p11_oe, output logic p12_oe, output logic p13_oe, output logic p15_oe,
@@ -32,6 +36,9 @@ module k573rf4 #(
         q  <= cells[a];
         on <= !p20 && !p22 && p27;
     end
+    always_ff @(posedge clk)
+        if (load_we)
+            cells[load_a] <= load_d;
     assign {p19, p18, p17, p16, p15, p13, p12, p11} = q;
     assign {p19_oe, p18_oe, p17_oe, p16_oe, p15_oe, p13_oe, p12_oe, p11_oe} = {8{on}};
 endmodule

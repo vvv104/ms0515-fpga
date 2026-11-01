@@ -48,6 +48,10 @@ struct Result {
 void idle(Vms0515& m, bool keyboard)
 {
     m.reset = 0;
+    m.rom_we = 0;
+    m.rom_addr = 0;
+    m.rom_data = 0;
+    m.d70_drawn = 0;
     m.kbd_source = keyboard ? 2 : 0;    // the serial line, or nothing
     m.ps2_key = 0;
     m.kbd_mode = 0;
@@ -171,4 +175,27 @@ TEST_CASE("ms0515: the МС 7004 inside - a PC key's code reaches the board's US
     }
     MESSAGE("the USART's RxD after the key: " << byte);
     CHECK(byte == 0302);
+}
+
+TEST_CASE("ms0515: another ROM loaded into the sockets - the even bytes to D65, the odd to D77")
+{
+    auto machine = std::make_unique<Vms0515>();
+    Vms0515& m = *machine;
+    idle(m, false);
+    tick(m);                            // the chips' cells from their CONTENTS first
+    const auto byte = [](unsigned i) { return static_cast<CData>((i * 7u + 3u) ^ (i >> 8)); };
+    for (unsigned i = 0; i < 16384; ++i) {
+        m.rom_we = 1;
+        m.rom_addr = static_cast<SData>(i);
+        m.rom_data = byte(i);
+        tick(m);
+    }
+    m.rom_we = 0;
+    tick(m);
+    int wrong = 0;
+    for (unsigned i = 0; i < 8192; ++i) {
+        wrong += m.rootp->ms0515__DOT__board__DOT__D65__DOT__cells[i] != byte(2 * i) ? 1 : 0;
+        wrong += m.rootp->ms0515__DOT__board__DOT__D77__DOT__cells[i] != byte(2 * i + 1) ? 1 : 0;
+    }
+    CHECK(wrong == 0);
 }
