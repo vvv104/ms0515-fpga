@@ -110,8 +110,13 @@ Three places need care:
        requests in 1.3 s, every spoiled frame.  Typical delays keep 75 ns
        of margin there; with every chip at its slowest there is none: the
        design's, kept.
-       Left: random power-up states under load; ОСА at max checked
-       against the same count.
+       From random power-up states (seeds 1-3) Omega reached its prompt
+       at typ and at max, ОСА at max too, every DRAM read as written
+       (but the cell 000:000 read before the first refresh after
+       power-on); at typ one request lost in each 25 s run (seed 2's at
+       0 s, in the power-up state; the others' moment is not kept), at max about 5300 a second while the disk is
+       read and the screen scrolls (ОСА: 108 013 in 17 s) - the same
+       margin, the screens' letters spoiled where it bites.  Done.
    7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
        logic: the МС 5305's MFM stream for the ВГ93 from a disk image
        (MiSTer's SD block interface), the МС 7004's line from MiSTer's
