@@ -52,6 +52,7 @@ puts $f "set_global_assignment -name SYSTEMVERILOG_FILE [file join $here pll.sv]
 close $f
 set_global_assignment -name SDC_FILE [file join $template Template.sdc]
 set_global_assignment -name SDC_FILE [file join $here kr1807vm1.sdc]
+set_global_assignment -name SDC_FILE [file join $here km1816ve48.sdc]
 project_close
 
 # build_id.v (the menu's date) and jtag.cdf, as the template's pre-flow

@@ -62,10 +62,16 @@ module ms7004_keys
     logic [1:0]  need;                  // ВР: 0 as the PC's Shift, 1 let go, 2 pressed
     logic        lat;                   // РУС/ЛАТ to turn over for it
     logic        ms_shift, key_down, lat_down;
+    // the tables looked up for the queue's head, a tick late (they are
+    // large): after taking an event the steps wait a tick for the next
     logic [10:0] found;
-    assign found = character(ev[8:0], pc_shift, rus);
+    logic [7:0]  pos;
+    logic        looked;                // the head has stood a tick: found and pos are its
 
     always_ff @(posedge clk) begin
+        found <= character(ev[8:0], pc_shift, rus);
+        looked <= !empty;
+        pos <= position(ev[8:0]);
         toggle_was <= ps2_key[10];
         if (ps2_key[10] != toggle_was && tail + 3'd1 != head) begin
             fifo[tail] <= {ps2_key[9], ps2_key[8:0]};
@@ -79,15 +85,19 @@ module ms7004_keys
 
     // a key by position: the matrix's key where the PC key stands; the PC's
     // Shifts tracked, and in mode 0 put on ВР only between characters
-    task automatic by_position(logic [9:0] e);
-        logic [7:0] p;
-        p = position(e[8:0]);
+    task automatic by_position(logic [9:0] e, logic [7:0] p);
         if (e[8:0] == 9'h012) shift_l <= e[9];
         if (e[8:0] == 9'h059) shift_r <= e[9];
         if (p[7] && (mode || (e[8:0] != 9'h012 && e[8:0] != 9'h059)))
             held[p[6:0]] <= e[9];
         if (!mode && (e[8:0] == 9'h012 || e[8:0] == 9'h059) && st == IDLE)
             ms_shift <= e[9] || (e[8:0] == 9'h012 ? shift_r : shift_l);
+    endtask
+
+    // the queue's head taken: a tick for the tables' lookup of the next
+    task automatic next_event();
+        head <= head + 3'd1;
+        wait_n <= 23'd1;
     endtask
 
     task automatic pause(step_t next);
@@ -97,10 +107,10 @@ module ms7004_keys
 
     task automatic step();
         case (st)
-            IDLE: if (!empty) begin
-                head <= head + 3'd1;
+            IDLE: if (!empty && looked) begin
+                next_event();
                 if (mode || modifier(ev[8:0])) begin
-                    by_position(ev);
+                    by_position(ev, pos);
                 end else if (ev[9] && found[10]) begin
                     cur <= ev[8:0];
                     place <= found[9:3];
@@ -116,16 +126,16 @@ module ms7004_keys
                 pause(PRESS);
             end
             PRESS: begin key_down <= 1'b1; pause(HOLD); end
-            HOLD: if (!empty) begin
+            HOLD: if (!empty && looked) begin
                 if (ev[8:0] == cur && !ev[9]) begin               // let go
                     head <= head + 3'd1;
                     key_down <= 1'b0;
                     pause(RELEASE);
                 end else if (modifier(ev[8:0])) begin
-                    head <= head + 3'd1;
-                    by_position(ev);
+                    next_event();
+                    by_position(ev, pos);
                 end else if (!ev[9]) begin                        // another key let go
-                    head <= head + 3'd1;
+                    next_event();
                 end else begin                                    // another key: this one up first
                     key_down <= 1'b0;
                     pause(RELEASE);

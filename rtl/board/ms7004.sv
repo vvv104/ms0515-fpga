@@ -778,7 +778,7 @@ module ms7004 (
         .p8(d_D11_p8)
     );
 
-    crystal_frac #(.KHZ(4608)) Z1 (
+    crystal_frac #(.ADD(48), .MOD(625)) Z1 (
         .clk(clk),
         .p1(d_Z1_p1)
     );

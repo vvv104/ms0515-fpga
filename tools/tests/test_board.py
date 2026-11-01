@@ -342,7 +342,7 @@ endmodule
 """
 CRYSTAL_FRAC = """// A crystal oscillator off the master clock.
 module crystal_frac #(
-    parameter int KHZ = 1000
+    parameter int ADD = 1, parameter int MOD = 2
 ) (
     input  logic clk,
     output logic p1
@@ -370,7 +370,7 @@ class Crystals(unittest.TestCase):
                     modules=(INVERTER, CRYSTAL, CRYSTAL_FRAC))
         text, problems = f.generate()
         self.assertEqual(errors(problems), [])
-        self.assertIn("crystal_frac #(.KHZ(4608)) Z1 (", text)
+        self.assertIn("crystal_frac #(.ADD(48), .MOD(625)) Z1 (", text)
         self.assertIn("assign n_X = d_Z1_p1;", text)
 
     def test_a_crystal_drives_its_first_pin_and_leaves_the_second(self):

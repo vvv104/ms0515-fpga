@@ -47,6 +47,7 @@ netlist/analog.csv   ref,treatment,pins,reason
                    on pin 1, the gate input's side
 """
 import csv
+import math
 import os
 import re
 import sys
@@ -515,7 +516,8 @@ class Builder:
             period = MASTER_MHZ * 1000 // khz
             values = {"PERIOD": period, "HIGH": (period + 1) // 2}
         else:
-            values = {"KHZ": khz}
+            g = math.gcd(2 * khz, MASTER_MHZ * 1000)
+            values = {"ADD": 2 * khz // g, "MOD": MASTER_MHZ * 1000 // g}
         name = self.pins.get(ref, {}).get(1, f"~{ref}.1")
         wire = f"d_{ref}_p1"
         self.wires.append(wire)
