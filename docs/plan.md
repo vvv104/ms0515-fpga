@@ -156,14 +156,16 @@ Three places need care:
        **So far**: the machine for the core (`rtl/ms0515.sv`, the board
        as `rtl/board/ns4_machine.sv` with only the ports it uses) holds
        tick for tick to the bench's board (`test_machine`); the core
-       builds (`boards/de10nano/core.tcl`, an .rbf).  Timing does not
-       close yet: 590 endpoints of the 120 MHz domain miss - the drive's
-       logic (`mc5305`, -6.4 ns, never timed before), the board's ВМ1,
-       ВГ93, ВИ53 placed beside sys/ (-2.4 ns at worst), and sys/'s
-       video side and hps_io on the 120 MHz clock (-2.1 ns).  Next: the
-       drive pipelined, hps_io and the video out on 60 MHz from the same
-       PLL (the line buffer and the drive's sector buffer between the
-       two), then the board's chips.
+       builds (`boards/de10nano/core.tcl`, an .rbf) and meets timing in
+       every domain: 29 % of the ALMs, of the block memory and of the
+       DSP blocks; the 120 MHz domain with +0.06 ns (the template's
+       single timing model, as MiSTer's cores are built).  It took the
+       drive's logic taken apart over ticks (it missed by 6.4 ns, never
+       timed before) and the pixels handed to sys/ on a 60 MHz clock from
+       the same PLL (`rtl/parts/video_half.sv`) - sys/'s scaler and video
+       measurement do not run at 120 MHz; with these out of the way the
+       board's chips met timing beside sys/ as well.  Left: the margin -
+       the board's ВМ1 and ВГ93 are what the thinnest paths go through.
    7e. **On the board** (whoever has one): power-on, the ROM's self-test,
        Omega and ОСА from SD images, the keyboard, the picture on HDMI and
        on the IO board's VGA; then what is too long for the model -

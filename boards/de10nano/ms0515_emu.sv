@@ -4,7 +4,8 @@
 // the HDMI scaler, the OSD menu, the SD card's images through hps_io.
 //
 // The machine runs on its 120 MHz master clock, made from the board's
-// 50 MHz by a PLL; hps_io and the video run on it too.  Drive 0 is the
+// 50 MHz by a PLL, and hps_io with it; the pixels go to sys/ on the PLL's
+// 60 MHz (rtl/parts/video_half.sv).  Drive 0 is the
 // menu's image, its formatter chosen in the menu; reset is a power cycle
 // for the board's logic (rtl/ms0515.sv).
 //
@@ -76,7 +77,8 @@ module emu
     );
 
     // ---- the master clock: 120 MHz from 50 (boards/de10nano/pll.sv) ---------
-    pll pll (.refclk(CLK_50M), .rst(RESET), .outclk_0(clk_sys), .locked(locked));
+    wire clk_video;                     // 60 MHz, in phase: sys/'s video side
+    pll pll (.refclk(CLK_50M), .rst(RESET), .outclk_0(clk_sys), .outclk_1(clk_video), .locked(locked));
 
     // ---- the machine -------------------------------------------------------
     wire       reset = RESET | status[0] | buttons[1] | !locked;
@@ -108,14 +110,18 @@ module emu
     wire [1:0] ar = status[122:121];
     assign VIDEO_ARX = (!ar) ? 13'd4 : 13'(ar - 1'd1);
     assign VIDEO_ARY = (!ar) ? 13'd3 : 13'd0;
-    assign CLK_VIDEO = clk_sys;
-    assign CE_PIXEL = ce_pix;
-    assign VGA_R = red;
-    assign VGA_G = green;
-    assign VGA_B = blue;
-    assign VGA_HS = hs;
-    assign VGA_VS = vs;
-    assign VGA_DE = !(hblank | vblank);
+    // the pixels onto the 60 MHz video clock (sys/'s scaler does not run at 120)
+    wire       ce_video, hs_video, vs_video, hblank_video, vblank_video;
+    video_half video_half (
+        .clk(clk_sys), .ce_pix, .r(red), .g(green), .b(blue), .hs, .vs, .hblank, .vblank,
+        .clk_video, .ce_out(ce_video), .r_out(VGA_R), .g_out(VGA_G), .b_out(VGA_B),
+        .hs_out(hs_video), .vs_out(vs_video), .hblank_out(hblank_video), .vblank_out(vblank_video)
+    );
+    assign CLK_VIDEO = clk_video;
+    assign CE_PIXEL = ce_video;
+    assign VGA_HS = hs_video;
+    assign VGA_VS = vs_video;
+    assign VGA_DE = !(hblank_video | vblank_video);
 
     assign LED_USER = sd_rd | sd_wr;
     assign LED_DISK = {1'b0, sd_rd | sd_wr};
