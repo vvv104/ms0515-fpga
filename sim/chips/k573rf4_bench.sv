@@ -1,5 +1,7 @@
 // The test's К573РФ4: programmed with byte(a) = a[7:0] ^ a[12:8] ^ 8'h5A.
+// clk: the master tick its read is registered on.
 module k573rf4_bench (
+    input  logic clk,
     input  logic p10, input  logic p9,  input  logic p8,  input  logic p7,
     input  logic p6,  input  logic p5,  input  logic p4,  input  logic p3,
     input  logic p25, input  logic p24, input  logic p21, input  logic p23,

@@ -1,5 +1,7 @@
 // К573РФ4: every address read through the pins, the outputs driven only
-// with CE and OE low and PGM high.
+// with CE and OE low and PGM high - a master tick after the pins say so (the
+// read is registered, for the FPGA's block memory; the board's delay lines
+// take that tick off tACC, tOE and tDF).
 #include "chip.h"
 
 #include "Vk573rf4_bench.h"
@@ -23,7 +25,7 @@ TEST_CASE("К573РФ4: 8K x 8, read with CE, OE low and PGM high")
         for (unsigned a = 0; a < 8192; a += (on ? 1u : 97u)) {
             for (int k = 0; k < 13; ++k)
                 chip.set(address_pins[k], ((a >> k) & 1u) != 0);
-            chip.eval();
+            chip.tick();
             const unsigned byte = (a ^ (a >> 8) ^ 0x5Au) & 0xFFu;
             for (int k = 0; k < 8; ++k) {
                 CHECK(chip.driven(data_pins[k]) == on);
@@ -51,9 +53,46 @@ TEST_CASE("К573РФ4: another chip in the socket - the bench writes its cells")
     chip.set(27, true);
     for (int k = 0; k < 13; ++k)
         chip.set(address_pins[k], ((0x1234u >> k) & 1u) != 0);
-    chip.eval();
+    chip.tick();
     unsigned byte = 0;
     for (int k = 0; k < 8; ++k)
         byte |= (chip.get(data_pins[k]) ? 1u : 0u) << k;
     CHECK(byte == 0xA5u);
+}
+
+TEST_CASE("К573РФ4: the pins answer a master tick after the address and the strobes")
+{
+    using V = Vk573rf4_bench;
+    Chip<V> chip({PIN(2), PIN(3), PIN(4), PIN(5), PIN(6), PIN(7), PIN(8), PIN(9), PIN(10),
+                  PIN(11), PIN(12), PIN(13), PIN(15), PIN(16), PIN(17), PIN(18), PIN(19),
+                  PIN(20), PIN(21), PIN(22), PIN(23), PIN(24), PIN(25), PIN(27)},
+                 {OE(11), OE(12), OE(13), OE(15), OE(16), OE(17), OE(18), OE(19)});
+    const int address_pins[13] = {10, 9, 8, 7, 6, 5, 4, 3, 25, 24, 21, 23, 2};
+    const auto address = [&](unsigned a) {
+        for (int k = 0; k < 13; ++k)
+            chip.set(address_pins[k], ((a >> k) & 1u) != 0);
+    };
+    // byte(1) = 0x5B: D0 high; byte(0) = 0x5A: D0 low
+    chip.set(20, false);
+    chip.set(22, true);
+    chip.set(27, true);
+    address(0);
+    chip.tick();
+    CHECK_FALSE(chip.driven(11));
+    chip.set(22, false);            // OE falls: driven from the next tick
+    chip.eval();
+    CHECK_FALSE(chip.driven(11));
+    chip.tick();
+    CHECK(chip.driven(11));
+    CHECK_FALSE(chip.get(11));
+    address(1);                     // the new byte from the next tick
+    chip.eval();
+    CHECK_FALSE(chip.get(11));
+    chip.tick();
+    CHECK(chip.get(11));
+    chip.set(22, true);             // OE rises: let go the next tick
+    chip.eval();
+    CHECK(chip.driven(11));
+    chip.tick();
+    CHECK_FALSE(chip.driven(11));
 }

@@ -90,7 +90,11 @@ Three places need care:
        two ticks late (they come three apart) with two ticks for its
        arithmetic, and the ВИ53's next count worked out a tick ahead - none
        of it changing what the chips' pins do beyond their datasheets.
-       Left: the К573РФ4s went from M10K into logic.
+       The К573РФ4s then read their cells a tick after the pins (the
+       tick taken off tACC, tOE, tDF, as for any clocked chip) and went
+       back to M10K: 10 % of the ALMs, 21 % of the block memory, 120 MHz
+       met in every model with less to spare (Fmax 120.6 MHz slow 100 C,
+       123 MHz slow -40 C).
    7b. **Margins.**  The board booted with every chip at its datasheet's
        minimum and at its maximum delay, and from random power-up states
        under load (Omega and ОСА to their prompts) - a board that runs

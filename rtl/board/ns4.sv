@@ -3835,6 +3835,7 @@ module ns4 (
         512'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,
         512'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,
         512'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff})) D65 (
+        .clk(clk),
         .p10(n_AD01_H),
         .p9(n_AD02_H),
         .p8(n_AD03_H),
@@ -4264,6 +4265,7 @@ module ns4 (
         512'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,
         512'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,
         512'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff})) D77 (
+        .clk(clk),
         .p10(n_AD01_H),
         .p9(n_AD02_H),
         .p8(n_AD03_H),
@@ -4868,8 +4870,8 @@ module ns4 (
     delay_bank #(.TICKS(3), .W(8)) b3_3_0 (.clk(clk), .i({r_D32_p5_oe, r_D32_p6_oe, r_D48_p3, r_D48_p5, r_D48_p11, r_D48_p13, r_D86_p5_oe, r_D86_p6_oe}), .o({d_D32_p5_oe, d_D32_p6_oe, d_D48_p3, d_D48_p5, d_D48_p11, d_D48_p13, d_D86_p5_oe, d_D86_p6_oe}));
     delay_bank #(.TICKS(2), .FALL(3), .W(4)) b2_3_0 (.clk(clk), .i({r_D48_p3_oe, r_D48_p5_oe, r_D48_p11_oe, r_D48_p13_oe}), .o({d_D48_p3_oe, d_D48_p5_oe, d_D48_p11_oe, d_D48_p13_oe}));
     delay_bank #(.TICKS(7), .W(32)) b7_7_0 (.clk(clk), .i({r_D49_p13, r_D49_p13_oe, r_D49_p12, r_D49_p12_oe, r_D49_p11, r_D49_p11_oe, r_D49_p10, r_D49_p10_oe, r_D50_p13, r_D50_p13_oe, r_D50_p12, r_D50_p12_oe, r_D50_p11, r_D50_p11_oe, r_D50_p10, r_D50_p10_oe, r_D55_p13, r_D55_p13_oe, r_D55_p12, r_D55_p12_oe, r_D55_p11, r_D55_p11_oe, r_D55_p10, r_D55_p10_oe, r_D56_p13, r_D56_p13_oe, r_D56_p12, r_D56_p12_oe, r_D56_p11, r_D56_p11_oe, r_D56_p10, r_D56_p10_oe}), .o({d_D49_p13, d_D49_p13_oe, d_D49_p12, d_D49_p12_oe, d_D49_p11, d_D49_p11_oe, d_D49_p10, d_D49_p10_oe, d_D50_p13, d_D50_p13_oe, d_D50_p12, d_D50_p12_oe, d_D50_p11, d_D50_p11_oe, d_D50_p10, d_D50_p10_oe, d_D55_p13, d_D55_p13_oe, d_D55_p12, d_D55_p12_oe, d_D55_p11, d_D55_p11_oe, d_D55_p10, d_D55_p10_oe, d_D56_p13, d_D56_p13_oe, d_D56_p12, d_D56_p12_oe, d_D56_p11, d_D56_p11_oe, d_D56_p10, d_D56_p10_oe}));
-    delay_bank #(.TICKS(54), .W(16)) b54_54_0 (.clk(clk), .i({r_D65_p11, r_D65_p12, r_D65_p13, r_D65_p15, r_D65_p16, r_D65_p17, r_D65_p18, r_D65_p19, r_D77_p11, r_D77_p12, r_D77_p13, r_D77_p15, r_D77_p16, r_D77_p17, r_D77_p18, r_D77_p19}), .o({d_D65_p11, d_D65_p12, d_D65_p13, d_D65_p15, d_D65_p16, d_D65_p17, d_D65_p18, d_D65_p19, d_D77_p11, d_D77_p12, d_D77_p13, d_D77_p15, d_D77_p16, d_D77_p17, d_D77_p18, d_D77_p19}));
-    delay_bank #(.TICKS(18), .FALL(16), .W(16)) b18_16_0 (.clk(clk), .i({r_D65_p11_oe, r_D65_p12_oe, r_D65_p13_oe, r_D65_p15_oe, r_D65_p16_oe, r_D65_p17_oe, r_D65_p18_oe, r_D65_p19_oe, r_D77_p11_oe, r_D77_p12_oe, r_D77_p13_oe, r_D77_p15_oe, r_D77_p16_oe, r_D77_p17_oe, r_D77_p18_oe, r_D77_p19_oe}), .o({d_D65_p11_oe, d_D65_p12_oe, d_D65_p13_oe, d_D65_p15_oe, d_D65_p16_oe, d_D65_p17_oe, d_D65_p18_oe, d_D65_p19_oe, d_D77_p11_oe, d_D77_p12_oe, d_D77_p13_oe, d_D77_p15_oe, d_D77_p16_oe, d_D77_p17_oe, d_D77_p18_oe, d_D77_p19_oe}));
+    delay_bank #(.TICKS(53), .W(16)) b53_53_0 (.clk(clk), .i({r_D65_p11, r_D65_p12, r_D65_p13, r_D65_p15, r_D65_p16, r_D65_p17, r_D65_p18, r_D65_p19, r_D77_p11, r_D77_p12, r_D77_p13, r_D77_p15, r_D77_p16, r_D77_p17, r_D77_p18, r_D77_p19}), .o({d_D65_p11, d_D65_p12, d_D65_p13, d_D65_p15, d_D65_p16, d_D65_p17, d_D65_p18, d_D65_p19, d_D77_p11, d_D77_p12, d_D77_p13, d_D77_p15, d_D77_p16, d_D77_p17, d_D77_p18, d_D77_p19}));
+    delay_bank #(.TICKS(17), .FALL(15), .W(16)) b17_15_0 (.clk(clk), .i({r_D65_p11_oe, r_D65_p12_oe, r_D65_p13_oe, r_D65_p15_oe, r_D65_p16_oe, r_D65_p17_oe, r_D65_p18_oe, r_D65_p19_oe, r_D77_p11_oe, r_D77_p12_oe, r_D77_p13_oe, r_D77_p15_oe, r_D77_p16_oe, r_D77_p17_oe, r_D77_p18_oe, r_D77_p19_oe}), .o({d_D65_p11_oe, d_D65_p12_oe, d_D65_p13_oe, d_D65_p15_oe, d_D65_p16_oe, d_D65_p17_oe, d_D65_p18_oe, d_D65_p19_oe, d_D77_p11_oe, d_D77_p12_oe, d_D77_p13_oe, d_D77_p15_oe, d_D77_p16_oe, d_D77_p17_oe, d_D77_p18_oe, d_D77_p19_oe}));
     delay_bank #(.TICKS(17), .W(1)) b17_17_0 (.clk(clk), .i({r_D90_p9}), .o({d_D90_p9}));
 
     assign n_A0_H = d_D61_p7;
