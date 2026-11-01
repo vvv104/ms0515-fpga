@@ -33,7 +33,7 @@ traced into this repository, **want** = known to exist, not yet obtained.
 | `2.791.064 ЭД` - the operating documents, incl. `Э6` general diagram, `3.559.024 Э4` interconnection | `scans/mc0515-ed.rar` | have |
 | `3.559.025 Э3` - the sound unit | not found yet | want |
 | Cables `4.854.127..131 Э3` | not found yet | want |
-| МС 7004 keyboard: schematic, ТО, firmware | `scans/ps-kb.rar`, `kbms7004.djvu`; firmware in the emulator's `src/assets` | have |
+| МС 7004 keyboard: schematic, ТО, firmware | `scans/ps-kb.rar` (`KB-МС7004.djvu`, the high-resolution one), `keyboard/kbms7004.pdf`; firmware `firmware/ms7004.rom`; `docs/ms7004.md` | have, matrix read |
 | Floppy drive (НГМД) documentation | `scans/ngmd-nmd.rar` | have |
 | Memory expansion module («Модуль расширения ЗУ и интерфейсов»: 512 KB of КР565РУ7Г as a RAM disk + two RS-232C) - its description, element list (D1..D35, R1..R27, G1 5.0688 MHz, XP1 to the board's XS1) and **connection tables** (`l1..l6_1.doc.txt`, cp1251) - a netlist in table form, no schematic needed | `Модуль расширения запоминающего устройства 0515.zip` (anasana, zx-pk 15146 p16 #154), `docs/ext/` | have |
 | Photos of the owner's RAM-disk board | `photos/known-machines/0_d4979_65e0bd2a_XXXL.jpg`, `0_d497a_ec95e9c1_XXXL.jpg` | have |
