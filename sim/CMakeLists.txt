@@ -57,6 +57,8 @@ endforeach()
 ms0515_model(Vcrystal "${MS0515_CHIPS}/crystal.sv" crystal)
 ms0515_model(Vcrystal_15 "${MS0515_CHIPS}/crystal.sv" crystal ARGS -GPERIOD=8 -GHIGH=4)
 ms0515_test(test_crystal chips/test_crystal.cpp Vcrystal Vcrystal_15)
+ms0515_model(Vcrystal_frac "${MS0515_CHIPS}/crystal_frac.sv" crystal_frac)
+ms0515_test(test_crystal_frac chips/test_crystal_frac.cpp Vcrystal_frac)
 
 # a bank of delay lines: three ticks, one bit or three
 ms0515_model(Vdelay_bank "${MS0515_CHIPS}/delay_bank.sv" delay_bank ARGS -GTICKS=3)
@@ -116,6 +118,14 @@ ms0515_model(Vms0515 "${PROJECT_SOURCE_DIR}/rtl/ms0515.sv" ms0515
                       "${PROJECT_SOURCE_DIR}/rtl/parts/mc5305_pkg.sv"
              ARGS -y "${PROJECT_SOURCE_DIR}/rtl/board" -y "${PROJECT_SOURCE_DIR}/rtl/parts" --public-flat-rw)
 ms0515_test(test_machine board/test_machine.cpp Vns4 Vns4_video Vms0515)
+
+# the МС 7004 keyboard generated from its netlist (rtl/board/ms7004.sv)
+ms0515_model(Vms7004 "${PROJECT_SOURCE_DIR}/rtl/board/ms7004.sv" ms7004
+             PACKAGES "${MS0515_CHIPS}/km1816ve48_pkg.sv" ARGS --public-flat-rw)
+ms0515_test(test_ms7004 board/test_ms7004.cpp Vms7004)
+add_executable(probe_ms7004 board/probe_ms7004.cpp)
+target_link_libraries(probe_ms7004 PRIVATE Vms7004)
+ms0515_strict(probe_ms7004)
 
 # the floppy drive the bench plays: its tracks (sim/board/drive.h)
 ms0515_test(test_drive board/test_drive.cpp)

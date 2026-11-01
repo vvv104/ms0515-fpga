@@ -61,6 +61,12 @@ net,ref,pin,pin_name,sheet,note
 ~D1.24,D1,24,P23,A3,
 ~D1.24,D5,18,CE,A3,
 ~D1.24,D8,8,P23,A3,
+GND,D4,1,DS1,A3,"the power table: DS1 low, DS2 (ALE) selects"
++5V,D4,2,MD,A3,the power table: output mode
++5V,D4,11,STB,A3,the power table
++5V,D4,14,CLR,A3,the power table: never cleared
+GND,D8,6,CS,A3,the power table: the 8243 always selected
+GND,D10,6,INH,A3,the power table: a channel always switched through
 ~D1.9,D1,9,PSEN,A3,also the converter's clock (D2.11) - not modelled
 ~D1.9,D5,20,OE,A3,
 ~D1.25,D1,25,PROG,A3,

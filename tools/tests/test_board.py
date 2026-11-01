@@ -151,8 +151,10 @@ class Names(unittest.TestCase):
         self.assertEqual(board.module_name("КР1807ВМ1"), "kr1807vm1")
 
     def test_chip_types(self):
-        for t in ("К555ЛА3", "КР1102АП15", "КР565РУ5Г", "К573РФ4Б"):
+        for t in ("К555ЛА3", "КР1102АП15", "КР565РУ5Г", "К573РФ4Б", "КМ1816ВЕ48", "564КП2"):
             self.assertTrue(board.is_chip(t), t)
+        self.assertEqual(board.module_name("КМ1816ВЕ48"), "km1816ve48")
+        self.assertEqual(board.module_name("564КП2"), "k564kp2")
         for t in ("К10-17-2б-Н90", "К53-14", "КД522Б", "КС133А", "КТ676АС", "С1-4", "КМ-6Б-Н90"):
             self.assertFalse(board.is_chip(t), t)
 
@@ -338,6 +340,16 @@ module crystal #(
     assign p1 = 1'b0;
 endmodule
 """
+CRYSTAL_FRAC = """// A crystal oscillator off the master clock.
+module crystal_frac #(
+    parameter int KHZ = 1000
+) (
+    input  logic clk,
+    output logic p1
+);
+    assign p1 = 1'b0;
+endmodule
+"""
 
 
 class Crystals(unittest.TestCase):
@@ -348,6 +360,18 @@ class Crystals(unittest.TestCase):
     def test_a_rating_off_the_master_clock_is_refused(self):
         with self.assertRaises(ValueError):
             board.crystal_ticks("7 МГц")
+
+    def test_a_rating_in_khz_off_the_master_clock_is_a_fractional_crystal(self):
+        self.assertEqual(board.crystal_khz("4608 кГц"), 4608)
+        self.assertEqual(board.crystal_khz("8 МГц"), 8000)
+        f = Fixture("Z1,РК 170БВ,4608 кГц,2,,,,,\nD1,К555ЛН1,,14,7,14,,,\n",
+                    "X,Z1,1,,1,\nX,D1,1,,1,\nY,Z1,2,,1,\nY,D1,2,,1,\n",
+                    analog="Z1,crystal,,the 4.608 MHz oscillator\n",
+                    modules=(INVERTER, CRYSTAL, CRYSTAL_FRAC))
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("crystal_frac #(.KHZ(4608)) Z1 (", text)
+        self.assertIn("assign n_X = d_Z1_p1;", text)
 
     def test_a_crystal_drives_its_first_pin_and_leaves_the_second(self):
         f = Fixture("BQ1,РК 169МА-6АН,15 МГц,2,,,,,\nD1,К555ЛН1,,14,7,14,,,\n",
