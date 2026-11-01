@@ -122,6 +122,12 @@ Three places need care:
        board's lines out a line late, a pixel enable per sample, so that
        the frame's blanking, on one wire with the line's on the board, is
        told apart; from power-on every pixel matches the camera's sample.
+       The drive, reading - `mc5305.sv` loads the track under the head
+       from MiSTer's block device and makes its bytes and their MFM as
+       they pass, tick for tick the bench's drive once settled after a
+       step (3 ms here, of the 15 ms the controller waits).  Left: its
+       writing (the flux from ДЗП decoded back into the track's sectors,
+       written back a block at a time), and a boot with it on the board.
        The keyboard waits for a choice: the МС 7004's 8035 with its own
        ROM (the firmware is at hand, the matrix wiring is not), or a
        translator after the firmware's listing (Alex's) - the emulator's

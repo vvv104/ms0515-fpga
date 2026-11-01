@@ -97,6 +97,8 @@ ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
 # the bench's parts as logic, for the MiSTer core (rtl/parts)
 ms0515_model(Vns4_video "${PROJECT_SOURCE_DIR}/rtl/parts/ns4_video.sv" ns4_video)
 ms0515_test(test_ns4_video parts/test_ns4_video.cpp Vns4_video)
+ms0515_model(Vmc5305 "${PROJECT_SOURCE_DIR}/rtl/parts/mc5305.sv" mc5305 ARGS -y "${PROJECT_SOURCE_DIR}/rtl/parts")
+ms0515_test(test_mc5305 parts/test_mc5305.cpp Vmc5305)
 # ... and on the board's own levels
 ms0515_test(test_board_video board/test_board_video.cpp Vns4 Vns4_video)
 
