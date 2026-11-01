@@ -180,7 +180,10 @@ Three places need care:
        the aspect, reset; Load ROM puts another 16 KB ROM (ROM-A, which
        OSA wants) in the sockets XS3/XS4 - the cells of D65/D77 written
        through the generator's socket ports (`load_*` of a chip) while the
-       machine is held in reset.  The owner's board's changes
+       machine is held in reset (34 % of the ALMs now; the 120 MHz
+       domain +0.07 ns, once the processor's core-to-bus paths got the two
+       ticks its request stands before the bus takes it - five and more,
+       `test_machine`).  The owner's board's changes
        (`netlist/rev3a.csv`) are switches: the generator gives each moved
        input an `s_<ref>_<pin>` that takes it back to Э3's net, and the
        menu has one for D70.15 (on GND, or as drawn).  Left for 7d: the
