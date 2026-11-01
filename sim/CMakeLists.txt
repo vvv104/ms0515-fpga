@@ -49,7 +49,7 @@ foreach(chip
         k555tm2 kr531tm2 kr1533tm2 k555tm8 k555tm9 k555ir22 k555ir23 k555ir16
         k555ie10 k555ie19
         kr559ip11 kr1102ap15 k554sa3 kr565ru5 kr580vi53 kr580vv55 kr580vv51
-        k155ln3 k155tm2 k1102lp1 k564kp2 k589ir12)
+        k155ln3 k155tm2 k1102lp1 k564kp2 k589ir12 kr580vr43)
     ms0515_chip_test(${chip})
 endforeach()
 
