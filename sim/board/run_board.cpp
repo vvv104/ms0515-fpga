@@ -19,7 +19,8 @@
 // lockstep then: the emulator starts at power-on).  rom=IMAGE puts another
 // ROM pair in the sockets (ROM-A: firmware/ms0515-roma.rom), the emulator
 // too; a snapshot carries the ROM it was taken with.  watch= and spot=:
-// docs/bench.md.  The last line,
+// docs/bench.md.  The video's words are watched on their way from the
+// DRAM to the shift registers (video_watch.h, docs/bench.md).  The last line,
 // "summary: key=value ...", is for tools/run_many.py.
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
@@ -34,6 +35,7 @@
 #include "keyboard_stub.h"
 #include "xp4.h"
 #include "dram_watch.h"
+#include "video_watch.h"
 #include "screen_compare.h"
 #include "snapshot.h"
 #include "snapshot_file.h"
@@ -593,6 +595,7 @@ int main(int argc, char** argv)
         }
     }
     DramWatch dram;
+    VideoWatch video;
     Fetches fetches;
     Writes writes;
     writes.ranges = o.watch;
@@ -642,6 +645,7 @@ int main(int argc, char** argv)
         m->clk = 1;
         m->eval();
         dram.see(*m);
+        video.see(*m, dram, t);
         fetches.see(*m, emu, t);
         writes.see(*m, t, dram);
         camera.see(*m, t, emu, fetches.started());
@@ -660,5 +664,6 @@ int main(int argc, char** argv)
         save_snapshot(saves[next_save++].second, parts, ticks);
     write_bmp(o.folder + "/last.bmp", camera.frame);
     report(o, fetches, camera, emu, dram);
+    video.report();
     return 0;
 }

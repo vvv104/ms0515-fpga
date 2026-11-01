@@ -81,6 +81,34 @@ in `build/max` (`build/min`):
   assumption, the LS datasheets printing no minimum.
 - The LSI models keep their own timing in every corner.
 
+What the corners show (Omega booted to its prompt in all three):
+
+- **The video's request at max: lost now and then.**  The video asks for
+  its next word once in 1.067 us (128 ticks): СТРОБ H, as the shift
+  registers load (ВК4 H), clocks D98.1 (ТРВЗУ H); the word's read ends it,
+  ЧТ ВЗУ H resetting D98.1 through D95 (СБРВЗУ L).  When the request
+  comes while the processor holds the memory (РАЗР ОЗУ L low), the video
+  cycle waits for it to end - АРБ (D73), D43, D47, ЧТ ВЗУ (D23) - and
+  runs late.  At the maximums that late ЧТ ВЗУ still holds D98.1 reset
+  when the next СТРОБ rises; the reset wins, the request is lost, the
+  word is not read, and the latches D51, D57 give the registers the word
+  before again: eight points of the screen show the eight before them,
+  for one frame.  Omega at max, 20.0 to 21.3 s: 251 of 1 218 750
+  requests lost - all 502 loads of a word loaded before, and the spoiled
+  letters of frames 1227 and 1250, which are the only frames that differ
+  from the one before them.  At the typical delays no request was lost
+  in 6 s of the boot, the closest strobe coming 9 ticks (75 ns) after a
+  reset ended; at min, 10 ticks.  So the board has the margin with its
+  typical chips and none with every chip at its datasheet's slowest -
+  a property of the design, kept as it is (the board is not changed to
+  pass a corner no board had).  The FPGA runs the typical delays.
+- **The frame's start at max.**  СБРАВ H clears the video address
+  counters at the frame's start during a video read; at the maximums the
+  cleared address reaches А0..7 (through the КП2s) after -RAS or -CAS
+  has taken it, so the DRAM reads cell 243:160 or 243:170 for 003:160 or
+  243:160 - about one read a frame, in the blanking: nothing on the
+  screen.  None at typ and min.
+
 The test loads of the datasheets differ (LS 2 kOhm 15 pF; LS three-state
 667 Ohm 45 pF, but the LS251's 2 kOhm 15 pF; the open-collector 7416 and
 7407 at 110 Ohm 15 pF; S 280 Ohm 15 pF); `delays-max.csv` keeps each

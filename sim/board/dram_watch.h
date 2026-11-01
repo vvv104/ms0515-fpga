@@ -63,10 +63,13 @@ public:
                 wrote_ = false;
             }
         }
-        if (!ras && ras_was_)
+        if (!ras && ras_was_) {
             row_ = a_was_;
+            video_row_ = video_row_was_;
+        }
         if (!ras && !cas && cas_was_) {
             column_ = a;
+            video_column_ = video_column(m);
             video_ = (m.n_VB1_H & 1u) != 0;
             if (we_lo || we_hi)
                 write(m, we_lo, we_hi);
@@ -84,6 +87,7 @@ public:
             reading_ = false;
         }
         a_was_ = a;
+        video_row_was_ = video_row(m);
         ras_was_ = ras;
         cas_was_ = cas;
         we_lo_was_ = we_lo;
@@ -97,6 +101,14 @@ public:
     // and the cell the last video read came from
     std::size_t last_video() const { return last_video_; }
 
+    // the cell the last -CAS fall addressed, and whether the video read it
+    std::size_t addressed() const { return cell(); }
+    bool video() const { return video_; }
+    // ... and the cell the video address counters named at the strobes, as
+    // the multiplexers D61, D62, D67, D68 put them on А0..7: the row
+    // АВ01..08, the column АВ09..12, Р3 three times, АВ13
+    std::size_t video_named() const { return static_cast<std::size_t>(video_row_) << 8 | video_column_; }
+
     // the word at a cell, and which of its bytes were ever written
     std::uint16_t word(std::size_t cell) const { return cells_[cell]; }
     std::uint8_t known(std::size_t cell) const { return known_[cell]; }
@@ -106,6 +118,24 @@ private:
     {
         const CData bits[8] = {m.n_A0_H, m.n_A1_H, m.n_A2_H, m.n_A3_H,
                                m.n_A4_H, m.n_A5_H, m.n_A6_H, m.n_A7_H};
+        std::uint8_t v = 0;
+        for (int i = 0; i < 8; ++i)
+            v = static_cast<std::uint8_t>(v | (bits[i] & 1u) << i);
+        return v;
+    }
+    static std::uint8_t video_row(const Vns4& m)
+    {
+        const CData bits[8] = {m.n_AV01_H, m.n_AV02_H, m.n_AV03_H, m.n_AV04_H,
+                               m.n_AV05_H, m.n_AV06_H, m.n_AV07_H, m.n_AV08_H};
+        std::uint8_t v = 0;
+        for (int i = 0; i < 8; ++i)
+            v = static_cast<std::uint8_t>(v | (bits[i] & 1u) << i);
+        return v;
+    }
+    static std::uint8_t video_column(const Vns4& m)
+    {
+        const CData bits[8] = {m.n_AV09_H, m.n_AV10_H, m.n_AV11_H, m.n_AV12_H,
+                               m.n_R3_H,   m.n_R3_H,   m.n_R3_H,   m.n_AV13_H};
         std::uint8_t v = 0;
         for (int i = 0; i < 8; ++i)
             v = static_cast<std::uint8_t>(v | (bits[i] & 1u) << i);
@@ -181,6 +211,7 @@ private:
     std::vector<std::uint8_t> video_cells_ = std::vector<std::uint8_t>(65536, 0);
     bool video_ = false;
     std::uint8_t a_was_ = 0, row_ = 0, column_ = 0;
+    std::uint8_t video_row_was_ = 0, video_row_ = 0, video_column_ = 0;
     std::size_t last_write_ = 0, last_video_ = 0;
     bool ras_was_ = true, cas_was_ = true, we_lo_was_ = false, we_hi_was_ = false, reading_ = false;
     std::uint16_t last_ = 0;

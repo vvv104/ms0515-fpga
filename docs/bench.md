@@ -43,6 +43,24 @@ plays, in `sim/board/`, at the board's connectors.
   With `watch` it tells where a write shows up (it found R45,
   `docs/findings.md`).
 
+Every run also watches the video's words (`sim/board/video_watch.h`) and
+ends with three "video words" lines and a "video requests" one:
+
+- what the latches D51, D57 take at ЧТ ВЗУ H against the DRAM cell the
+  video read (the DRAM watch's shadow; from a snapshot the shadow is
+  empty and nothing is checked), what the К555ИР16s load at ВК2/ВК3
+  against what the latches took;
+- loads of a word loaded before (no ЧТ ВЗУ since: the word on the screen
+  twice) and words latched but never loaded;
+- video reads of another cell than the address counters named, as the
+  multiplexers D61, D62, D67, D68 put them on А0..7;
+- the video's requests: СТРОБ H strobes that came while ЧТ ВЗУ still held
+  the request flip-flop D98.1 reset (each a word not read), and how close
+  a strobe came after the reset ended (`docs/timing.md`, "Corners").
+
+The first findings of each kind each machine second are printed, the
+first few with the nets around them tick by tick.
+
 `tools/run_many.py` runs several side by side, a power-up state each.
 
 ## Times
