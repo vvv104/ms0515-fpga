@@ -118,6 +118,14 @@ Three places need care:
        keyboard (its scan codes to LK201 codes), the video DAC's levels
        to MiSTer's video interface (15 kHz, the scaler does HDMI); each
        tested on the model against the C++ part it replaces.
+       **So far** (`rtl/parts/`): the video - `ns4_video.sv` puts the
+       board's lines out a line late, a pixel enable per sample, so that
+       the frame's blanking, on one wire with the line's on the board, is
+       told apart; from power-on every pixel matches the camera's sample.
+       The keyboard waits for a choice: the МС 7004's 8035 with its own
+       ROM (the firmware is at hand, the matrix wiring is not), or a
+       translator after the firmware's listing (Alex's) - the emulator's
+       model carries host-side deviations and is no source for it.
    7d. **The core.**  Template_MiSTer's `sys/` unchanged - a git
        submodule, not copied in: no third-party HDL in the tree - the board and
        the parts of 7c under `emu`, the menu: disk images, ROM-A/ROM-B,

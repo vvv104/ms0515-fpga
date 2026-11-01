@@ -94,6 +94,12 @@ endif()
 
 ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
 
+# the bench's parts as logic, for the MiSTer core (rtl/parts)
+ms0515_model(Vns4_video "${PROJECT_SOURCE_DIR}/rtl/parts/ns4_video.sv" ns4_video)
+ms0515_test(test_ns4_video parts/test_ns4_video.cpp Vns4_video)
+# ... and on the board's own levels
+ms0515_test(test_board_video board/test_board_video.cpp Vns4 Vns4_video)
+
 # the floppy drive the bench plays: its tracks (sim/board/drive.h)
 ms0515_test(test_drive board/test_drive.cpp)
 ms0515_test(test_drive_mechanics board/test_drive_mechanics.cpp)
