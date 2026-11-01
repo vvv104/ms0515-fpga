@@ -72,6 +72,7 @@ ms0515_model(Vkr556rt12_bench "${CMAKE_CURRENT_SOURCE_DIR}/chips/kr556rt12_bench
 ms0515_test(test_kr556rt12 chips/test_kr556rt12.cpp Vkr556rt12_bench)
 ms0515_model(Vk573rf4_bench "${CMAKE_CURRENT_SOURCE_DIR}/chips/k573rf4_bench.sv" k573rf4_bench)
 ms0515_test(test_k573rf4 chips/test_k573rf4.cpp Vk573rf4_bench)
+ms0515_chip_test(km1816ve48 PACKAGES "${MS0515_CHIPS}/km1816ve48_pkg.sv" ARGS --public-flat-rw)
 ms0515_model(Vk573rf2_bench "${CMAKE_CURRENT_SOURCE_DIR}/chips/k573rf2_bench.sv" k573rf2_bench)
 ms0515_test(test_k573rf2 chips/test_k573rf2.cpp Vk573rf2_bench)
 
