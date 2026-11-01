@@ -18,6 +18,7 @@
 #include "keyboard_stub.h"
 #include "power.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <memory>
 
@@ -198,4 +199,31 @@ TEST_CASE("ms0515: another ROM loaded into the sockets - the even bytes to D65, 
         wrong += m.rootp->ms0515__DOT__board__DOT__D77__DOT__cells[i] != byte(2 * i + 1) ? 1 : 0;
     }
     CHECK(wrong == 0);
+}
+
+TEST_CASE("ms0515: the processor's request stands two ticks and more when its bus takes it")
+{
+    // the core acts on the bus's events two ticks late and the bus reads
+    // its request a tick before it flags the take; on the board's 8 MHz
+    // crystal, with the board's READY, the request read has stood at least
+    // two ticks - boards/de10nano/kr1807vm1.sdc gives the path two
+    auto machine = std::make_unique<Vms0515>();
+    Vms0515& m = *machine;
+    idle(m, false);
+    std::uint64_t acted = 0, closest = ~0ull, takes = 0;
+    bool seen = false;
+    for (std::uint64_t t = 0; t < 30000ull * kMasterMhz; ++t) {
+        tick(m);
+        if (m.rootp->ms0515__DOT__board__DOT__D83__DOT__take && seen) {
+            ++takes;
+            closest = std::min(closest, t - acted - 1);
+        }
+        if (m.rootp->ms0515__DOT__board__DOT__D83__DOT__core__DOT__late != 0) {
+            acted = t;
+            seen = true;
+        }
+    }
+    MESSAGE(takes << " takes, the request held at least " << closest << " ticks");
+    CHECK(takes > 10000);
+    CHECK(closest >= 2);
 }

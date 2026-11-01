@@ -288,6 +288,46 @@ TEST_CASE("КР1807ВМ1: the bus's events reach the core ticks apart")
     CHECK(closest >= kEventGap);
 }
 
+// The bus reads the core's request in the tick before it flags the take;
+// the core changes its state only acting on an event, two ticks after it.
+// So the request has stood unchanged kRequestHeld ticks when the bus reads
+// it: what lets the FPGA give the path from the core to the bus two ticks
+// (boards/de10nano/kr1807vm1.sdc).
+TEST_CASE("КР1807ВМ1: the core acts at least two ticks before the bus takes its request")
+{
+    constexpr std::uint64_t kRequestHeld = 2;
+    std::uint64_t closest = ~0ull, takes = 0;
+    for (unsigned seed = 1; seed <= 40; ++seed) {
+        Generator g(seed);
+        const std::vector<std::uint16_t> program = g.program(40);
+        Bench b;
+        b.load(0172000, {000137, kProgram});
+        b.load(kProgram, program);
+        b.power_up();
+        std::uint64_t acted = 0;
+        bool seen = false;
+        for (int t = 0; t < 40000; ++t) {
+            b.run_ticks(1);
+            auto* root = b.m().rootp;
+            // take seen after tick m: the bus read the request at m's edge,
+            // as the state stood after m - 1
+            if (root->kr1807vm1__DOT__take && seen) {
+                ++takes;
+                closest = std::min(closest, b.now() - acted - 1);
+            }
+            // late seen after tick n: the core acts at n + 1's edge, so the
+            // request read at m has stood m - n - 1 ticks
+            if (root->kr1807vm1__DOT__core__DOT__late != 0) {
+                acted = b.now();
+                seen = true;
+            }
+        }
+    }
+    MESSAGE(takes << " takes, the request held at least " << closest << " ticks");
+    CHECK(takes > 5000);
+    CHECK(closest >= kRequestHeld);
+}
+
 TEST_CASE("КР1807ВМ1 and the emulator's processor: random programs, state after each instruction")
 {
     int compared = 0;
