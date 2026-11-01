@@ -9,11 +9,14 @@
 // menu's image, its formatter chosen in the menu; reset is a power cycle
 // for the board's logic (rtl/ms0515.sv).
 //
-// The keyboard is outside the core, on a serial line (TTL, idle high), as
-// the emulator takes one on a COM port: portboard running the МС 7004's
-// firmware on a PC, through a USB-UART cable.  The menu puts it on the
-// user port - USER_IO[0] in, USER_IO[1] out (open drain, the IO board's
-// pull-up) - or on the HPS's UART (Linux's /dev/ttyS1), or nowhere.
+// The keyboard, as the menu says: the МС 7004 inside the core, MiSTer's
+// USB keyboard pressing its keys (rtl/ms0515.sv; by character or by
+// position, the menu's Keys) and its bell on the audio out; or one outside
+// on a serial line (TTL, idle high), as the emulator takes one on a COM
+// port - portboard running the МС 7004's firmware on a PC through a
+// USB-UART cable, or the МС 7004 itself through a level shifter - on the
+// user port (USER_IO[0] in, USER_IO[1] out, open drain, the IO board's
+// pull-up) or on the HPS's UART (Linux's /dev/ttyS1); or none.
 module emu
 (
     `include "sys/emu_ports.vh"
@@ -31,9 +34,6 @@ module emu
     assign HDMI_FREEZE = 0;
     assign HDMI_BLACKOUT = 0;
     assign HDMI_BOB_DEINT = 0;
-    assign AUDIO_S = 0;
-    assign AUDIO_L = 0;
-    assign AUDIO_R = 0;
     assign AUDIO_MIX = 0;
     assign LED_POWER = 0;
     assign BUTTONS = 0;
@@ -46,7 +46,8 @@ module emu
         "S0,DSKIMG,Drive 0;",
         "O[2:1],Disk layout,Omega,vvv,FDZ;",
         "-;",
-        "O[4:3],Keyboard,None,User port,HPS UART;",
+        "O[4:3],Keyboard,MS 7004 (USB),User port,HPS UART,None;",
+        "O[5],Keys,By character,By position;",
         "-;",
         "O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
         "-;",
@@ -59,6 +60,8 @@ module emu
     wire         locked;
     wire [1:0]   buttons;
     wire [127:0] status;
+    wire [10:0]  ps2_key;
+    wire         kbd_bell;
     wire         img_mounted;
     wire         img_readonly;
     wire [63:0]  img_size;
@@ -70,7 +73,7 @@ module emu
 
     hps_io #(.CONF_STR(CONF_STR)) hps_io (
         .clk_sys, .HPS_BUS, .EXT_BUS(), .gamma_bus(),
-        .buttons, .status, .status_menumask(16'd0),
+        .buttons, .status, .status_menumask(16'd0), .ps2_key,
         .img_mounted, .img_readonly, .img_size,
         .sd_lba('{sd_lba}), .sd_blk_cnt('{6'd0}), .sd_rd, .sd_wr, .sd_ack,
         .sd_buff_addr, .sd_buff_dout, .sd_buff_din('{sd_buff_din}), .sd_buff_wr
@@ -86,6 +89,7 @@ module emu
     wire [7:0] red, green, blue;
 
     // the keyboard's line: in through two flip-flops (it is not of this clock)
+    wire       kbd_inside = status[4:3] == 2'd0;    // the МС 7004 inside, MiSTer's USB keyboard on it
     wire       on_user = status[4:3] == 2'd1;
     wire       on_uart = status[4:3] == 2'd2;
     reg  [1:0] rx_sync = 2'b11;
@@ -98,7 +102,9 @@ module emu
 
     ms0515 machine (
         .clk(clk_sys), .reset,
-        .kbd_on(on_user | on_uart), .kbd_rx(rx_sync[1]), .kbd_tx,
+        .kbd_source(kbd_inside ? 2'd1 : on_user || on_uart ? 2'd2 : 2'd0),
+        .ps2_key, .kbd_mode(status[5]), .kbd_rx(rx_sync[1]), .kbd_tx,
+        .kbd_leds(), .kbd_bell,
         .layout(status[2:1]),
         .img_mounted, .img_readonly, .img_size,
         .sd_lba, .sd_rd, .sd_wr, .sd_ack, .sd_buff_addr(sd_buff_addr[8:0]), .sd_buff_dout, .sd_buff_wr,
@@ -122,6 +128,11 @@ module emu
     assign VGA_HS = hs_video;
     assign VGA_VS = vs_video;
     assign VGA_DE = !(hblank_video | vblank_video);
+
+    // the МС 7004's bell (its D2.3 and the piezo BA1): a square wave
+    assign AUDIO_S = 1'b1;
+    assign AUDIO_L = kbd_bell ? 16'sh1000 : -16'sh1000;
+    assign AUDIO_R = AUDIO_L;
 
     assign LED_USER = sd_rd | sd_wr;
     assign LED_DISK = {1'b0, sd_rd | sd_wr};

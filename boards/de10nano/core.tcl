@@ -40,8 +40,8 @@ foreach dir {chips parts} {
     set packages [lsearch -all -inline $all *_pkg.sv]
     lappend sources {*}$packages {*}[lsearch -all -inline -not $all *_pkg.sv]
 }
-lappend sources [file join $root rtl board ns4_machine.sv] [file join $root rtl ms0515.sv] \
-    [file join $here ms0515_emu.sv]
+lappend sources [file join $root rtl board ns4_machine.sv] [file join $root rtl board ms7004_machine.sv] \
+    [file join $root rtl ms0515.sv] [file join $here ms0515_emu.sv]
 foreach s $sources {
     set_global_assignment -name SYSTEMVERILOG_FILE $s
 }

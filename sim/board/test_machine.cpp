@@ -48,7 +48,9 @@ struct Result {
 void idle(Vms0515& m, bool keyboard)
 {
     m.reset = 0;
-    m.kbd_on = keyboard ? 1 : 0;
+    m.kbd_source = keyboard ? 2 : 0;    // the serial line, or nothing
+    m.ps2_key = 0;
+    m.kbd_mode = 0;
     m.kbd_rx = 1;
     m.layout = 1;
     m.img_mounted = 0;
@@ -137,4 +139,36 @@ TEST_CASE("ms0515: a keyboard on the serial line - keys sent, the board's line o
     CHECK(r.pixels > 3 * 260 * 960);
     CHECK(r.rxd_falls >= 8);
     CHECK(r.differ == 0);
+}
+
+TEST_CASE("ms0515: the МС 7004 inside - a PC key's code reaches the board's USART")
+{
+    // after the keyboard's power-on beeps (some 130 ms) the PC's A is
+    // pressed (by character; ЛАТ dark, which the translator reads as РУС:
+    // Ф/F, 302); its frame comes to D22's RxD - read there as the USART
+    // reads it: idle high, a start bit low, eight bits from bit 0, 4800 baud
+    auto machine = std::make_unique<Vms0515>();
+    Vms0515& m = *machine;
+    idle(m, false);
+    m.kbd_source = 1;
+    const std::uint64_t press = 200000ull * kMasterMhz;
+    const std::uint64_t bit = 1000000ull * kMasterMhz / 4800;
+    std::uint64_t start = 0;
+    int byte = -1;
+    bool rxd_was = true;
+    for (std::uint64_t t = 0; t < press + 100000ull * kMasterMhz; ++t) {
+        if (t == press) m.ps2_key = static_cast<SData>(1 << 10 | 1 << 9 | 0x1C);  // A down
+        tick(m);
+        const bool rxd = m.rootp->ms0515__DOT__board__DOT__n_PRM1_H != 0;
+        if (t > press && start == 0 && rxd_was && !rxd) {
+            start = t;
+            byte = 0;
+        }
+        for (int b = 0; b < 8 && start != 0; ++b)
+            if (t == start + bit / 2 + static_cast<std::uint64_t>(b + 1) * bit && rxd)
+                byte |= 1 << b;
+        rxd_was = rxd;
+    }
+    MESSAGE("the USART's RxD after the key: " << byte);
+    CHECK(byte == 0302);
 }

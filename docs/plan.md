@@ -140,13 +140,17 @@ Three places need care:
        reference): Omega from power-on to its prompt, 2420 blocks read
        and 4 written, the two drives' lines apart only while a track
        loads after a step.
-       The keyboard: for now a keyboard outside the core, on a serial
-       line as the emulator takes one on a COM port - anasana's
-       portboard, the МС 7004's own firmware on a PC; the core carries
-       the line's levels to XS2 (`rtl/ms0515.sv`).  Inside the core: the
-       МС 7004's 8035 with its own ROM, MiSTer's USB keyboard on its
-       matrix - the matrix wiring asked of anasana, whose portboard
-       knows it.
+       The keyboard: the МС 7004 itself, read from its own documents
+       (`docs/ms7004.md`) as the board was - its netlist, its 8035
+       (`docs/km1816ve48.md`) and the other chips, the keyboard generated
+       and run on its own firmware: it beeps, scans, answers ROM-B's
+       question and sends its keys as its ТО says.  In the core it stands
+       at XS2 on its cable, MiSTer's USB keyboard pressing its matrix
+       (`rtl/parts/ms7004_keys.sv`: by character - РУС/ЛАТ and ВР
+       pressed as a character needs - or by position).  A keyboard
+       outside stays possible: on a serial line as the emulator takes one
+       on a COM port (portboard, or a real МС 7004 through a level
+       shifter).
    7d. **The core.**  Template_MiSTer's `sys/` unchanged - a git
        submodule, not copied in: no third-party HDL in the tree - the board and
        the parts of 7c under `emu`, the menu: disk images, ROM-A/ROM-B,

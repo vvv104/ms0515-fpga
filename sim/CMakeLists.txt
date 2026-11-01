@@ -118,7 +118,8 @@ ms0515_test(test_board_video board/test_board_video.cpp Vns4 Vns4_video)
 # with the parts, against the bench's board
 ms0515_model(Vms0515 "${PROJECT_SOURCE_DIR}/rtl/ms0515.sv" ms0515
              PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv"
-                      "${PROJECT_SOURCE_DIR}/rtl/parts/mc5305_pkg.sv"
+                      "${PROJECT_SOURCE_DIR}/rtl/parts/mc5305_pkg.sv" "${MS0515_CHIPS}/km1816ve48_pkg.sv"
+                      "${PROJECT_SOURCE_DIR}/rtl/parts/ms7004_keys_pkg.sv"
              ARGS -y "${PROJECT_SOURCE_DIR}/rtl/board" -y "${PROJECT_SOURCE_DIR}/rtl/parts" --public-flat-rw)
 ms0515_test(test_machine board/test_machine.cpp Vns4 Vns4_video Vms0515)
 
