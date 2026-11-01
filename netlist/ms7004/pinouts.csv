@@ -1,0 +1,176 @@
+# Pinouts of the МС 7004 processor board's part types (the generator reads
+# the names of supply and analogue pins from here).  The source column names
+# the datasheet the numbers are checked against; "as drawn" where no
+# datasheet is at hand and the board's Э3 is the only evidence.
+type,pin,name,source
+КМ1816ВЕ48,1,T0,Intel 8048/8035 datasheet (MCS-48 User's Manual) pinout
+КМ1816ВЕ48,2,XTAL1,MCS-48 pinout (drawn XTAL0)
+КМ1816ВЕ48,3,XTAL2,MCS-48 pinout (drawn XTAL1)
+КМ1816ВЕ48,4,RESET,MCS-48 pinout (active low)
+КМ1816ВЕ48,5,SS,MCS-48 pinout (single step; high: run)
+КМ1816ВЕ48,6,INT,MCS-48 pinout (active low)
+КМ1816ВЕ48,7,EA,MCS-48 pinout (high: all fetches external)
+КМ1816ВЕ48,8,RD,MCS-48 pinout
+КМ1816ВЕ48,9,PSEN,MCS-48 pinout
+КМ1816ВЕ48,10,WR,MCS-48 pinout
+КМ1816ВЕ48,11,ALE,MCS-48 pinout
+КМ1816ВЕ48,12,DB0,MCS-48 pinout
+КМ1816ВЕ48,13,DB1,MCS-48 pinout
+КМ1816ВЕ48,14,DB2,MCS-48 pinout
+КМ1816ВЕ48,15,DB3,MCS-48 pinout
+КМ1816ВЕ48,16,DB4,MCS-48 pinout
+КМ1816ВЕ48,17,DB5,MCS-48 pinout
+КМ1816ВЕ48,18,DB6,MCS-48 pinout
+КМ1816ВЕ48,19,DB7,MCS-48 pinout
+КМ1816ВЕ48,20,VSS,MCS-48 pinout
+КМ1816ВЕ48,21,P20,MCS-48 pinout
+КМ1816ВЕ48,22,P21,MCS-48 pinout
+КМ1816ВЕ48,23,P22,MCS-48 pinout
+КМ1816ВЕ48,24,P23,MCS-48 pinout
+КМ1816ВЕ48,25,PROG,MCS-48 pinout
+КМ1816ВЕ48,26,VDD,MCS-48 pinout
+КМ1816ВЕ48,27,P10,MCS-48 pinout
+КМ1816ВЕ48,28,P11,MCS-48 pinout
+КМ1816ВЕ48,29,P12,MCS-48 pinout
+КМ1816ВЕ48,30,P13,MCS-48 pinout
+КМ1816ВЕ48,31,P14,MCS-48 pinout
+КМ1816ВЕ48,32,P15,MCS-48 pinout
+КМ1816ВЕ48,33,P16,MCS-48 pinout
+КМ1816ВЕ48,34,P17,MCS-48 pinout
+КМ1816ВЕ48,35,P24,MCS-48 pinout
+КМ1816ВЕ48,36,P25,MCS-48 pinout
+КМ1816ВЕ48,37,P26,MCS-48 pinout
+КМ1816ВЕ48,38,P27,MCS-48 pinout
+КМ1816ВЕ48,39,T1,MCS-48 pinout
+КМ1816ВЕ48,40,VCC,MCS-48 pinout
+КР580ВР43,1,P50,Intel 8243 datasheet
+КР580ВР43,2,P40,Intel 8243 datasheet
+КР580ВР43,3,P41,Intel 8243 datasheet
+КР580ВР43,4,P42,Intel 8243 datasheet
+КР580ВР43,5,P43,Intel 8243 datasheet
+КР580ВР43,6,CS,Intel 8243 datasheet (active low)
+КР580ВР43,7,PROG,Intel 8243 datasheet
+КР580ВР43,8,P23,Intel 8243 datasheet
+КР580ВР43,9,P22,Intel 8243 datasheet
+КР580ВР43,10,P21,Intel 8243 datasheet
+КР580ВР43,11,P20,Intel 8243 datasheet
+КР580ВР43,12,GND,Intel 8243 datasheet
+КР580ВР43,13,P70,Intel 8243 datasheet
+КР580ВР43,14,P71,Intel 8243 datasheet
+КР580ВР43,15,P72,Intel 8243 datasheet
+КР580ВР43,16,P73,Intel 8243 datasheet
+КР580ВР43,17,P63,Intel 8243 datasheet
+КР580ВР43,18,P62,Intel 8243 datasheet
+КР580ВР43,19,P61,Intel 8243 datasheet
+КР580ВР43,20,P60,Intel 8243 datasheet
+КР580ВР43,21,P53,Intel 8243 datasheet
+КР580ВР43,22,P52,Intel 8243 datasheet
+КР580ВР43,23,P51,Intel 8243 datasheet
+КР580ВР43,24,VCC,Intel 8243 datasheet
+К589ИР12,1,DS1,Intel 8212 datasheet (active low)
+К589ИР12,2,MD,Intel 8212 datasheet
+К589ИР12,3,DI1,Intel 8212 datasheet
+К589ИР12,4,DO1,Intel 8212 datasheet
+К589ИР12,5,DI2,Intel 8212 datasheet
+К589ИР12,6,DO2,Intel 8212 datasheet
+К589ИР12,7,DI3,Intel 8212 datasheet
+К589ИР12,8,DO3,Intel 8212 datasheet
+К589ИР12,9,DI4,Intel 8212 datasheet
+К589ИР12,10,DO4,Intel 8212 datasheet
+К589ИР12,11,STB,Intel 8212 datasheet
+К589ИР12,12,GND,Intel 8212 datasheet
+К589ИР12,13,DS2,Intel 8212 datasheet
+К589ИР12,14,CLR,Intel 8212 datasheet (active low)
+К589ИР12,15,DO5,Intel 8212 datasheet
+К589ИР12,16,DI5,Intel 8212 datasheet
+К589ИР12,17,DO6,Intel 8212 datasheet
+К589ИР12,18,DI6,Intel 8212 datasheet
+К589ИР12,19,DO7,Intel 8212 datasheet
+К589ИР12,20,DI7,Intel 8212 datasheet
+К589ИР12,21,DO8,Intel 8212 datasheet
+К589ИР12,22,DI8,Intel 8212 datasheet
+К589ИР12,23,INT,Intel 8212 datasheet (active low)
+К589ИР12,24,VCC,Intel 8212 datasheet
+К573РФ2,1,A7,Intel 2716 datasheet
+К573РФ2,2,A6,Intel 2716 datasheet
+К573РФ2,3,A5,Intel 2716 datasheet
+К573РФ2,4,A4,Intel 2716 datasheet
+К573РФ2,5,A3,Intel 2716 datasheet
+К573РФ2,6,A2,Intel 2716 datasheet
+К573РФ2,7,A1,Intel 2716 datasheet
+К573РФ2,8,A0,Intel 2716 datasheet
+К573РФ2,9,O0,Intel 2716 datasheet
+К573РФ2,10,O1,Intel 2716 datasheet
+К573РФ2,11,O2,Intel 2716 datasheet
+К573РФ2,12,GND,Intel 2716 datasheet
+К573РФ2,13,O3,Intel 2716 datasheet
+К573РФ2,14,O4,Intel 2716 datasheet
+К573РФ2,15,O5,Intel 2716 datasheet
+К573РФ2,16,O6,Intel 2716 datasheet
+К573РФ2,17,O7,Intel 2716 datasheet
+К573РФ2,18,CE,Intel 2716 datasheet (CE/PGM, active low)
+К573РФ2,19,A10,Intel 2716 datasheet
+К573РФ2,20,OE,Intel 2716 datasheet (active low)
+К573РФ2,21,VPP,Intel 2716 datasheet
+К573РФ2,22,A9,Intel 2716 datasheet
+К573РФ2,23,A8,Intel 2716 datasheet
+К573РФ2,24,VCC,Intel 2716 datasheet
+564КП2,1,X4,CD4051B datasheet
+564КП2,2,X6,CD4051B datasheet
+564КП2,3,X,CD4051B datasheet (the common in/out)
+564КП2,4,X7,CD4051B datasheet
+564КП2,5,X5,CD4051B datasheet
+564КП2,6,INH,CD4051B datasheet
+564КП2,7,VEE,CD4051B datasheet
+564КП2,8,VSS,CD4051B datasheet
+564КП2,9,C,CD4051B datasheet
+564КП2,10,B,CD4051B datasheet
+564КП2,11,A,CD4051B datasheet
+564КП2,12,X3,CD4051B datasheet
+564КП2,13,X0,CD4051B datasheet
+564КП2,14,X1,CD4051B datasheet
+564КП2,15,X2,CD4051B datasheet
+564КП2,16,VDD,CD4051B datasheet
+К155ЛН3,1,1A,SN7406 datasheet (open collector)
+К155ЛН3,2,1Y,SN7406 datasheet
+К155ЛН3,3,2A,SN7406 datasheet
+К155ЛН3,4,2Y,SN7406 datasheet
+К155ЛН3,5,3A,SN7406 datasheet
+К155ЛН3,6,3Y,SN7406 datasheet
+К155ЛН3,7,GND,SN7406 datasheet
+К155ЛН3,8,4Y,SN7406 datasheet
+К155ЛН3,9,4A,SN7406 datasheet
+К155ЛН3,10,5Y,SN7406 datasheet
+К155ЛН3,11,5A,SN7406 datasheet
+К155ЛН3,12,6Y,SN7406 datasheet
+К155ЛН3,13,6A,SN7406 datasheet
+К155ЛН3,14,VCC,SN7406 datasheet
+К155ТМ2,1,1CLR,SN7474 datasheet (active low)
+К155ТМ2,2,1D,SN7474 datasheet
+К155ТМ2,3,1CLK,SN7474 datasheet
+К155ТМ2,4,1PRE,SN7474 datasheet (active low)
+К155ТМ2,5,1Q,SN7474 datasheet
+К155ТМ2,6,1QN,SN7474 datasheet
+К155ТМ2,7,GND,SN7474 datasheet
+К155ТМ2,14,VCC,SN7474 datasheet
+К1102ЛП1,1,VCC,as drawn (the power table: +5 V)
+К1102ЛП1,2,Y,as drawn: the receiver's output to D1's INT
+К1102ЛП1,4,GND,as drawn (the power table)
+К1102ЛП1,7,A,as drawn: the receiver's input from XT1.3/4
+КР1102АП15,1,W-S,eandc К1102АП15 p.1 (the external resistor); TI SLLS110B p.1
+КР1102АП15,2,1A,eandc К1102АП15 p.1; TI SLLS110B p.1
+КР1102АП15,3,2A,eandc К1102АП15 p.1; TI SLLS110B p.1
+КР1102АП15,4,GND,the board's power table
+КР1102АП15,5,VEE,the board's power table (-12 V)
+КР1102АП15,6,2Y,eandc К1102АП15 p.1; TI SLLS110B p.1
+КР1102АП15,7,1Y,eandc К1102АП15 p.1; TI SLLS110B p.1
+КР1102АП15,8,VCC,the board's power table (+12 V)
+К554СА3А,2,GND,LM311
+К554СА3А,3,IN+,LM311 (14-pin package as drawn)
+К554СА3А,4,IN-,LM311 (14-pin package as drawn)
+К554СА3А,6,GND,LM311
+К554СА3А,9,OUT,LM311 (14-pin package as drawn)
+К554СА3А,11,VCC,LM311
+КТ3102ГМ,1,E,as drawn (pins numbered here: the drawing does not)
+КТ3102ГМ,2,B,as drawn
+КТ3102ГМ,3,C,as drawn

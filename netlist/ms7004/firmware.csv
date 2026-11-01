@@ -1,0 +1,3 @@
+# The contents of the МС 7004's programmed chip (firmware/README.md).
+ref,file,format
+D5,firmware/ms7004.rom,bytes

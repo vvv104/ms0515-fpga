@@ -1,0 +1,30 @@
+# What each part of the МС 7004's processor board that is not a chip
+# becomes on the generated keyboard (tools/board.py; docs/ms7004.md says
+# why).
+ref,treatment,pins,reason
+Z1,crystal,,"4.608 MHz: made of the master clock with a phase accumulator, 24 cycles in 625 ticks, an edge off by one tick at most"
+C3,port,,"the power-on reset: C3 holds RESET low as the supply rises; brought out, the bench (or the core) holds it low after power-on"
+XS,port,,"the pads to the matrix board: the keys, a module of their own, drive ГР from ВР; the indicators are read off their pads"
+XT1,port,,the cable to the computer: Вход in, Выход out
+BA1,open,,"the bell: its line (~D2.6, D2.3's output) is read off the board"
+C4,wire,,"the key's pulse from D10 into VT1: the threshold amplifier passes the line D10 picks as a logic level (ТО 5.2: a pressed key gives D9 a positive pulse)"
+VT1,wire,2-3,"the amplifier stage, base to collector: its inversion and the comparator's are one sense together, as ТО 5.2 says"
+R10,wire,,VT1's collector to D9's IN+
+R11,open,,"VT1's collector to D9's IN-, through C6: the average, ever below a key's pulse"
+C6,pull0,,"D9's IN- at the signal's average: low in logic"
+R13,open,,IN+'s divider to ground: the line D10 drives
+R14,pull1,,D9's open-collector output pulled up
+R23,pull1,,D11's PRE and D held high
+R5,pull1,,D2.1's open-collector output pulled up
+R2,pull1,,D2.3's open-collector output pulled up
+R15,pull0,,ГР3 to ground: no key's pulse on it
+R16,pull0,,ГР2 to ground
+R17,pull0,,ГР1 to ground
+R18,pull0,,ГР4 to ground
+R19,pull0,,ГР8 to ground
+R20,pull0,,ГР5 to ground
+R21,pull0,,ГР7 to ground
+R22,pull0,,ГР6 to ground
+R3,wire,,the ФКС indicator's series resistor
+R4,wire,,the СТОП КАДР indicator's series resistor
+R6,open,,D7's slew-rate resistor

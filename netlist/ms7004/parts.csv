@@ -1,0 +1,46 @@
+# The МС 7004's processor board: the parts of Appendix 3 (its Э3) and the
+# element list (Appendix 4) of «Блок клавиатуры „Электроника МС 7004“ ТО»;
+# power pins from the board's power table (Appendix 3).  The matrix board
+# (Appendix 2) is matrix.csv.  The -12 V converter (D2.2, D2.4..D2.6,
+# VT2..VT5, VD2..VD4, C18..C21, R24, R30..R39) is not listed: it powers the
+# line driver D7 alone and has no logic (docs/ms7004.md).  Resistor and
+# capacitor values are left out where the scan does not show them: the logic
+# does not hang on them.
+ref,type,value,pins,gnd,vcc,vcc12,source,note
+D1,КМ1816ВЕ48,,40,20,"5,7,26,40",,Э3; ТО 5.1,an M5L8035LP: the program from D5 (EA high)
+D2,К155ЛН3,,14,7,14,,Э3,D2.1 and D2.3 here; the others drive the converter
+D3,К155ЛН3,,14,7,14,,Э3,the indicators
+D4,К589ИР12,,24,"1,12","2,11,14,24",,Э3,"the address latch: DS1 low, MD, STB and CLR high"
+D5,К573РФ2,,24,12,"21,24",,Э3; ТО 5.1,the firmware (firmware.csv)
+D6,К1102ЛП1,,14,4,1,,Э3; ТО 5.1,"ПУ1, the line receiver"
+D7,КР1102АП15,,14,4,,8,Э3; ТО 5.1,"ПУ2, the line driver; VEE pin 5 on -12 V"
+D8,КР580ВР43,,24,"6,12",24,,Э3; ТО 5.1,the port expander (an 8243): CS low
+D9,К554СА3А,,14,"2,6",11,,Э3; ТО 5.2,the threshold amplifier
+D10,564КП2,,16,"6,7,8",16,,Э3; ТО 5.2,"the analogue multiplexer (a CD4051): INH, VEE and VSS on ground"
+D11,К155ТМ2,,14,7,14,,Э3; ТО 5.2,"the shaper: one D flip-flop of two"
+Z1,РК 170БВ-14БР,4608 кГц,2,,,,Appendix 4,the crystal of D1
+C3,К50-16,5 мкФ,2,,,,Appendix 4,D1's power-on reset (with VD1)
+C4,К10-7В,,2,,,,Appendix 4,couples D10's output into VT1
+C6,К10-7В,,2,,,,Appendix 4,D9's IN- held at the average (ТО 5.2)
+R2,МЛТ-0.125,,2,,,,Appendix 4,D2.3's pull-up (the bell)
+R5,МЛТ-0.125,,2,,,,Appendix 4,D2.1's pull-up
+R6,МЛТ-0.125,,2,,,,Appendix 4,D7's slew-rate resistor
+R10,МЛТ-0.125,,2,,,,Appendix 4,VT1's collector to D9's IN+
+R11,МЛТ-0.125,,2,,,,Appendix 4,VT1's collector to D9's IN- (with C6)
+R13,МЛТ-0.125,,2,,,,Appendix 4,D9's IN+ to ground
+R14,МЛТ-0.125,,2,,,,Appendix 4,D9's pull-up
+R15,МЛТ-0.125,,2,,,,Appendix 4,ГР3 to ground
+R16,МЛТ-0.125,,2,,,,Appendix 4,ГР2 to ground
+R17,МЛТ-0.125,,2,,,,Appendix 4,ГР1 to ground
+R18,МЛТ-0.125,,2,,,,Appendix 4,ГР4 to ground
+R19,МЛТ-0.125,,2,,,,Appendix 4,ГР8 to ground
+R20,МЛТ-0.125,,2,,,,Appendix 4,ГР5 to ground
+R21,МЛТ-0.125,,2,,,,Appendix 4,ГР7 to ground
+R22,МЛТ-0.125,,2,,,,Appendix 4,ГР6 to ground
+R23,МЛТ-0.125,,2,,,,Appendix 4,D11's S and D held high
+R3,МЛТ-0.125,,2,,,,Appendix 4,the ФКС indicator's series resistor
+R4,МЛТ-0.125,,2,,,,Appendix 4,the СТОП КАДР indicator's series resistor
+VT1,КТ3102ГМ,,3,,,,Appendix 4; ТО 5.2,the pulse amplifier
+BA1,ЗП-3,,2,,,,Appendix 4; ТО 5.1,the bell
+XT1,СНО-53-8/30х9Р-23,,8,,,,Appendix 4,the cable to the computer
+XS,pads,,31,,,,Э3,"the pads XS1..XS31 to the matrix board, as one part"
