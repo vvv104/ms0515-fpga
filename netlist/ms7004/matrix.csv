@@ -8,8 +8,10 @@
 # key's place (its table at 0x380: 0x80 + 0x10 * the 8243 bit + the D10
 # channel + 0, 8, 0x40, 0x48 for P4..P7), octal, against Tables 1 and 2 of
 # the ТО - every legend there agrees, but where the notes say.  No code: the
-# firmware has 377 there, a key it passes over.  SA17 (beside ВР and КМП,
-# on ГР8, its column line routed apart) is not placed yet.
+# firmware has 377 there, a key it passes over.  SA17 stands beside ВР and
+# КМП, but its column line is routed along the board's edge to column 11
+# (seen on the high-resolution scan, KB-МС7004.djvu): on ВР11 and ГР8, the
+# place of SA82.
 sa,legend,vr,gr,code,note
 SA1,Печать кадра,ВР1,ГР1,127,
 SA2,Стоп кадр,ВР1,ГР2,126,
@@ -27,6 +29,7 @@ SA13,Ц/C,ВР2,ГР5,306,
 SA14,Ф/F,ВР2,ГР6,302,
 SA15,РУС/ЛАТ,ВР2,ГР7,262,
 SA16,КМП,ВР2,ГР8,261,
+SA17,,ВР11,ГР8,,drawn in column 3 by ВР and КМП; its column line routed to column 11 - the place of SA82
 SA18,Ф5,ВР3,ГР1,132,
 SA19,"2/""",ВР3,ГР3,305,
 SA20,У/U,ВР3,ГР4,314,
