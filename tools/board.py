@@ -676,9 +676,13 @@ def generate(src):
     return text, problems
 
 
-def built(src):
-    """The board built, each net's level and contention term."""
+def built(src, let_go=None):
+    """The board built, each net's level and contention term; let_go(port)
+    tells a brought-out pin with nothing on it, which drives no net."""
     b = Builder(src).build()
+    if let_go:
+        for net in b.nets.values():
+            net.tri = [(v, oe) for v, oe in net.tri if not let_go(v)]
     levels, busy, names = {}, {}, {}
     for name, net in b.nets.items():
         levels[name], busy[name] = resolve(net, b.problems)
@@ -729,7 +733,7 @@ TOKEN = re.compile(r"\b[A-Za-z_]\w*\b")
 
 def generate_machine(src, inputs, outputs):
     """The machine's board (MACHINE_INPUTS, MACHINE_OUTPUTS) and the problems."""
-    b, levels, _ = built(src)
+    b, levels, _ = built(src, lambda v: v.startswith("x_") and v[2:] not in inputs)
     keep = []
     for p in inputs:
         if "x_" + p not in b.ports:
@@ -742,9 +746,6 @@ def generate_machine(src, inputs, outputs):
             b.problems.error(f"machine: the board has no net {o}")
     if any(p.error for p in b.problems):
         return "", b.problems
-    let_go = set(b.ports) - set(keep)
-    levels = {n: TOKEN.sub(lambda m: ZERO if m.group(0) in let_go else m.group(0), e)
-              for n, e in levels.items()}
     nets, insts, wires = machine_live(b, levels, [by_ident[o] for o in outputs if o in by_ident])
     unused = []
     instances = []

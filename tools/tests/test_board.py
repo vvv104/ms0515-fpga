@@ -524,7 +524,7 @@ class Machine(unittest.TestCase):
     def test_a_pin_not_asked_for_is_let_go(self):
         text, _ = self.machine(["XP1_p3"], ["n_C"])
         self.assertNotIn("x_XP1_p4", text)
-        self.assertIn("assign n_E = 1'b0 ? 1'b0 : 1'b1;", text)
+        self.assertIn("assign n_E = 1'b1;", text)
 
     def test_an_output_nothing_reads_is_named_unused(self):
         text, _ = self.machine(["XP1_p3"], ["n_C"])
