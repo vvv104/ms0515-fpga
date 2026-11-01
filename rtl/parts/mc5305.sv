@@ -3,7 +3,7 @@
 // the spindle at 300 rpm from МВК, the index 4 ms a turn, ready from the
 // third index until none has come for 450 ms, the head stepped on ШАГ's
 // trailing edge, the flux a 1 us pulse at the start of each cell that
-// turns.  Reading only, so far.
+// turns; what the controller writes goes back into the image (mc5305_writer).
 //
 // The disk image comes through MiSTer's block interface (hps_io's sd_*,
 // 512-byte blocks): the track under the head, one side's ten sectors, is
@@ -27,6 +27,7 @@ module mc5305 (
     input  logic        motor,          // МВК L
     input  logic        direction,      // НПШ: high out, toward track 0
     input  logic        step,           // ШАГ L
+    input  logic        write_data,     // ДЗП L: each fall turns the flux
     input  logic        write_gate,     // РЗП L
     input  logic        side,           // ВПВ: high side 0
     output logic        index,          // ИНД L
@@ -40,10 +41,12 @@ module mc5305 (
     input  logic [63:0] img_size,
     output logic [31:0] sd_lba,
     output logic        sd_rd,
+    output logic        sd_wr,
     input  logic        sd_ack,
     input  logic [8:0]  sd_buff_addr,
     input  logic [7:0]  sd_buff_dout,
-    input  logic        sd_buff_wr
+    input  logic        sd_buff_wr,
+    output logic [7:0]  sd_buff_din
 );
     localparam logic [6:0]  TRACK_LAST = 7'd79;
     localparam logic [7:0]  CELL_LAST = 8'd239;    // a cell: 240 ticks, 2 us at 120 MHz
@@ -122,19 +125,74 @@ module mc5305 (
     assign two_sides = img_size >= 64'd819200;
     assign side_n = two_sides && !side;
     assign key = {head_n, side_n};
+    // ---- writing: the controller's fields back into sectors ---------------
+    logic       writing, put, done;
+    logic [8:0] put_at;
+    logic [7:0] put_byte;
+    logic [3:0] done_sector;
+    assign writing = selected && turning_n && !write_gate && !img_readonly;
+    mc5305_writer writer (
+        .clk, .layout, .writing, .write_data, .byte_now(byte_at_n),
+        .put, .put_at, .put_byte, .done, .done_sector
+    );
+
+    // a field's bytes in one of two banks, the other the last field taken
+    // on its way out: into the track's buffer, then the image's block
+    logic [7:0] fields [1024];
+    logic       fill, out_bank, pending, copying, sending;
+    logic [3:0] out_sector;
+    logic [9:0] copy_n;                 // the byte read; the one before written
+    logic [7:0] field_q;
+    logic [9:0] field_at;
+    assign field_at = sending ? {out_bank, sd_buff_addr} : {out_bank, copy_n[8:0]};
+    assign sd_buff_din = field_q;
+    always_ff @(posedge clk)
+        if (put)
+            fields[{fill, put_at}] <= put_byte;
+    always_ff @(posedge clk)
+        field_q <= fields[field_at];
+
+    // the track's block in the image: (head * sides + side) * 10 + block
+    function automatic logic [31:0] lba(logic [7:0] k, logic two, logic [3:0] b);
+        return 32'(two ? k : {1'b0, k[7:1]}) * 32'd10 + 32'(b);
+    endfunction
+
+    // the block device: a track loaded, or a field written back
     always_ff @(posedge clk) begin
         ack_was <= sd_ack;
         if (img_mounted) begin
             have <= 1'b0;
             loading <= 1'b0;
             sd_rd <= 1'b0;
+            sd_wr <= 1'b0;
+            pending <= 1'b0;
+            copying <= 1'b0;
+            sending <= 1'b0;
+        end else if (copying) begin
+            copy_n <= copy_n + 1'b1;
+            if (copy_n == 10'd512) begin
+                copying <= 1'b0;
+                sending <= 1'b1;
+                sd_lba <= lba(loaded, two_sides, out_sector - 1'b1);
+                sd_wr <= 1'b1;
+            end
+        end else if (sending) begin
+            if (sd_ack)
+                sd_wr <= 1'b0;
+            if (!sd_ack && ack_was) begin
+                sending <= 1'b0;
+                pending <= 1'b0;
+            end
         end else if (!loading) begin
-            if (!have || loaded != key) begin
+            if (pending && have) begin
+                copying <= 1'b1;
+                copy_n <= '0;
+            end else if (!have || loaded != key) begin
                 loading <= 1'b1;
                 loading_key <= key;
                 block <= '0;
                 have <= 1'b0;
-                sd_lba <= 32'(two_sides ? key : {1'b0, key[7:1]}) * 32'd10;   // (head * sides + side) * 10
+                sd_lba <= lba(key, two_sides, 4'd0);
                 sd_rd <= 1'b1;
             end
         end else begin
@@ -154,9 +212,19 @@ module mc5305 (
                 end
             end
         end
+        // a field taken: its bank goes out (a field takes 16 ms to come,
+        // one goes out in far less, so the bank out is free by the next)
+        if (done && !img_mounted) begin
+            fill <= !fill;
+            out_bank <= fill;
+            out_sector <= done_sector;
+            pending <= 1'b1;
+        end
     end
     always_ff @(posedge clk)
-        if (loading && sd_ack && sd_buff_wr)
+        if (copying && copy_n != 10'd0)
+            buffer[13'(out_sector - 1'b1) * 13'd512 + 13'(copy_n - 1'b1)] <= field_q;
+        else if (loading && sd_ack && sd_buff_wr)
             buffer[13'(block) * 13'd512 + 13'(sd_buff_addr)] <= sd_buff_dout;
 
     // ---- the track's bytes, one after another from the index -------------

@@ -19,22 +19,12 @@ module mc5305_bytes (
     output logic [7:0]  made_byte,
     output logic [1:0]  made_mark
 );
-    localparam logic [12:0] BYTES_LAST = 13'd6249;   // a turn: 6250 bytes
+    import mc5305_pkg::*;
 
-    // the layouts (drive.h: omega(), vvv(), fdz())
-    typedef struct packed {
-        logic [7:0] gap1;
-        logic [1:0] mark;               // the index mark: 0 none, 1 C2 C2 C2 FC, 2 C2 C2 C2 C2
-        logic [7:0] index_sync, gap_after, id_sync, data_sync, gap2, gap3;
-        logic       h_is_side;
-    } layout_t;
+    localparam logic [12:0] BYTES_LAST = TURN_BYTES - 13'd1;
+
     layout_t l;
-    always_comb
-        case (layout)
-            2'd0:    l = '{8'd54, 2'd2, 8'd12, 8'd35, 8'd8, 8'd12, 8'd22, 8'd44, 1'b0};
-            2'd2:    l = '{8'd34, 2'd0, 8'd12, 8'd0, 8'd8, 8'd12, 8'd22, 8'd45, 1'b1};
-            default: l = '{8'd80, 2'd1, 8'd12, 8'd50, 8'd12, 8'd12, 8'd22, 8'd30, 1'b1};
-        endcase
+    assign l = layout_of(layout);
 
     typedef enum logic [4:0] {
         GAP1, ISYNC, IMARK, IGAP, IDSYNC, IDA1, IDAM, ID, IDCRC, GAP2,
@@ -46,14 +36,6 @@ module mc5305_bytes (
     logic [12:0] total;                 // the byte of the turn
     logic [15:0] crc;
     logic        busy;                  // the byte's address out, its value next
-
-    function automatic logic [15:0] crc_byte(logic [15:0] c, logic [7:0] b);
-        logic [15:0] x;
-        x = c ^ {b, 8'h00};
-        for (int i = 0; i < 8; i++)
-            x = x[15] ? {x[14:0], 1'b0} ^ 16'h1021 : {x[14:0], 1'b0};
-        return x;
-    endfunction
 
     // the segment's length
     function automatic logic [9:0] length(seg_t s);
@@ -97,7 +79,7 @@ module mc5305_bytes (
             DAM:  b = 8'hFB;
             ID:   case (n[1:0])
                       2'd0:    b = {1'b0, track};
-                      2'd1:    b = {7'd0, l.h_is_side && side};
+                      2'd1:    b = {7'd0, layout != 2'd0 && side};  // ОМЕГА writes H 0 on both sides
                       2'd2:    b = 8'(sector) + 8'd1;
                       default: b = 8'd2;
                   endcase

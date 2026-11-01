@@ -6,6 +6,7 @@
 // 300 rpm.  A cell is 1 where the flux changes.
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -176,6 +177,121 @@ inline std::vector<std::uint8_t> track(const Layout& l, int track, int side, con
     return e.cells;
 }
 
+// The byte of the turn a layout's k-th sector (in its order) begins its data
+// field at, from the field's first sync byte.
+inline int data_field_at(const Layout& l, int k)
+{
+    const int mark = l.index_mark == Layout::Mark::none ? 0 : l.index_sync + 4 + l.gap_after_mark;
+    const int id = l.id_sync + 3 + 1 + 4 + 2;
+    const int data = l.data_sync + 3 + 1 + kSectorBytes + 2;
+    return l.gap1 + mark + k * (id + l.gap2 + data + l.gap3) + id + l.gap2;
+}
+
+// The flux a controller writes, back into a side's sectors.  The cells come
+// from the times of ДЗП's falls: between two falls as many cells as fit,
+// rounded, the first fall a cell of its own - the writer's clock and the
+// turn's need not agree.  They are read as the controller reads: a field
+// from its A1s (the missing clock, 4489), its mark, an ID (FE) naming the
+// sector of the data field (FB or F8) after it, a field taken only with
+// its CRC right.  A data field with no ID before it in the write - a sector
+// written after its ID was read - goes to the sector whose data field the
+// layout puts nearest to where it was written (`first_byte`, the byte of
+// the turn the first fall came in).  Returns the sectors written (1..10).
+class Writer {
+public:
+    Writer(const Layout& l, int first_byte, std::uint8_t* sectors)
+        : layout_(l), first_byte_(first_byte), sectors_(sectors)
+    {
+    }
+
+    void falls(const std::vector<std::uint64_t>& ticks, std::uint64_t cell_ticks)
+    {
+        for (std::size_t i = 0; i < ticks.size(); ++i) {
+            if (i > 0) {
+                const std::uint64_t n = (ticks[i] - ticks[i - 1] + cell_ticks / 2) / cell_ticks;
+                for (std::uint64_t z = 1; z < n; ++z) cell(0);
+            }
+            cell(1);
+        }
+    }
+
+    const std::vector<int>& written() const { return written_; }
+
+private:
+    enum class State { hunt, mark, id, data };
+
+    void cell(int c)
+    {
+        window_ = static_cast<std::uint16_t>(window_ << 1 | c);
+        ++cells_;
+        if (state_ != State::id && state_ != State::data && window_ == 0x4489) {
+            state_ = State::mark;                       // an A1: the bytes from here
+            got_ = 0;
+            return;
+        }
+        if (state_ == State::hunt || ++got_ < 16) return;
+        got_ = 0;
+        std::uint8_t b = 0;
+        for (int i = 7; i >= 0; --i)                    // the data cell of each pair
+            b = static_cast<std::uint8_t>(b << 1 | (window_ >> (2 * i) & 1));
+        byte(b);
+    }
+
+    void byte(std::uint8_t b)
+    {
+        if (state_ == State::mark) {
+            field_ = {0xA1, 0xA1, 0xA1, b};
+            mark_cell_ = cells_;
+            state_ = b == 0xFE ? State::id : (b == 0xFB || b == 0xF8) ? State::data : State::hunt;
+            return;
+        }
+        field_.push_back(b);
+        const std::size_t want = 4 + (state_ == State::id ? 4u : static_cast<std::size_t>(kSectorBytes)) + 2;
+        if (field_.size() < want) return;
+        const bool good = crc(field_.data(), want - 2) == (field_[want - 2] << 8 | field_[want - 1]);
+        if (good && state_ == State::id)
+            sector_ = field_[6];
+        else if (good)
+            put();
+        state_ = State::hunt;
+    }
+
+    void put()
+    {
+        int sector = sector_;
+        if (sector < 1 || sector > kSectors) {          // no ID read in the write: where it went
+            const int at = first_byte_ + static_cast<int>((mark_cell_ - 16) / 16);     // the mark's byte
+            const auto mark_of = [this](int k) { return data_field_at(layout_, k) + layout_.data_sync + 3; };
+            int best = 0;
+            for (int k = 1; k < kSectors; ++k)
+                if (distance(mark_of(k), at) < distance(mark_of(best), at)) best = k;
+            sector = layout_.order[static_cast<std::size_t>(best)];
+        }
+        std::copy(field_.begin() + 4, field_.begin() + 4 + kSectorBytes,
+                  sectors_ + (sector - 1) * kSectorBytes);
+        written_.push_back(sector);
+        sector_ = 0;
+    }
+
+    static int distance(int a, int b)
+    {
+        constexpr int kTurnBytes = static_cast<int>(kCellsPerTurn / 16);
+        const int d = (a - b + kTurnBytes) % kTurnBytes;
+        return std::min(d, kTurnBytes - d);
+    }
+
+    Layout layout_;
+    int first_byte_;
+    std::uint8_t* sectors_;
+    State state_ = State::hunt;
+    std::uint16_t window_ = 0;
+    int got_ = 0;
+    std::uint64_t cells_ = 0, mark_cell_ = 0;
+    std::vector<std::uint8_t> field_;
+    int sector_ = 0;
+    std::vector<int> written_;
+};
+
 // The interface's lines at the drive's connector, each true high: the
 // board's lines active low (Shugart), the drive's open collector, high
 // when let go.
@@ -234,6 +350,7 @@ public:
         const bool selected = !in.select0;
         if (selected) head_moves(in);
         step_was_ = in.step;
+        record(t, in, selected);
         Outputs o;
         if (!selected) return o;
         o.index = !(turning_ && phase(t) < kIndexTicks);
@@ -245,6 +362,7 @@ public:
     }
 
     int head() const { return head_; }
+    const std::vector<std::uint8_t>& image() const { return image_; }
 
     // everything that changes as it runs, for a snapshot (sim/board/snapshot.h)
     template <class Archive>
@@ -258,6 +376,15 @@ public:
         a(last_index_);
         a(indexes_);
         a.bytes(image_);
+        a(writing_);
+        a(write_data_was_);
+        a(write_head_);
+        a(write_side_);
+        a(first_byte_);
+        std::uint64_t n = falls_.size();
+        a(n);
+        falls_.resize(static_cast<std::size_t>(n));
+        for (std::uint64_t& f : falls_) a(f);
         cached_ = -1;                                   // the track is made again from the image
     }
     // the tick the turn in progress at t began, at its index
@@ -288,6 +415,37 @@ private:
         }
     }
 
+    int side_of(const Lines& in) const { return in.side || sides_ < 2 ? 0 : 1; }
+    std::size_t track_at(int head, int side) const
+    {
+        return (static_cast<std::size_t>(head) * sides_ + side) * kSectors * kSectorBytes;
+    }
+
+    // Writing: while selected, turning, РЗП on and the disk not protected,
+    // the falls of ДЗП are kept; as the write ends they go into the image.
+    void record(std::uint64_t t, const Lines& in, bool selected)
+    {
+        const bool writing = selected && turning_ && !in.write_gate && !protect_;
+        if (writing) {
+            if (!writing_) {
+                falls_.clear();
+                write_head_ = head_;
+                write_side_ = side_of(in);
+            }
+            if (!in.write_data && write_data_was_) {
+                if (falls_.empty()) first_byte_ = static_cast<int>(phase(t) / (16 * kCellTicks));
+                falls_.push_back(t);
+            }
+        } else if (writing_ && !falls_.empty()) {
+            Writer w(layout_, first_byte_, image_.data() + track_at(write_head_, write_side_));
+            w.falls(falls_, kCellTicks);
+            cached_ = -1;
+            falls_.clear();
+        }
+        writing_ = writing;
+        write_data_was_ = in.write_data;
+    }
+
     bool pulse(std::uint64_t t, int side)
     {
         const std::uint64_t p = phase(t);
@@ -315,6 +473,9 @@ private:
     std::uint64_t started_ = 0, last_index_ = 0, indexes_ = 0;
     int cached_ = -1;
     std::vector<std::uint8_t> track_;
+    bool writing_ = false, write_data_was_ = true;
+    int write_head_ = 0, write_side_ = 0, first_byte_ = 0;
+    std::vector<std::uint64_t> falls_;
 };
 
 }  // namespace drive

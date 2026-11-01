@@ -10,6 +10,7 @@
 #include "Vmc5305.h"
 #include "../board/drive.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -32,16 +33,17 @@ std::vector<std::uint8_t> image(int sides)
 
 class Bench {
 public:
-    Bench(std::vector<std::uint8_t> im, int layout)
-        : image_(std::move(im)), ref_(image_, layout == 0 ? drive::omega() : layout == 1 ? drive::vvv() : drive::fdz())
+    Bench(std::vector<std::uint8_t> im, int layout, bool protect = false)
+        : image_(std::move(im)), ref_(image_, layout_of(layout), protect)
     {
         m_.layout = static_cast<CData>(layout);
         m_.img_size = image_.size();
-        m_.img_readonly = 0;
+        m_.img_readonly = protect ? 1 : 0;
         m_.select0 = 1;
         m_.motor = 1;
         m_.direction = 1;
         m_.step = 1;
+        m_.write_data = 1;
         m_.write_gate = 1;
         m_.side = 1;
         m_.sd_ack = 0;
@@ -88,6 +90,32 @@ public:
     }
     int head() const { return ref_.head(); }
 
+    // the controller writing from tick `start` on: РЗП on, a ДЗП fall for
+    // each cell that turns, its clock a little off the drive's (up to 20
+    // ticks early or late), РЗП off a cell after the last
+    void write(std::uint64_t start, const std::vector<std::uint8_t>& cells)
+    {
+        run(start - t_, false);
+        set_gate(false);
+        const std::uint64_t from = t_;
+        for (std::size_t i = 0; i < cells.size(); ++i) {
+            const std::uint64_t at = from + i * drive::Mc5305::kCellTicks + 20 + (i * 37) % 41 - 20;
+            run(at - t_, false);
+            if (cells[i]) {
+                set_data(false);
+                run(8, false);
+                set_data(true);
+            }
+        }
+        run(drive::Mc5305::kCellTicks, false);
+        set_gate(true);
+    }
+    // the tick of the next index, and of a byte of the turn after it
+    std::uint64_t next_index() const { return ref_.turn_start(t_) + drive::Mc5305::kTurnTicks; }
+    const std::vector<std::uint8_t>& image() const { return image_; }
+    const std::vector<std::uint8_t>& ref_image() const { return ref_.image(); }
+    int writes = 0;
+
     std::uint64_t compared = 0, differ = 0;
     int loads = 0;
 
@@ -104,15 +132,40 @@ private:
         ++t_;
     }
 
+    void set_gate(bool high) { lines_.write_gate = high; m_.write_gate = high; }
+    void set_data(bool high) { lines_.write_data = high; m_.write_data = high; }
+    static drive::Layout layout_of(int layout)
+    {
+        return layout == 0 ? drive::omega() : layout == 1 ? drive::vvv() : drive::fdz();
+    }
+
     void serve()
     {
         m_.sd_buff_wr = 0;
+        if (wbyte_ >= 0) {                      // a block written: each byte a tick after its address
+            if (wbyte_ > 0)
+                image_.at(static_cast<std::size_t>(lba_) * 512 + static_cast<std::size_t>(wbyte_ - 1)) =
+                    m_.sd_buff_din;
+            if (wbyte_ < 512) {
+                m_.sd_buff_addr = static_cast<SData>(wbyte_);
+                ++wbyte_;
+            } else {
+                m_.sd_ack = 0;
+                wbyte_ = -1;
+            }
+            return;
+        }
         if (byte_ < 0) {
             if (m_.sd_rd && !m_.sd_ack) {
                 byte_ = 0;
                 lba_ = m_.sd_lba;
                 m_.sd_ack = 1;
                 ++loads;
+            } else if (m_.sd_wr && !m_.sd_ack) {
+                wbyte_ = 0;
+                lba_ = m_.sd_lba;
+                m_.sd_ack = 1;
+                ++writes;
             } else {
                 m_.sd_ack = 0;
             }
@@ -136,7 +189,7 @@ private:
     std::unique_ptr<Vmc5305> model_ = std::make_unique<Vmc5305>();
     Vmc5305& m_ = *model_;
     std::uint64_t t_ = 0;
-    int byte_ = -1;
+    int byte_ = -1, wbyte_ = -1;
     std::uint32_t lba_ = 0;
 };
 
@@ -187,4 +240,79 @@ TEST_CASE("mc5305: the head stepped in and out, the side changed, a single-sided
     CHECK(b.differ == 0);
     // tracks 0, 1, 2 and 1 again, ten blocks each; the side alone loads nothing here
     CHECK(b.loads == 4 * drive::kSectors);
+}
+
+namespace {
+
+// the drive selected, turning and ready
+void spin_up(Bench& b)
+{
+    b.select(true);
+    b.motor(true);
+    b.run(3 * kTurn, false);
+}
+
+std::vector<std::uint8_t> sector_of(std::uint8_t seed)
+{
+    std::vector<std::uint8_t> s(drive::kSectorBytes);
+    for (std::size_t i = 0; i < s.size(); ++i)
+        s[i] = static_cast<std::uint8_t>(i * 3 + seed);
+    return s;
+}
+
+constexpr std::uint64_t kByte = 16 * drive::Mc5305::kCellTicks;
+
+}  // namespace
+
+TEST_CASE("mc5305: a sector written where its data field is - into the image, read back")
+{
+    const drive::Layout layout = drive::vvv();
+    Bench b(image(2), 1);
+    spin_up(b);
+    const std::vector<std::uint8_t> data = sector_of(0x55);
+    drive::Encoder e;                                   // as the FD1793 writes a sector
+    drive::field(e, layout.data_sync, 0xFB, data.data(), data.size());
+    e.byte(0xFF);
+    b.write(b.next_index() + static_cast<std::uint64_t>(drive::data_field_at(layout, 3)) * kByte, e.cells);
+    b.run(kSettle, false);
+    CHECK(b.writes == 1);
+    CHECK(b.image() == b.ref_image());
+    CHECK(std::equal(data.begin(), data.end(), b.image().begin() + 3 * drive::kSectorBytes));
+    b.run(kTurn, true);                                 // the new sector under the head
+    CHECK(b.differ == 0);
+}
+
+TEST_CASE("mc5305: a track written from the index (Write Track) - every sector into the image")
+{
+    const drive::Layout layout = drive::omega();
+    Bench b(image(2), 0);
+    b.side(1);
+    spin_up(b);
+    std::vector<std::uint8_t> sectors;
+    for (int s = 0; s < drive::kSectors; ++s) {
+        const std::vector<std::uint8_t> one = sector_of(static_cast<std::uint8_t>(s * 17));
+        sectors.insert(sectors.end(), one.begin(), one.end());
+    }
+    std::vector<std::uint8_t> cells = drive::track(layout, 0, 1, sectors.data());
+    cells.resize(cells.size() - 64);                    // РЗП off before the index
+    b.write(b.next_index(), cells);
+    b.run(kSettle, false);
+    CHECK(b.writes == drive::kSectors);
+    CHECK(b.image() == b.ref_image());
+    CHECK(std::equal(sectors.begin(), sectors.end(), b.image().begin() + 5120));
+    b.run(kTurn, true);
+    CHECK(b.differ == 0);
+}
+
+TEST_CASE("mc5305: a protected disk takes nothing")
+{
+    Bench b(image(2), 1, true);
+    spin_up(b);
+    std::vector<std::uint8_t> sectors(drive::kSectors * drive::kSectorBytes, 0xE5);
+    std::vector<std::uint8_t> cells = drive::track(drive::vvv(), 0, 0, sectors.data());
+    cells.resize(cells.size() - 64);
+    b.write(b.next_index(), cells);
+    b.run(kSettle, false);
+    CHECK(b.writes == 0);
+    CHECK(b.image() == image(2));
 }

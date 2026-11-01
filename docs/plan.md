@@ -125,9 +125,13 @@ Three places need care:
        The drive, reading - `mc5305.sv` loads the track under the head
        from MiSTer's block device and makes its bytes and their MFM as
        they pass, tick for tick the bench's drive once settled after a
-       step (3 ms here, of the 15 ms the controller waits).  Left: its
-       writing (the flux from ДЗП decoded back into the track's sectors,
-       written back a block at a time), and a boot with it on the board.
+       step (3 ms here, of the 15 ms the controller waits).  Writing in
+       both, the bench's drive first (it took ДЗП and kept nothing): the
+       falls become cells by their spacing, read as the controller reads
+       them, a data field with its CRC right into its sector - the ID's
+       before it, or by its place in the layout; a sector written, a
+       whole track (Write Track), a protected disk.  Left: a boot with
+       the logic's drive on the board.
        The keyboard waits for a choice: the МС 7004's 8035 with its own
        ROM (the firmware is at hand, the matrix wiring is not), or a
        translator after the firmware's listing (Alex's) - the emulator's
