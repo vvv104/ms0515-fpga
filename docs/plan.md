@@ -135,12 +135,18 @@ Three places need care:
        falls become cells by their spacing, read as the controller reads
        them, a data field with its CRC right into its sector - the ID's
        before it, or by its place in the layout; a sector written, a
-       whole track (Write Track), a protected disk.  Left: a boot with
-       the logic's drive on the board.
-       The keyboard waits for a choice: the МС 7004's 8035 with its own
-       ROM (the firmware is at hand, the matrix wiring is not), or a
-       translator after the firmware's listing (Alex's) - the emulator's
-       model carries host-side deviations and is no source for it.
+       whole track (Write Track), a protected disk.  On the board
+       (`run_board drive=logic`, the bench's drive beside it as the
+       reference): Omega from power-on to its prompt, 2420 blocks read
+       and 4 written, the two drives' lines apart only while a track
+       loads after a step.
+       The keyboard: for now a keyboard outside the core, on a serial
+       line as the emulator takes one on a COM port - anasana's
+       portboard, the МС 7004's own firmware on a PC; the core carries
+       the line's levels to XS2 (`rtl/ms0515.sv`).  Inside the core: the
+       МС 7004's 8035 with its own ROM, MiSTer's USB keyboard on its
+       matrix - the matrix wiring asked of anasana, whose portboard
+       knows it.
    7d. **The core.**  Template_MiSTer's `sys/` unchanged - a git
        submodule, not copied in: no third-party HDL in the tree - the board and
        the parts of 7c under `emu`, the menu: disk images, ROM-A/ROM-B,

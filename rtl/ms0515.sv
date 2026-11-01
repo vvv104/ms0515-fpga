@@ -7,16 +7,21 @@
 // millisecond, as the supply rises - after the FPGA is loaded and again
 // after `reset`, a power cycle for the board's logic (its memory keeps).
 //
-// The keyboard's line on XS2 comes in as a level (kbd_in, kbd_in_on: the
-// МС 7004's ВХКЛ L driving the socket's pin 3); with none plugged in the
-// pin is let go.  The board's line out is kbd_out (ВЫХКЛ L, XS2.2).
+// The keyboard's line on XS2 as a serial port's (TTL, idle high): a
+// keyboard outside the machine - portboard running the МС 7004's firmware
+// on a PC, through a USB-UART cable - as the emulator takes one on a COM
+// port.  The board's USART frames the bytes at its own speed (about 4808
+// baud), so the core only carries the levels.  At XS2 the line idles low,
+// behind the board's inverting driver and receiver (КР1102АП15,
+// КР559ИП11): kbd_rx drives ВХКЛ L (XS2.3) inverted, kbd_tx is ВЫХКЛ L
+// (XS2.2) inverted.  Without kbd_on nothing is plugged in: the pin is let go.
 module ms0515 (
     input  logic        clk,            // the 120 MHz master clock
     input  logic        reset,
-    // the keyboard on XS2
-    input  logic        kbd_in,
-    input  logic        kbd_in_on,
-    output logic        kbd_out,
+    // the keyboard's serial line
+    input  logic        kbd_on,
+    input  logic        kbd_rx,
+    output logic        kbd_tx,
     // drive 0's image (hps_io's block device) and its formatter: 0 ОМЕГА, 1 vvv, 2 FDZ
     input  logic [1:0]  layout,
     input  logic        img_mounted,
@@ -54,6 +59,9 @@ module ms0515 (
     logic index, track0, protect, data, ready;
     // the picture's nets
     logic ts15, sc, kc, zc, bright, ssi, ksi, sgi;
+    // the keyboard's line out
+    logic vyhkl;
+    assign kbd_tx = !vyhkl;
 
     ns4_machine board (
         .clk,
@@ -63,10 +71,10 @@ module ms0515 (
         .x_XP4_p28(1'b0), .x_XP4_p28_oe(!protect),
         .x_XP4_p30(1'b0), .x_XP4_p30_oe(!data),
         .x_XP4_p34(1'b0), .x_XP4_p34_oe(!ready),
-        .x_XS2_p3(kbd_in), .x_XS2_p3_oe(kbd_in_on),
+        .x_XS2_p3(!kbd_rx), .x_XS2_p3_oe(kbd_on),
         .n_DV_H(dv), .n_KC_H(kc), .n_KSI_L(ksi), .n_NPR_L(npr), .n_RZP_L(rzp),
         .n_SC_H(sc), .n_SGI_L(sgi), .n_SHAG_L(shag), .n_SSI_L(ssi), .n_TS15_H(ts15),
-        .n_VBP_H(vbp), .n_VN0_H(vn0), .n_VYHKL_L(kbd_out), .n_ZAP_L(zap), .n_ZC_H(zc),
+        .n_VBP_H(vbp), .n_VN0_H(vn0), .n_VYHKL_L(vyhkl), .n_ZAP_L(zap), .n_ZC_H(zc),
         .nx_D69_9(bright)
     );
 
