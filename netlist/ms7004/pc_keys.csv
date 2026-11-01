@@ -1,0 +1,118 @@
+# A PC keyboard on the МС 7004's matrix, for the MiSTer core's translator
+# (rtl/parts/ms7004_keys.sv, its tables made by tools/ms7004_keys.py).
+# A PC key (MiSTer's ps2_key: the PS/2 scan code set 2, e0 for the
+# extended ones) goes onto an МС 7004 key, SAn of netlist/ms7004/matrix.csv
+# - its place in the matrix and, by the firmware, its code.
+#
+# pos: the positional mode - the МС 7004 key where the PC key stands (the
+#   letters ЙЦУКЕН as the МС 7004 has them).
+# lat, lat_s / rus, rus_s: the character mode, the МС 7004 key that gives
+#   the PC key's character in ЛАТ / РУС mode, without / with the PC's
+#   Shift, each with the МС 7004's ВР it needs: + pressed, 0 let go, = as
+#   the PC's Shift.  rus_lat: 1 when that character exists in ЛАТ only - the
+#   translator turns РУС/ЛАТ over for it and back.
+# The character mode is the emulator's (ms0515 src/frontend/src/Keymap.cpp,
+# sdlToMs7004Char: its keys named by their legends here); its codes are not
+# taken - the firmware's are (docs/ms7004.md: the emulator's 5 and Ъ).  The
+# PC keys the emulator leaves free carry the core's own choices, noted.
+pc,ps2,pos,lat,lat_s,rus,rus_s,rus_lat,note
+Esc,76,SA61,SA61=,SA61=,SA61=,SA61=,0,"Ф11 (АР2): the DEC terminals' Esc; the core's choice"
+F1,05,SA2,SA2=,SA2=,SA2=,SA2=,0,СТОП КАДР
+F2,06,SA1,SA1=,SA1=,SA1=,SA1=,0,ПЕЧАТЬ КАДРА
+F3,04,SA9,SA9=,SA9=,SA9=,SA9=,0,ПАУЗА
+F4,0C,SA10,SA10=,SA10=,SA10=,SA10=,0,УСТ РЕЖИМА
+F5,03,SA18,SA18=,SA18=,SA18=,SA18=,0,Ф5
+F6,0B,SA30,SA30=,SA30=,SA30=,SA30=,0,ПРЕРЫВ
+F7,83,SA36,SA36=,SA36=,SA36=,SA36=,0,ПРОДОЛЖ
+F8,0A,SA44,SA44=,SA44=,SA44=,SA44=,0,ОТМЕН
+F9,01,SA45,SA45=,SA45=,SA45=,SA45=,0,ОСНОВН КАДР
+F10,09,SA52,SA52=,SA52=,SA52=,SA52=,0,ВЫХОД
+F11,78,SA61,SA61=,SA61=,SA61=,SA61=,0,Ф11 (АР2)
+F12,07,SA68,SA68=,SA68=,SA68=,SA68=,0,Ф12 (ВШ)
+PrintScreen,e07C,SA83,SA83=,SA83=,SA83=,SA83=,0,ПМ; the core's choice
+ScrollLock,7E,SA117,SA117=,SA117=,SA117=,SA117=,0,ПФ4; the core's choice
+Menu,e02F,SA99,SA99=,SA99=,SA99=,SA99=,0,ИСП; the core's choice
+Grave,0E,SA3,SA46+,SA79 0,,,0,` -> ' (no backtick); ~; РУС: Ё has no key
+1,16,SA11,SA11=,SA11=,SA11=,SA11=,0,
+2,1E,SA19,SA19=,SA58 0,SA19=,SA19=,0,@ in ЛАТ
+3,26,SA25,SA25=,SA25=,SA25=,SA25=,0,
+4,25,SA26,SA26=,SA26=,SA26=,SA4 0,0,; in РУС
+5,2E,SA31,SA31=,SA31=,SA31=,SA31=,0,
+6,36,SA37,SA37=,SA22 0,SA37=,SA72 0,0,^ in ЛАТ; : in РУС
+7,3D,SA46,SA46=,SA37+,SA46=,SA67+,0,& in ЛАТ; ? in РУС
+8,3E,SA54,SA54=,SA72+,SA54=,SA72+,0,*
+9,46,SA53,SA53=,SA54+,SA53=,SA54+,0,(
+0,45,SA62,SA62=,SA53+,SA62=,SA53+,0,)
+Minus,4E,SA63,SA63=,SA75 0,SA63=,SA75 0,0,_
+Equals,55,SA70,SA63+,SA4+,SA63+,SA4+,0,= and +
+Backspace,66,SA78,SA78=,SA78=,SA78=,SA78=,0,ЗБ
+Tab,0D,SA5,SA5=,SA5=,SA5=,SA5=,0,ТАБ
+Q,15,SA12,SA23=,SA23=,SA12=,SA12=,0,Й
+W,1D,SA13,SA28=,SA28=,SA13=,SA13=,0,Ц
+E,24,SA20,SA32=,SA32=,SA20=,SA20=,0,У
+R,2D,SA27,SA40=,SA40=,SA27=,SA27=,0,К
+T,2C,SA32,SA41=,SA41=,SA32=,SA32=,0,Е
+Y,35,SA38,SA21=,SA21=,SA38=,SA38=,0,Н
+U,3C,SA39,SA20=,SA20=,SA39=,SA39=,0,Г
+I,43,SA47,SA42=,SA42=,SA47=,SA47=,0,Ш
+O,44,SA48,SA49=,SA49=,SA48=,SA48=,0,Щ
+P,4D,SA55,SA33=,SA33=,SA55=,SA55=,0,З
+LeftBracket,54,SA64,SA47=,SA3 0,SA64=,SA64=,0,Х; { in ЛАТ
+RightBracket,5B,SA73,SA48=,SA70 0,SA73=,SA73=,0,Ъ; } in ЛАТ
+Backslash,5D,SA66,SA66=,SA3+,SA66 0,SA67 0,1,"\ needs ЛАТ in РУС (Э there); | ; / in РУС"
+CapsLock,58,SA7,SA7=,SA7=,SA7=,SA7=,0,ФКС
+A,1C,SA14,SA34=,SA34=,SA14=,SA14=,0,Ф
+S,1B,SA21,SA29=,SA29=,SA21=,SA21=,0,Ы
+D,23,SA28,SA56=,SA56=,SA28=,SA28=,0,В
+F,2B,SA34,SA14=,SA14=,SA34=,SA34=,0,А
+G,34,SA33,SA39=,SA39=,SA33=,SA33=,0,П
+H,33,SA40,SA64=,SA64=,SA40=,SA40=,0,Р
+J,3B,SA49,SA12=,SA12=,SA49=,SA49=,0,О
+K,42,SA57,SA27=,SA27=,SA57=,SA57=,0,Л
+L,4B,SA56,SA57=,SA57=,SA56=,SA56=,0,Д
+Semicolon,4C,SA65,SA4=,SA72 0,SA65=,SA65=,0,Ж; : in ЛАТ
+Apostrophe,52,SA66,SA46+,SA19+,SA66=,SA66=,0,Э; ' and " in ЛАТ
+Enter,5A,SA80,SA80=,SA80=,SA80=,SA80=,0,ВК
+LeftShift,12,SA8,,,,,0,ВР
+Z,1A,SA23,SA55=,SA55=,SA23=,SA23=,0,Я
+X,22,SA22,SA50=,SA50=,SA22=,SA22=,0,Ч
+C,21,SA29,SA13=,SA13=,SA29=,SA29=,0,С
+V,2A,SA35,SA65=,SA65=,SA35=,SA35=,0,М
+B,32,SA42,SA51=,SA51=,SA42=,SA42=,0,И
+N,31,SA41,SA38=,SA38=,SA41=,SA41=,0,Т
+M,3A,SA50,SA35=,SA35=,SA50=,SA50=,0,Ь
+Comma,41,SA51,SA59=,SA59=,SA51=,SA51=,0,Б
+Period,49,SA58,SA74=,SA74=,SA58=,SA58=,0,Ю
+Slash,4A,SA67,SA67=,SA67=,SA74 0,SA59 0,0,. and , in РУС
+RightShift,59,SA81,,,,,0,the right ВР
+LeftCtrl,14,SA6,SA6=,SA6=,SA6=,SA6=,0,СУ
+LeftAlt,11,SA16,SA16=,SA16=,SA16=,SA16=,0,КМП
+Space,29,SA43,SA43=,SA43=,SA43=,SA43=,0,ПРОБЕЛ
+RightAlt,e011,SA15,SA15=,SA15=,SA15=,SA15=,0,РУС/ЛАТ
+Insert,e070,SA84,SA84=,SA84=,SA84=,SA84=,0,ВСТ
+Home,e06C,SA85,SA85=,SA85=,SA85=,SA85=,0,НТ (Find)
+PageUp,e07D,SA94,SA94=,SA94=,SA94=,SA94=,0,ПРЕД КАДР
+Delete,e071,SA92,SA92=,SA92=,SA92=,SA92=,0,УДАЛ
+End,e069,SA86,SA86=,SA86=,SA86=,SA86=,0,ВЫБР
+PageDown,e07A,SA93,SA93=,SA93=,SA93=,SA93=,0,СЛЕД КАДР
+Up,e075,SA87,SA87=,SA87=,SA87=,SA87=,0,
+Left,e06B,SA89,SA89=,SA89=,SA89=,SA89=,0,
+Down,e072,SA97,SA97=,SA97=,SA97=,SA97=,0,
+Right,e074,SA96,SA96=,SA96=,SA96=,SA96=,0,
+NumLock,77,SA101,SA101=,SA101=,SA101=,SA101=,0,ПФ1
+KpSlash,e04A,SA109,SA109=,SA109=,SA109=,SA109=,0,ПФ2; the core's choice
+KpStar,7C,SA110,SA110=,SA110=,SA110=,SA110=,0,ПФ3; the core's choice
+KpMinus,7B,SA120,SA120=,SA120=,SA120=,SA120=,0,the keypad's minus
+KpPlus,79,SA119,SA119=,SA119=,SA119=,SA119=,0,"the keypad's comma; the core's choice"
+Kp7,6C,SA102,SA102=,SA102=,SA102=,SA102=,0,
+Kp8,75,SA111,SA111=,SA111=,SA111=,SA111=,0,
+Kp9,7D,SA118,SA118=,SA118=,SA118=,SA118=,0,
+Kp4,6B,SA103,SA103=,SA103=,SA103=,SA103=,0,
+Kp5,73,SA112,SA112=,SA112=,SA112=,SA112=,0,
+Kp6,74,SA113,SA113=,SA113=,SA113=,SA113=,0,
+Kp1,69,SA104,SA104=,SA104=,SA104=,SA104=,0,
+Kp2,72,SA105,SA105=,SA105=,SA105=,SA105=,0,
+Kp3,7A,SA114,SA114=,SA114=,SA114=,SA114=,0,
+Kp0,70,SA106,SA106=,SA106=,SA106=,SA106=,0,
+KpPeriod,71,SA121,SA121=,SA121=,SA121=,SA121=,0,
+KpEnter,e05A,SA122,SA122=,SA122=,SA122=,SA122=,0,ВВОД

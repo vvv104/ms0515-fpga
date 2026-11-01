@@ -103,6 +103,9 @@ ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
 # the bench's parts as logic, for the MiSTer core (rtl/parts)
 ms0515_model(Vns4_video "${PROJECT_SOURCE_DIR}/rtl/parts/ns4_video.sv" ns4_video)
 ms0515_test(test_ns4_video parts/test_ns4_video.cpp Vns4_video)
+ms0515_model(Vms7004_keys "${PROJECT_SOURCE_DIR}/rtl/parts/ms7004_keys.sv" ms7004_keys
+             PACKAGES "${PROJECT_SOURCE_DIR}/rtl/parts/ms7004_keys_pkg.sv" ARGS -GSTEP=8)
+ms0515_test(test_ms7004_keys parts/test_ms7004_keys.cpp Vms7004_keys)
 ms0515_model(Vvideo_half "${PROJECT_SOURCE_DIR}/rtl/parts/video_half.sv" video_half)
 ms0515_test(test_video_half parts/test_video_half.cpp Vvideo_half)
 ms0515_model(Vmc5305 "${PROJECT_SOURCE_DIR}/rtl/parts/mc5305.sv" mc5305
