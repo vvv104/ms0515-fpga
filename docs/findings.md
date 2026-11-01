@@ -9,7 +9,7 @@ folder per case.
 
 - **Schematic** (page 19, D96 К555ИВ3): КЛ > ТАЙМ > М С2 > Д С2 > 7007 >
   МОН.
-- **Software**: with МОН last, OSA's ^Q hangs about half the time in the
+- **Software**: with МОН last, OSA's ^Q hangs at every moment tried in the
   emulator (its 064 service re-requests before RTI).  The emulator puts
   МОН first.
 - **The copper agrees with the sheet** (2026-11-01): on the rev. 3А scans
@@ -19,9 +19,37 @@ folder per case.
   lifted pin on D89 or D96.  So the owner's board, as far as the copper
   and the photo can tell, encodes in Э3's order, МОН last.  Only an
   inner-layer cut (layers 3-6 are not on the scans) could still differ.
-  OSA's ^Q hanging with МОН last is then not the order's doing but
-  something else the emulator does differently - to be found by laying
-  the board's bus beside the emulator's at the same ^Q.
+- **The board sticks as the emulator does** (2026-11-01, `run_board irq
+  fetches=`): OSA (ROM-A, `TYPE LONG.TXT`) held by ^S pressed while it
+  printed, then ^Q at 16 moments 7 ms apart: the output went on twice and
+  stuck 14 times.  The mechanism, fetch for fetch, is the one the
+  emulator shows:
+  - held, the 064 service (147642) takes its request back (bit 8 of
+    177400 cleared), finds the hold flag set (the word at 147704), opens
+    the priority for one instruction (`MTPS #0` at 150170, `MTPS #340`
+    at 150174), asks for itself again and returns; its RTI is followed at
+    once by the next acknowledge, so the program it broke into never gets
+    an instruction (one round 78 microseconds on the board, 64 in the
+    emulator);
+  - a key whose request comes before `MTPS #0` is read is taken in that
+    window, with МОН's request taken back: the keyboard service (145744)
+    lowers the priority itself (`MTPS #0` at 145776), goes on to 146002,
+    sees ^Q, clears the flag - the output resumes (runs q4, q9: the
+    request 2 microseconds before 150170);
+  - a key whose request comes after it is taken at the RTI, above МОН's
+    request asked again: at 145776 МОН nests in the keyboard service, its
+    RTI returns to 146002 and the next acknowledge comes before 146002
+    runs - for good; ^Q is never seen (run q0: the request 1 microsecond
+    after 150174).
+
+  So OSA's ^Q, with МОН last, depends on where in the 78-microsecond
+  round the key comes, on the board built to Э3 as in the emulator built
+  to the same order: the emulator was not hiding a second difference.
+  Either OSA's machines did not encode МОН last (an inner-layer cut,
+  another revision), or the T-11 takes the next request later than both
+  models have it (after RTI, or after an `MTPS` that lowers the
+  priority), or OSA's ^Q did hang there.  Nothing on the bench can tell
+  which: a real machine with OSA can.
 - Pictures: [evidence/irq-encoder](evidence/irq-encoder/).
 
 ## R45: D86's OE - on GND, misread as on РПРРТ H (Э3 sheet 2)

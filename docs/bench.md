@@ -15,7 +15,7 @@ plays, in `sim/board/`, at the board's connectors.
 
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
 [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
-[rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN]`
+[rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO]`
 
 - the processor's fetches against the emulator's (from power-on only: a
   run from a snapshot is not followed), every Nth frame against its
@@ -50,6 +50,13 @@ plays, in `sim/board/`, at the board's connectors.
 - `spot=ROW:COLUMN` (octal, may repeat): where on the screen the video
   reads that DRAM cell - the frame's line and sample, once a frame.
   With `watch` it tells where a write shows up (it found R45,
+  `docs/findings.md`);
+- `irq`: the interrupt requests at D89's inputs (`ЗАПР КЛ`, `ТАЙМ`,
+  `М С2`, `Д С2`, `7007`, `МОН`) each time they change, with the code D96
+  puts on CP0..CP3; each interrupt acknowledge (a row strobe with SEL1
+  high and SEL0 low) and the handler's first fetch; every 20 ms the last
+  fetch.  `fetches=FROM-TO` (machine microseconds) adds every fetch in
+  that stretch and implies `irq` (it found how OSA's ^Q sticks,
   `docs/findings.md`).
 
 Every run also watches the video's words (`sim/board/video_watch.h`) and

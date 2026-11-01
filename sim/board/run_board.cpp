@@ -4,7 +4,7 @@
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
 //             [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
-//             [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN]
+//             [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
@@ -22,7 +22,11 @@
 // too; a snapshot carries the ROM it was taken with.  watch= and spot=:
 // docs/bench.md.  The video's words are watched on their way from the
 // DRAM to the shift registers (video_watch.h, docs/bench.md).  The last line,
-// "summary: key=value ...", is for tools/run_many.py.
+// "summary: key=value ...", is for tools/run_many.py.  `irq` logs the
+// interrupt requests at D89's inputs as they change, with the code D96
+// puts on CP0..CP3, each interrupt acknowledge with the handler's first
+// fetch, and every 20 ms the last fetch (docs/bench.md); fetches=FROM-TO
+// (machine microseconds) adds every fetch in that stretch.
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
 // at each ТС15 H rise from the line sync (ССИ L): the blue, red and green
@@ -228,6 +232,8 @@ struct Options {
     std::string keys;                   // the keys the stub presses: lines "MS CODE ..." (codes octal)
     std::vector<std::pair<unsigned, unsigned>> watch;  // writes logged: address ranges, octal
     std::vector<std::size_t> spots;     // DRAM cells (row:column, octal) whose video reads are placed
+    bool irq = false;                   // the interrupts logged (class Irqs)
+    std::uint64_t fetch_from = 0, fetch_to = 0;  // every fetch logged in this stretch (machine us)
 
     drive::Layout track_layout() const
     {
@@ -256,6 +262,13 @@ struct Options {
                 logic_drive = true;
             else if (arg == "keyboard")
                 keyboard = true;
+            else if (arg == "irq")
+                irq = true;
+            else if (arg.rfind("fetches=", 0) == 0 && arg.find('-') != std::string::npos) {
+                irq = true;
+                fetch_from = std::strtoull(arg.c_str() + 8, nullptr, 10);
+                fetch_to = std::strtoull(arg.c_str() + arg.find('-') + 1, nullptr, 10);
+            }
             else if (arg.rfind("save=", 0) == 0 && arg.find('@') != std::string::npos)
                 saves.emplace_back(std::strtoull(arg.c_str() + arg.find('@') + 1, nullptr, 10),
                                    arg.substr(5, arg.find('@') - 5));
@@ -282,6 +295,63 @@ struct Options {
         }
         return every > 0;
     }
+};
+
+// The interrupts (irq): the requests ЗАПР ... L at D89's inputs as they
+// change, with the code D96 makes of them (СР3..СР0 L, read high-true);
+// each interrupt acknowledge (a row strobe with SEL1 high, SEL0 low) and
+// the first fetch after it - the handler; and every 20 ms the last fetch.
+class Irqs {
+public:
+    Irqs(std::uint64_t from_us, std::uint64_t to_us) : from_(from_us * kMasterMhz), to_(to_us * kMasterMhz) {}
+
+    void see(const Vns4& m, std::uint64_t t)
+    {
+        const unsigned req = (!m.n_ZAPR_KL_L) << 5 | (!m.n_ZAPR_TAYM_L) << 4 | (!m.n_ZAPR_M_S2_L) << 3 |
+                             (!m.n_ZAPR_D_S2_L) << 2 | (!m.n_ZAPR_7007_L) << 1 | (!m.n_ZAPR_MON_L);
+        const unsigned code = (!m.n_SR3_L) << 3 | (!m.n_SR2_L) << 2 | (!m.n_SR1_L) << 1 | (!m.n_SR0_L);
+        if (req != req_) {
+            std::printf("%.6f s: requests", seconds(t));
+            static const char* const names[] = {"MON", "7007", "D_S2", "M_S2", "TAYM", "KL"};
+            for (int i = 5; i >= 0; --i)
+                if (req >> i & 1u) std::printf(" %s", names[i]);
+            std::printf(" (code %02o)\n", code);
+            req_ = req;
+        }
+        const bool ras = m.n_PVAS_L != 0;
+        if (!ras && ras_was_) {
+            const unsigned at = address(m);
+            if (m.n_REZH1_H && !m.n_REZH0_H) {
+                std::printf("%.6f s: IACK, code %02o\n", seconds(t), code);
+                handler_ = true;
+            } else if (m.n_REZH0_H && !m.n_REZH1_H) {
+                if (handler_) std::printf("%.6f s: handler at %06o\n", seconds(t), at);
+                handler_ = false;
+                last_ = at;
+                if (t >= from_ && t < to_)
+                    std::printf("%.6f s: fetch %06o\n", seconds(t), at);
+            }
+        }
+        ras_was_ = ras;
+        if (t % (20000ull * kMasterMhz) == 0)
+            std::printf("%.6f s: at %06o\n", seconds(t), last_);
+    }
+
+private:
+    static double seconds(std::uint64_t t) { return static_cast<double>(t) / (1e6 * kMasterMhz); }
+    static unsigned address(const Vns4& m)
+    {
+        const CData b[16] = {m.n_AD00_H, m.n_AD01_H, m.n_AD02_H, m.n_AD03_H, m.n_AD04_H, m.n_AD05_H,
+                             m.n_AD06_H, m.n_AD07_H, m.n_AD08_H, m.n_AD09_H, m.n_AD10_H, m.n_AD11_H,
+                             m.n_AD12_H, m.n_AD13_H, m.n_AD14_H, m.n_AD15_H};
+        unsigned v = 0;
+        for (int i = 0; i < 16; ++i) v |= (b[i] & 1u) << i;
+        return v;
+    }
+
+    std::uint64_t from_, to_;
+    unsigned req_ = 0, last_ = 0;
+    bool ras_was_ = true, handler_ = false;
 };
 
 // The processor's writes to the address ranges asked for (watch=LO-HI,
@@ -610,6 +680,7 @@ int main(int argc, char** argv)
     writes.ranges = o.watch;
     Camera camera(o);
     Spots spots(o.spots);
+    Irqs irqs(o.fetch_from, o.fetch_to);
     keyboard::Stub kbd;
     Keys keys(o.keys);
     std::size_t heard = 0;
@@ -664,6 +735,8 @@ int main(int argc, char** argv)
         writes.see(*m, t, dram);
         camera.see(*m, t, emu, fetches.started());
         spots.see(dram, camera, t);
+        if (o.irq)
+            irqs.see(*m, t);
         if (t % (10000ull * kMasterMhz) == 0 && t != 0) {
             const double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - wall).count();
             std::printf("%llu ms: %llu fetches, %llu as the emulator's, %d frames (%.0f s)\n",
