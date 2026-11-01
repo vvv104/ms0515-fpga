@@ -60,6 +60,12 @@ module mc5305 (
     localparam logic [12:0] INDEX_BYTES = 13'd125;  // 4 ms
     localparam logic [25:0] LOSS = 26'd54_000_000; // 450 ms
 
+    // the layout as the menu set it, through a register: a setting, not a
+    // signal, and the layout's table is a long way to the writer's search
+    logic [1:0] layout_q;
+    always_ff @(posedge clk)
+        layout_q <= layout;
+
     // ---- the spindle: where in the turn, as byte, cell and tick --------
     logic        on, turning, turning_n;
     logic [12:0] byte_at, byte_at_n;
@@ -139,7 +145,7 @@ module mc5305 (
     logic [3:0] done_sector;
     assign writing = selected && inserted && turning_n && !write_gate && !img_readonly;
     mc5305_writer writer (
-        .clk, .layout, .writing, .write_data, .byte_now(byte_at_n),
+        .clk, .layout(layout_q), .writing, .write_data, .byte_now(byte_at_n),
         .put, .put_at, .put_byte, .done, .done_sector
     );
 
@@ -244,7 +250,7 @@ module mc5305 (
     logic [7:0]  read_q;
 
     mc5305_bytes bytes (
-        .clk, .restart, .take, .layout, .track(loaded[7:1]), .side(loaded[0]),
+        .clk, .restart, .take, .layout(layout_q), .track(loaded[7:1]), .side(loaded[0]),
         .read_at, .read_q, .made, .made_byte, .made_mark
     );
     always_ff @(posedge clk)

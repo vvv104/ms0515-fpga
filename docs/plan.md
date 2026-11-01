@@ -168,8 +168,17 @@ Three places need care:
        timed before) and the pixels handed to sys/ on a 60 MHz clock from
        the same PLL (`rtl/parts/video_half.sv`) - sys/'s scaler and video
        measurement do not run at 120 MHz; with these out of the way the
-       board's chips met timing beside sys/ as well.  Left: the margin -
-       the board's ВМ1 and ВГ93 are what the thinnest paths go through.
+       board's chips met timing beside sys/ as well.  With the МС 7004
+       inside (7c) it meets timing again: 33 % of the ALMs, 29 % of the
+       block memory, the 120 MHz domain with +0.3 ns - the 8035's paths
+       two ticks (`km1816ve48.sdc`: its registers change only on its
+       crystal's edges, 13 or 14 ticks apart), the translator's tables
+       looked up a tick ahead, the drive's layout setting through a
+       register.  The menu: the disk image and its layout, the keyboard
+       (the МС 7004 with MiSTer's USB keyboard, by character or by
+       position; a serial one on the user port or the HPS UART; none),
+       the aspect, reset.  Left for 7d: ROM-A in the menu and the rev3a
+       switches; the post-fit netlist on the bench.
    7e. **On the board** (whoever has one): power-on, the ROM's self-test,
        Omega and ОСА from SD images, the keyboard, the picture on HDMI and
        on the IO board's VGA; then what is too long for the model -
