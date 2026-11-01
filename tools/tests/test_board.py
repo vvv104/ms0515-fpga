@@ -78,12 +78,20 @@ class Fixture:
         with open(os.path.join(self.dir.name, name), "w", encoding="utf-8") as f:
             f.write(text)
 
+    def sources(self):
+        d = self.dir.name
+        return board.Sources(
+            parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+            nets=os.path.join(d, "nets.csv"), changes=None,
+            analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"))
+
     def generate(self):
-        with self.dir as d:
-            return board.generate(board.Sources(
-                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
-                nets=os.path.join(d, "nets.csv"), changes=None,
-                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips")))
+        with self.dir:
+            return board.generate(self.sources())
+
+    def machine(self, inputs, outputs):
+        with self.dir:
+            return board.generate_machine(self.sources(), inputs, outputs)
 
 
 def errors(problems):
@@ -491,6 +499,51 @@ class Deviations(unittest.TestCase):
         self.assertTrue(any("no evidence" in e for e in errors(b.problems)))
 
 
+class Machine(unittest.TestCase):
+    """The board inside a machine (a MiSTer core): only the connector pins
+    and nets it uses as ports, the rest of the inputs let go."""
+
+    PARTS = "D1,К555ЛН1,,14,7,14,,,\nD2,К555ЛН1,,14,7,14,,,\nXP1,ОНП-ЖГ-79-9,,9,,,,,\n"
+    NETS = ("A,XP1,3,,1,\nA,D1,1,,1,\nB,D1,2,,1,\nB,D2,1,,1,\nC,D2,2,,1,\n"
+            "E,XP1,4,,1,\nE,D1,3,,1,\nF,D1,4,,1,\nG,D2,3,,1,\nH,D2,4,,1,\n")
+
+    def machine(self, inputs, outputs):
+        return Fixture(self.PARTS, self.NETS, analog="XP1,port,,a connector\n").machine(inputs, outputs)
+
+    def test_only_the_pins_and_nets_asked_for_are_ports(self):
+        text, problems = self.machine(["XP1_p3"], ["n_C"])
+        self.assertEqual(errors(problems), [])
+        self.assertIn("module ns4_machine (", text)
+        self.assertIn("input  logic x_XP1_p3,", text)
+        self.assertIn("input  logic x_XP1_p3_oe,", text)
+        self.assertIn("output logic n_C", text)
+        self.assertNotIn("output logic n_B", text)
+        self.assertIn("    logic n_B;", text)
+        self.assertNotIn("contention", text)
+
+    def test_a_pin_not_asked_for_is_let_go(self):
+        text, _ = self.machine(["XP1_p3"], ["n_C"])
+        self.assertNotIn("x_XP1_p4", text)
+        self.assertIn("assign n_E = 1'b0 ? 1'b0 : 1'b1;", text)
+
+    def test_an_output_nothing_reads_is_named_unused(self):
+        text, _ = self.machine(["XP1_p3"], ["n_C"])
+        self.assertIn(".p4(unused_d_D1_p4)", text)
+        self.assertIn("    logic unused_d_D1_p4;", text)
+        self.assertNotIn("n_F", text)
+
+    def test_a_chip_that_leads_to_no_port_is_left_out(self):
+        text, _ = self.machine(["XP1_p3"], ["n_B"])
+        self.assertIn("k555ln1 D1 (", text)
+        self.assertNotIn("k555ln1 D2 (", text)
+        self.assertNotIn("n_C", text)
+
+    def test_a_pin_or_net_the_board_lacks_is_an_error(self):
+        _, problems = self.machine(["XP1_p9"], ["n_Z"])
+        self.assertTrue(any("XP1_p9" in e for e in errors(problems)))
+        self.assertTrue(any("n_Z" in e for e in errors(problems)))
+
+
 class TheBoard(unittest.TestCase):
     def test_ns4_generates_without_errors_and_matches_the_committed_file(self):
         text, problems, inputs = board.generate_all(board.ns4_sources())
@@ -499,6 +552,13 @@ class TheBoard(unittest.TestCase):
             self.assertEqual(f.read(), text, "rtl/board/ns4.sv is stale: run tools/board.py")
         with open(os.path.join(ROOT, "rtl", "board", "ns4_inputs.inc"), encoding="utf-8") as f:
             self.assertEqual(f.read(), inputs, "rtl/board/ns4_inputs.inc is stale: run tools/board.py")
+
+    def test_the_machine_s_board_matches_the_committed_file(self):
+        text, problems = board.generate_machine(board.ns4_sources(), board.MACHINE_INPUTS,
+                                                board.MACHINE_OUTPUTS)
+        self.assertEqual(errors(problems), [])
+        with open(os.path.join(ROOT, "rtl", "board", "ns4_machine.sv"), encoding="utf-8") as f:
+            self.assertEqual(f.read(), text, "rtl/board/ns4_machine.sv is stale: run tools/board.py")
 
 
 if __name__ == "__main__":

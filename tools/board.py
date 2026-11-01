@@ -5,6 +5,11 @@
     python tools/board.py check    - the same without writing (exit 1 when
                                      the committed file is stale or wrong)
 
+It writes rtl/board/ns4_machine.sv too: the same board for the MiSTer core
+(rtl/ms0515.sv), with only the connector pins and nets the core uses as
+ports (MACHINE_INPUTS, MACHINE_OUTPUTS) - the other pins let go, as nothing
+is plugged in there, and what reaches none of the nets taken left out.
+
 The board is the chips of netlist/parts.csv wired by netlist/nets.csv, with
 the places where the drawing cannot be right (netlist/deviations.csv) and
 then the owner's board's changes (netlist/rev3a.csv) applied:
@@ -576,23 +581,29 @@ def header(b):
     return lines
 
 
-def emit(b, levels, busy):
-    """The text of the board module."""
+def emit(b, levels, busy, outputs=None):
+    """The text of the board module; with outputs (the identifiers of the
+    nets brought out) the machine's board, the other nets inside and no
+    contention outputs."""
     nets = sorted(levels, key=lambda n: natural(ident(n)))
     fought = [n for n in nets if busy[n]]
     clocked = bool(b.lines) or any(port == "clk" for _, _, conns, _ in b.instances for port, _ in conns)
-    ports = (["input  logic clk"] if clocked else []) + \
-        [f"input  logic {p}" for p in b.ports] + \
-        [f"output logic {ident(n)}" for n in nets] + ["output logic contention"]
+    ports = (["input  logic clk"] if clocked else []) + [f"input  logic {p}" for p in b.ports]
+    if outputs is None:
+        ports += [f"output logic {ident(n)}" for n in nets] + ["output logic contention"]
+    else:
+        ports += [f"output logic {ident(n)}" for n in nets if ident(n) in outputs]
     if fought:
         ports.append(f"output logic [{len(fought) - 1}:0] contention_at")
-    lines = header(b)
+    lines = header(b) if outputs is None else MACHINE_HEADER[:]
     if fought:
         lines.append("// contention_at, bit by bit: " +
                      ", ".join(f"{i} {n}" for i, n in enumerate(fought)))
-    lines += ["module ns4 ("]
+    lines += ["module ns4 (" if outputs is None else "module ns4_machine ("]
     lines += [f"    {p}," for p in ports[:-1]] + [f"    {ports[-1]}", ");"]
     lines += [f"    logic {w};" for w in b.wires]
+    if outputs is not None:
+        lines += [f"    logic {ident(n)};" for n in nets if ident(n) not in outputs]
     # On a clocked board the brought-out pins come in through registers,
     # one master tick late: the board then hangs on its own state alone, and
     # Verilator does not work all that the pins reach out again at every
@@ -631,7 +642,8 @@ def emit(b, levels, busy):
     lines.append("")
     lines += [f"    assign {ident(n)} = {levels[n]};" for n in nets]
     lines += [f"    assign contention_at[{i}] = {busy[n]};" for i, n in enumerate(fought)]
-    lines.append(f"    assign contention = {'|contention_at' if fought else ZERO};")
+    if outputs is None:
+        lines.append(f"    assign contention = {'|contention_at' if fought else ZERO};")
     lines.append("endmodule")
     return "\n".join(lines) + "\n"
 
@@ -664,9 +676,8 @@ def generate(src):
     return text, problems
 
 
-def generate_all(src):
-    """The board's text, the problems found on the way, and the list of its
-    inputs (inputs_text)."""
+def built(src):
+    """The board built, each net's level and contention term."""
     b = Builder(src).build()
     levels, busy, names = {}, {}, {}
     for name, net in b.nets.items():
@@ -677,7 +688,116 @@ def generate_all(src):
         other = names.setdefault(ident(name), name)
         if other != name:
             b.problems.error(f"'{name}' and '{other}' are both {ident(name)}")
+    return b, levels, busy
+
+
+def generate_all(src):
+    """The board's text, the problems found on the way, and the list of its
+    inputs (inputs_text)."""
+    b, levels, busy = built(src)
     return emit(b, levels, busy), b.problems, inputs_text(b.ports)
+
+
+# The board inside the machine, the MiSTer core (docs/plan.md, stage 7d):
+# the connector pins the core's parts drive and the nets they take.  Every
+# other connector pin is let go - nothing plugged in, as the bench's
+# disconnect() leaves them - and what reaches none of the nets taken is
+# left out.
+MACHINE_INPUTS = [
+    "VD11_p1",                          # the supply monitor: low as the supply rises
+    "XP4_p8", "XP4_p26", "XP4_p28",     # the drive: ИНД, Д00, ЗЗП
+    "XP4_p30", "XP4_p34",               # ДВС (the board's ЧТН), НГТ (ГТВ)
+    "XS2_p3",                           # the keyboard's line in, ВХКЛ L
+]
+MACHINE_OUTPUTS = [
+    "n_VN0_H", "n_DV_H", "n_NPR_L", "n_SHAG_L",     # drive 0's select, motor, direction, step
+    "n_ZAP_L", "n_RZP_L", "n_VBP_H",                # write data, write gate, side
+    "n_VYHKL_L",                                    # the keyboard's line out
+    "n_TS15_H", "n_SC_H", "n_KC_H", "n_ZC_H",       # the video: the sample clock, blue, red, green
+    "nx_D69_9",                                     # brightness
+    "n_SSI_L", "n_KSI_L", "n_SGI_L",                # line and frame sync, blanking
+]
+MACHINE_HEADER = [
+    "// The НС4 board inside the machine (the MiSTer core), generated by",
+    "// tools/board.py from netlist/ - do not edit.  rtl/board/ns4.sv with only",
+    "// the connector pins and nets the core uses as ports: the other pins let",
+    "// go, what reaches none of the nets taken left out, a chip's output that",
+    "// nothing reads named unused_.",
+]
+TOKEN = re.compile(r"\b[A-Za-z_]\w*\b")
+
+
+def generate_machine(src, inputs, outputs):
+    """The machine's board (MACHINE_INPUTS, MACHINE_OUTPUTS) and the problems."""
+    b, levels, _ = built(src)
+    keep = []
+    for p in inputs:
+        if "x_" + p not in b.ports:
+            b.problems.error(f"machine: the board has no input x_{p}")
+        else:
+            keep += ["x_" + p, f"x_{p}_oe"]
+    by_ident = {ident(n): n for n in levels}
+    for o in outputs:
+        if o not in by_ident:
+            b.problems.error(f"machine: the board has no net {o}")
+    if any(p.error for p in b.problems):
+        return "", b.problems
+    let_go = set(b.ports) - set(keep)
+    levels = {n: TOKEN.sub(lambda m: ZERO if m.group(0) in let_go else m.group(0), e)
+              for n, e in levels.items()}
+    nets, insts, wires = machine_live(b, levels, [by_ident[o] for o in outputs if o in by_ident])
+    unused = []
+    instances = []
+    for i, (ref, module, conns, values) in enumerate(b.instances):
+        if i not in insts:
+            continue
+        ports = b.modules[module].ports
+        out = []
+        for port, expr in conns:
+            if ports.get(port) == "output" and expr not in wires:
+                expr = "unused_" + expr
+                unused.append(expr)
+            out.append((port, expr))
+        instances.append((ref, module, out, values))
+    b.ports = keep
+    b.instances = instances
+    b.lines = [line for line in b.lines if line[2] in wires]
+    b.wires = [w for w in b.wires if w in wires] + unused
+    levels = {n: e for n, e in levels.items() if n in nets}
+    return emit(b, levels, {n: None for n in levels}, set(outputs)), b.problems
+
+
+def machine_live(b, levels, wanted):
+    """What the nets wanted hang on: the nets, the instances (by index) and
+    the wires, from the nets back through the chips driving them."""
+    by_ident = {ident(n): n for n in levels}
+    raw_of = {to: raw for _, raw, to in b.lines}
+    driver = {}
+    for i, (_, module, conns, _) in enumerate(b.instances):
+        ports = b.modules[module].ports
+        driver.update({expr: i for port, expr in conns if ports.get(port) == "output"})
+    nets, insts, wires = set(), set(), set()
+    todo = list(wanted)
+    while todo:
+        n = todo.pop()
+        if n in nets:
+            continue
+        nets.add(n)
+        for tok in TOKEN.findall(levels[n]):
+            source = raw_of.get(tok, tok)
+            if source not in driver:
+                continue
+            wires.update({tok, source})
+            i = driver[source]
+            if i in insts:
+                continue
+            insts.add(i)
+            _, module, conns, _ = b.instances[i]
+            ports = b.modules[module].ports
+            for port, expr in conns:
+                if ports.get(port) == "input":
+                    todo += [by_ident[x] for x in TOKEN.findall(expr) if x in by_ident]
+    return nets, insts, wires
 
 
 def main(argv):
@@ -693,6 +813,10 @@ def main(argv):
     for p in problems:
         print(("error: " if p.error else "warning: ") + p.text)
     files = {os.path.join(out, "ns4.sv"): text, os.path.join(out, "ns4_inputs.inc"): inputs}
+    if src.corner == "typ":
+        machine, more = generate_machine(src, MACHINE_INPUTS, MACHINE_OUTPUTS)
+        problems.extend(p for p in more if p.error and p not in problems)
+        files[os.path.join(out, "ns4_machine.sv")] = machine
     if len(argv) > 1 and argv[1] == "check":
         stale = False
         for path, want in files.items():

@@ -103,6 +103,14 @@ ms0515_test(test_mc5305 parts/test_mc5305.cpp Vmc5305)
 # ... and on the board's own levels
 ms0515_test(test_board_video board/test_board_video.cpp Vns4 Vns4_video)
 
+# the machine of the MiSTer core: the board inside it (rtl/board/ns4_machine.sv)
+# with the parts, against the bench's board
+ms0515_model(Vms0515 "${PROJECT_SOURCE_DIR}/rtl/ms0515.sv" ms0515
+             PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv"
+                      "${PROJECT_SOURCE_DIR}/rtl/parts/mc5305_pkg.sv"
+             ARGS -y "${PROJECT_SOURCE_DIR}/rtl/board" -y "${PROJECT_SOURCE_DIR}/rtl/parts")
+ms0515_test(test_machine board/test_machine.cpp Vns4 Vns4_video Vms0515)
+
 # the floppy drive the bench plays: its tracks (sim/board/drive.h)
 ms0515_test(test_drive board/test_drive.cpp)
 ms0515_test(test_drive_mechanics board/test_drive_mechanics.cpp)
