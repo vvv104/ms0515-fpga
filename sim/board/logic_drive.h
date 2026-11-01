@@ -41,8 +41,10 @@ public:
     {
         const drive::Outputs o = model_tick(in);
         const drive::Outputs r = reference_.tick(t, in);
+        const bool data_was = ref_data_;                // the logic's flux comes a tick later
+        ref_data_ = r.data;
         const bool differ = o.index != r.index || o.track0 != r.track0 || o.protect != r.protect ||
-                            o.data != r.data || o.ready != r.ready;
+                            o.data != data_was || o.ready != r.ready;
         if (differ) {
             if (run_ == 0) {
                 ++stretches_;
@@ -97,4 +99,5 @@ private:
     BlockDevice<Vmc5305> device_;
     drive::Mc5305 reference_;
     std::uint64_t ticks_ = 0, stretches_ = 0, longest_ = 0, run_ = 0, first_ = 0;
+    bool ref_data_ = true;
 };

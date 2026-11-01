@@ -36,6 +36,7 @@ module mc5305_bytes (
     logic [12:0] total;                 // the byte of the turn
     logic [15:0] crc;
     logic        busy;                  // the byte's address out, its value next
+    logic        at_end;                // ... and it is its segment's last
 
     // the segment's length
     function automatic logic [9:0] length(seg_t s);
@@ -122,6 +123,7 @@ module mc5305_bytes (
             busy <= 1'b0;
         end else if (take && !busy && !made) begin
             busy <= 1'b1;                               // the buffer is read now
+            at_end <= seg != GAP4 && n == length(seg) - 1;
         end else if (busy) begin
             busy <= 1'b0;
             made <= 1'b1;
@@ -138,7 +140,7 @@ module mc5305_bytes (
                 total <= '0;
             end else begin
                 total <= total + 1'b1;
-                if (seg != GAP4 && n == length(seg) - 1) begin
+                if (at_end) begin
                     n <= '0;
                     seg <= after(seg, sector);
                     if (seg == GAP3)

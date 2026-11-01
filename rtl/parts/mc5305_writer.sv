@@ -56,13 +56,16 @@ module mc5305_writer (
         return st_was != HUNT && got_was == 4'd15 && !(window_now == 16'h4489 && st_was == MARK);
     endfunction
 
-    // a byte count from the index, into the turn (a write is shorter than
-    // three turns)
-    function automatic logic [12:0] turn_byte(logic [14:0] v);
-        logic [14:0] x = v;
-        for (int i = 0; i < 3; i++)
-            if (x >= 15'(TURN_BYTES)) x = x - 15'(TURN_BYTES);
-        return x[12:0];
+    // a byte count from the index, into the turn, in two steps a tick each:
+    // the count is under four turns (the first byte's place and a write
+    // shorter than three turns), less two turns if it is two or more, then
+    // less one if it is one or more
+    localparam logic [14:0] TURN = 15'(TURN_BYTES);
+    function automatic logic [14:0] less_two_turns(logic [14:0] v);
+        return v >= 2 * TURN ? v - 2 * TURN : v;
+    endfunction
+    function automatic logic [12:0] less_a_turn(logic [14:0] v);
+        return v >= TURN ? 13'(v - TURN) : v[12:0];
     endfunction
 
     // the cells: since the last fall, in ticks and in cells gone by (0, 1, 2 or more)
@@ -77,51 +80,76 @@ module mc5305_writer (
     assign wrap = writing && !first_now && acc == CELL_LAST;
     assign zero = wrap && gone != 2'd0;                 // a whole cell gone by with no turn
 
-    // this tick's cells (a cell gone by and a fall can share a tick)
+    // the last tick's cells, decoded a tick later (a cell gone by and a
+    // fall can share a tick; cells come 240 ticks apart)
+    logic       e_fresh, e_zero, e_fall;
     dec_t       d0, d1, d2;
     logic       byte_done;
     logic [7:0] b;
     logic [17:0] byte_cells;
     always_comb begin
-        d0 = fresh ? '0 : dec;                         // a write begins: HUNT, nothing seen
-        d1 = zero ? one_cell(d0, 1'b0) : d0;
-        d2 = fall ? one_cell(d1, 1'b1) : d1;
+        d0 = e_fresh ? '0 : dec;                       // a write begins: HUNT, nothing seen
+        d1 = e_zero ? one_cell(d0, 1'b0) : d0;
+        d2 = e_fall ? one_cell(d1, 1'b1) : d1;
         byte_done = 1'b0;
         b = 8'd0;
         byte_cells = d2.cells;
         // a byte's data cells: the second of each pair
-        if (zero && done_in(d0.st, d0.got, d1.window)) begin
+        if (e_zero && done_in(d0.st, d0.got, d1.window)) begin
             byte_done = 1'b1;
             b = {d1.window[14], d1.window[12], d1.window[10], d1.window[8],
                  d1.window[6], d1.window[4], d1.window[2], d1.window[0]};
             byte_cells = d1.cells;
-        end else if (fall && done_in(d1.st, d1.got, d2.window)) begin
+        end else if (e_fall && done_in(d1.st, d1.got, d2.window)) begin
             byte_done = 1'b1;
             b = {d2.window[14], d2.window[12], d2.window[10], d2.window[8],
                  d2.window[6], d2.window[4], d2.window[2], d2.window[0]};
         end
     end
 
-    // the fields
+    // the fields, a tick after the byte (taken: its value, the cells to it
+    // and the state it came in) - bytes come 16 cells apart at the least,
+    // so the state set here is in place long before the next cell
 
+    logic        taken;
+    logic [7:0]  tb;
+    logic [17:0] tcells;
+    state_t      tst;
     logic [15:0] crc, crc_n;
     logic [9:0]  n;
     logic [7:0]  r, sector_id;          // the ID's R; the sector the last good ID named (0 none)
     logic [12:0] first_byte, mark_byte;
+    logic [14:0] mark_raw;              // the mark's byte from the index, not yet into the turn
+    logic        marked, halved, seek_go;
     logic [3:0]  nearest;
-    assign crc_n = crc_byte(crc, b);
+    assign crc_n = crc_byte(crc, tb);
 
     always_ff @(posedge clk) begin
         writing_was <= writing;
         data_was <= write_data;
         put <= 1'b0;
         done <= 1'b0;
+        e_fresh <= fresh;
+        e_zero <= zero;
+        e_fall <= fall;
+        if (e_fresh || e_zero || e_fall)
+            dec <= d2;
+        taken <= byte_done;
+        tb <= b;
+        tcells <= byte_cells;
+        tst <= d0.st;
+        marked <= 1'b0;
+        halved <= marked;
+        seek_go <= halved;
+        if (marked)
+            mark_raw <= less_two_turns(mark_raw);
+        if (halved)
+            mark_byte <= less_a_turn(mark_raw);
         if (fresh) begin
             first <= 1'b1;
             sector_id <= '0;
         end
         if (writing) begin
-            dec <= d2;
             if (fall) begin
                 if (first_now) first_byte <= byte_now;
                 first <= 1'b0;
@@ -131,18 +159,20 @@ module mc5305_writer (
                 acc <= wrap ? 8'd0 : acc + 1'b1;
                 if (wrap && gone != 2'd2) gone <= gone + 1'b1;
             end
-            if (byte_done)
-                case (d0.st)
+        end
+        if (taken)
+                case (tst)
                     MARK: begin
                         n <= '0;
-                        crc <= crc_byte(CRC_A1S, b);
-                        mark_byte <= turn_byte(15'(first_byte) + 15'((byte_cells - 18'd16) >> 4));
-                        dec.st <= b == 8'hFE ? ID : (b == 8'hFB || b == 8'hF8) ? DATA : HUNT;
+                        crc <= crc_byte(CRC_A1S, tb);
+                        mark_raw <= 15'(first_byte) + 15'((tcells - 18'd16) >> 4);
+                        marked <= 1'b1;
+                        dec.st <= tb == 8'hFE ? ID : (tb == 8'hFB || tb == 8'hF8) ? DATA : HUNT;
                     end
                     ID: begin
                         n <= n + 1'b1;
                         crc <= crc_n;
-                        if (n == 10'd2) r <= b;
+                        if (n == 10'd2) r <= tb;
                         if (n == 10'd5) begin
                             if (crc_n == 16'd0) sector_id <= r;
                             dec.st <= HUNT;
@@ -154,7 +184,7 @@ module mc5305_writer (
                         if (n < 10'd512) begin
                             put <= 1'b1;
                             put_at <= n[8:0];
-                            put_byte <= b;
+                            put_byte <= tb;
                         end
                         if (n == 10'd513) begin
                             if (crc_n == 16'd0) begin
@@ -168,31 +198,35 @@ module mc5305_writer (
                     end
                     default: ;
                 endcase
-        end
     end
 
     // the sector whose data mark the layout puts nearest to mark_byte,
-    // sought a sector a tick after the mark (the field's 514 bytes give time)
+    // sought once it is worked out, a sector a tick through three steps:
+    // the distance, the shorter way round the turn, the nearest so far
+    // (the field's 514 bytes give time)
     layout_t     l;
-    logic [3:0]  seek;                  // the sector looked at, 1..10; 0 done
-    logic [12:0] there, step, best_d, d;
+    logic [3:0]  seek, seek1, seek2;    // the sector looked at in each step, 1..10; 0 none
+    logic [12:0] there, step, best_d, apart, d;
     assign l = layout_of(layout);
     assign step = 13'(l.id_sync) + 13'd10 + 13'(l.gap2) + 13'(l.data_sync) + 13'd518 + 13'(l.gap3);
-    always_comb begin
-        d = there >= mark_byte ? there - mark_byte : mark_byte - there;
-        if (TURN_BYTES - d < d) d = TURN_BYTES - d;
-    end
-    always_ff @(posedge clk)
-        if (writing && byte_done && d0.st == MARK) begin
+    always_ff @(posedge clk) begin
+        seek1 <= seek;
+        seek2 <= seek1;
+        apart <= there >= mark_byte ? there - mark_byte : mark_byte - there;
+        d <= TURN_BYTES - apart < apart ? TURN_BYTES - apart : apart;
+        if (seek_go) begin
             seek <= 4'd1;
             there <= data_mark_at(l, 4'd0);
             best_d <= TURN_BYTES;
-        end else if (seek != 4'd0) begin
-            if (d < best_d) begin
-                best_d <= d;
-                nearest <= seek;
+        end else begin
+            if (seek != 4'd0) begin
+                there <= there + step;
+                seek <= seek == 4'd10 ? 4'd0 : seek + 1'b1;
             end
-            there <= there + step;
-            seek <= seek == 4'd10 ? 4'd0 : seek + 1'b1;
+            if (seek2 != 4'd0 && d < best_d) begin
+                best_d <= d;
+                nearest <= seek2;
+            end
         end
+    end
 endmodule

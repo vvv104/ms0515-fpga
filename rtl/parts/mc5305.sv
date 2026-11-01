@@ -1,5 +1,6 @@
 // mc5305: the floppy drive «Электроника МС 5305» on XP4 as logic, for the
-// MiSTer core (plan stage 7c) - sim/board/drive.h's drive, tick for tick:
+// MiSTer core (plan stage 7c) - sim/board/drive.h's drive, tick for tick
+// (the flux a tick later, for timing: below):
 // the spindle at 300 rpm from МВК, the index 4 ms a turn, ready from the
 // third index until none has come for 450 ms, the head stepped on ШАГ's
 // trailing edge, the flux a 1 us pulse at the start of each cell that
@@ -130,7 +131,7 @@ module mc5305 (
     assign inserted = img_size != 64'd0;
     assign two_sides = img_size >= 64'd819200;
     assign side_n = two_sides && !side;
-    assign key = {head_n, side_n};
+    assign key = {head, side_n};        // the head as it stands: a load starts a tick after a step
     // ---- writing: the controller's fields back into sectors ---------------
     logic       writing, put, done;
     logic [8:0] put_at;
@@ -305,14 +306,25 @@ module mc5305 (
     end
 
     // ---- the lines out: let go unless selected ---------------------------
-    logic in_place, pulse;
-    assign in_place = synced_track && pos_n == byte_at_n;
-    assign pulse = in_place && tick_at_n < PULSE && cells_n[4'd15 - cell_at_n];
+    // The flux goes through one more register, a master tick (8 ns) after
+    // the bench's drive: what the cell under the head is, worked out from
+    // the counters' next values, takes the whole tick at 120 MHz.  The
+    // pulse is 1 +-0.5 us, and the controller samples it on its own clock.
+    // Its parts are taken apart a tick before they meet.
+    logic in_place_was, early_was, cell_was, on_was;
+    logic [12:0] pos_up;
+    assign pos_up = pos == BYTES_LAST ? 13'd0 : pos + 1'b1;
     always_ff @(posedge clk) begin
         index   <= !(selected && inserted && turning_n && byte_at_n < INDEX_BYTES);
         track0  <= !(selected && head_n == 0);
         protect <= !(selected && inserted && img_readonly);
         ready   <= !(selected && inserted && indexes_n == 2'd3 && since_n < LOSS);
-        data    <= !(selected && turning_n && pulse);
+        // pos_n == byte_at_n, its two cases side by side: at the head
+        // already, or reaching it with this shift
+        in_place_was <= synced_track && (pos == byte_at_n || (ahead && pos_up == byte_at_n));
+        early_was    <= tick_at_n < PULSE;
+        cell_was     <= cells_n[4'd15 - cell_at_n];
+        on_was       <= selected && turning_n;
+        data    <= !(on_was && in_place_was && early_was && cell_was);
     end
 endmodule

@@ -1,6 +1,7 @@
 // mc5305: the floppy drive as logic, against the bench's drive (sim/board/
 // drive.h) tick by tick: the index, track 0, ready and the flux pulses on
-// the same lines, from an image served through MiSTer's block interface.
+// the same lines (the flux a master tick later, as mc5305.sv puts it out),
+// from an image served through MiSTer's block interface.
 // After the head moves, or the side changes, the logic loads the track and
 // works its way to the head's place in the turn; the pulses are compared
 // again once it has (kSettle, inside the 15 ms a drive's head takes to
@@ -64,12 +65,14 @@ public:
             if (device_.image().empty())                        // no disk: the bench's drive has none
                 continue;
             const drive::Outputs o = ref_.tick(t_, lines_);
+            const bool data_was = ref_data_;            // the flux a tick later (mc5305.sv)
+            ref_data_ = o.data;
             if (!compare)
                 continue;
             ++compared;
             const bool same = o.index == (m_.index != 0) && o.track0 == (m_.track0 != 0) &&
                               o.ready == (m_.ready != 0) && o.protect == (m_.protect != 0) &&
-                              o.data == (m_.data != 0);
+                              data_was == (m_.data != 0);
             if (!same && ++differ <= 5)
                 MESSAGE("tick " << t_ << ": ref index " << o.index << " track0 " << o.track0 << " ready " << o.ready
                                 << " data " << o.data << "; logic " << int(m_.index) << " " << int(m_.track0) << " "
@@ -151,6 +154,7 @@ private:
     std::unique_ptr<Vmc5305> model_ = std::make_unique<Vmc5305>();
     Vmc5305& m_ = *model_;
     std::uint64_t t_ = 0;
+    bool ref_data_ = true;
 };
 
 constexpr std::uint64_t kTurn = drive::Mc5305::kTurnTicks;

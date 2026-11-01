@@ -16,7 +16,8 @@ checked on the board's own levels against the bench part it replaces
   from ДЗП's falls into sectors, each written to the image as its CRC
   checks.  Tick for tick the bench's drive (`sim/parts/test_mc5305.cpp`),
   but for the few hundred microseconds after the head moves, while the
-  logic loads the track and catches up with the turn.  With no image
+  logic loads the track and catches up with the turn, and the flux a
+  master tick later (one more register, for the 120 MHz timing).  With no image
   mounted there is no disk in: nothing is loaded, no index, ready or flux.
 - `ns4_video.sv`: the picture - the levels the camera takes at each ТС15 H
   rise, out a line later with a pixel enable, the syncs and the line and
