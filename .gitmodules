@@ -1,0 +1,3 @@
+[submodule "boards/de10nano/template"]
+	path = boards/de10nano/template
+	url = https://github.com/MiSTer-devel/Template_MiSTer.git
