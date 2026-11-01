@@ -7,7 +7,7 @@ plays, in `sim/board/`, at the board's connectors.
 | Part | Where | What it does |
 |---|---|---|
 | The supply | `power.h` | holds the supply monitor VD11/R58 low for the first millisecond, as the supply rises, so D16 starts from a cleared counter (`docs/analog.md`); `disconnect()` sets every board input off - nothing on the connectors |
-| The drive | `drive.h`, `xp4.h` | the «Электроника МС 5305» on XP4 by the cable 4.854.127: the spindle, index, READY, head and read pulses; the tracks laid out as the MS 0515's own formatters write them (ОМЕГА, vvv, FDZ); writing is still to come |
+| The drive | `drive.h`, `xp4.h` | the «Электроника МС 5305» on XP4 by the cable 4.854.127: the spindle, index, READY, head and read pulses; the tracks laid out as the MS 0515's own formatters write them (ОМЕГА, vvv, FDZ); what the controller writes goes into the image's sectors |
 | The keyboard | `keyboard_stub.h`, `xp4.h` | a stand-in for the МС 7004 on XS2 that answers ROM-B's ID request (AB) with 01 00, so ROM-B finds the keyboard ready rather than waiting some 25 s of the machine; the keyboard's own model is to come |
 | Snapshots | `snapshot.h`, `snapshot_file.h` | the board's state (Verilator `--savable`) and the bench's parts in one file, so a run goes on from where an earlier one stopped |
 
@@ -22,8 +22,13 @@ plays, in `sim/board/`, at the board's connectors.
   screen, point for point;
 - `drive=logic` (with `disk=`): the MiSTer core's drive
   (`rtl/parts/mc5305.sv`) on XP4 in place of the bench's, the image served
-  through MiSTer's block interface (`sim/board/logic_drive.h`); from a
-  snapshot it starts as at power-on, its image mounted anew;
+  through MiSTer's block interface (`sim/board/logic_drive.h`), the
+  bench's drive beside it on the same lines as the reference: the run
+  ends saying where their outputs differed (by design only while a track
+  is loaded after a step, some thousand ticks each) and whether the two
+  images ended the same.  From power-on only: the logic's state is not in
+  a snapshot, and a drive started afresh under a controller that has
+  already seen one (its head stepped, its disk turning) does not boot;
 - `seed=N`: a random power-up state; `video`: every frame, for
   `tools/frames_to_video.py`;
 - `save=FILE@MS` / `load=FILE`: a snapshot at machine time MS, a run

@@ -276,6 +276,10 @@ struct Options {
                 return false;
             }
         }
+        if (logic_drive && !load.empty()) {             // its state is not in a snapshot
+            std::fprintf(stderr, "run_board: drive=logic runs from power-on, not from a snapshot\n");
+            return false;
+        }
         return every > 0;
     }
 };
@@ -616,7 +620,7 @@ int main(int argc, char** argv)
         std::vector<std::uint8_t> image{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
         std::printf("drive 0: %s, %zu bytes, laid out as %s's\n", o.disk.c_str(), image.size(), o.layout.c_str());
         if (o.logic_drive)
-            logic = std::make_unique<LogicDrive>(image, o.layout);
+            logic = std::make_unique<LogicDrive>(image, o.layout, o.track_layout());
         fdd = std::make_unique<drive::Mc5305>(std::move(image), o.track_layout());
     }
 
@@ -638,7 +642,7 @@ int main(int argc, char** argv)
             save_snapshot(saves[next_save++].second, parts, t);
         power(*m, t);
         if (logic)
-            xp4_drive(*m, logic->tick(xp4_lines(*m)));
+            xp4_drive(*m, logic->tick(t, xp4_lines(*m)));
         else if (fdd)
             xp4_drive(*m, fdd->tick(t, xp4_lines(*m)));
         if (o.keyboard) {
@@ -676,6 +680,6 @@ int main(int argc, char** argv)
     report(o, fetches, camera, emu, dram);
     video.report();
     if (logic)
-        std::printf("the logic's drive: %d blocks read, %d written\n", logic->reads(), logic->writes());
+        logic->report();
     return 0;
 }
