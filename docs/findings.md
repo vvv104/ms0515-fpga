@@ -12,8 +12,17 @@ folder per case.
 - **Software**: with МОН last, OSA's ^Q hangs about half the time in the
   emulator (its 064 service re-requests before RTI).  The emulator puts
   МОН first.
-- **Open**: which revision the Э3 shows; the board scans (rev. 3А) are to be
-  traced around D89/D96 to see whether the copper agrees with the sheet.
+- **The copper agrees with the sheet** (2026-11-01): on the rev. 3А scans
+  all six runs from D89's outputs to D96's inputs are where Э3 draws
+  them - МОН on I2, 7007 on I3, Д С2 on I4, М С2 on I5, ТАЙМ on I7, КЛ on
+  I9 - as Mick's traces have them; the owner's photo shows no wire or
+  lifted pin on D89 or D96.  So the owner's board, as far as the copper
+  and the photo can tell, encodes in Э3's order, МОН last.  Only an
+  inner-layer cut (layers 3-6 are not on the scans) could still differ.
+  OSA's ^Q hanging with МОН last is then not the order's doing but
+  something else the emulator does differently - to be found by laying
+  the board's bus beside the emulator's at the same ^Q.
+- Pictures: [evidence/irq-encoder](evidence/irq-encoder/).
 
 ## R45: D86's OE - on GND, misread as on РПРРТ H (Э3 sheet 2)
 
