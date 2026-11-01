@@ -59,6 +59,10 @@ public:
     {
         for (std::uint64_t i = 0; i < ticks; ++i) {
             tick();
+            if (!m_.index || !m_.ready || !m_.data || !m_.protect)
+                ++pulled;
+            if (device_.image().empty())                        // no disk: the bench's drive has none
+                continue;
             const drive::Outputs o = ref_.tick(t_, lines_);
             if (!compare)
                 continue;
@@ -119,6 +123,7 @@ public:
     const std::vector<std::uint8_t>& ref_image() const { return ref_.image(); }
 
     std::uint64_t compared = 0, differ = 0;
+    std::uint64_t pulled = 0;           // ticks with the index, ready, data or protect line pulled low
 
 private:
     // a master tick, the block device answering as MiSTer's does
@@ -158,6 +163,16 @@ TEST_CASE("mc5305: unselected, every line let go")
     b.motor(true);
     b.run(kTurn / 4, true);
     CHECK(b.differ == 0);
+}
+
+TEST_CASE("mc5305: no disk in - nothing asked of the block device, no index, no ready, no flux")
+{
+    Bench b({}, 1);
+    b.select(true);
+    b.motor(true);
+    b.run(3 * kTurn, false);
+    CHECK(b.loads() == 0);
+    CHECK(b.pulled == 0);
 }
 
 TEST_CASE("mc5305: the turns of track 0 from the motor's start, as the bench's drive")

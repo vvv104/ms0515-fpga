@@ -16,6 +16,10 @@
 // till then no flux comes - inside the head's settling time, which the
 // controller waits.
 //
+// With no disk in (no image: img_size 0) nothing is loaded or written, and
+// no index, ready or flux comes; the head still moves and track 0 is seen,
+// its sensor watching the head, not the disk.
+//
 // The lines are the bench's (drive::Lines, drive::Outputs): true is high;
 // the drive's outputs are open collectors, high when let go.
 module mc5305 (
@@ -113,6 +117,7 @@ module mc5305 (
     end
 
     // ---- the track under the head: loaded block by block -----------------
+    logic       inserted;               // a disk in: an image mounted
     logic       two_sides, side_n;
     logic [7:0] key, loaded;            // head and side of the track wanted, of the one loaded
     logic       have;                   // `loaded` holds a track
@@ -122,6 +127,7 @@ module mc5305 (
     logic       ack_was;
     logic [7:0] buffer [5120];
 
+    assign inserted = img_size != 64'd0;
     assign two_sides = img_size >= 64'd819200;
     assign side_n = two_sides && !side;
     assign key = {head_n, side_n};
@@ -130,7 +136,7 @@ module mc5305 (
     logic [8:0] put_at;
     logic [7:0] put_byte;
     logic [3:0] done_sector;
-    assign writing = selected && turning_n && !write_gate && !img_readonly;
+    assign writing = selected && inserted && turning_n && !write_gate && !img_readonly;
     mc5305_writer writer (
         .clk, .layout, .writing, .write_data, .byte_now(byte_at_n),
         .put, .put_at, .put_byte, .done, .done_sector
@@ -187,7 +193,7 @@ module mc5305 (
             if (pending && have) begin
                 copying <= 1'b1;
                 copy_n <= '0;
-            end else if (!have || loaded != key) begin
+            end else if (inserted && (!have || loaded != key)) begin
                 loading <= 1'b1;
                 loading_key <= key;
                 block <= '0;
@@ -303,10 +309,10 @@ module mc5305 (
     assign in_place = synced_track && pos_n == byte_at_n;
     assign pulse = in_place && tick_at_n < PULSE && cells_n[4'd15 - cell_at_n];
     always_ff @(posedge clk) begin
-        index   <= !(selected && turning_n && byte_at_n < INDEX_BYTES);
+        index   <= !(selected && inserted && turning_n && byte_at_n < INDEX_BYTES);
         track0  <= !(selected && head_n == 0);
-        protect <= !(selected && img_readonly);
-        ready   <= !(selected && indexes_n == 2'd3 && since_n < LOSS);
+        protect <= !(selected && inserted && img_readonly);
+        ready   <= !(selected && inserted && indexes_n == 2'd3 && since_n < LOSS);
         data    <= !(selected && turning_n && pulse);
     end
 endmodule
