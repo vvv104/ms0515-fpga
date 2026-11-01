@@ -153,6 +153,17 @@ Three places need care:
        the rev3a changes and the undecided places as switches.  Built,
        timing closed; the post-fit netlist run on the bench against the
        emulator as the RTL is.
+       **So far**: the machine for the core (`rtl/ms0515.sv`, the board
+       as `rtl/board/ns4_machine.sv` with only the ports it uses) holds
+       tick for tick to the bench's board (`test_machine`); the core
+       builds (`boards/de10nano/core.tcl`, an .rbf).  Timing does not
+       close yet: 590 endpoints of the 120 MHz domain miss - the drive's
+       logic (`mc5305`, -6.4 ns, never timed before), the board's ВМ1,
+       ВГ93, ВИ53 placed beside sys/ (-2.4 ns at worst), and sys/'s
+       video side and hps_io on the 120 MHz clock (-2.1 ns).  Next: the
+       drive pipelined, hps_io and the video out on 60 MHz from the same
+       PLL (the line buffer and the drive's sector buffer between the
+       two), then the board's chips.
    7e. **On the board** (whoever has one): power-on, the ROM's self-test,
        Omega and ОСА from SD images, the keyboard, the picture on HDMI and
        on the IO board's VGA; then what is too long for the model -
