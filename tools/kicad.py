@@ -242,8 +242,14 @@ def generate(parts, pinouts, conns, project="ns4"):
         sheet_uuid, file = sheets[number]
         files[file] = sheet_text(ids, members, f"НС4 - Э3 sheet {number}", sheet_uuid,
                                  f"/{root_uuid}/{sheet_uuid}", project)
-    files[f"{project}.kicad_pro"] = '{\n  "meta": {"filename": "%s.kicad_pro", "version": 1}\n}\n' % project
     return files
+
+
+def project_text(project="ns4"):
+    """A bare project file, for a folder that has none: the board's design
+    rules live in it once tools/pcb.py has saved the board, so it is
+    written only where it is missing and not checked."""
+    return '{\n  "meta": {"filename": "%s.kicad_pro", "version": 1}\n}\n' % project
 
 
 def kicad_cli():
@@ -306,6 +312,10 @@ def main(argv):
     for f, text in files.items():
         with open(os.path.join(out, f), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(text)
+    pro = os.path.join(out, "ns4.kicad_pro")
+    if not os.path.exists(pro):
+        with open(pro, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(project_text())
     print(f"kicad/: {len(files)} files")
     return 0
 
