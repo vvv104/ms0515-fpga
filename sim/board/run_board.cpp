@@ -4,7 +4,7 @@
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
 //             [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
-//             [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO] [drawn]
+//             [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO] [drawn] [edges=FROM-TO]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
@@ -28,7 +28,10 @@
 // fetch, and every 20 ms the last fetch (docs/bench.md); fetches=FROM-TO
 // (machine microseconds) adds every fetch in that stretch.  `drawn` builds
 // the board as Э3 draws it, without the owner's board's changes
-// (netlist/rev3a.csv: D70.15 on ~D14.3, not on GND).
+// (netlist/rev3a.csv: D70.15 on ~D14.3, not on GND).  edges=FROM-TO
+// (machine microseconds) prints, master tick by tick, every change of the
+// nets at the picture's left edge: the border (БОРДС, БОРДК), D70's enable
+// (~D14.3), the strobes ВК2..ВК5, СТРОБ, ЧТ ВЗУ, ССИ, РАЗР.
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
 // at each ТС15 H rise from the line sync (ССИ L): the blue, red and green
@@ -225,6 +228,7 @@ struct Options {
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
     bool logic_drive = false;           // the MiSTer core's drive in place of the bench's (logic_drive.h)
     bool drawn = false;                 // Э3's board, not the owner's (netlist/rev3a.csv)
+    std::uint64_t edge_from = 0, edge_to = 0;  // the left edge's nets logged (machine us)
     std::vector<std::pair<std::uint64_t, std::string>> saves;  // snapshots: (machine ms, file)
     std::string load;                   // a snapshot the run goes on from
     std::string rom;                    // another ROM image in the sockets (sim/board/rom_socket.h)
@@ -261,6 +265,10 @@ struct Options {
                 logic_drive = true;
             else if (arg == "drawn")
                 drawn = true;
+            else if (arg.rfind("edges=", 0) == 0 && arg.find('-') != std::string::npos) {
+                edge_from = std::strtoull(arg.c_str() + 6, nullptr, 10);
+                edge_to = std::strtoull(arg.c_str() + arg.find('-') + 1, nullptr, 10);
+            }
             else if (arg == "keyboard")
                 keyboard = true;
             else if (arg == "irq")
@@ -353,6 +361,35 @@ private:
     std::uint64_t from_, to_;
     unsigned req_ = 0, last_ = 0;
     bool ras_was_ = true, handler_ = false;
+};
+
+// The nets at the picture's left edge, printed as they change (edges=).
+class Edges {
+public:
+    Edges(std::uint64_t from_us, std::uint64_t to_us) : from_(from_us * kMasterMhz), to_(to_us * kMasterMhz) {}
+
+    void see(const Vns4& m, std::uint64_t t)
+    {
+        if (t < from_ || t >= to_) return;
+        const unsigned now = (m.n_BORDS_L & 1u) | (m.n_BORDK_L & 1u) << 1 | (m.nx_D14_3 & 1u) << 2 |
+                             (m.n_VK2_H & 1u) << 3 | (m.n_VK3_H & 1u) << 4 | (m.n_VK4_H & 1u) << 5 |
+                             (m.n_VK5_H & 1u) << 6 | (m.n_STROB_H & 1u) << 7 | (m.n_CHT_VZU_H & 1u) << 8 |
+                             (m.n_SSI_L & 1u) << 9 | (m.n_RAZR_H & 1u) << 10;
+        if (now == was_) return;
+        if (!header_) {
+            std::printf("edges: tick  БОРДС БОРДК D14.3 ВК2 ВК3 ВК4 ВК5 СТРОБ ЧТВЗУ ССИ РАЗР\n");
+            header_ = true;
+        }
+        std::printf("edges: %llu", static_cast<unsigned long long>(t));
+        for (int i = 0; i < 11; ++i) std::printf(" %u", now >> i & 1u);
+        std::printf("\n");
+        was_ = now;
+    }
+
+private:
+    std::uint64_t from_, to_;
+    unsigned was_ = ~0u;
+    bool header_ = false;
 };
 
 // The processor's writes to the address ranges asked for (watch=LO-HI,
@@ -675,6 +712,7 @@ int main(int argc, char** argv)
     Camera camera(o);
     Spots spots(o.spots);
     Irqs irqs(o.fetch_from, o.fetch_to);
+    Edges edges(o.edge_from, o.edge_to);
     keyboard::Stub kbd;
     Keys keys(o.keys);
     std::size_t heard = 0;
@@ -731,6 +769,7 @@ int main(int argc, char** argv)
         spots.see(dram, camera, t);
         if (o.irq)
             irqs.see(*m, t);
+        edges.see(*m, t);
         if (t % (10000ull * kMasterMhz) == 0 && t != 0) {
             const double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - wall).count();
             std::printf("%llu ms: %llu fetches, %llu as the emulator's, %d frames (%.0f s)\n",

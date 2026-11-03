@@ -356,27 +356,88 @@ are on the owner's board only, the one that had the module.  Pictures:
 [evidence/d70-oe-gnd](evidence/d70-oe-gnd/); of the factory patches:
 [evidence/factory-patches](evidence/factory-patches/).
 
-What it does, on the model (2026-11-03, `run_board drawn` against the
-owner's board, frames against the emulator's):
-- **As Э3 draws it, the picture's left edge goes wrong in 320 x 200**:
-  some 15 samples of every line (3000 a frame on the power-on screen,
-  ~2400 on the `vid320` test ROM) show the shift registers' stale word.
-  D14.1 (NAND of `БОРДС L`, `БОРДК L`) holds D70 (К555КП11, three-state)
-  off in the border; `ВК3`, `ВК4` then float (only `ВК2` has a pull-up,
-  R26), so the ИР16s' first load of the line falls before D70 is on.
-  The sheet was read again there (sheet 4: D14.1 pin 3 to D70's EO and to
-  D74.1; R26 on `ВК2` alone) - it is as the netlist has it.
-- **In 640 x 200 it all but vanishes**: 7 samples a frame, at the first
-  point - the strobes come through D70's other inputs (SEL = `РАЗР Н`).
-  The text modes of ROM-A, ROM-B, OSA and Omega look clean; the stripe
-  shows on the power-on screen and in colour graphics.
-- **Not a race**: the same at the chips' minimum and maximum delays, with
-  ROM-A as with ROM-B; with D70.15 on GND every frame is the emulator's.
-So the drawing has a defect only colour pictures show, which is why the
-boards were not patched as a rule; the owner's was, most likely when the
-plant fitted and tested the module (its label: «проверен по тест.»).  A
-board made anew gets a jumper on D70.15 - Э3's `~D14.3` or GND, fitted
-to GND.  Pictures: [evidence/d70-oe-gnd/model-left-edge.png](evidence/d70-oe-gnd/model-left-edge.png).
+What it does, on the model (2026-11-03..04, `run_board drawn` - Э3's
+board - against the owner's, frames against the emulator's).  **Open:**
+the model still makes Э3's board draw 640 x 200 wrong, the serial
+machines did not (the owner: Omega and the other systems ran in 640,
+the first characters of a line shifted would have been plain to see).
+The way so far is kept here, a wrong first answer included.
+
+**The serial boards had no such patch.**  The sync PROMs the model runs
+(`firmware/d21_strv.r12`, D21, line timing; `d13_kdrv.r12`, D13, frame)
+were read by Radon17 from a damaged НС4 (zx-pk.ru thread 15146 post
+#274, 2024-10-20; rev. 3А, dated 03.07.91, «СТРВ»/«КДРВ» written on the
+chips by hand).  His photo of that board shows D70 with the factory's
+white wire on pin 11 and **nothing on pin 15**
+([evidence/d70-oe-gnd/radon17-d70.jpg](evidence/d70-oe-gnd/radon17-d70.jpg)).
+The leningrad.su board has no such wire either (above).  So Э3 is the
+reference; the owner's patch is one board's, not to be kept as a
+variant once Э3 works on the model (the owner, 2026-11-04).
+
+**First answer, withdrawn: a stripe in 320 x 200.**  With К555ИР16 taking
+MODE in the tick of the clock's fall, Э3's board showed the stale word at
+the left edge of every 320 x 200 line (~15 samples a line), at both delay
+corners, ROM-A or ROM-B.  The owner: games ran on those boards - "it
+could not have failed to work".  Ruled out on the way: the ROM, the
+delay corners, the PROM's pinout (КР556РТ12 = 82S136, confirmed pin for
+pin against the MMI 63S440: 1 A6, 2 A5, 3 A4, 4 A3, 5 A0, 6 A1, 7 A2,
+8 /E1, 9 GND, 10 /E2, 11 O4, 12 O3, 13 O2, 14 O1, 15 A9, 16 A8, 17 A7,
+18 VCC; the netlist's D21 pins agree with Mick's redraw), the dump's
+address and bit order (all four outputs read as clean timing waveforms
+in this order), the PROM's other page (-01).
+
+**The edge, tick by tick** (`run_board ... edges=FROM-TO`; a master tick
+8.33 ns, 0 = D70 coming on; traces in
+[evidence/d70-oe-gnd](evidence/d70-oe-gnd/), `trace-*.txt`).  The line's
+load pulse - `~D71.8`/`СТРОБ`, the AND of ТС1..ТС4, on `ВК4` = MODE of
+all four ИР16s - comes at -12..-4.  The clock (`ВК2`/`ВК3`: `ТС1` in
+320, `ТС15 L` in 640) falls once inside it, at the very ТС15 edge that
+steps the counter D30 and ends the pulse.  The border's end (`БОРДС L`
+from D21) changes with ТС4 at that same edge, and gets to D70's enable
+only through D30, D21, D14.1: D70 always comes on after the load pulse.
+On Э3's board D70 is off in the border, `ВК2`..`ВК4` float high (`ВК2`
+through R26), no clock runs, and the line's first load is lost.
+
+**The fix to К555ИР16** (kept): the 74LS295 sheet (NTE74LS295A) takes the
+inputs "one set-up time prior to" the clock's high-to-low edge; mode
+control setup 20 ns, hold 0; data setup 20 ns, hold 10 ns; clock low 20
+ns min., 30 MHz.  When D70 comes on, the clock and MODE leave the float
+in the same tick: MODE was high through the setup time - **that edge
+loads**.  `rtl/chips/k555ir16.sv` now takes MODE from the tick before
+the edge (`sim/chips/test_k555ir16.cpp`, "MODE falling with the clock
+loads").  Taking data and SER from the tick before as well broke 640 on
+the owner's board (~47,000 samples) and was dropped; why was not traced.
+The К555ИР16 sheet (eandc) has the same function table, no timing but
+C to Q3 70/60 ns max.
+
+**With it: 320 x 200 on Э3 is right** (`vid320`: one sample of the first
+line, the first ~60 ns of the first point) - the clock's next fall is at
++11 on both boards, the late load is not seen.  **640 x 200 on Э3 is
+not**: the clock falls every 8 ticks, so the load when D70 comes on is
+one shift late - the first 16 points of every line one point to the
+right, the 16th lost (`vid640`: 1305 samples a frame,
+[evidence/d70-oe-gnd/model-640-left-edge.png](evidence/d70-oe-gnd/model-640-left-edge.png);
+Omega's text, booted on both boards:
+[evidence/d70-oe-gnd/model-omega-left-edge.png](evidence/d70-oe-gnd/model-omega-left-edge.png) -
+«ОМ» one point to the right, the cursor a point longer).
+
+**What 640 turns on: a race.**  Э3's board draws 640 right only if D70
+comes on while `ТС15 L` is still high and at least MODE's setup before
+its next fall: then `ВК4` falls alone, the next clock shifts, and the
+word the registers took at the right border (D70 still on then for the
+gates' delay after the load edge - the next line's first word; this is
+how the old model got 640 right but for 7 samples) comes out in place.
+Measured from the ТС15 edge that ends the load pulse, D70's enable takes
+D30 (К555ИЕ10, 15.5 ns typ) + D21 (КР556РТ12) + the rise of `БОРДС L`
+through R39 (1 kOhm) and C70 (100 pF) to the threshold (~25 ns) + D14.1
+(9.5) + D70's enable (17); the window is ~52..66 ns.  On the model (RC
+left out): РТ12 at 24..36 ns - right (`vid640` 7 samples, the first
+word of the frame's first line); at 40 ns (82S136 typ., the table's
+value) and 46 - wrong; with the RC's ~3 ticks added, wrong even at
+12 ns.  So by the data sheets the serial boards should have lost the
+race, and they did not: something in the model or in the reading of
+the board is still off.  Being looked for; until found, nothing of this
+goes into the tests as a property of the schematic.
 
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six

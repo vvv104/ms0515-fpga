@@ -15,7 +15,8 @@ plays, in `sim/board/`, at the board's connectors.
 
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
 [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
-[rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO]`
+[rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO]
+[drawn] [edges=FROM-TO]`
 
 - the processor's fetches against the emulator's (from power-on only: a
   run from a snapshot is not followed), every Nth frame against its
@@ -58,6 +59,13 @@ plays, in `sim/board/`, at the board's connectors.
   fetch.  `fetches=FROM-TO` (machine microseconds) adds every fetch in
   that stretch and implies `irq` (it found how OSA's ^Q sticks,
   `docs/findings.md`).
+- `drawn`: the board as Э3 draws it, without the owner's board's changes
+  (`netlist/rev3a.csv`: D70.15 on `~D14.3`, not on GND);
+- `edges=FROM-TO` (machine microseconds): every change of the nets at the
+  picture's left edge, master tick by tick - the border (`БОРДС`,
+  `БОРДК`), D70's enable (`~D14.3`), the strobes `ВК2`..`ВК5`, `СТРОБ`,
+  `ЧТ ВЗУ`, `ССИ`, `РАЗР`, as lines "edges: TICK b0 .. b10" (the D70
+  case, `docs/findings.md`).
 
 Every run also watches the video's words (`sim/board/video_watch.h`) and
 ends with three "video words" lines and a "video requests" one:
