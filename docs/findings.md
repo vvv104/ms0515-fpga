@@ -356,6 +356,28 @@ are on the owner's board only, the one that had the module.  Pictures:
 [evidence/d70-oe-gnd](evidence/d70-oe-gnd/); of the factory patches:
 [evidence/factory-patches](evidence/factory-patches/).
 
+What it does, on the model (2026-11-03, `run_board drawn` against the
+owner's board, frames against the emulator's):
+- **As Э3 draws it, the picture's left edge goes wrong in 320 x 200**:
+  some 15 samples of every line (3000 a frame on the power-on screen,
+  ~2400 on the `vid320` test ROM) show the shift registers' stale word.
+  D14.1 (NAND of `БОРДС L`, `БОРДК L`) holds D70 (К555КП11, three-state)
+  off in the border; `ВК3`, `ВК4` then float (only `ВК2` has a pull-up,
+  R26), so the ИР16s' first load of the line falls before D70 is on.
+  The sheet was read again there (sheet 4: D14.1 pin 3 to D70's EO and to
+  D74.1; R26 on `ВК2` alone) - it is as the netlist has it.
+- **In 640 x 200 it all but vanishes**: 7 samples a frame, at the first
+  point - the strobes come through D70's other inputs (SEL = `РАЗР Н`).
+  The text modes of ROM-A, ROM-B, OSA and Omega look clean; the stripe
+  shows on the power-on screen and in colour graphics.
+- **Not a race**: the same at the chips' minimum and maximum delays, with
+  ROM-A as with ROM-B; with D70.15 on GND every frame is the emulator's.
+So the drawing has a defect only colour pictures show, which is why the
+boards were not patched as a rule; the owner's was, most likely when the
+plant fitted and tested the module (its label: «проверен по тест.»).  A
+board made anew gets a jumper on D70.15 - Э3's `~D14.3` or GND, fitted
+to GND.  Pictures: [evidence/d70-oe-gnd/model-left-edge.png](evidence/d70-oe-gnd/model-left-edge.png).
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
