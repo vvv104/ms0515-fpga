@@ -229,8 +229,15 @@ layer px, under a pin pitch; the pin labels then sit on the pins):
   that pin 5 alone is off it make the same circuit: D80.5 on `АД03`, the
   other four on `ВБРЕГ L`.  A cut that also took D80.4, D66 or D98 off
   D88 would hang them on `АД03` instead, and the machine, which worked,
-  would not have.  So: D80.5 off `ВБРЕГ L`, on `АД03 Н` - to go into
-  `rev3a.csv` with the RAM disk (plan 6a), where it can be tested.
+  would not have.  Whether pin 5 still touches its pad the photos do not
+  show (the owner, 2026-11-03), but it cannot: D88 (К555ЛА2) and D92
+  (К555ИР22, its OE held low) are both push-pull, and would fight on
+  `ВБРЕГ L` whenever `АД03` and it differ - most of the time; a TTL low
+  winning, `ВБРЕГ L` would fall on every address with `АД03` low, memory
+  ones too, and D80, D66 and D98 would act on them.  A machine that boots
+  Omega with its RAM disk has no such fight.  So: D80.5 off `ВБРЕГ L`
+  (lifted, or a cut - an inner layer's would not show), on `АД03 Н` - to
+  go into `rev3a.csv` with the RAM disk (plan 6a), where it can be tested.
 - Pictures: [evidence/green-wire-ad03](evidence/green-wire-ad03/).
 
 Why it is there - a hypothesis the documents support:
