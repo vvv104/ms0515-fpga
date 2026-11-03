@@ -235,8 +235,11 @@ layer px, under a pin pitch; the pin labels then sit on the pins):
   `ВБРЕГ L` whenever `АД03` and it differ - most of the time; a TTL low
   winning, `ВБРЕГ L` would fall on every address with `АД03` low, memory
   ones too, and D80, D66 and D98 would act on them.  A machine that boots
-  Omega with its RAM disk has no such fight.  So: D80.5 off `ВБРЕГ L`
-  (lifted, or a cut - an inner layer's would not show), on `АД03 Н` - to
+  Omega with its RAM disk has no such fight.  And the joint itself points
+  to a lifted pin (the owner, 2026-11-03): its lump of solder stands high,
+  over R39, as a wire's does on the end of a pin bent up off the board -
+  the way D70.15 is done - not down at the pad.  So: D80.5 off `ВБРЕГ L`
+  (lifted, most likely), on `АД03 Н` - to
   go into `rev3a.csv` with the RAM disk (plan 6a), where it can be tested.
 - Pictures: [evidence/green-wire-ad03](evidence/green-wire-ad03/).
 
