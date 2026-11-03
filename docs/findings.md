@@ -334,7 +334,7 @@ scans, not a finding against the schematic; each of the nine is to be
 looked at on the scans, and the inner-layer runs (2, 7) can be judged
 there only partly - they show through the laminate under the rings.
 
-Where each of the nine stands (2026-10-20):
+Where each of the nine stands (2026-10-20; closed 2026-11-03, below):
 
 | Join in the traces | Link that joins | On the scans | Verdict |
 |---|---|---|---|
@@ -343,6 +343,21 @@ Where each of the nine stands (2026-10-20):
 | D9.19 `АД01` - D1.6 `АД02` | layer 2, D9.19 - D1.6 | gold leaves D1.6 upward and goes under a layer-1 run, where it may turn | open - a short A0/A1 cannot be right; the schematic stands |
 | D16.1 `~E1.2` - D40.9 `ТС8М L` | layers 7, 2, 8 through a square pad | every part of the chain is on the scans | copper differs from Э3, the factory patch D15.9-D40.9 (with a cut) restores Э3 |
 | D86.11 `А13` - D9.6 `МК02`; D1.19 `УСТ` - D38.9 `СИНХР2` - D76.2 `ВКЛДВ`; D30.15 - D98.3 `СТРОБ`; D78.6 - D74.6 `А13`; D62.10 `АД06` - D79.9 `БОРДС` | long chains through vias on layers 2 and 7 | the inner runs are largely there; which via is wrong cannot be told - the scans show layers 2 and 7 only through the laminate | open - for another copy of the board or Mick's P-CAD file |
+
+**All closed for Э3 (2026-11-03).**  Every join left open puts two
+outputs on one wire, by the drivers `tools/board.py` resolves for each
+net: `АД01`/`АД02` (D92.5, D92.6, both three-state on the bus), `А13`/`МК02`
+(D74.6 against the bus's ten), `СИНХР2`/`УСТ` (D9.13 against D83.18),
+`~D30.15`/`СТРОБ` (D30.15 against D71.6), `~D78.6`/`А13` (D78.6 against
+D74.6), `АД06`/`БОРДС` (the open collector of D21.14 pulling the bus).
+A board so joined would fight itself on nets the processor and the video
+use every microsecond; the board built to Э3 runs the machine's software.
+`АД13`/`Р3` would hang D94.15's bus bit on the 26 inputs `Р3` holds high
+(D30, D37, D42's presets, the ROMs' PGM): the scans show the run passing
+beside D77.27's ring, as said.  So the traces are wrong there, Э3 right,
+and a board made from the netlist takes Э3's nets.  The 171 schematic
+nets that come in pieces on the traces are runs the hidden layers 3-6
+complete, as the joins above show the traces' limits; Э3 joins them.
 
 Э3 sheet 5, D40 pin 13 (4D): a re-read took the short bar under it for a
 join with the clock line of pin 9; it is a ground symbol, as the first

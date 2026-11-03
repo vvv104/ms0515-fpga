@@ -197,3 +197,29 @@ Three places need care:
    memory (128 KB RAM, 16 KB ROM, the VRAM inside it): DE10-Nano, a USB
    hub and a microSD card are the whole kit; the IO board adds analog
    video for a CRT.
+8. **A printed board to build.**  НС4 again in copper, from the netlist
+   the model runs on: a new layout (four layers: signals, ground, +5 V,
+   signals), not the 1991 one - its inner layers are not on any scan, and
+   only the connections have to be the same.  KiCad 10 (`kicad-cli`),
+   Freerouting for the routing.
+   8a. **The copper's questions closed.**  Done: every join of the traces
+       against Э3 is two outputs on a wire, Э3 right (`docs/findings.md`).
+   8b. **What the software so far never touched**, run on the model with
+       a test program from a boot disk, the emulator in lockstep and the
+       bench watching the connector's pins: the С2 USART (XP5, with a
+       loop back), the МС 7007 PPI (XP3, XP8), the ВИ53's sound, the
+       memory dispatcher's banks over all 128 KB, the video modes.
+   8c. **Footprints and parts.**  Every part of ПЭ3 with a footprint: the
+       DIPs and their sockets, the passives, crystals, DT1/DT2, the
+       connectors - imported ones where their mates allow (the cables to
+       the drive, monitor and supply checked pin for pin); the list of
+       parts with the Soviet type, an equivalent, the package.  The
+       options (SA1, E3/E4) fitted as jumpers, set for 3.858.420 (the
+       МС 7004 on XS2, ROM-B, as the owner's machine).
+   8d. **Layout.**  Placement by blocks, the decoupling of ПЭ3, routed by
+       Freerouting, DRC to a common fab's rules.
+   8e. **The layout against the netlist.**  The netlist read back from
+       the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
+       test, so that the board made is the board simulated.
+   8f. **For the fab and the bench.**  Gerbers, drill files, the parts
+       list, the assembly drawing, the options and the first power-on.
