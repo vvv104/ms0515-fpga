@@ -83,14 +83,19 @@ def assemble(source, run, development):
             text = f.read()
         with open(os.path.join(work, name + ".MAC"), "w", encoding="ascii", newline="\r\n") as f:
             f.write(text)
+        if len(name) > 6:
+            raise ValueError(f"{source}: RT-11 names a file in six letters at most")
         for line in (f"MACRO {name},{name}={name}", f"LINK {name}.LDA={name}/L"):
             prog, args = line.split(" ", 1)
-            subprocess.run([run, prog, args], cwd=work, check=True, capture_output=True)
-        found = {f.upper(): f for f in os.listdir(work)}
-        with open(os.path.join(work, found[name + ".LST"]), encoding="ascii", errors="replace") as f:
-            listing = f.read()
-        if "Errors detected:  0" not in listing:
-            raise ValueError(f"{source}: MACRO reports errors\n{listing}")
+            done = subprocess.run([run, prog, args], cwd=work, capture_output=True, text=True)
+            found = {f.upper(): f for f in os.listdir(work)}
+            listing = ""
+            if name + ".LST" in found:
+                with open(os.path.join(work, found[name + ".LST"]), encoding="ascii", errors="replace") as f:
+                    listing = f.read()
+            if done.returncode != 0 or (prog == "MACRO" and "Errors detected:  0" not in listing):
+                flagged = [ln for ln in listing.splitlines() if ln[:1].isalpha() and ln[1:2] in (" ", "\t")]
+                raise ValueError(f"{source}: {line} failed\n{done.stdout}{done.stderr}" + "\n".join(flagged))
         with open(os.path.join(work, found[name + ".LDA"]), "rb") as f:
             return rom_image(lda_records(f.read())), listing
 

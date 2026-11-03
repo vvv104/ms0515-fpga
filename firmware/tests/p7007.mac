@@ -1,0 +1,39 @@
+	.TITLE	P7007
+; The MS 7007 port (D82, KR580VV55) through a plug: port A (XP3.2..9)
+; back into port B (XP8.10..17) and its low three bits into port C
+; (XP8.18..20).  Run from reset in place of the machine's ROM
+; (tools/test_roms.py).
+;
+; Mode 0, A out, B and C in, as the MS 7007's scan has it (the technical
+; description, 4.10.3).  Ten bytes go out on A; after each, B and C are
+; read.  Left in RAM for the bench:
+;   1000..1023  B and C after each byte, in pairs
+;   1024        A read back after the last byte (the output latch)
+;   1026        052525 - the program came to its end
+
+PPA	= 177540
+PPB	= 177542
+PPC	= 177544
+PCTL	= 177546
+RES	= 1000
+
+	.ASECT
+	. = 172000
+START:	MOV	#1000,SP
+	MOVB	#213,@#PCTL	; mode 0: A out, B in, C upper and lower in
+	MOV	#RES,R3
+	MOV	#OUT,R2
+	MOV	#10.,R4
+1$:	MOVB	(R2)+,@#PPA
+	NOP			; the plug's lines settle
+	MOVB	@#PPB,(R3)+
+	MOVB	@#PPC,(R3)+
+	SOB	R4,1$
+	MOVB	@#PPA,@#RES+24
+	CLRB	@#RES+25
+	MOV	#52525,@#RES+26
+	BR	.
+
+OUT:	.BYTE	1,2,4,10,20,40,100,200,125,252
+	.EVEN
+	.END	START

@@ -85,3 +85,33 @@ TEST_CASE("С2: five bytes through a loop-back plug on XP5 come back as sent, DS
     }
     CHECK((*b.writes.word_at(01010) & 0200) != 0);         // DSR
 }
+
+// The MS 7007 port through a plug: port A of D82 (ДКЛ00..07, XP3.2..9) back
+// into port B (ДКЛ08..15, XP8.10..17), its bits 0..2 into port C
+// (ДКЛ16..18, XP8.18..20).  Each byte the program puts on A is read back
+// on B and C, and the plug's lines are what A drives.
+TEST_CASE("МС 7007 port: port A's bytes come back on ports B and C through a plug on XP3 and XP8")
+{
+    Bench b("p7007.rom");
+    b.run_ms(80, [](Vns4& m) {
+        const CData a[8] = {m.n_DKL00_L, m.n_DKL01_L, m.n_DKL02_L, m.n_DKL03_L,
+                            m.n_DKL04_L, m.n_DKL05_L, m.n_DKL06_L, m.n_DKL07_L};
+        CData* const in[11] = {&m.x_XP8_p10, &m.x_XP8_p11, &m.x_XP8_p12, &m.x_XP8_p13, &m.x_XP8_p14, &m.x_XP8_p15,
+                               &m.x_XP8_p16, &m.x_XP8_p17, &m.x_XP8_p18, &m.x_XP8_p19, &m.x_XP8_p20};
+        CData* const oe[11] = {&m.x_XP8_p10_oe, &m.x_XP8_p11_oe, &m.x_XP8_p12_oe, &m.x_XP8_p13_oe,
+                               &m.x_XP8_p14_oe, &m.x_XP8_p15_oe, &m.x_XP8_p16_oe, &m.x_XP8_p17_oe,
+                               &m.x_XP8_p18_oe, &m.x_XP8_p19_oe, &m.x_XP8_p20_oe};
+        for (int i = 0; i < 11; ++i) {
+            *in[i] = a[i % 8];
+            *oe[i] = 1;
+        }
+    });
+    REQUIRE(b.writes.word_at(01026) == std::optional<std::uint16_t>(052525));
+    const std::uint8_t out[] = {1, 2, 4, 010, 020, 040, 0100, 0200, 0125, 0252};
+    for (unsigned i = 0; i < 10; ++i) {
+        INFO("byte " << i << ": " << int(out[i]));
+        CHECK(b.writes.byte(01000 + 2 * i) == std::optional<std::uint8_t>(out[i]));
+        CHECK((*b.writes.byte(01001 + 2 * i) & 7) == (out[i] & 7));
+    }
+    CHECK(b.writes.byte(01024) == std::optional<std::uint8_t>(0252));
+}
