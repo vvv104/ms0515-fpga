@@ -159,6 +159,9 @@ punch struck only their tops), made 07.1991.
 
 ### Which ROM the owner's machine carried (checked 2026-10-20)
 
+(Its RAM disk is dated in hand 09.11.93, the machine 07.1991 -
+[evidence/owner-machine](evidence/owner-machine/): the upgrade came two years after the purchase.)
+
 - **2012, KokaF77** dumped his machine's ROMs, labelled «7004L» (D65) and
   «7004H» (D77) (zx-pk 15146 p14 #134).  Merged by Titus, they are the
   ROM in EmuStudio v0.12g: md5 b92cda2d… - **ROM-A** (the one with the
