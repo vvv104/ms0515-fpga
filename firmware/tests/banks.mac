@@ -1,0 +1,82 @@
+	.TITLE	BANKS
+; The memory dispatcher (177400) over the whole 128 KB.  Run from reset
+; in place of the machine's ROM (tools/test_roms.py).
+;
+; Banks 0..6 (8 KB each, 020000 apart) are each the main RAM or the
+; extended RAM by bits 0..6 of the dispatcher (1 = main).  A tag is
+; written into every bank of both halves at offsets 0, 2, 4, 10 .. 10000
+; - every address line on its own - and read back: the tag tells the
+; half, the bank and the offset, so two cells that are one show up.
+; Only registers are used while the RAM is worked: the dispatcher moves
+; bank 0, and a stack in it with it.
+;   1006        tags read back wrong, as a count
+;   1010        tags checked, as a count (2 x 7 x 13 = 182)
+;   1012        052525 - the program came to its end
+; (1006..1012 are no tested cell: no power of two.)
+
+DISP	= 177400
+REGA	= 177600		; system register A (D76 port A)
+PCTL	= 177606		; D76's control word
+
+	.ASECT
+	. = 172000
+START:	MOVB	#202,@#PCTL	; as ROM-B: D76's A out, B in, C out - out of
+	MOVB	#4,@#REGA	; reset its A floats high, bit 7 the extended
+				; ROM over bank 6; the drive's motor off
+	CLR	R5		; the half: 0 main, 040000 extended
+	CLR	R4		; tags checked
+	MOV	#WRITE,SP	; SP holds the pass: WRITE, then CHECK
+HALF:	MOV	#177,R0		; every bank main ...
+	TST	R5
+	BEQ	1$
+	CLR	R0		; ... or every bank extended
+1$:	MOV	R0,@#DISP	; the video window and interrupts off too
+	CLR	R1		; the bank's base
+BANK:	MOV	#OFFS,R2
+CELL:	MOV	R1,R0		; the tag: half | bank << 11 | offset index
+	CLC
+	ROR	R0
+	CLC
+	ROR	R0
+	BIS	R5,R0
+	MOV	R2,R3
+	SUB	#OFFS,R3
+	BIS	R3,R0
+	MOV	(R2)+,R3	; the cell
+	ADD	R1,R3
+	JMP	(SP)		; the pass's work on the cell (R3) and tag (R0)
+WRITE:	MOV	R0,(R3)
+	BR	NEXT
+CHECK:	INC	R4
+	CMP	R0,(R3)
+	BEQ	NEXT
+	ADD	#1000,R4	; a wrong tag counts in the high bits
+NEXT:	CMP	R2,#OFFE
+	BLO	CELL
+	ADD	#20000,R1
+	CMP	R1,#160000
+	BNE	BANK
+	TST	R5
+	BNE	2$
+	MOV	#40000,R5	; the extended half
+	BR	HALF
+2$:	CLR	R5		; both halves done: the next pass
+	CMP	SP,#CHECK
+	BEQ	DONE
+	MOV	#CHECK,SP
+	BR	HALF
+
+DONE:	MOV	#177,@#DISP	; the main RAM again, for the results
+	MOV	R4,R0
+	BIC	#177000,R0	; tags checked
+	MOV	R0,@#1010
+	CLRB	R4		; wrong tags: R4 / 1000
+	SWAB	R4
+	ASR	R4
+	MOV	R4,@#1006
+	MOV	#52525,@#1012
+	BR	.
+
+OFFS:	.WORD	0,2,4,10,20,40,100,200,400,1000,2000,4000,10000
+OFFE:
+	.END	START

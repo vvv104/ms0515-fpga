@@ -150,3 +150,15 @@ TEST_CASE("sound: the timer's tone and the control bit reach the speaker on XP7"
     CHECK(node_edges == bit_edges);
     CHECK(quiet_lows == 0);
 }
+
+// The memory dispatcher: a tag in each of the 7 banks of the main and the
+// extended RAM at every address line's offset, read back - 182 cells, every
+// one its own (the program counts; the bench reads the counts).
+TEST_CASE("memory: the dispatcher's banks, main and extended, each 8 KB of its own on every address line")
+{
+    Bench b("banks.rom");
+    b.run_ms(100, [](Vns4&) {});
+    REQUIRE(b.writes.word_at(01012) == std::optional<std::uint16_t>(052525));
+    CHECK(b.writes.word_at(01010) == std::optional<std::uint16_t>(182));
+    CHECK(b.writes.word_at(01006) == std::optional<std::uint16_t>(0));
+}
