@@ -1,0 +1,42 @@
+	.TITLE	SOUND
+; The speaker (XP7) from the timer and from the control bit.  Run from
+; reset in place of the machine's ROM (tools/test_roms.py).
+;
+; System register C (D76 port C, 177604): bit 7 gates the timer's
+; channel 2 (SINT), bit 6 lets sound through (RAZR GR), bit 5 drives the
+; speaker itself (UPR GR).  D93's open collectors join the two ways.
+;   1. channel 2 in mode 3 at 2 MHz / 2000 = 1 kHz, gated, let through:
+;      some 16 ms of tone;
+;   2. the gate off, sound let through, bit 5 set and cleared ten times;
+;   3. sound off.
+; Then 052525 at 1000.
+
+TWR2	= 177504		; timer channel 2
+TCTL	= 177506		; timer control word
+REGC	= 177604		; system register C (D76 port C)
+PCTL	= 177606		; D76's control word
+
+	.ASECT
+	. = 172000
+START:	MOV	#1000,SP
+	MOVB	#202,@#PCTL	; as ROM-B: A out, B in, C out
+	MOVB	#7,@#REGC	; quiet, the border white
+	MOVB	#266,@#TCTL	; channel 2: LSB then MSB, mode 3, binary
+	MOVB	#320,@#TWR2	; 2000. = 3720
+	MOVB	#7,@#TWR2
+	MOVB	#307,@#REGC	; 1: the gate and the way through
+	MOV	#8000.,R1
+1$:	SOB	R1,1$
+	MOVB	#107,@#REGC	; 2: no gate; the bit itself
+	MOV	#10.,R2
+2$:	MOVB	#147,@#REGC
+	MOV	#50.,R1
+3$:	SOB	R1,3$
+	MOVB	#107,@#REGC
+	MOV	#50.,R1
+4$:	SOB	R1,4$
+	SOB	R2,2$
+	MOVB	#7,@#REGC	; 3: quiet
+	MOV	#52525,@#1000
+	BR	.
+	.END	START

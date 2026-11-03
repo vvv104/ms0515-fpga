@@ -115,3 +115,38 @@ TEST_CASE("МС 7007 port: port A's bytes come back on ports B and C through a p
     }
     CHECK(b.writes.byte(01024) == std::optional<std::uint8_t>(0252));
 }
+
+// The speaker's node (D93's open collectors, through R61 to XP7.2): with the
+// timer's channel 2 gated and the way open it carries the channel's square
+// wave (1 kHz from 2 MHz / 2000); with the gate off it follows the control
+// bit, inverted; with the way shut it rests high (but for D93's delay as
+// the register changes).
+TEST_CASE("sound: the timer's tone and the control bit reach the speaker on XP7")
+{
+    Bench b("sound.rom");
+    std::vector<std::uint64_t> tone_rises;
+    int bit_edges = 0, node_edges = 0, quiet_lows = 0, low_run = 0;
+    std::uint64_t t = 0;
+    CData node_was = 1, upr_was = 0;
+    b.run_ms(110, [&](Vns4& m) {
+        ++t;
+        const CData node = m.nx_D93_3;
+        if (m.n_RAZR_GR_H && m.n_SINT_H && !m.n_UPR_GR_H && node && !node_was) tone_rises.push_back(t);
+        if (m.n_RAZR_GR_H && !m.n_SINT_H) {
+            bit_edges += m.n_UPR_GR_H != upr_was;
+            node_edges += node != node_was;
+        }
+        low_run = !m.n_RAZR_GR_H && !node ? low_run + 1 : 0;
+        quiet_lows += low_run == 4 ? 1 : 0;     // longer than D93's gate delay
+        node_was = node;
+        upr_was = m.n_UPR_GR_H;
+    });
+    REQUIRE(b.writes.word_at(01000) == std::optional<std::uint16_t>(052525));
+    REQUIRE(tone_rises.size() > 5);
+    const double period_us = static_cast<double>(tone_rises.back() - tone_rises.front()) /
+                             static_cast<double>(tone_rises.size() - 1) / kMasterMhz;
+    CHECK(period_us == doctest::Approx(1000.0).epsilon(0.001));
+    CHECK(bit_edges >= 19);
+    CHECK(node_edges == bit_edges);
+    CHECK(quiet_lows == 0);
+}
