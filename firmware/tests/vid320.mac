@@ -1,0 +1,43 @@
+	.TITLE	VID320
+; The picture in 320 x 200: every word of the video memory a byte of
+; points (low) and a byte of attributes (high) - every attribute there is,
+; flashing ones too.  Run from reset in place of the machine's ROM
+; (tools/test_roms.py); the bench takes a frame off the video DAC's inputs
+; and compares it with the emulator's picture of the same memory.
+;
+; The video memory through the dispatcher's window at 040000 (bit 7 on,
+; bits 11-10 = 01); word i = (i's bytes swapped, i's low byte or-ed into
+; the low one) xor (i >> 3), i = 0..8191.
+; Register C: border 3, bit 3 clear (320 x 200), sound off.
+; Then 052525 at 1000.
+
+DISP	= 177400
+REGA	= 177600
+REGC	= 177604
+PCTL	= 177606
+
+	.ASECT
+	. = 172000
+START:	MOV	#1000,SP
+	MOVB	#202,@#PCTL	; as ROM-B: D76's A out, B in, C out
+	MOVB	#4,@#REGA	; no extended ROM; the drive's motor off
+	MOVB	#3,@#REGC	; the border 3, 320 x 200
+	MOV	#2377,@#DISP	; main RAM, the video window at 040000
+	MOV	#40000,R1
+	CLR	R0
+1$:	MOV	R0,R2		; i >> 3
+	ASR	R2
+	ASR	R2
+	ASR	R2
+	MOV	R0,R3		; i swapped, its low byte or-ed back in
+	SWAB	R3
+	BISB	R0,R3
+	XOR	R2,R3
+	MOV	R3,(R1)+
+	INC	R0
+	CMP	R0,#8192.
+	BLO	1$
+	MOV	#177,@#DISP	; the window shut
+	MOV	#52525,@#1000
+	BR	.
+	.END	START

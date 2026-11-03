@@ -42,6 +42,7 @@
 #include "logic_drive.h"
 #include "dram_watch.h"
 #include "video_watch.h"
+#include "frame_grab.h"
 #include "screen_compare.h"
 #include "snapshot.h"
 #include "snapshot_file.h"
@@ -72,7 +73,6 @@ extern "C" {
 namespace {
 
 constexpr int kMasterMhz = 120;
-constexpr int kLineSamples = 960;           // 64 us at 15 MHz
 
 std::uint16_t mk(const Vns4& m)
 {
@@ -86,13 +86,9 @@ std::uint16_t mk(const Vns4& m)
 }
 
 // one frame as samples: bits 0 blue, 1 red, 2 green, 3 brightness
-struct Frame {
-    std::vector<std::vector<std::uint8_t>> lines;
-};
-
-void write_bmp(const std::string& path, const Frame& f)
+void write_bmp(const std::string& path, const FrameGrab::Lines& lines)
 {
-    const int w = kLineSamples, h = static_cast<int>(f.lines.size());
+    const int w = static_cast<int>(kLineSamples), h = static_cast<int>(lines.size());
     if (h == 0) return;
     const int row = w * 3;
     const std::uint32_t size = static_cast<std::uint32_t>(54 + row * h);
@@ -105,7 +101,7 @@ void write_bmp(const std::string& path, const Frame& f)
     put32(18, static_cast<std::uint32_t>(w)); put32(22, static_cast<std::uint32_t>(-h));
     out[26] = 1; out[28] = 24;
     for (int y = 0; y < h; ++y) {
-        const std::vector<std::uint8_t>& line = f.lines[static_cast<std::size_t>(y)];
+        const std::vector<std::uint8_t>& line = lines[static_cast<std::size_t>(y)];
         for (int x = 0; x < w && x < static_cast<int>(line.size()); ++x) {
             const std::uint8_t s = line[static_cast<std::size_t>(x)];
             const std::uint8_t on = (s & 8) ? 255 : 170;
@@ -159,9 +155,9 @@ public:
         std::printf("\n");
     }
     // the board's frame against the emulator's picture of its video memory
-    ScreenCompare screen(const Frame& f) const
+    ScreenCompare screen(const FrameGrab::Lines& lines) const
     {
-        return compare_screen(f.lines, board_get_vram(b_.get()), board_is_hires(b_.get()),
+        return compare_screen(lines, board_get_vram(b_.get()), board_is_hires(b_.get()),
                               board_get_border_color(b_.get()));
     }
     // the bytes of the emulator's video memory that are not zero
@@ -454,7 +450,7 @@ private:
 // and compared with the emulator's screen, every one saved for a film.
 class Camera {
 public:
-    Frame frame;
+    FrameGrab grab;
     int frames = 0, last_differ = -1;
 
     explicit Camera(const Options& o) : o_(o)
@@ -467,21 +463,15 @@ public:
 
     void see(const Vns4& m, std::uint64_t t, const Emulator& emu, bool started)
     {
-        if (!m.n_KSI_L && ksi_was_)
+        if (grab.see(m))
             frame_ends(t, emu, started);
-        ksi_was_ = m.n_KSI_L != 0;
-        if (!m.n_SSI_L && ssi_was_) frame.lines.emplace_back();
-        ssi_was_ = m.n_SSI_L != 0;
-        if (m.n_TS15_H && !ts15_was_ && !frame.lines.empty() && frame.lines.back().size() < kLineSamples)
-            frame.lines.back().push_back(static_cast<std::uint8_t>(
-                (m.n_SC_H & 1u) | (m.n_KC_H & 1u) << 1 | (m.n_ZC_H & 1u) << 2 | (m.nx_D69_9 & 1u) << 3));
-        ts15_was_ = m.n_TS15_H != 0;
     }
 
 private:
     void frame_ends(std::uint64_t t, const Emulator& emu, bool started)
     {
-        if (o_.video && !frame.lines.empty()) {
+        const FrameGrab::Lines& frame = grab.last;
+        if (o_.video && !frame.empty()) {
             char name[32];
             std::snprintf(name, sizeof name, "/video/%05d.bmp", frames);
             write_bmp(o_.folder + name, frame);
@@ -493,13 +483,12 @@ private:
             if (started)
                 compare(emu);
         }
-        frame.lines.clear();
         ++frames;
     }
 
     void compare(const Emulator& emu)
     {
-        const ScreenCompare c = emu.screen(frame);
+        const ScreenCompare c = emu.screen(grab.last);
         last_differ = c.differ;
         if (c.differ < 0)
             std::printf("frame %d: too short to compare\n", frames);
@@ -513,7 +502,6 @@ private:
     const Options& o_;
     std::ofstream starts_;
     std::uint64_t frame_start_ = 0;
-    bool ksi_was_ = true, ssi_was_ = true, ts15_was_ = false;
 };
 
 // The keys the stub presses (keys=FILE): a line "MS CODE CODE ...", the
@@ -568,13 +556,13 @@ public:
         if (cells_.empty() || dram.stats().video_reads == reads_) return;
         reads_ = dram.stats().video_reads;
         const auto spot = std::find(cells_.begin(), cells_.end(), dram.last_video());
-        if (spot == cells_.end() || camera.frame.lines.empty()) return;
+        if (spot == cells_.end() || camera.grab.lines.empty()) return;
         int& seen = seen_[static_cast<std::size_t>(spot - cells_.begin())];
         if (seen == camera.frames) return;
         seen = camera.frames;
         std::printf("%.6f s: video reads cell %03zo:%03zo at line %zu, sample %zu\n",
                     static_cast<double>(t) / (1e6 * kMasterMhz), *spot >> 8, *spot & 0xFF,
-                    camera.frame.lines.size() - 1, camera.frame.lines.back().size());
+                    camera.grab.lines.size() - 1, camera.grab.lines.back().size());
     }
 
 private:
@@ -749,7 +737,7 @@ int main(int argc, char** argv)
     // a snapshot asked for at the run's last moment: the state it ends in
     while (next_save < saves.size() && saves[next_save].first * 1000 * kMasterMhz == ticks)
         save_snapshot(saves[next_save++].second, parts, ticks);
-    write_bmp(o.folder + "/last.bmp", camera.frame);
+    write_bmp(o.folder + "/last.bmp", camera.grab.lines);
     report(o, fetches, camera, emu, dram);
     video.report();
     if (logic)

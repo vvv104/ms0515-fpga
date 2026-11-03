@@ -1,0 +1,48 @@
+	.TITLE	VID640
+; The picture in 640 x 200: the video memory as one bit a point, drawn in
+; the border's colour and its complement.  Run from reset in place of the
+; machine's ROM (tools/test_roms.py); the bench takes a frame off the video
+; DAC's inputs and compares it with the emulator's picture of the same
+; memory.
+;
+; The video memory through the dispatcher's window at 100000 (bit 7 on,
+; bits 11-10 = 10); word i = 3 * i xor (i << 5), i = 0..8191.
+; Register C: border 5, bit 3 set (640 x 200), bit 4 set, sound off.  Bit 4
+; (IND3, the LED VD17's) is the brightness here: D69's second half puts it
+; on D69.9 in 640 x 200 as it puts the attribute's bit in 320 x 200
+; (sheet 4).  The emulator draws 640 x 200 bright whatever bit 4 is, so the
+; two agree only with it set (docs/findings.md).
+; Then 052525 at 1000.
+
+DISP	= 177400
+REGA	= 177600
+REGC	= 177604
+PCTL	= 177606
+
+	.ASECT
+	. = 172000
+START:	MOV	#1000,SP
+	MOVB	#202,@#PCTL	; as ROM-B: D76's A out, B in, C out
+	MOVB	#4,@#REGA	; no extended ROM; the drive's motor off
+	MOVB	#35,@#REGC	; the border 5, 640 x 200, bit 4 (IND3)
+	MOV	#4377,@#DISP	; main RAM, the video window at 100000
+	MOV	#100000,R1
+	CLR	R0
+1$:	MOV	R0,R3		; 3 * i
+	ASL	R3
+	ADD	R0,R3
+	MOV	R0,R2		; i << 5
+	ASL	R2
+	ASL	R2
+	ASL	R2
+	ASL	R2
+	ASL	R2
+	XOR	R2,R3
+	MOV	R3,(R1)+
+	INC	R0
+	CMP	R0,#8192.
+	BLO	1$
+	MOV	#177,@#DISP	; the window shut
+	MOV	#52525,@#1000
+	BR	.
+	.END	START

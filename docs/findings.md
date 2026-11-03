@@ -52,6 +52,23 @@ folder per case.
   which: a real machine with OSA can.
 - Pictures: [evidence/irq-encoder](evidence/irq-encoder/).
 
+## Brightness in 640 x 200 (Э3 sheet 4 vs. the emulator)
+
+D69 (К555КП2) makes the brightness, D69.9, from ВК8 H and ВК5 H: its
+second half takes `ИНТ Н`, the attribute's bit, on 2C0/2C1 and `ИНД3 Н (Л5)`
+on 2C2/2C3 ([evidence/brightness-640](evidence/brightness-640/d69-sheet4.png)).
+`ИНД3 Н` is D76's PC4, system register C bit 4 - the bit that also lights
+the LED VD17.  So where 320 x 200 takes the brightness from each cell's
+attribute, 640 x 200 takes it from register C bit 4: the board draws the
+points dim with it clear.  The emulator draws 640 x 200 bright whatever
+the bit (its Screen; `board.h` names bit 4 the LED only).
+
+Found by the test ROM `firmware/tests/vid640.mac` (2026-11-03): with bit 4
+clear every one of the 128 000 points differed from the emulator's picture
+by the brightness alone (5 for 13); with it set, none.  The test keeps it
+set.  The emulator is the one to change, if at all - a question for its
+repository, and for software that draws 640 x 200 with bit 4 clear.
+
 ## R45: D86's OE - on GND, misread as on РПРРТ H (Э3 sheet 2)
 
 - **What happened**: the netlist had D86's OE (pin 7) through R45 (20

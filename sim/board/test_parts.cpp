@@ -6,8 +6,15 @@
 
 #include "Vns4.h"
 #include "cpu_writes.h"
+#include "frame_grab.h"
 #include "power.h"
 #include "rom_socket.h"
+#include "screen_compare.h"
+
+extern "C" {
+#include <ms0515/core/board.h>
+#include <ms0515/core/cpu.h>
+}
 
 #include <cstdint>
 #include <fstream>
@@ -161,4 +168,61 @@ TEST_CASE("memory: the dispatcher's banks, main and extended, each 8 KB of its o
     REQUIRE(b.writes.word_at(01012) == std::optional<std::uint16_t>(052525));
     CHECK(b.writes.word_at(01010) == std::optional<std::uint16_t>(182));
     CHECK(b.writes.word_at(01006) == std::optional<std::uint16_t>(0));
+}
+
+namespace {
+
+// The emulator from reset with the same test ROM, run until the program
+// stands on its last BR . - its video memory is then the whole picture.
+std::unique_ptr<ms0515_board_t> emulator_after(const std::string& rom_name)
+{
+    const std::vector<std::uint8_t> rom = read_rom(rom_name);
+    auto emu = std::make_unique<ms0515_board_t>();
+    board_init(emu.get());
+    board_load_rom(emu.get(), rom.data(), static_cast<std::uint32_t>(rom.size()));
+    board_reset(emu.get());
+    for (int i = 0; i < 5'000'000; ++i) {
+        const std::uint16_t pc = emu->cpu.r[7];
+        cpu_step(&emu->cpu);
+        if (emu->cpu.r[7] == pc) break;
+    }
+    return emu;
+}
+
+// The picture of a test ROM that draws and stops: a frame taken off the
+// board's video DAC inputs a whole frame after the program's end mark,
+// against the emulator's picture of its own video memory, point for point.
+void picture_as_emulator(const std::string& rom_name, std::uint64_t ms)
+{
+    Bench b(rom_name);
+    FrameGrab grab;
+    FrameGrab::Lines taken;
+    int frames_after = 0;
+    b.run_ms(ms, [&](Vns4& m) {
+        if (grab.see(m) && b.writes.word_at(01000) == std::optional<std::uint16_t>(052525) && ++frames_after == 2)
+            taken = grab.last;
+    });
+    REQUIRE(frames_after >= 2);
+    const auto emu = emulator_after(rom_name);
+    const ScreenCompare c = compare_screen(taken, board_get_vram(emu.get()), board_is_hires(emu.get()),
+                                           board_get_border_color(emu.get()));
+    INFO("area at " << c.dx << ", " << c.dy << "; first at " << c.first_x << ", " << c.first_y << ": " << c.got
+                    << ", the emulator's " << c.want);
+    CHECK(c.differ == 0);
+}
+
+}  // namespace
+
+// 320 x 200: points and attributes, every attribute (bright, flashing) once
+// at least, through the window at 040000; the border 3.
+TEST_CASE("video: 320 x 200 with every attribute, as the emulator's picture of the same memory")
+{
+    picture_as_emulator("vid320.rom", 420);
+}
+
+// 640 x 200: a bit a point in the border's colour (5) and its complement,
+// through the window at 100000.
+TEST_CASE("video: 640 x 200 in the border's colour, as the emulator's picture of the same memory")
+{
+    picture_as_emulator("vid640.rom", 420);
 }

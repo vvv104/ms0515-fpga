@@ -99,7 +99,7 @@ if(NOT MS0515_BOARD_SV STREQUAL "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv")
 endif()
 
 # the parts the software leaves alone, worked by test ROMs (firmware/tests)
-ms0515_test(test_parts board/test_parts.cpp Vns4)
+ms0515_test(test_parts board/test_parts.cpp Vns4 ms0515_core)
 target_compile_definitions(test_parts PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
 
 ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
