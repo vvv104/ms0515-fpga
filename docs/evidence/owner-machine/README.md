@@ -10,5 +10,5 @@ the club-museum at the hand-over, 30.06.2015): the plate on the case.
 
 Read by the owner and here (2026-11-03): «ЭЛЕКТРОНИКА МС 0515.08», «ЗАВОДСКОЙ №
 1X7XX48», «ДАТА ИЗГОТОВЛЕНИЯ 07 1991».  The punch struck only the tops of
-some figures: the three X are each 0 or 9 (8 less likely); 1, 7, 4 and 8
-are clear.
+some figures: the three X are each 0 or 9 - not 8, whose top is much
+narrower than theirs, as the plate's own 8s show; 1, 7, 4 and 8 are clear.
