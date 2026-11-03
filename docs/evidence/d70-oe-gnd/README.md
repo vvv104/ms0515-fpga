@@ -18,4 +18,5 @@ of 2015 shows it:
 | File | What |
 |---|---|
 | `closeup-d70-pin15.jpg` | `photos/known-machines/16337efabef4.jpg` (2560 px, the owner's board in 2015, turned half round: the chip's notch on the right), twice enlarged: К555КП11 (D70), R24..R26 below it; the bare wire comes up past the resistors' right ends and is soldered to D70's pin 15 (the row nearest the resistors, counted from the left 9, 10, ... - the seventh), which stands bent up off the row; the white wire along the same row is the factory patch to D70.11 |
+| `closeup-bare-wire-whole.jpg` | the same photo, the whole bare wire: from D70's lifted pin 15 straight down past the right ends of R24..R26 to the КР1533ИР23 (date 9010) below, onto the left end of its upper row - turned half round as it is (its notch on the right), pin 10, GND: D57.10 to D70.15, as the owner read it on 2026-10-20 |
 
