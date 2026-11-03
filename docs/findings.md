@@ -203,11 +203,11 @@ layer px, under a pin pitch; the pin labels then sit on the pins):
 - **The owner's reading (2026-11-03): the wire ends on D80 itself, the
   fourth pin from the top of the row it comes down to** - roughly
   soldered, a lump of solder lying over R39 but touching neither its
-  leads nor any other pin.  D80 lies turned a quarter on the photo (its
-  label reads upwards), so that row is pins 1..8 from the bottom and the
-  fourth from the top is pin 5, **G2B**; were the chip the other way round
-  it would be pin 4, G2A - both `ВБРЕГ L` on Э3, the same enable either
-  way.  `АД03` into one of the decoder's active-low enables: the board's
+  leads nor any other pin.  D80 lies turned a quarter on the photo: turned
+  a quarter clockwise its label reads as text and that row is its lower
+  one, pins 1..8 from the left - the fourth from the top is pin 5, **G2B**
+  (the owner's reading of the turn, 2026-11-03).  On Э3 G2B is `ВБРЕГ L`
+  with G2A.  `АД03` into one of the decoder's active-low enables: the board's
   registers answer only with `АД03` low - half its register space given
   up, as the hypothesis below wants.  For that the pin must be off
   `ВБРЕГ L` (lifted, or its run cut), or the latch and D88 would fight;

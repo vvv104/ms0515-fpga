@@ -11,8 +11,8 @@ wire on the owner's board»; nothing is in the netlist for it yet.
 Which of R39's two leads the wire takes, and whether a trace beside it is
 cut, the photo does not show.  The owner reads the end as D80's fourth pin
 from the top (2026-11-03): the solder lies over R39 without touching it -
-D80 pin 5 (G2B) by the chip's turn, pin 4 (G2A) the other way round; both
-`ВБРЕГ L` on Э3 (`docs/findings.md`).
+D80 pin 5 (G2B), by the chip's turn (its label reads as text turned a
+quarter clockwise); on Э3 it is `ВБРЕГ L` with G2A (`docs/findings.md`).
 
 | File | What |
 |---|---|
