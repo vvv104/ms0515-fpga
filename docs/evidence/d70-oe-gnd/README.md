@@ -12,4 +12,10 @@ is `netlist/rev3a.csv` (D70.15 off `~D14.3`, on GND).
 | `drawing-d70.jpg` | the assembly drawing 3.858.420 СБ (page 27, turned half round) at D70: the patch to D70.11 is drawn, a wire to D70.15 is not - a later fix |
 
 That D70's pin 15 is lifted off its pad the owner saw on the photo
-(2026-10-20); it cannot be made out at this size.
+(2026-10-20); it cannot be made out at that size.  The full-size close-up
+of 2015 shows it:
+
+| File | What |
+|---|---|
+| `closeup-d70-pin15.jpg` | `photos/known-machines/16337efabef4.jpg` (2560 px, the owner's board in 2015, turned half round: the chip's notch on the right), twice enlarged: К555КП11 (D70), R24..R26 below it; the bare wire comes up past the resistors' right ends and is soldered to D70's pin 15 (the row nearest the resistors, counted from the left 9, 10, ... - the seventh), which stands bent up off the row; the white wire along the same row is the factory patch to D70.11 |
+

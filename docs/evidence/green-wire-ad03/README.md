@@ -10,3 +10,8 @@ wire on the owner's board»; nothing is in the netlist for it yet.
 
 Which of R39's two leads the wire takes, and whether a trace beside it is
 cut, the photo does not show.
+
+| File | What |
+|---|---|
+| `closeup-green-wire.jpg` | `photos/known-machines/16337efabef4.jpg` (2560 px, 2015, turned half round), twice enlarged: the green wire's upper end, on the lower of two КР1533ИР22 (date 9010) - it bends down onto the left end of that chip's upper row, pin 9 or pin 10 by where it lands (pin 10 is GND, pin 9 Q3 = `АД03 Н`); it runs right under the upper ИР22's pins and over one of the board's resistors, nothing in series |
+
