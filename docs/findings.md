@@ -298,7 +298,11 @@ Settled the same day: the owner sees **D70 pin 15 lifted** off its pad.
 So b) it is - D70.15 off `~D14.3` and on GND, D14.3 still driving D74.1;
 in `rev3a.csv`.  Not on the assembly drawing and not on the leningrad.su
 board as far as its photo shows: a later fix, most likely made by the
-plant with the RAM-disk upgrade.  Pictures:
+plant with the RAM-disk upgrade.  The owner looked at that board's photo
+again (2026-11-03, `mc0515-6.jpg` as the museum serves it, 980 px - the
+largest there is): no bare wire under R24-R26 to D70, and no green wire
+from D92.9 either - the white factory wires are all there.  Both changes
+are on the owner's board only, the one that had the module.  Pictures:
 [evidence/d70-oe-gnd](evidence/d70-oe-gnd/); of the factory patches:
 [evidence/factory-patches](evidence/factory-patches/).
 
