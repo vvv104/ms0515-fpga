@@ -1,0 +1,131 @@
+(footprint "DIN-5_Socket_Horizontal"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "DIN 41524 5-pin socket, 180 degrees, PCB mount (ОНЦ-КГ-4-5/16-Р, XS2 of НС4): the holes as the rev. 3А board has them - pins 1, 2, 3 in a row 10 mm in from the mounting legs, 4 and 5 2.5 mm behind, all on a 2.5 mm grid (3.858.420 СБ sheet 2, «Установка XS2»: 2.5 and 10 mm); the mating face toward -X, over the board edge")
+	(tags "DIN 5 socket keyboard")
+	(property "Reference" "REF**"
+		(at 1.25 -11.5 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "DIN-5_Socket_Horizontal"
+		(at 1.25 11.5 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_rect
+		(start -13 -10.5)
+		(end 5 10.5)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+	)
+	(fp_rect
+		(start -13.25 -10.75)
+		(end 5.25 10.75)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+	)
+	(fp_line
+		(start -12 -10.6)
+		(end 5.1 -10.6)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -12 10.6)
+		(end 5.1 10.6)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_text user "1"
+		(at -1.8 -7.5 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole rect
+		(at 0 -7.5)
+		(size 2.2 2.2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "2" thru_hole circle
+		(at 0 0)
+		(size 2.2 2.2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "3" thru_hole circle
+		(at 0 7.5)
+		(size 2.2 2.2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "4" thru_hole circle
+		(at 2.5 -5)
+		(size 2.2 2.2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "5" thru_hole circle
+		(at 2.5 5)
+		(size 2.2 2.2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "MP" thru_hole circle
+		(at -10 -5)
+		(size 2 2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "MP" thru_hole circle
+		(at -10 -2.5)
+		(size 2 2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "MP" thru_hole circle
+		(at -10 2.5)
+		(size 2 2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "MP" thru_hole circle
+		(at -10 5)
+		(size 2 2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+)

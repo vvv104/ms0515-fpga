@@ -225,7 +225,13 @@ def place_edge(fps, free):
         fp = fps.get(ref)
         if fp is None:
             continue
-        if ref == "XS1":
+        if ref == "XS2":                    # its mounting legs 2 mm in, as on the rev. 3А board
+            fp.SetOrientationDegrees(0)
+            fp.SetPosition(pcbnew.VECTOR2I(0, 0))
+            legs = min(pad.GetPosition().x for pad in fp.Pads())
+            top = pcbnew.FromMM(y) - fp.GetBoundingBox(False).GetTop()
+            fp.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(2.0) - legs, top))
+        elif ref == "XS1":
             fp.SetOrientationDegrees(0)
             fp.SetPosition(pcbnew.VECTOR2I(0, 0))
             box = fp.GetBoundingBox(False)

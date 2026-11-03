@@ -4,7 +4,7 @@
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
 //             [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
-//             [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO]
+//             [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO] [drawn]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
@@ -26,7 +26,9 @@
 // interrupt requests at D89's inputs as they change, with the code D96
 // puts on CP0..CP3, each interrupt acknowledge with the handler's first
 // fetch, and every 20 ms the last fetch (docs/bench.md); fetches=FROM-TO
-// (machine microseconds) adds every fetch in that stretch.
+// (machine microseconds) adds every fetch in that stretch.  `drawn` builds
+// the board as Э3 draws it, without the owner's board's changes
+// (netlist/rev3a.csv: D70.15 on ~D14.3, not on GND).
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
 // at each ТС15 H rise from the line sync (ССИ L): the blue, red and green
@@ -222,6 +224,7 @@ struct Options {
     std::string layout = "omega";       // the formatter its tracks are laid out as
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
     bool logic_drive = false;           // the MiSTer core's drive in place of the bench's (logic_drive.h)
+    bool drawn = false;                 // Э3's board, not the owner's (netlist/rev3a.csv)
     std::vector<std::pair<std::uint64_t, std::string>> saves;  // snapshots: (machine ms, file)
     std::string load;                   // a snapshot the run goes on from
     std::string rom;                    // another ROM image in the sockets (sim/board/rom_socket.h)
@@ -256,6 +259,8 @@ struct Options {
                 layout = arg.substr(7);
             else if (arg == "drive=logic")
                 logic_drive = true;
+            else if (arg == "drawn")
+                drawn = true;
             else if (arg == "keyboard")
                 keyboard = true;
             else if (arg == "irq")
@@ -653,6 +658,7 @@ int main(int argc, char** argv)
     Verilated::randSeed(o.seed);
     auto m = std::make_unique<Vns4>();
     disconnect(*m);
+    m->s_D70_15 = o.drawn ? 1 : 0;
     Emulator emu(o.rom.empty() ? MS0515_FIRMWARE_DIR "/ms0515-romb.rom" : o.rom);
     if (!o.rom.empty() && o.load.empty()) {
         std::ifstream f(o.rom, std::ios::binary);
