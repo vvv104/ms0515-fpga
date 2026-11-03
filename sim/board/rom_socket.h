@@ -1,5 +1,6 @@
 // rom_socket: another ROM pair put in the sockets XS3/XS4 - an image of
-// the 16-bit ROM (160000..177777 as little-endian words, 16 KB) written
+// the 16-bit ROM (140000..177777 as little-endian words, 16 KB; the window
+// at 160000 shows its upper 8 KB) written
 // into the cells of D65 (the even bytes) and D77 (the odd bytes) of the
 // board model (rtl/chips/k573rf4.sv).  The chips fill their cells from
 // their CONTENTS at the model's first eval(), so the model is evaluated

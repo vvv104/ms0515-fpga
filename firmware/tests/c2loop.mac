@@ -1,0 +1,64 @@
+	.TITLE	C2LOOP
+; The C2 port (XP5) through a loop-back plug: 103 to 104, 108 to 107.
+; Run from reset in place of the machine's ROM (tools/test_roms.py).
+;
+; The timer's channel 1 (D9) clocks the C2 USART (D38) at 2 MHz / 8 =
+; 250 kHz, x16: 15625 baud.  The USART is reset, set to 8 bits, no
+; parity, one stop bit, and sends five bytes; each comes back through
+; the plug and is read.  What it saw is left in RAM for the bench:
+;   1000..1004  the five bytes as received (377 when none came: a
+;               timeout byte would be a word 177777 in 1006)
+;   1006        timeouts, as a count
+;   1010        the status after the last byte (DSR, bit 7, through
+;               the plug from DTR)
+;   1012        052525 - the program came to its end
+;
+; Interrupts stay off (the PS out of reset is 340).
+
+TWR1	= 177502		; timer channel 1 (ROM-B writes 177500..177506)
+TCTL	= 177506		; timer control word
+C2DAT	= 177720		; C2 data, write
+C2CMD	= 177702		; C2 mode and command, write (as ROM-B: 177702)
+C2RD	= 177700		; C2 data, read
+C2ST	= 177702		; C2 status, read
+RES	= 1000
+
+	.ASECT
+	. = 172000
+START:	MOV	#1000,SP
+	MOVB	#166,@#TCTL	; channel 1: LSB then MSB, mode 3, binary
+	MOVB	#10,@#TWR1
+	CLRB	@#TWR1
+	CLRB	@#C2CMD		; the USART's reset: three zeros and 100
+	CLRB	@#C2CMD
+	CLRB	@#C2CMD
+	MOVB	#100,@#C2CMD
+	MOVB	#116,@#C2CMD	; mode: x16, 8 bits, no parity, 1 stop
+	MOVB	#27,@#C2CMD	; command: TxEN, DTR, RxE, error reset
+	MOV	#RES,R3		; where the bytes go
+	CLR	@#RES+6		; no timeouts yet
+	MOV	#SEND,R2	; the bytes to send
+	MOV	#5,R4
+NEXT:	MOV	#4000,R1	; a timeout for the transmitter, some 50 bytes
+1$:	BITB	#1,@#C2ST	; TxRDY
+	BNE	2$
+	SOB	R1,1$
+	INC	@#RES+6
+2$:	MOVB	(R2)+,@#C2DAT
+	MOV	#4000,R1	; a timeout for the receiver, likewise
+3$:	BITB	#2,@#C2ST	; RxRDY
+	BNE	4$
+	SOB	R1,3$
+	INC	@#RES+6
+	MOVB	#377,(R3)+
+	BR	5$
+4$:	MOVB	@#C2RD,(R3)+
+5$:	SOB	R4,NEXT
+	MOVB	@#C2ST,R0
+	MOV	R0,@#RES+10
+	MOV	#52525,@#RES+12
+	BR	.
+
+SEND:	.BYTE	125,252,0,377,123
+	.EVEN
+	.END	START

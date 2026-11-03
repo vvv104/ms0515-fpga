@@ -98,6 +98,10 @@ if(NOT MS0515_BOARD_SV STREQUAL "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv")
     target_compile_definitions(test_board PRIVATE MS0515_DELAY_CORNER)
 endif()
 
+# the parts the software leaves alone, worked by test ROMs (firmware/tests)
+ms0515_test(test_parts board/test_parts.cpp Vns4)
+target_compile_definitions(test_parts PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
+
 ms0515_test(test_reference reference/test_reference.cpp ms0515_core)
 
 # the bench's parts as logic, for the MiSTer core (rtl/parts)
