@@ -1152,6 +1152,7 @@ module ns4_machine (
     logic r_D99_p10;
     logic d_D99_p12;
     logic r_D99_p12;
+    logic d_DA2_p16;
     logic unused_d_D1_p25;
     logic unused_d_D1_p28;
     logic unused_r_D7_p11;
@@ -4062,6 +4063,11 @@ module ns4_machine (
         .p12(r_D99_p12)
     );
 
+    any_low #(.N(11)) DA2 (
+        .i({n_DKL08_L, n_DKL09_L, n_DKL10_L, n_DKL11_L, n_DKL12_L, n_DKL13_L, n_DKL14_L, n_DKL15_L, n_DKL16_L, n_DKL17_L, n_DKL18_L}),
+        .o(d_DA2_p16)
+    );
+
     // the chips' propagation delays (netlist/delays.csv), a bank for the outputs of one delay
     delay_bank #(.TICKS(13), .W(16)) b13_13_0 (.clk(clk), .i({r_D2_p14, r_D3_p14, r_D5_p14, r_D6_p14, r_D11_p14, r_D12_p14, r_D18_p14, r_D19_p14, r_D26_p14, r_D27_p14, r_D34_p14, r_D35_p14, r_D44_p14, r_D45_p14, r_D53_p14, r_D54_p14}), .o({d_D2_p14, d_D3_p14, d_D5_p14, d_D6_p14, d_D11_p14, d_D12_p14, d_D18_p14, d_D19_p14, d_D26_p14, d_D27_p14, d_D34_p14, d_D35_p14, d_D44_p14, d_D45_p14, d_D53_p14, d_D54_p14}));
     delay_bank #(.TICKS(13), .FALL(6), .W(16)) b13_6_0 (.clk(clk), .i({r_D2_p14_oe, r_D3_p14_oe, r_D5_p14_oe, r_D6_p14_oe, r_D11_p14_oe, r_D12_p14_oe, r_D18_p14_oe, r_D19_p14_oe, r_D26_p14_oe, r_D27_p14_oe, r_D34_p14_oe, r_D35_p14_oe, r_D44_p14_oe, r_D45_p14_oe, r_D53_p14_oe, r_D54_p14_oe}), .o({d_D2_p14_oe, d_D3_p14_oe, d_D5_p14_oe, d_D6_p14_oe, d_D11_p14_oe, d_D12_p14_oe, d_D18_p14_oe, d_D19_p14_oe, d_D26_p14_oe, d_D27_p14_oe, d_D34_p14_oe, d_D35_p14_oe, d_D44_p14_oe, d_D45_p14_oe, d_D53_p14_oe, d_D54_p14_oe}));
@@ -4341,7 +4347,7 @@ module ns4_machine (
     assign n_VB93_L = d_D80_p10;
     assign n_VB511_L = d_D80_p14;
     assign n_VB512_L = d_D80_p9;
-    assign n_VBKL_L = 1'b1;
+    assign n_VBKL_L = d_DA2_p16;
     assign n_VBP_H = d_D8_p12;
     assign n_VBREG_L = d_D88_p8;
     assign n_VBRPZU_L = d_D66_p8;

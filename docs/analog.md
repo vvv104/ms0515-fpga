@@ -60,9 +60,14 @@ board runs on the master clock alone, as it will in the FPGA.
 The matrix diodes VD5..VD15 are wires (a pressed key pulls a line low
 through its diode).  The detector - `ДКЛ08..18` summed into `ВБКЛ L`
 through the 10 kOhm pack DA2, compared by D48's third receiver with the
-mid-supply divider R18/R19 - is brought out (DA2) for now; the divider is
-the low side of that receiver's pair, so `~D48.11` follows the inverse of
-`ВБКЛ L`.
+mid-supply divider R18/R19 - is a `detector` (`rtl/chips/any_low.sv`):
+the lines rest high through the pack and R20 (nothing else drives them -
+the ВВ55's ports B and C only read), a key pulls one low to about 0.7 V
+through its diode, which drags the common to some 3.6 V, below the
+divider's 4.0 V; so `ВБКЛ L` is low when any line is.  The divider is the
+low side of the receiver's pair, so `~D48.11` follows the inverse of
+`ВБКЛ L`; D66 lets it out as `ЗАПР 7007 L` while D59's `ПКЛ H` (a count of
+frames) is high.
 
 ## Cassette
 

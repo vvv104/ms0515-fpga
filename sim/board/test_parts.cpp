@@ -226,3 +226,26 @@ TEST_CASE("video: 640 x 200 in the border's colour, as the emulator's picture of
 {
     picture_as_emulator("vid640.rom", 420);
 }
+
+// The interrupts the machine's software leaves alone: C2's transmitter and
+// receiver through the plug on XP5, the МС 7007's key detector with a key
+// held on its matrix - row 0 (ДКЛ00, port A bit 0) pulls column 0 (ДКЛ08,
+// XP8.10) low through the key's diode.  Each comes at the vector of the
+// technical description's Table 4: 114, 110, 060.
+TEST_CASE("interrupts: С2's transmitter and receiver and the МС 7007's key come at 114, 110 and 060")
+{
+    Bench b("irqs.rom");
+    b.run_ms(260, [](Vns4& m) {
+        m.x_XP5_p3 = m.n_STYK_S2_103;
+        m.x_XP5_p3_oe = 1;
+        m.x_XP5_p6 = m.nx_D20_6;
+        m.x_XP5_p6_oe = 1;
+        m.x_XP8_p10 = 0;
+        m.x_XP8_p10_oe = !m.n_DKL00_L;
+    });
+    REQUIRE(b.writes.word_at(01000) == std::optional<std::uint16_t>(052525));
+    CHECK(b.writes.word_at(01100) == std::optional<std::uint16_t>(0114));
+    CHECK(b.writes.word_at(01102) == std::optional<std::uint16_t>(0110));
+    CHECK(b.writes.word_at(01104) == std::optional<std::uint16_t>(060));
+    CHECK_FALSE(b.writes.word_at(01106).has_value());
+}

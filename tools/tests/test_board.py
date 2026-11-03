@@ -434,6 +434,49 @@ class Crystals(unittest.TestCase):
         self.assertNotIn("x_BQ1", text)
 
 
+ANY_LOW = """// A resistor pack summing lines into a common node, read as logic.
+module any_low #(
+    parameter int N = 1
+) (
+    input  logic [N-1:0] i,
+    output logic o
+);
+    assign o = &i;
+endmodule
+"""
+
+
+class Detectors(unittest.TestCase):
+    """A resistor pack whose common pin sums the others (the МС 7007's DA2):
+    each line held high through it, the common low when any line is."""
+
+    def board(self):
+        return Fixture("DA1,НР1-11А,10 кОм,16,,,,,\nD1,К555ЛН1,,14,7,14,,,\n",
+                       "C,DA1,16,,1,\nC,D1,1,,1,\nA,DA1,1,,1,\nA,D1,3,,1,\nB,DA1,2,,1,\n"
+                       "~DA1.3,DA1,3,,1,\n",
+                       analog="DA1,detector,16,the pack sums its lines into pin 16\n",
+                       modules=(INVERTER, ANY_LOW))
+
+    def test_the_common_pin_is_low_when_any_line_is(self):
+        text, problems = self.board().generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("any_low #(.N(2)) DA1 (", text)
+        self.assertIn(".i({n_A, n_B})", text)
+        self.assertIn("assign n_C = d_DA1_p16;", text)
+        self.assertNotIn("x_DA1", text)
+
+    def test_the_lines_rest_high_through_the_pack(self):
+        text, problems = self.board().generate()
+        self.assertIn("assign n_A = 1'b1;", text)              # nothing else drives A
+        self.assertFalse(any("'A'" in p.text for p in problems))
+
+    def test_a_pack_without_its_common_pin_is_an_error(self):
+        f = Fixture("DA1,НР1-11А,10 кОм,16,,,,,\n", "A,DA1,1,,1,\n",
+                    analog="DA1,detector,,no common pin named\n", modules=(INVERTER, ANY_LOW))
+        _, problems = f.generate()
+        self.assertTrue(any("common" in e for e in errors(problems)))
+
+
 DELAY_BANK = """// A bank of delay lines.
 module delay_bank #(
     parameter int TICKS = 1, parameter int FALL = TICKS, parameter int W = 1

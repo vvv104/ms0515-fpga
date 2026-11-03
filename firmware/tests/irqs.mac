@@ -1,0 +1,103 @@
+	.TITLE	IRQS
+; The interrupts of the C2 port and the MS 7007 port: each source raised
+; on its own, the priority let down, the vector taken logged.  Run from
+; reset in place of the machine's ROM (tools/test_roms.py), the bench with
+; a loop-back plug on XP5 (as C2LOOP) and a key held on the MS 7007's
+; matrix: row 0 (port A bit 0) to column 0 (DKL08, XP8.10).
+;
+; Every vector 060..174 leads to a stub of its own that logs its vector
+; and returns at priority 7, so that each phase sees one interrupt.  The
+; technical description's Table 4: C2's receiver 110 and transmitter 114
+; (level 6), the MS 7007 060 (level 4).
+;   1. C2's transmitter: TxEN on with CTS through the plug - TxRDY;
+;   2. C2's receiver: a byte out with interrupts held, read back by RxRDY,
+;      the transmitter off - RxRDY alone;
+;   3. the MS 7007: row 0 down, the key pulls column 0 down, the detector
+;      DA2 and D59's frame count let the request out.
+; Left in RAM for the bench:
+;   1100..      the vectors taken, in order
+;   1000        052525 - the program came to its end
+
+TWR1	= 177502
+TCTL	= 177506
+C2DAT	= 177720
+C2CMD	= 177702
+C2RD	= 177700
+C2ST	= 177702
+PPA	= 177540
+PCTL7	= 177546
+DISP	= 177400
+REGA	= 177600
+PCTL	= 177606
+LOG	= 1100
+
+	.ASECT
+	. = 172000
+START:	MOV	#1000,SP
+	MOVB	#202,@#PCTL	; as ROM-B: D76's A out, B in, C out
+	MOVB	#4,@#REGA
+	MOV	#177,@#DISP	; main RAM; the monitor's request and the timer's off
+	MOV	#60,R0		; every vector to its stub
+	MOV	#STUBS,R1
+1$:	MOV	R1,(R0)+
+	MOV	#340,(R0)+
+	ADD	#10,R1
+	CMP	R0,#200
+	BLO	1$
+	MOV	#LOG,R4
+
+; 1. C2's transmitter
+	MOVB	#166,@#TCTL	; channel 1 for C2: 2 MHz / 8, x16
+	MOVB	#10,@#TWR1
+	CLRB	@#TWR1
+	CLRB	@#C2CMD
+	CLRB	@#C2CMD
+	CLRB	@#C2CMD
+	MOVB	#100,@#C2CMD
+	MOVB	#116,@#C2CMD	; x16, 8 bits, no parity, 1 stop
+	MOVB	#27,@#C2CMD	; TxEN, DTR, RxE, error reset: TxRDY up
+	JSR	PC,WAITI	; let it in
+
+; 2. C2's receiver
+	MOVB	#125,@#C2DAT	; a byte through the plug, held at priority 7
+	MOV	#4000,R1
+2$:	BITB	#2,@#C2ST	; RxRDY
+	BNE	3$
+	SOB	R1,2$
+3$:	MOVB	#26,@#C2CMD	; the transmitter off: TxRDY down
+	JSR	PC,WAITI
+	MOVB	@#C2RD,R0	; RxRDY down
+	CLRB	@#C2CMD		; the port quiet
+
+; 3. the MS 7007
+	MOVB	#213,@#PCTL7	; mode 0: A out, B and C in
+	MOVB	#376,@#PPA	; row 0 down: the held key pulls column 0
+	JSR	PC,WAITI
+	MOVB	#377,@#PPA
+
+	MOV	#52525,@#1000
+	BR	.
+
+; The priority down until an interrupt comes (the stub sets it back to 7),
+; or some 40 ms; nothing logged then.
+WAITI:	MOV	R4,R3
+	MOV	#20000.,R1
+	MTPS	#0
+1$:	CMP	R4,R3
+	BNE	2$
+	SOB	R1,1$
+2$:	MTPS	#340
+	RTS	PC
+
+; One stub a vector, 060..174: its vector into R5, then COMMON.
+STUBS:	.IRP	V,<60,64,70,74,100,104,110,114,120,124,130,134,140,144,150,154,160,164,170,174>
+	MOV	#V,R5
+	JMP	@#COMMON
+	.ENDR
+
+; Log the vector, return at priority 7.
+COMMON:	MOV	R5,(R4)+
+	MOV	#340,2(SP)
+	RTI
+
+	.END	START

@@ -554,6 +554,30 @@ class Builder:
         self.net(name).pp.append(wire)
         self.instances.append((ref, module.name, [("clk", "clk"), ("p1", wire)], values))
 
+    def place_detector(self, ref, t):
+        """A resistor pack summing its lines into the common pin `t.pins`
+        (any_low): each line pulled high through it, the common low when any
+        line is.  Lines drawn as stubs are left out."""
+        pins = self.pins.get(ref, {})
+        if not t.pins.isdigit() or int(t.pins) not in pins:
+            self.problems.error(f"{ref}: a detector names its common pin in analog.csv")
+            return
+        common = int(t.pins)
+        module = self.modules.get("any_low")
+        if module is None:
+            self.problems.error(f"{ref}: no any_low module")
+            return
+        lines = [(pin, name) for pin, name in sorted(pins.items())
+                 if pin != common and not name.startswith("~") and self.joins.find(name) not in POWER]
+        for _, name in lines:
+            self.net(name).pulls.add("1'b1")
+        ins = [self.read(name, ref, pin) for pin, name in lines]
+        wire = f"d_{ref}_p{common}"
+        self.wires.append(wire)
+        self.net(pins[common]).pp.append(wire)
+        self.instances.append((ref, module.name, [("i", "{" + ", ".join(ins) + "}"), ("o", wire)],
+                               {"N": len(ins)}))
+
     def supply(self, ref, pin):
         """A pin with no logic: a supply left off the power table (VEE of
         КР1102АП15) or an analogue one (its slew-rate resistor's W-S)."""
@@ -591,6 +615,8 @@ class Builder:
                 self.bring_out(ref, f"{t.kind}: {t.reason}")
             elif t.kind == "crystal":
                 self.place_crystal(ref, part)
+            elif t.kind == "detector":
+                self.place_detector(ref, t)
             elif t.kind not in ("short", "wire", "open"):
                 self.problems.error(f"{ref}: unknown treatment '{t.kind}'")
         return self

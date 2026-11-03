@@ -70,7 +70,7 @@ VD10,wire,,matrix diode XP8.5 - ДКЛ04
 VD12,wire,,matrix diode XP8.6 - ДКЛ05
 VD14,wire,,matrix diode XP8.7 - ДКЛ06
 VD15,wire,,matrix diode XP8.8 - ДКЛ07
-DA2,pending,,"open: ДКЛ08..18 summed into ВБКЛ L through 10 kOhm each; brought out until the wired detector has its model"
+DA2,detector,16,"ДКЛ08..18 summed into ВБКЛ L (pin 16) through 10 kOhm each: the lines rest high through it, a key pulls one low and the common below R18/R19 (rtl/chips/any_low.sv)"
 R18,pull0,,"with R19 a divider at mid-supply on D48's 3A: the low side of the pair, so 3Y follows the inverse of ВБКЛ L"
 R19,open,,the upper half of the R18/R19 divider
 # --- cassette ---
