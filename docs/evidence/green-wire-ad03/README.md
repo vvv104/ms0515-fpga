@@ -13,5 +13,5 @@ cut, the photo does not show.
 
 | File | What |
 |---|---|
-| `closeup-green-wire.jpg` | `photos/known-machines/16337efabef4.jpg` (2560 px, 2015, turned half round), twice enlarged: the green wire's upper end, on the lower of two КР1533ИР22 (date 9010) - it bends down onto the left end of that chip's upper row, pin 9 or pin 10 by where it lands (pin 10 is GND, pin 9 Q3 = `АД03 Н`); it runs right under the upper ИР22's pins and over one of the board's resistors, nothing in series |
+| `closeup-green-wire.jpg` | `photos/known-machines/16337efabef4.jpg` (2560 px, 2015, turned half round), twice enlarged: the green wire's upper end, on the lower of two КР1533ИР22 (date 9010) - it bends down onto the left end of that chip's upper row, pin 9 or pin 10 by where it lands (pin 10 is GND, pin 9 Q3 = `АД03 Н`) - the owner reads the second pin from that end, pin 9 (2026-11-03), as on the other photo; it runs right under the upper ИР22's pins and over one of the board's resistors, nothing in series |
 

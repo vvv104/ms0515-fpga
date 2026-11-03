@@ -153,6 +153,10 @@ board's resistors, nothing in series).  Two chips left of the ВВ55 carry hand-
 «ОМЕГА-3».  Their pins are to be found by laying the photo onto the
 placement (pin 1 upper right); not done yet.
 
+The machine itself (its case's plate, [evidence/owner-machine](evidence/owner-machine/)):
+«ЭЛЕКТРОНИКА МС 0515.08», factory number 1X7XX48 (each X 0 or 9, the
+punch struck only their tops), made 07.1991.
+
 ### Which ROM the owner's machine carried (checked 2026-10-20)
 
 - **2012, KokaF77** dumped his machine's ROMs, labelled «7004L» (D65) and
