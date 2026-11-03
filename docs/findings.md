@@ -18,7 +18,7 @@ folder per case.
   I9 - as Mick's traces have them; the owner's photo shows no wire or
   lifted pin on D89 or D96.  So the owner's board, as far as the copper
   and the photo can tell, encodes in Э3's order, МОН last.  Only an
-  inner-layer cut (layers 3-6 are not on the scans) could still differ.
+  inner-layer cut (the hidden layers are not on the scans) could still differ.
 - **The board sticks as the emulator does** (2026-11-01, `run_board irq
   fetches=`): OSA (ROM-A, `TYPE LONG.TXT`) held by ^S pressed while it
   printed, then ^Q at 16 moments 7 ms apart: the output went on twice and
@@ -373,8 +373,18 @@ use every microsecond; the board built to Э3 runs the machine's software.
 (D30, D37, D42's presets, the ROMs' PGM): the scans show the run passing
 beside D77.27's ring, as said.  So the traces are wrong there, Э3 right,
 and a board made from the netlist takes Э3's nets.  The 171 schematic
-nets that come in pieces on the traces are runs the hidden layers 3-6
+nets that come in pieces on the traces are runs the hidden layers
 complete, as the joins above show the traces' limits; Э3 joins them.
+
+How many layers the board has is not known.  The scans show four: each
+side's own copper and the layer under it through the laminate - Mick
+numbers them 1, 2 and 7, 8, which takes eight for granted; nothing read
+says eight (his НС5 pictures «1+3» and «6+7» are of another board).
+Ground and +5 V are all but absent from the four, so at least one more
+layer carries them; the 171 nets in pieces, if they are not the traces'
+errors, want hidden signal layers too.  Six or eight: the board's own
+drawing, a cross-section of a hole or the edge of a real board, the
+rev. 3 scans' finer look through the laminate, or Mick could tell.
 
 Э3 sheet 5, D40 pin 13 (4D): a re-read took the short bar under it for a
 join with the clock line of pin 9; it is a ground symbol, as the first
