@@ -212,6 +212,25 @@ layer px, under a pin pitch; the pin labels then sit on the pins):
   up, as the hypothesis below wants.  For that the pin must be off
   `ВБРЕГ L` (lifted, or its run cut), or the latch and D88 would fight;
   the photo does not show which.
+- **What it does.**  D80 (G1 `ПВАС Н`, G2A and G2B `ВБРЕГ L`, select
+  `АД05`-`АД07`) picks one of the board's 040-byte register blocks and
+  does not look at `АД03`, so every register of the board answers at its
+  address and at that address + 010.  With G2B on `АД03` the board answers
+  only with `АД03` low.  It loses nothing: every register it has is at an
+  address with bit 3 clear (177440/442, 177460/462, 177500-506,
+  177520-526, 177540-546, 177600-606, 177640-646, 177700/702,
+  177720/722).  And the RAM disk's data port, 177550, has bit 3 set and
+  falls in the block of the МС 7007's ВВ55 (177540-546), whose echo would
+  answer there too and fight the module on the bus: the wire frees just
+  the half of the register space the module uses.
+- **Lifted or cut.**  The copper has all five pins of `ВБРЕГ L` (D88.8,
+  the driver; D80.4, D80.5, D66.9, D98.12) on one visible run, its order
+  not to be read off the traces.  Lifting pin 5 or cutting the run so
+  that pin 5 alone is off it make the same circuit: D80.5 on `АД03`, the
+  other four on `ВБРЕГ L`.  A cut that also took D80.4, D66 or D98 off
+  D88 would hang them on `АД03` instead, and the machine, which worked,
+  would not have.  So: D80.5 off `ВБРЕГ L`, on `АД03 Н` - to go into
+  `rev3a.csv` with the RAM disk (plan 6a), where it can be tested.
 - Pictures: [evidence/green-wire-ad03](evidence/green-wire-ad03/).
 
 Why it is there - a hypothesis the documents support:
