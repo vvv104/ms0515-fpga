@@ -73,6 +73,7 @@ module emu
     wire [127:0] status;
     wire [10:0]  ps2_key;
     wire         kbd_bell;
+    wire         speaker;
     wire         img_mounted;
     wire         img_readonly;
     wire [63:0]  img_size;
@@ -126,7 +127,7 @@ module emu
         .d70_drawn(status[6]),
         .kbd_source(kbd_inside ? 2'd1 : on_user || on_uart ? 2'd2 : 2'd0),
         .ps2_key, .kbd_mode(status[5]), .kbd_rx(rx_sync[1]), .kbd_tx,
-        .kbd_leds(), .kbd_bell,
+        .kbd_leds(), .kbd_bell, .speaker,
         .layout(status[2:1]),
         .img_mounted, .img_readonly, .img_size,
         .sd_lba, .sd_rd, .sd_wr, .sd_ack, .sd_buff_addr(sd_buff_addr[8:0]), .sd_buff_dout, .sd_buff_wr,
@@ -151,9 +152,10 @@ module emu
     assign VGA_VS = vs_video;
     assign VGA_DE = !(hblank_video | vblank_video);
 
-    // the МС 7004's bell (its D2.3 and the piezo BA1): a square wave
+    // the machine's speaker (D93 to XP7: low drives the coil) and the
+    // МС 7004's bell (its D2.3 and the piezo BA1), two square waves summed
     assign AUDIO_S = 1'b1;
-    assign AUDIO_L = kbd_bell ? 16'sh1000 : -16'sh1000;
+    assign AUDIO_L = (speaker ? -16'sh1800 : 16'sh1800) + (kbd_bell ? 16'sh0800 : -16'sh0800);
     assign AUDIO_R = AUDIO_L;
 
     assign LED_USER = sd_rd | sd_wr;

@@ -20,6 +20,8 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <fstream>
+#include <iterator>
 #include <memory>
 
 namespace {
@@ -226,4 +228,39 @@ TEST_CASE("ms0515: the processor's request stands two ticks and more when its bu
     MESSAGE(takes << " takes, the request held at least " << closest << " ticks");
     CHECK(takes > 10000);
     CHECK(closest >= 2);
+}
+
+// The speaker comes out of the machine: the node of D93's open collectors
+// (XP7.2 through R61).  With the test ROM firmware/tests/sound.rom in the
+// sockets the channel 2 tone, 1 kHz, reaches it: rises 1000 us apart.
+TEST_CASE("ms0515: the speaker's node comes out - the timer's 1 kHz tone of the sound test ROM")
+{
+    std::ifstream f(MS0515_FIRMWARE_DIR "/tests/sound.rom", std::ios::binary);
+    REQUIRE(f);
+    const std::vector<char> rom{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
+    REQUIRE(rom.size() == 16384);
+    auto machine = std::make_unique<Vms0515>();
+    Vms0515& m = *machine;
+    idle(m, false);
+    tick(m);
+    for (unsigned i = 0; i < 16384; ++i) {
+        m.rom_we = 1;
+        m.rom_addr = static_cast<SData>(i);
+        m.rom_data = static_cast<CData>(rom[i]);
+        tick(m);
+    }
+    m.rom_we = 0;
+    std::vector<std::uint64_t> rises;
+    CData was = m.speaker;
+    for (std::uint64_t t = 0; t < 100000ull * kMasterMhz; ++t) {
+        tick(m);
+        if (m.speaker && !was) rises.push_back(t);
+        was = m.speaker;
+    }
+    int at_1khz = 0;
+    for (std::size_t i = 1; i < rises.size(); ++i) {
+        const double us = static_cast<double>(rises[i] - rises[i - 1]) / kMasterMhz;
+        at_1khz += us > 999.0 && us < 1001.0 ? 1 : 0;
+    }
+    CHECK(at_1khz >= 10);
 }

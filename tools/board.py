@@ -785,6 +785,7 @@ MACHINE_OUTPUTS = [
     "n_TS15_H", "n_SC_H", "n_KC_H", "n_ZC_H",       # the video: the sample clock, blue, red, green
     "nx_D69_9",                                     # brightness
     "n_SSI_L", "n_KSI_L", "n_SGI_L",                # line and frame sync, blanking
+    "nx_D93_3",                                     # the speaker: D93's open collectors, R61 to XP7.2
 ]
 # The keyboard inside the machine: its line (XT1), its reset (C3), the
 # matrix's return lines in (ГР1..ГР8 on XS24..XS31) and out the scan lines,

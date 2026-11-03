@@ -126,6 +126,7 @@ ms0515_model(Vms0515 "${PROJECT_SOURCE_DIR}/rtl/ms0515.sv" ms0515
                       "${PROJECT_SOURCE_DIR}/rtl/parts/ms7004_keys_pkg.sv"
              ARGS -y "${PROJECT_SOURCE_DIR}/rtl/board" -y "${PROJECT_SOURCE_DIR}/rtl/parts" --public-flat-rw)
 ms0515_test(test_machine board/test_machine.cpp Vns4 Vns4_video Vms0515)
+target_compile_definitions(test_machine PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
 
 # the МС 7004 keyboard generated from its netlist (rtl/board/ms7004.sv)
 ms0515_model(Vms7004 "${PROJECT_SOURCE_DIR}/rtl/board/ms7004.sv" ms7004

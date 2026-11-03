@@ -27,7 +27,8 @@ module ms0515 (
     input  logic        clk,            // the 120 MHz master clock
     input  logic        reset,
     // another ROM in the sockets XS3/XS4 (the menu loads ROM-A, which OSA
-    // wants): its 16 KB, 160000..177777 as little-endian words, a byte a tick
+    // wants): its 16 KB, 140000..177777 as little-endian words (the window at
+    // 160000 shows the upper 8 KB), a byte a tick
     input  logic        rom_we,
     input  logic [13:0] rom_addr,
     input  logic [7:0]  rom_data,
@@ -42,6 +43,9 @@ module ms0515 (
     output logic        kbd_tx,
     output logic [4:0]  kbd_leds,       // lit: ОЖИД, КМП, ФКС, СТОП КАДР, ЛАТ
     output logic        kbd_bell,
+    // the speaker's node (D93's open collectors, through R61 to XP7.2):
+    // high at rest, low while current would flow through the coil
+    output logic        speaker,
     // drive 0's image (hps_io's block device) and its formatter: 0 ОМЕГА, 1 vvv, 2 FDZ
     input  logic [1:0]  layout,
     input  logic        img_mounted,
@@ -95,7 +99,7 @@ module ms0515 (
         .n_DV_H(dv), .n_KC_H(kc), .n_KSI_L(ksi), .n_NPR_L(npr), .n_RZP_L(rzp),
         .n_SC_H(sc), .n_SGI_L(sgi), .n_SHAG_L(shag), .n_SSI_L(ssi), .n_TS15_H(ts15),
         .n_VBP_H(vbp), .n_VN0_H(vn0), .n_VYHKL_L(vyhkl), .n_ZAP_L(zap), .n_ZC_H(zc),
-        .nx_D69_9(bright),
+        .nx_D69_9(bright), .nx_D93_3(speaker),
         .l_D65_we(rom_we && !rom_addr[0]), .l_D65_a(rom_addr[13:1]), .l_D65_d(rom_data),
         .l_D77_we(rom_we && rom_addr[0]),  .l_D77_a(rom_addr[13:1]), .l_D77_d(rom_data),
         .s_D70_15(d70_drawn)
