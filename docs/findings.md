@@ -194,12 +194,24 @@ The photo laid onto the placement by six chip centres (worst error ~24
 layer px, under a pin pitch; the pin labels then sit on the pins):
 
 - **one end: D92 pin 9** - Q3 of the address latch, `АД03 Н`;
-- **the other end:** the upper lead of a discrete resistor between D80
+- **the other end, first read:** the upper lead of a discrete resistor between D80
   (К555ИД7, the register decoder) and D85, next to D80 pins 4/5 (G2A/G2B,
   both `ВБРЕГ L` on Э3).  The assembly drawing (page 27) names it **R39**:
   1 kOhm pulling `БОРДС L` up to +5V.  In Mick's traces its pad is on the
   run the traces wrongly merge (`АД13`/`Р3`), its other lead on a plane.
   Which lead the wire takes, and why, is not settled.
+- **The owner's reading (2026-11-03): the wire ends on D80 itself, the
+  fourth pin from the top of the row it comes down to** - roughly
+  soldered, a lump of solder lying over R39 but touching neither its
+  leads nor any other pin.  D80 lies turned a quarter on the photo (its
+  label reads upwards), so that row is pins 1..8 from the bottom and the
+  fourth from the top is pin 5, **G2B**; were the chip the other way round
+  it would be pin 4, G2A - both `ВБРЕГ L` on Э3, the same enable either
+  way.  `АД03` into one of the decoder's active-low enables: the board's
+  registers answer only with `АД03` low - half its register space given
+  up, as the hypothesis below wants.  For that the pin must be off
+  `ВБРЕГ L` (lifted, or its run cut), or the latch and D88 would fight;
+  the photo does not show which.
 - Pictures: [evidence/green-wire-ad03](evidence/green-wire-ad03/).
 
 Why it is there - a hypothesis the documents support:
