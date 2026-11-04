@@ -106,13 +106,39 @@ the same in ns from the data sheets):
   columns of 640 x 200 is small enough to have gone unseen on serial
   boards - so the premise below may not hold, and the photos asked for
   decide it.
+- The undriven lines.  While D70 is off nothing drives `ВК2`..`ВК4`;
+  `ВК2` has R26 to +5 V, `ВК3` (D55/D56's clock) and `ВК4` (MODE of all
+  four registers) only LS inputs.  The model reads an undriven net as 1;
+  a real open LS input settles near its threshold, read by each chip its
+  own way.  In 320 x 200 the design relies on MODE reading high: D70
+  coming on makes the clock fall, and with MODE high that fall is the
+  missed load (a ~130 ns window).  Read otherwise, with typical delays
+  (differing samples against the emulator; 7 and 11 = the frame's first
+  word only, i.e. right):
+
+  | `ВК3`, `ВК4` undriven read as | C70 | 640 x 200 | 320 x 200 |
+  |---|---|---|---|
+  | 1, 1 (the model) | no | 1305 | 11 |
+  | 1, 0 | no | 7 | 2453 |
+  | 1, 0 | yes | 412 | 2435 |
+  | 1, last driven level | no | 1305 | 11 |
+  | 1, last driven level | yes | 412 | 2435 |
+  | last, last | no | 7 | 707 |
+
+  No reading draws both modes right, and the reading alone turns 640 x
+  200 from wrong to right with no delay bent.  On the board as drawn the
+  left edge is decided by lines no chip drives - a fault that would come
+  and go with the batch of the chips.  D70.15 on GND (the owner's board)
+  removes exactly that: D70 drives the three lines all the time.
 
 ## 4. Where it stands, what is open
 
 If hundreds of serial boards worked and only the odd one did not (as
 the owner's), the typical board won this race with room to spare.  By
-the data sheets it loses by ~40 ns.  So something here is wrong by tens
-of ns - and the delays are not to be bent to hide it.
+the data sheets it loses by ~40 ns.  The delays are not to be bent to
+hide it.  The likeliest place now is not a delay but the undriven
+`ВК3` / `ВК4` above: how a real board reads them decides the edge, and
+the model can only guess a level.
 
 Open, and asked of the owners of working machines:
 
@@ -127,6 +153,9 @@ Open, and asked of the owners of working machines:
 3. The КР556РТ12's own figures (address access time, typical and
    maximum) from a handbook.
 4. An error in the reasoning above - where else tens of ns may hide.
+5. With an oscilloscope on a working board as drawn (D70.15 not on
+   GND): the level of `ВК4` (D70 pin 9) and `ВК3` (pin 7) in the
+   border, and whether R26 or another pull-up sits on them.
 
 ## Pictures
 

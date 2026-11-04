@@ -505,6 +505,39 @@ columns of 640 x 200 is small enough to have gone unseen on the serial
 boards: whether they showed it is for the photos of working machines
 ([evidence/d70-left-edge](evidence/d70-left-edge/README.md)).
 
+**The undriven lines** (2026-11-04).  While D70 is off nothing drives
+`ВК2`..`ВК4`: `ВК2` has R26 to +5 V, `ВК3` (D55/D56's clock) and `ВК4`
+(MODE of all four registers) have only LS inputs on them.  The model
+reads an undriven net as 1 - a choice, not the data sheet's: an open LS
+input settles near its own threshold, and how four inputs read such a
+line is up to the chips.  The left edge rests on it.  In 320 x 200 the
+clock is ТС1, low just after the word's step, so D70 coming on makes the
+clock fall itself; with MODE still high (undriven) that fall is the
+missed load, late, and the window is ~130 ns - the design works there
+because the undriven MODE reads high.  In 640 x 200 the same
+replacement needs D70 on within the first half point.  Э3's board, typical delays, `vid640` /
+`vid320`, the samples that differ from the emulator (7 and 11 are the
+first line's first word alone, i.e. right):
+
+| `ВК3`, `ВК4` undriven read as | C70 | 640 x 200 | 320 x 200 |
+|---|---|---|---|
+| 1, 1 (the model) | no | 1305 | 11 |
+| 1, 0 | no | 7 | 2453 |
+| 1, 0 | yes | 412 | 2435 |
+| 1, last driven level | no | 1305 | 11 |
+| 1, last driven level | yes | 412 | 2435 |
+| last, last | no | 7 | 707 |
+
+No reading draws both modes right, and in 640 x 200 the reading alone
+moves the left edge from wrong to right with no delay bent - more than
+the ~40 ns the data sheets' delays were short by.  So on the board as
+drawn the left edge is decided by lines no chip drives, which no data
+sheet settles and which can differ chip by chip - a fault that would
+come and go with the batch.  The owner's D70.15 on GND removes exactly
+that: D70 drives `ВК2`..`ВК4` all the time, nothing is left undriven,
+both modes are fixed by logic alone.  The model cannot reproduce a line
+near threshold; this is where the open question now stands.
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
