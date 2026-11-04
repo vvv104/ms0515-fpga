@@ -64,8 +64,11 @@ plays, in `sim/board/`, at the board's connectors.
 - `edges=FROM-TO` (machine microseconds): every change of the nets at the
   picture's left edge, master tick by tick - the border (`БОРДС`,
   `БОРДК`), D70's enable (`~D14.3`), the strobes `ВК2`..`ВК5`, `СТРОБ`,
-  `ЧТ ВЗУ`, `ССИ`, `РАЗР`, as lines "edges: TICK b0 .. b10" (the D70
-  case, `docs/findings.md`).
+  `ЧТ ВЗУ`, `ССИ`, `РАЗР`, as lines "edges: TICK b0 .. b10 AA DD" (the
+  D70 case, `docs/findings.md`); AA the attribute registers' outputs in
+  hex (D56 QA..QD = `СН КР ЗЛ СНФ` the low nibble, D55 QA..QD = `КРФ ЗЛФ
+  ИНТ БЛНК` the high), DD the video data's high byte `ДВ08`..`ДВ15` they
+  load.
 
 Every run also watches the video's words (`sim/board/video_watch.h`) and
 ends with three "video words" lines and a "video requests" one:

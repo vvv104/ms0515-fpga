@@ -31,7 +31,10 @@
 // (netlist/rev3a.csv: D70.15 on ~D14.3, not on GND).  edges=FROM-TO
 // (machine microseconds) prints, master tick by tick, every change of the
 // nets at the picture's left edge: the border (БОРДС, БОРДК), D70's enable
-// (~D14.3), the strobes ВК2..ВК5, СТРОБ, ЧТ ВЗУ, ССИ, РАЗР.
+// (~D14.3), the strobes ВК2..ВК5, СТРОБ, ЧТ ВЗУ, ССИ, РАЗР; then, in hex,
+// the attribute registers' outputs (D56 QA..QD = СН КР ЗЛ СНФ the low
+// nibble, D55 QA..QD = КРФ ЗЛФ ИНТ БЛНК the high) and the video data's
+// high byte ДВ08..15 that they load.
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
 // at each ТС15 H rise from the line sync (ССИ L): the blue, red and green
@@ -375,15 +378,22 @@ public:
                              (m.n_VK2_H & 1u) << 3 | (m.n_VK3_H & 1u) << 4 | (m.n_VK4_H & 1u) << 5 |
                              (m.n_VK5_H & 1u) << 6 | (m.n_STROB_H & 1u) << 7 | (m.n_CHT_VZU_H & 1u) << 8 |
                              (m.n_SSI_L & 1u) << 9 | (m.n_RAZR_H & 1u) << 10;
-        if (now == was_) return;
+        const unsigned attr = (m.n_SN_H & 1u) | (m.n_KR_H & 1u) << 1 | (m.n_ZL_H & 1u) << 2 |
+                              (m.n_SNF_H & 1u) << 3 | (m.n_KRF_H & 1u) << 4 | (m.n_ZLF_H & 1u) << 5 |
+                              (m.n_INT_H & 1u) << 6 | (m.n_BLNK_H & 1u) << 7;
+        const unsigned dv = (m.n_DV08_H & 1u) | (m.n_DV09_H & 1u) << 1 | (m.n_DV10_H & 1u) << 2 |
+                            (m.n_DV11_H & 1u) << 3 | (m.n_DV12_H & 1u) << 4 | (m.n_DV13_H & 1u) << 5 |
+                            (m.n_DV14_H & 1u) << 6 | (m.n_DV15_H & 1u) << 7;
+        const unsigned all = now | attr << 11 | dv << 19;
+        if (all == was_) return;
         if (!header_) {
-            std::printf("edges: tick  БОРДС БОРДК D14.3 ВК2 ВК3 ВК4 ВК5 СТРОБ ЧТВЗУ ССИ РАЗР\n");
+            std::printf("edges: tick  БОРДС БОРДК D14.3 ВК2 ВК3 ВК4 ВК5 СТРОБ ЧТВЗУ ССИ РАЗР D55:D56 ДВ08..15\n");
             header_ = true;
         }
         std::printf("edges: %llu", static_cast<unsigned long long>(t));
         for (int i = 0; i < 11; ++i) std::printf(" %u", now >> i & 1u);
-        std::printf("\n");
-        was_ = now;
+        std::printf(" %02x %02x\n", attr, dv);
+        was_ = all;
     }
 
 private:
