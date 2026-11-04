@@ -440,8 +440,10 @@ the board is still off.  Being looked for; until found, nothing of this
 goes into the tests as a property of the schematic.
 
 **C70 on the boards seen** (2026-11-04).  The owner's board has none:
-two bare pads where the drawing puts it, by D85 towards D84, with C69
-and C73 fitted beside them (the owner confirmed it on the photo;
+two pads where the drawing puts it, by D85 towards D84, with C69 and
+C73 fitted beside them - solder on both pads with the leads' stubs in
+it: bitten off, not unsoldered (the owner, 2026-11-04), as
+the bare wire on D70.15 would be the same hand's (the owner saw it on the photo;
 [evidence/d70-oe-gnd/owner-c70-empty.jpg](evidence/d70-oe-gnd/owner-c70-empty.jpg)).
 Frolov's board (leningrad.su, no D70 patch) has it: a yellow К10-17
 there, unlike the blue 0.22 uF C69 and C73 - the 100 pF М47 of the
@@ -451,6 +453,21 @@ Radon17's board has every capacitor of that half taken off - it cannot
 tell.  So a serial board as Э3 draws it, C70 and all, drew 640 x 200
 right; the RC cannot be what saves it, it only makes the model's race
 worse - the error is elsewhere in the model.
+
+**The right border** (`vid640`, Э3's board, the same trace taken where
+D70 goes off): the load pulse at -12..-4 has a clock fall in it (-6,
+loads the next line's first word); `БОРДС L` falls at -1 (pulled down by
+the PROM, no RC on that edge), D70 goes off at 0 and the clock's next
+fall (+2) is not seen.  So the registers wait out the border holding
+that word unshifted, and the left edge is right only if D70's first
+clock fall there is a shift at the counter's step after the load pulse -
+D70 on, with MODE low, before that fall.  The two edges ask the same of
+the path from D30 through D21 and D14.1 to D70's enable, but C70 slows
+only the left one.  The owner's board had C70 bitten off and D70's
+enable tied low: both speed that very edge up, which looks like one
+repair of this left-edge fault on that board.  Whether the serial
+boards showed it - some, by their chips' speed - or the model misses
+something, is the open question.
 
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
