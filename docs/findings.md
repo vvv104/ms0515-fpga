@@ -439,6 +439,19 @@ race, and they did not: something in the model or in the reading of
 the board is still off.  Being looked for; until found, nothing of this
 goes into the tests as a property of the schematic.
 
+**C70 on the boards seen** (2026-11-04).  The owner's board has none:
+two bare pads where the drawing puts it, by D85 towards D84, with C69
+and C73 fitted beside them (the owner confirmed it on the photo;
+[evidence/d70-oe-gnd/owner-c70-empty.jpg](evidence/d70-oe-gnd/owner-c70-empty.jpg)).
+Frolov's board (leningrad.su, no D70 patch) has it: a yellow К10-17
+there, unlike the blue 0.22 uF C69 and C73 - the 100 pF М47 of the
+parts list
+([evidence/d70-oe-gnd/frolov-c70.jpg](evidence/d70-oe-gnd/frolov-c70.jpg)).
+Radon17's board has every capacitor of that half taken off - it cannot
+tell.  So a serial board as Э3 draws it, C70 and all, drew 640 x 200
+right; the RC cannot be what saves it, it only makes the model's race
+worse - the error is elsewhere in the model.
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
