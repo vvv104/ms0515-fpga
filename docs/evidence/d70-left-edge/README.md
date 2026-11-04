@@ -134,6 +134,19 @@ the same in ns from the data sheets):
   takes ~1 mA out of the net - a 1..2 kOhm path to ground nothing on it
   gives.  The model's reading is the board's; the readings that fixed
   the edge are not physical.  The undriven lines are ruled out.
+- The schematic read again: `ТС45 L` is `ТС15 L` (the hand's 1 looks
+  like a 4); E5 is a series link, not a phase choice; the PROM's half-word
+  steps exist (used at the line's end), but raising `БОРДС L` earlier
+  would open `ДПСЛ` early too - no PROM content fixes the race.
+- The chips.  ПЭ3 says К555 and lets К555 be fitted as КР1533; the model
+  took К555.  On all three boards' photos the race's chain is КР1533:
+  the video counters КР1533ИЕ10, D14 КР1533ЛА3 (pictures 9, 10; D70
+  К555КП11 and D71 К555ЛИ6 as listed).  With estimated ALS typicals (TI
+  prints maximums only: 8 ns for the counters, 5 for the gate) Э3's
+  board draws both modes right without C70 - by less than 8 ns - and
+  640 x 200 still shifted with C70, unless the КР556РТ12 answered in ~20
+  ns (its handbook figure is 60 ns, a maximum).  The owner's board, on
+  the same КР1533, has C70 bitten off; Frolov's has C70 fitted.
 
 ## 4. Where it stands, what is open
 
@@ -141,8 +154,11 @@ If hundreds of serial boards worked and only the odd one did not (as
 the owner's), the typical board won this race with room to spare.  By
 the data sheets it loses by ~40 ns.  The delays are not to be bent to
 hide it.  The undriven `ВК3` / `ВК4` were looked at as another place
-and ruled out by the inputs' physics (section 3): the open question is
-the race's ~40 ns.
+and ruled out by the inputs' physics (section 3).  With the КР1533
+chips the boards carry, the race is won without C70 and lost with it:
+the open question is now C70 - on Frolov's board it is fitted, and if
+that machine's 640 x 200 left edge is right, the model is still ~20 ns
+slow there.
 
 Open, and asked of the owners of working machines:
 
@@ -173,3 +189,5 @@ Open, and asked of the owners of working machines:
 | `6-e3-d21-r39-c70.png` | Э3 sheet 4 (page 21) at full resolution: D21 (КР556РТ12) with R39 and C70 on `БОРДС L` |
 | `7-e3-d70-d71-d14.png` | Э3 sheet 4: D70 (К555КП11) with its inputs, D71 (К555ЛИ6, the load pulse) and D14.1 (К555ЛА3, D70's enable) |
 | `8-timing-left-edge.png` | the race drawn with the datasheets' typical delays, in ns from the ТС15 H edge that steps D30 at the end of the load pulse |
+| `9-radon17-video-chain.jpg` | Radon17's board (`photos/radon17-ns4`, 2024-10-20, turned half round), D70 К555КП11 with R24..R26 and the factory's white wire on pin 11, D71 К555ЛИ6, the registers К555ИР16 (9103), D57 КР1533ИР23, the video counters КР1533ИЕ10 (8910, 9001) and КР1533ТМ2 |
+| `10-radon17-proms-d14.jpg` | the same board at D21 (СТРВ) and D13 (КДРВ), their factory paper labels, D14 КР1533ЛА3 (9002) beside them and the КР1533ИЕ10 counters above |

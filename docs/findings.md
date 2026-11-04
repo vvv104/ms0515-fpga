@@ -544,6 +544,62 @@ do not decide the left edge; the readings that fixed it are not
 physical, and the open question is back to the ~40 ns of the race.  The
 D70.15 on GND still removes the race itself, not an undriven line.
 
+**The schematic read again, and the chips on the boards** (2026-11-05).
+Looking for a misreading before blaming the boards:
+
+- `ТС45 L` on D70.3/D70.6 is `ТС15 L`: in that hand a 1 has a flag that
+  makes it look like a 4 (the ЛИ6 beside it is labelled «D7?.2» for
+  D71), and sheet 3 makes no other `ТС..` net.
+- E5 is a series link from the 15 MHz oscillator (D91.6) to `ТС15 H`,
+  not a choice of phase.
+- D21's dump: A0 (`ТС4`) gives the PROM half-word steps, and it uses
+  them - O0 changes mid-word at word 60.  The picture's start is put on
+  word 1's boundary on purpose: `БОРДС L` also opens the points (`ДПСЛ`),
+  so raising it earlier would show eight points of whatever the
+  registers hold.  No PROM content can fix the race; R26 on `ВК2` alone
+  is there to make D70's enable itself the clock fall that loads the
+  first word.  The owner says Xolod read the same contents from another
+  board.
+- The chips.  Э3 names functions only (ИЕ10, ЛА3, КП11); ПЭ3 says К555
+  and lets К555 parts be fitted as КР1533.  The model took К555
+  everywhere.  On the photos (Radon17's board, the owner's, Frolov's)
+  the race's chain is КР1533: the video counters D29, D30, D36, D37, D42
+  КР1533ИЕ10 (8910, 9001; Frolov's 9204), D14 КР1533ЛА3 (9002 on all
+  three); D70 К555КП11, D71 К555ЛИ6 and the registers К555ИР16 as ПЭ3.
+  Elsewhere on Radon17's board: D41 КР1533ТМ2, D57 КР1533ИР23, D64
+  КР1533ЛН2, D91 КР1533ЛН1, D92/D94 КР1533ИР22, D97 КР1533ТМ9, and D63/D69
+  КР1533КП12 - a different type from ПЭ3's К555КП2 (the ALS253's
+  three-state outputs where the LS153 has strobes)
+  ([evidence/d70-left-edge](evidence/d70-left-edge/README.md), pictures
+  9 and 10).
+- КР556РТ12: tA(A) 60 ns in the table of rfanat.qrz.ru («Микросхемы
+  программируемых ПЗУ», table 1) - a maximum, as the 82S137's; the
+  model's 40 ns typical stands.
+
+TI prints the ALS parts' maximums only (SN74ALS161B SDAS276A p.8: CLK to
+any Q 15/20 ns; SN74ALS00A SDAS187A p.3: 11/8 ns, both at 50 pF), so the
+typical values below - 8 ns for the counters, 5 for the gate - are an
+estimate, not a datasheet's.  With them on D30, D42, D37 and D14 (Э3's
+board, typical delays otherwise, samples differing from the emulator):
+
+| `БОРДС L` rise added (ticks) | D21, ns | 640 x 200 | 320 x 200 |
+|---|---|---|---|
+| 0 (no C70) | 40 | 7 | 1 |
+| 1 | 40 | 1305 | |
+| 2 | 40 | 1306 | |
+| 3 (C70 as computed) | 40 | 1307 | 1 |
+| 3 | 30 | 1306 | |
+| 3 | 20 | 107 | |
+
+So with the chips the boards carry, Э3 without C70 draws both modes
+right - by less than a tick (8.33 ns) - and with C70 loses the race
+unless the PROM answers in ~20 ns, which no source gives it.  The
+owner's board (the same КР1533) has C70 bitten off and D70 always on.
+Frolov's has C70 fitted and, as far as its 980-pixel photo shows, no
+D70 patch; if its 640 x 200 left edge is right, the chain there is
+20..25 ns faster than the model, or C70 is not what the drawing says.
+Asked on the forum; the model is not changed until then.
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
