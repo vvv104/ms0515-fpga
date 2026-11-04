@@ -108,9 +108,8 @@ the same in ns from the data sheets):
   decide it.
 - The undriven lines.  While D70 is off nothing drives `ВК2`..`ВК4`;
   `ВК2` has R26 to +5 V, `ВК3` (D55/D56's clock) and `ВК4` (MODE of all
-  four registers) only LS inputs.  The model reads an undriven net as 1;
-  a real open LS input settles near its threshold, read by each chip its
-  own way.  In 320 x 200 the design relies on MODE reading high: D70
+  four registers) only LS inputs.  The model reads an undriven net as 1.
+  In 320 x 200 the design relies on MODE reading high: D70
   coming on makes the clock fall, and with MODE high that fall is the
   missed load (a ~130 ns window).  Read otherwise, with typical delays
   (differing samples against the emulator; 7 and 11 = the frame's first
@@ -125,20 +124,25 @@ the same in ns from the data sheets):
   | 1, last driven level | yes | 412 | 2435 |
   | last, last | no | 7 | 707 |
 
-  No reading draws both modes right, and the reading alone turns 640 x
-  200 from wrong to right with no delay bent.  On the board as drawn the
-  left edge is decided by lines no chip drives - a fault that would come
-  and go with the batch of the chips.  D70.15 on GND (the owner's board)
-  removes exactly that: D70 drives the three lines all the time.
+  No reading draws both modes right; only MODE read low (or held) turns
+  640 x 200 right.  Whether a real board can read it so is computed in
+  `float_net.py` (this folder): an LS input is a Schottky diode under a
+  resistor from +5 V; left alone it sources current into the net until
+  the gate sees 1.  Four inputs on 30..80 pF, D70's off-state leakage
+  pulling down: released low, the net reads 1 after 15..80 ns and
+  settles at ~1.15 V; released high, it reads 1 throughout.  Reading 0
+  takes ~1 mA out of the net - a 1..2 kOhm path to ground nothing on it
+  gives.  The model's reading is the board's; the readings that fixed
+  the edge are not physical.  The undriven lines are ruled out.
 
 ## 4. Where it stands, what is open
 
 If hundreds of serial boards worked and only the odd one did not (as
 the owner's), the typical board won this race with room to spare.  By
 the data sheets it loses by ~40 ns.  The delays are not to be bent to
-hide it.  The likeliest place now is not a delay but the undriven
-`ВК3` / `ВК4` above: how a real board reads them decides the edge, and
-the model can only guess a level.
+hide it.  The undriven `ВК3` / `ВК4` were looked at as another place
+and ruled out by the inputs' physics (section 3): the open question is
+the race's ~40 ns.
 
 Open, and asked of the owners of working machines:
 
@@ -153,9 +157,9 @@ Open, and asked of the owners of working machines:
 3. The КР556РТ12's own figures (address access time, typical and
    maximum) from a handbook.
 4. An error in the reasoning above - where else tens of ns may hide.
-5. With an oscilloscope on a working board as drawn (D70.15 not on
-   GND): the level of `ВК4` (D70 pin 9) and `ВК3` (pin 7) in the
-   border, and whether R26 or another pull-up sits on them.
+5. Whether R26 or any other resistor sits on `ВК3` (D70 pin 7) or
+   `ВК4` (pin 9) on a real board - a pull to ground would change the
+   reading computed in section 3.
 
 ## Pictures
 

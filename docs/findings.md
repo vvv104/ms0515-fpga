@@ -508,9 +508,7 @@ boards: whether they showed it is for the photos of working machines
 **The undriven lines** (2026-11-04).  While D70 is off nothing drives
 `ВК2`..`ВК4`: `ВК2` has R26 to +5 V, `ВК3` (D55/D56's clock) and `ВК4`
 (MODE of all four registers) have only LS inputs on them.  The model
-reads an undriven net as 1 - a choice, not the data sheet's: an open LS
-input settles near its own threshold, and how four inputs read such a
-line is up to the chips.  The left edge rests on it.  In 320 x 200 the
+reads an undriven net as 1.  The left edge rests on it.  In 320 x 200 the
 clock is ТС1, low just after the word's step, so D70 coming on makes the
 clock fall itself; with MODE still high (undriven) that fall is the
 missed load, late, and the window is ~130 ns - the design works there
@@ -528,15 +526,23 @@ first line's first word alone, i.e. right):
 | 1, last driven level | yes | 412 | 2435 |
 | last, last | no | 7 | 707 |
 
-No reading draws both modes right, and in 640 x 200 the reading alone
-moves the left edge from wrong to right with no delay bent - more than
-the ~40 ns the data sheets' delays were short by.  So on the board as
-drawn the left edge is decided by lines no chip drives, which no data
-sheet settles and which can differ chip by chip - a fault that would
-come and go with the batch.  The owner's D70.15 on GND removes exactly
-that: D70 drives `ВК2`..`ВК4` all the time, nothing is left undriven,
-both modes are fixed by logic alone.  The model cannot reproduce a line
-near threshold; this is where the open question now stands.
+No reading draws both modes right; in 640 x 200 only MODE read low (or
+held) moves the left edge right.  Whether a board can read it so was
+then computed, not guessed
+([evidence/d70-left-edge/float_net.py](evidence/d70-left-edge/float_net.py)).
+An LS input is a Schottky diode under R1 (11..20 kOhm from +5 V, the
+data sheets' I_IL 0.2..0.4 mA); left alone it sources current into the
+net until R1's node reaches the two base-emitter drops it feeds, and
+there the gate sees 1.  Four such inputs on 30..80 pF, D70's off-state
+leakage pulling down: released low, the net reads 1 everywhere after
+15..80 ns and settles at ~1.15 V; released high, it sinks no lower and
+reads 1 throughout.  To read 0 the net needs ~1 mA taken out of it, a
+1..2 kOhm path to ground no chip on it gives.  The pin sits near 1.1..1.4
+V, close to the threshold in volts, but the reading is set by current,
+and it is 1: the model's reading is the board's.  So the undriven lines
+do not decide the left edge; the readings that fixed it are not
+physical, and the open question is back to the ~40 ns of the race.  The
+D70.15 on GND still removes the race itself, not an undriven line.
 
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
