@@ -469,6 +469,19 @@ repair of this left-edge fault on that board.  Whether the serial
 boards showed it - some, by their chips' speed - or the model misses
 something, is the open question.
 
+**The frame's first line** (`vid640`, Э3's board, a frame's edges
+traced; ticks from `БОРДК L` rising, a line 7680 ticks).  `БОРДК L`
+rises at 0, inside the horizontal border (`БОРДС L` low from -1294 to
+1266), so the line before the first picture line ran with `БОРДК L` low
+all through: D70 off the whole line, no load at its right border.  D70
+first comes on at 1267, the first picture line's left edge, and the
+registers hold what they took at the right border of the previous
+frame's last picture line.  Not a race: the margin is microseconds, any
+board drawn as Э3 does it, the owner's (D70 always on) does not.  The 7
+samples (`vid640`) and 11 (`vid320`) that Э3's board differs by from
+the emulator even when the left edge's race is won are these, the first
+word of the first line.
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
