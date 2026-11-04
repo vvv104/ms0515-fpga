@@ -569,7 +569,15 @@ Looking for a misreading before blaming the boards:
   Elsewhere on Radon17's board: D41 КР1533ТМ2, D57 КР1533ИР23, D64
   КР1533ЛН2, D91 КР1533ЛН1, D92/D94 КР1533ИР22, D97 КР1533ТМ9, and D63/D69
   КР1533КП12 - a different type from ПЭ3's К555КП2 (the ALS253's
-  three-state outputs where the LS153 has strobes)
+  three-state outputs where the LS153 has strobes; D61, D62, D67, D68,
+  D87 not on the photo).  D61, D62, D67, D68 and D87 have the strobes
+  on GND, where the two are the same.  D63 and D69 have them on `ВК7 H`
+  (D14.8, NAND of `СГИ L` and `КГИ L`: high through the sync pulses):
+  there К555КП2 holds `СЦ`, `КЦ`, `ЗЦ` and ~D69.9 low, КР1533КП12 lets
+  them go, and with only LS and 155 inputs on them (D75, D81) they read
+  1 - the colour lines on through every sync pulse, the monitor's own
+  blanking hiding it.  The machine works either way; the new board keeps
+  ПЭ3's КП2, the model too
   ([evidence/d70-left-edge](evidence/d70-left-edge/README.md), pictures
   9 and 10).
 - КР556РТ12: tA(A) 60 ns in the table of rfanat.qrz.ru («Микросхемы

@@ -192,13 +192,16 @@ std::unique_ptr<ms0515_board_t> emulator_after(const std::string& rom_name)
 // The picture of a test ROM that draws and stops: a frame taken off the
 // board's video DAC inputs a whole frame after the program's end mark,
 // against the emulator's picture of its own video memory, point for point.
-void picture_as_emulator(const std::string& rom_name, std::uint64_t ms)
+// `drawn`: the board as 3.858.420 Э3 draws it, D70's enable on ~D14.3, not
+// on GND as on the owner's board (netlist/rev3a.csv).
+void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool drawn = false)
 {
     Bench b(rom_name);
     FrameGrab grab;
     FrameGrab::Lines taken;
     int frames_after = 0;
     b.run_ms(ms, [&](Vns4& m) {
+        m.s_D70_15 = drawn ? 1 : 0;
         if (grab.see(m) && b.writes.word_at(01000) == std::optional<std::uint16_t>(052525) && ++frames_after == 2)
             taken = grab.last;
     });
@@ -225,6 +228,25 @@ TEST_CASE("video: 320 x 200 with every attribute, as the emulator's picture of t
 TEST_CASE("video: 640 x 200 in the border's colour, as the emulator's picture of the same memory")
 {
     picture_as_emulator("vid640.rom", 420);
+}
+
+// The same two pictures on Э3's board, the serial machines' (D70 off in
+// the border, its clocks stopped): its first clock at a line's left edge
+// must shift the word the registers took at the right border, so D70
+// comes on before that clock falls (docs/findings.md, D70).  Both fail
+// today and are marked so until the open questions there are settled:
+// the frame's first word comes from the frame before on Э3's board (the
+// top border's last line keeps D70 off, logic, not a race), and the
+// model's К555 chips lose 640 x 200's left edge where the boards' КР1533
+// win it - unless C70 is fitted.
+TEST_CASE("video: Э3's board draws 320 x 200 as the emulator" * doctest::may_fail())
+{
+    picture_as_emulator("vid320.rom", 420, true);
+}
+
+TEST_CASE("video: Э3's board draws 640 x 200 as the emulator" * doctest::may_fail())
+{
+    picture_as_emulator("vid640.rom", 420, true);
 }
 
 // The interrupts the machine's software leaves alone: C2's transmitter and
