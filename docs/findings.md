@@ -482,6 +482,29 @@ samples (`vid640`) and 11 (`vid320`) that Э3's board differs by from
 the emulator even when the left edge's race is won are these, the first
 word of the first line.
 
+**Point 0 and `ДПСЛ`** (`vid640`, typical delays, edges= with ТС15,
+`ДПСЛ` and the video output; ticks from the clock fall that loads the
+line's first word on the owner's board).  `БОРДС L` gates the points
+too: `ДПСЛ` = D85.2 = AND(~D49.10, `БОРДС L`, `БОРДК L`) goes through
+D39 (ЛП5) to the video output, no register between.  D21 raises
+`БОРДС L` with D30's step at the end of the load pulse, so the gate
+opens while point 0 is already out.  On the owner's board (D70 always
+on) point 0 is out from +1 to +9, the gate opens at +6 without C70: 3
+ticks of its 8 seen (~25 of 67 ns); with C70 (+3 ticks of rise) it
+opens at +9 and point 0 is not seen at all.  On Э3's board the gate
+opens on the held word's point 0, D70's first fall reloads it, and point
+0 shows ~11 ticks (~1.4 points) before points 1..14 come one point late
+and point 15 is lost.  So no board as drawn shows point 0 whole, C70 or
+not; with D70 always on C70 hides it outright - which is what biting C70
+off on the owner's board mends.  The bench never saw it: it samples a
+point once, at ТС15 H rising, late in the point, and the emulator draws
+point 0 whole.  Read this way the owner's two changes are one repair of
+the left edge - D70 always on for the shift, C70 off for the point the
+first change leaves dark - and a one-point fault in the first 16
+columns of 640 x 200 is small enough to have gone unseen on the serial
+boards: whether they showed it is for the photos of working machines
+([evidence/d70-left-edge](evidence/d70-left-edge/README.md)).
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the

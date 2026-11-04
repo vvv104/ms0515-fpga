@@ -65,6 +65,16 @@ the same in ns from the data sheets):
   point's shift.
 - At the right edge D70 going off (`БОРДС L` falls fast, no RC) is
   nearly level with a clock fall too (~82 ns against ~85).
+- `БОРДС L` also gates the points: `ДПСЛ` = D85.2 = AND(~D49.10,
+  `БОРДС L`, `БОРДК L`) goes through D39 to the video output with no
+  register between.  `БОРДС L` rises with D30's step, so the gate opens
+  while point 0 is already out.  With D70 always on (the owner's board),
+  ~25 ns of point 0's 67 are seen without C70, none with C70.  On the
+  board as drawn the gate opens on the held word's point 0, D70's first
+  clock reloads it, and point 0 shows ~1.4 points wide before the rest
+  of the word comes one point late.  No board as drawn shows point 0
+  whole.  The model's pictures missed this: they take a point once, late
+  in it.
 
 ## 3. What was tried
 
@@ -90,6 +100,12 @@ the same in ns from the data sheets):
   ~20 ns or less; from R39, C70, the wiring, the four LS inputs'
   currents and the threshold that rise takes 18..46 ns, ~29 typical.  A
   board with every link at the fast end of its spread.
+- The owner's two changes read as one repair of the left edge: D70
+  always on removes the shift but, with C70, leaves point 0 dark; C70
+  bitten off brings part of it back.  A one-point fault in the first 16
+  columns of 640 x 200 is small enough to have gone unseen on serial
+  boards - so the premise below may not hold, and the photos asked for
+  decide it.
 
 ## 4. Where it stands, what is open
 

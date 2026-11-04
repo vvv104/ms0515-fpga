@@ -34,7 +34,8 @@
 // (~D14.3), the strobes ВК2..ВК5, СТРОБ, ЧТ ВЗУ, ССИ, РАЗР; then, in hex,
 // the attribute registers' outputs (D56 QA..QD = СН КР ЗЛ СНФ the low
 // nibble, D55 QA..QD = КРФ ЗЛФ ИНТ БЛНК the high) and the video data's
-// high byte ДВ08..15 that they load.
+// high byte ДВ08..15 that they load; last the dot clock ТС15 H, the gated
+// point ДПСЛ H and the video output nibble as the frames take it.
 //
 // A frame is the lines between two frame syncs (КСИ L), a line the samples
 // at each ТС15 H rise from the line sync (ССИ L): the blue, red and green
@@ -384,21 +385,23 @@ public:
         const unsigned dv = (m.n_DV08_H & 1u) | (m.n_DV09_H & 1u) << 1 | (m.n_DV10_H & 1u) << 2 |
                             (m.n_DV11_H & 1u) << 3 | (m.n_DV12_H & 1u) << 4 | (m.n_DV13_H & 1u) << 5 |
                             (m.n_DV14_H & 1u) << 6 | (m.n_DV15_H & 1u) << 7;
-        const unsigned all = now | attr << 11 | dv << 19;
+        const unsigned out = (m.n_TS15_H & 1u) | (m.n_DPSL_H & 1u) << 1 | (m.n_SC_H & 1u) << 2 |
+                             (m.n_KC_H & 1u) << 3 | (m.n_ZC_H & 1u) << 4 | (m.nx_D69_9 & 1u) << 5;
+        const std::uint64_t all = now | attr << 11 | dv << 19 | static_cast<std::uint64_t>(out) << 27;
         if (all == was_) return;
         if (!header_) {
-            std::printf("edges: tick  БОРДС БОРДК D14.3 ВК2 ВК3 ВК4 ВК5 СТРОБ ЧТВЗУ ССИ РАЗР D55:D56 ДВ08..15\n");
+            std::printf("edges: tick  БОРДС БОРДК D14.3 ВК2 ВК3 ВК4 ВК5 СТРОБ ЧТВЗУ ССИ РАЗР D55:D56 ДВ08..15 ТС15 ДПСЛ V\n");
             header_ = true;
         }
         std::printf("edges: %llu", static_cast<unsigned long long>(t));
         for (int i = 0; i < 11; ++i) std::printf(" %u", now >> i & 1u);
-        std::printf(" %02x %02x\n", attr, dv);
+        std::printf(" %02x %02x %u %u %x\n", attr, dv, out & 1u, out >> 1 & 1u, out >> 2);
         was_ = all;
     }
 
 private:
     std::uint64_t from_, to_;
-    unsigned was_ = ~0u;
+    std::uint64_t was_ = ~std::uint64_t{0};
     bool header_ = false;
 };
 
