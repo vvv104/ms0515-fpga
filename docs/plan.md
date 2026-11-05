@@ -240,6 +240,18 @@ to any one board.  From stage 6 on there are two projects:
        bench watching the connector's pins: the С2 USART (XP5, with a
        loop back), the МС 7007 PPI (XP3, XP8), the ВИ53's sound, the
        memory dispatcher's banks over all 128 KB, the video modes.
+       **Done, otherwise than planned** (2026-11-03, commits 61f225c,
+       50280ea, 555cf64, 99c7002, 421012f, 672aaf9): not from a boot
+       disk but as test ROMs (`firmware/tests/*.mac`, `tools/test_roms.py`)
+       run from reset in place of the machine's ROM, the bench on the
+       connector each leads to, what the program saw read off its RAM
+       (`sim/board/test_parts.cpp`): С2 through a loop-back plug on XP5,
+       the МС 7007 port through a plug from XP3 to XP8, the speaker's
+       node on XP7 from the timer and from the control bit, the
+       dispatcher's banks over the whole 128 KB, the picture in 320 x
+       200 and 640 x 200 against the emulator's, and the interrupts of
+       С2 and of the МС 7007's key at their vectors.  They pass at typ,
+       min and max (`docs/baseline.md`, steps 4 and 5).
    8c. **Footprints and parts.**  Every part of ПЭ3 with a footprint: the
        DIPs and their sockets, the passives, crystals, DT1/DT2, the
        connectors - imported ones where their mates allow (the cables to

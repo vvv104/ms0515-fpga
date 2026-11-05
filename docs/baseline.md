@@ -176,9 +176,15 @@ The owner's board first (`docs/plan.md` 8d).
   vvv104`: 0 differences from the netlist; `pcb.py check` (Э3's board,
   placed the same way): 0.  The two boards' placements compared part by
   part: none differs.
+- The placed board through KiCad's DRC before any wire (`kicad-cli pcb
+  drc --severity-all`, `build/drc/vvv104-placed.json`): no error; 59
+  warnings, all the silkscreen's (55 overlaps, 2 clipped by the board's
+  edge at XS2, 2 over copper); 499 unconnected items, there being no
+  wires.  So the placement brings no clearance or courtyard fault into
+  the routing.
 - `tools/route.py vvv104 start`, `run 2 5`: from the empty board, 1258
-  connections; after the first chunk 382 unrouted, 0 violations
-  (`build/route-vvv104/progress.txt`).  **Running.**
+  connections; 382 unrouted after the first chunk, 238 after the second,
+  0 violations (`build/route-vvv104/progress.txt`).  **Running.**
 - To do: `finish`, `pcb.py check vvv104`, DRC; then Э3's board from it.
 
 ## Open after this walk
@@ -188,6 +194,31 @@ The owner's board first (`docs/plan.md` 8d).
    description says a few long ones (step 6).
 3. The cursor's 8 samples in the self-test's frames at typ (step 6) -
    taken for the blink's phase, not shown.
-4. The post-fit netlist on the bench (step 7, plan 7d).
-5. The printed board's routing, DRC, and Э3's board from it (step 8).
+4. The post-fit netlist on the bench (step 7, plan 7d).  Looked at for
+   what it takes, not begun: Quartus's Cyclone V simulation models are
+   open for the flip-flops, logic cells, RAM blocks and MLABs and
+   encrypted for the PLLs, the clock network and more
+   (`quartus/eda/sim_lib/cyclonev_atoms.v`), so only the machine alone,
+   without `sys/`, could be run - and whether Verilator takes those
+   models is not tried.
+5. The printed board's routing, DRC, the silkscreen's warnings, and
+   Э3's board from it (step 8).
 6. Э3's board, stage 6b - paused.
+
+## Said from memory before this walk, and wrong
+
+Kept as the reason for the rule "a state only from the files":
+
+- "Waiting for Frolov's answer": nobody asked him anything; he is the
+  author of the 2009 museum photos.  The question of
+  `docs/evidence/d70-left-edge` is asked of the owners of working
+  machines, on the forum, and has no answer.
+- "Stage 8b not begun": done on 2026-11-03 as test ROMs (`docs/plan.md`
+  8b now says so).
+- "At the min corner the screen is clean" (plan 7b) read as covering the
+  picture tests: it was of ROM-B's screens, before those tests were.
+- The comparison outputs (`netlist/copper.json`, `compare.txt`, ...)
+  "kept in the repository": they are in `.gitignore`.
+- The first boot runs of this walk, launched without `keyboard` from a
+  command remembered, not written anywhere: two hours of the ROM's
+  self-test.  The command is in `docs/map.md` now.
