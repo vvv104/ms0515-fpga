@@ -757,3 +757,22 @@ the copper so far:
   only `ТС15 L` is made);
 - `СГИ L`/`КГИ L` on D14.9/D14.10: Э3 joins them with a dotted wire and
   the copper joins the two pins; Mick keeps them apart.
+
+The rest of the 20 lines, read on Э3 at full resolution on 2026-11-05
+(the baseline's walk, `docs/baseline.md`; the crops:
+[evidence/mick-differences](evidence/mick-differences/)) - all four
+`nets.csv`'s, so none of the 20 is open:
+
+- `ЗАП РЕГ H` at D79.3: Э3 sheet 2 prints «ЗАПРЕГ Н (Л2)» on the output
+  of D79.1, the name the clocks of D78 and D97 carry; Mick's label there
+  reads `L`, which leaves his registers without a clock;
+- `ЗАДЕРЖ L`: Э3 prints «ЗАДЕРЖ L (Л3)» at D83.26 on sheet 2 and
+  «ЗАДЕРЖ L (Л2)» at D98.9 on sheet 3 - one net by its name, as the
+  cross-references say; in Mick's PDF the two pins come out on two nets
+  with no name read (his label, or the reader's miss - not looked into:
+  Э3 is plain);
+- `РВК1 H` at E3.1: Э3 sheet 4 draws E3 from «РВК1 Н (Л4)» and E4 from
+  «РВК0 Н (Л4)» to one ground sign; Mick has E3.1 on `АД05 H`;
+- `ЗЦ H` at D81.10: the other input of the gate whose pin 9 is settled
+  above (D81.9 on the D69.9 wire, by the copper); Mick has the two
+  inputs of that one gate the other way round, which is the same gate.

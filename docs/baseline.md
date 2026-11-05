@@ -13,7 +13,7 @@ Steps marked *running* or *to do* have no result yet.
 | Step | State |
 |---|---|
 | 1. The netlist is consistent | pass, after a fix (below) |
-| 2. The netlist is the copper | reproduces; 4 of Mick's differences not written up |
+| 2. The netlist is the copper | pass: reproduces; Mick's last four differences read on Э3 |
 | 3. The generated files are current | pass |
 | 4. Chips and board, typical delays | pass, 72 of 72 |
 | 5. The corners | **fail**: min 2 tests, max 2 tests (below) |
@@ -56,13 +56,12 @@ the repository, so the check is their counts against `docs/findings.md`:
   findings say.
 - `compare_mick.py`: 1331 signal pins in both readings, 1042 under the
   same name, **20 disagreements** - the findings' figures exactly.
-- **Not written up**: the findings settle D70.5, `ИМП ЧТ Н`, D62/D67,
-  D84.12/13, D7.14, D81.9, `ТС45 L`, `СГИ L`/`КГИ L` and say "so far".
-  Four places of the 20 lines are named nowhere in `docs/`: `ЗАДЕРЖ L`
-  (D83.26 and D98.9 on two unnamed nets of Mick's), `ЗАП РЕГ H` (D79.3
-  on Mick's `ЗАПРЕГ L`), `РВК1 H` (E3.1 on Mick's `АД05 H`), `ЗЦ H`
-  (D81.10 on Mick's `ИЦ H`).  **Open: each read on Э3 at full
-  resolution and written into the findings.**
+- **Found**: four places of the 20 lines were written up nowhere in
+  `docs/` (the findings said "settled so far"): `ЗАДЕРЖ L` (D83.26,
+  D98.9), `ЗАП РЕГ H` (D79.3), `РВК1 H` (E3.1), `ЗЦ H` (D81.10).
+- **Closed**: each read on Э3 at full resolution - all four are as
+  `nets.csv` has them; written into the findings with the crops in
+  `docs/evidence/mick-differences`.  None of the 20 is open.
 
 ## 3. The generated files are current
 
@@ -144,8 +143,6 @@ not routed (not committed); the routing begins from the empty board
 
 ## Open after this walk
 
-0. Four of Mick's differences not written up (step 2) - the earliest
-   in the chain.
 1. The min corner's picture (step 5).
 2. `test_machine` at the corners; the sound test's threshold at max.
 3. Э3's board, stage 6b - paused.
