@@ -13,7 +13,7 @@ Steps marked *running* or *to do* have no result yet.
 | Step | State |
 |---|---|
 | 1. The netlist is consistent | pass, after a fix (below) |
-| 2. The netlist is the copper | running |
+| 2. The netlist is the copper | reproduces; 4 of Mick's differences not written up |
 | 3. The generated files are current | pass |
 | 4. Chips and board, typical delays | pass, 72 of 72 |
 | 5. The corners | **fail**: min 2 tests, max 2 tests (below) |
@@ -44,10 +44,25 @@ discover -s tools/tests` with `$KICAD_CLI` set.
 
 `tools/copper.py`, `footprints.py`, `mick_pdf.py`, `compare.py`,
 `compare_mick.py`, `register.py`, `verify_traces.py` made again from
-`$MS0515_DATA`; the committed `netlist/copper.json`, `mick.csv`,
-`compare*.txt`, `registration.json`, `verify*` must come out the same.
+`$MS0515_DATA` (logs `build/step2-*.log`).  Their outputs are not kept in
+the repository, so the check is their counts against `docs/findings.md`:
 
-*Running.*
+- copper: 3362 pads, 503 copper nets; footprints: 99 DIPs among the pads;
+  the scans fitted to the traces at 2.0-2.1 px rms.
+- `compare.py`: 1744 pins on pads, 0 placement problems; **8 joins** of
+  the traces that Э3 keeps apart - the eight of the findings' table
+  ("The copper against the schematic"), all closed there for Э3
+  (2026-11-03); **171** schematic nets in pieces on the traces, as the
+  findings say.
+- `compare_mick.py`: 1331 signal pins in both readings, 1042 under the
+  same name, **20 disagreements** - the findings' figures exactly.
+- **Not written up**: the findings settle D70.5, `ИМП ЧТ Н`, D62/D67,
+  D84.12/13, D7.14, D81.9, `ТС45 L`, `СГИ L`/`КГИ L` and say "so far".
+  Four places of the 20 lines are named nowhere in `docs/`: `ЗАДЕРЖ L`
+  (D83.26 and D98.9 on two unnamed nets of Mick's), `ЗАП РЕГ H` (D79.3
+  on Mick's `ЗАПРЕГ L`), `РВК1 H` (E3.1 on Mick's `АД05 H`), `ЗЦ H`
+  (D81.10 on Mick's `ИЦ H`).  **Open: each read on Э3 at full
+  resolution and written into the findings.**
 
 ## 3. The generated files are current
 
@@ -129,6 +144,8 @@ not routed (not committed); the routing begins from the empty board
 
 ## Open after this walk
 
+0. Four of Mick's differences not written up (step 2) - the earliest
+   in the chain.
 1. The min corner's picture (step 5).
 2. `test_machine` at the corners; the sound test's threshold at max.
 3. Э3's board, stage 6b - paused.

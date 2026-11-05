@@ -73,15 +73,23 @@ again in memory and fails if the committed one differs.
 | `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py` | `netlist/` + `placement.csv` + footprints | `... pcb.py check`: every pad's net against the netlist |
 | `kicad/ns4.kicad_pcb` (routing) | `tools/route.py start / run / finish` (Freerouting) | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
 | `kicad/ns4-vvv104.kicad_pcb` | `tools/pcb.py derive vvv104` + `route.py vvv104` | the routed `ns4` + `vvv104.csv` | `pcb.py check vvv104` |
+
+## The comparison files (made by a command, not kept)
+
+How `nets.csv` was checked against the copper and against Mick's
+independent reading.  They are in `.gitignore`: made again from
+`$MS0515_DATA` whenever wanted, and what they say is kept in words in
+`docs/findings.md`.  They go nowhere further down the chain: a
+difference found there is settled by hand in `nets.csv` (or
+`deviations.csv`) with its reasoning in the findings.
+
+| File | Made by | From | Use |
+|---|---|---|---|
 | `netlist/copper.json` | `python tools/copper.py` | Mick's / Radon17's layer traces (`$MS0515_DATA`) | for comparison only |
 | `netlist/registration.json`, `verify.json`, `verify-*.png` | `tools/register.py`, `tools/verify_traces.py` | the bare-board scans | for comparison only |
 | `netlist/footprints.json` | `tools/footprints.py` | `copper.json` | for comparison only |
 | `netlist/mick.csv` | `tools/mick_pdf.py` | Mick's PDF of Э3 | for comparison only |
 | `netlist/compare.txt`, `compare-mick.txt` | `tools/compare.py`, `tools/compare_mick.py` | `nets.csv` against the copper / Mick | the read-out's cross-check |
-
-The comparison files go nowhere further: they are how `nets.csv` was
-checked; a difference found there is settled by hand in `nets.csv` (or
-`deviations.csv`) with its reasoning in `docs/findings.md`.
 
 Not in the repository, made in `build/`: the Verilator models and test
 executables, the corner boards (`build/min`, `build/max`), the Quartus
@@ -125,7 +133,8 @@ proves is said with it.
 2. **The netlist is the copper** (needs `$MS0515_DATA`): `copper.py`,
    `compare.py`, `mick_pdf.py`, `compare_mick.py`, `verify_traces.py` -
    the read-out against the board's traces and Mick's independent
-   reading; every difference has its line in `docs/findings.md`.
+   reading; the counts they print are those `docs/findings.md` records,
+   and every difference has its line there.
 3. **The generated files are current**: `board.py check`,
    `ms7004_keys.py check`, `test_roms.py check`, `kicad.py check`,
    `bom.py check`.
