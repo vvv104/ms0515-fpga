@@ -59,6 +59,20 @@ class Wiring(unittest.TestCase):
         self.assertIn('(wire (path F.Cu 250 160343 -24147 187773 -25342)(net "~D94.1")(type route))', out)
         self.assertNotIn("1 -2  3 -4", out)          # the design's own wires are gone
 
+    def test_a_variant_drops_the_nets_its_pins_left(self):
+        out = route.session_wiring(SESSION, DESIGN, drop=["ВБ1 H"])
+        self.assertNotIn('"ВБ1 H")(type', out)
+        self.assertIn('(net "~D94.1")(type route))', out)
+
+    def test_a_variant_has_its_own_files(self):
+        try:
+            route.configure("rev3a")
+            self.assertTrue(route.BOARD.endswith(os.path.join("kicad", "ns4-rev3a.kicad_pcb")))
+            self.assertTrue(route.STATE.endswith(os.path.join("build", "route-rev3a", "state.dsn")))
+        finally:
+            route.configure()
+        self.assertTrue(route.STATE.endswith(os.path.join("build", "route", "state.dsn")))
+
     def test_a_session_in_other_units_is_refused(self):
         with self.assertRaises(SystemExit):
             route.session_wiring(SESSION.replace("(resolution um 10)", "(resolution mil 10)"), DESIGN)

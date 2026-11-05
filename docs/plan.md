@@ -222,7 +222,16 @@ Three places need care:
        options (SA1, E3/E4) fitted as jumpers, set for 3.858.420 (the
        МС 7004 on XS2, ROM-B, as the owner's machine).
    8d. **Layout.**  Placement by blocks, the decoupling of ПЭ3, routed by
-       Freerouting, DRC to a common fab's rules.
+       Freerouting, DRC to a common fab's rules.  Two boards, one
+       placement (owner, 2026-11-05): `ns4` is Э3 as drawn - the one that
+       still needs work, its 640 x 200 left edge open (`docs/findings.md`)
+       - and `ns4-rev3a` the owner's board as it worked, with
+       `netlist/rev3a.csv`'s change (D70.15 on GND), the conditionally
+       working one.  No jumper chooses between them: on Э3 a jumper is a
+       mode of the machine, not a repair.  The variant is made from Э3's
+       routed board (`tools/pcb.py derive rev3a`) and only the nets its
+       pins left are routed again (`tools/route.py rev3a ...`).  The
+       routing runs in chunks that survive a stop (`tools/route.py`).
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.

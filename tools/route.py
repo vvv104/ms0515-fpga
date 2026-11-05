@@ -6,6 +6,12 @@ Run with KiCad's own Python, which has pcbnew:
     <KiCad>/bin/python tools/route.py start
     <KiCad>/bin/python tools/route.py run [passes per chunk] [chunks without gain]
     <KiCad>/bin/python tools/route.py finish
+    <KiCad>/bin/python tools/route.py rev3a start|run|finish
+
+The last routes kicad/ns4-rev3a.kicad_pcb (`tools/pcb.py derive rev3a`) in
+build/route-rev3a: its `start` takes Э3's board's routing (build/route's
+state.ses) without the nets netlist/rev3a.csv's pins left, so `run` routes
+only those.
 
 The routing is long (a night and more) and is made to survive being
 stopped.  `start` exports the placed board as a Specctra design with its
@@ -35,15 +41,31 @@ import re
 import subprocess
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BOARD = os.path.join(ROOT, "kicad", "ns4.kicad_pcb")
-WORK = os.path.join(ROOT, "build", "route")
-STATE = os.path.join(WORK, "state.dsn")
-NEXT = os.path.join(WORK, "state.next.dsn")
-SESSION = os.path.join(WORK, "state.ses")
-NEXT_SES = os.path.join(WORK, "state.next.ses")
-LOG = os.path.join(WORK, "freerouting.log")
-PROGRESS = os.path.join(WORK, "progress.txt")
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import netlist as nl  # noqa: E402
+
+BASE_SESSION = os.path.join(ROOT, "build", "route", "state.ses")   # Э3's board's
+
+
+def configure(variant=None):
+    """The board routed and its work files: Э3's in build/route, a
+    variant's (tools/pcb.py derive) in build/route-<variant>."""
+    global VARIANT, BOARD, WORK, STATE, NEXT, SESSION, NEXT_SES, LOG, PROGRESS
+    VARIANT = variant
+    name = f"ns4-{variant}" if variant else "ns4"
+    BOARD = os.path.join(ROOT, "kicad", f"{name}.kicad_pcb")
+    WORK = os.path.join(ROOT, "build", f"route-{variant}" if variant else "route")
+    STATE = os.path.join(WORK, "state.dsn")
+    NEXT = os.path.join(WORK, "state.next.dsn")
+    SESSION = os.path.join(WORK, "state.ses")
+    NEXT_SES = os.path.join(WORK, "state.next.ses")
+    LOG = os.path.join(WORK, "freerouting.log")
+    PROGRESS = os.path.join(WORK, "progress.txt")
+
+
+configure()
 
 PASS_DONE = re.compile(r"\((\d+) unrouted and (\d+) violations\)")
 
@@ -112,8 +134,9 @@ def quoted(name):
     return '"' + name.replace('"', '\\"') + '"'
 
 
-def session_wiring(ses_text, design_text):
-    """The design with the session's wires and vias as its wiring.
+def session_wiring(ses_text, design_text, drop=()):
+    """The design with the session's wires and vias as its wiring, but
+    those of the nets in `drop`.
 
     A session counts in its resolution's steps (0.1 um here), the design
     in its unit (um); the session's routes are scaled across."""
@@ -131,6 +154,8 @@ def session_wiring(ses_text, design_text):
         return text.rstrip("0").rstrip(".") if places else text
     lines = ["(wiring"]
     for net in child(routes, "network_out")[1:]:
+        if net[1] in drop:
+            continue
         name = quoted(net[1])
         for item in net[2:]:
             if item[0] == "wire":
@@ -169,11 +194,20 @@ def start():
         raise SystemExit("the Specctra export failed")
     with open(exported, encoding="utf-8") as src:
         design = without_wiring(src.read())
+    told = "the placed board, no wires"
+    if VARIANT:                 # Э3's routing, but the nets the variant's pins left
+        if not os.path.exists(BASE_SESSION):
+            raise SystemExit(f"no {BASE_SESSION}: route Э3's board first")
+        left = sorted({ch.from_net for ch in
+                       nl.load_changes(os.path.join(ROOT, "netlist", f"{VARIANT}.csv"))})
+        with open(BASE_SESSION, encoding="utf-8") as ses:
+            design = session_wiring(ses.read(), design, drop=left)
+        told = f"Э3's routing without {', '.join(left)}"
     put_aside(STATE)
     put_aside(SESSION)
     with open(STATE, "w", encoding="utf-8") as dst:
         dst.write(design)
-    print(f"{STATE}: the placed board, no wires; `run` routes it")
+    print(f"{STATE}: {told}; `run` routes it")
     return 0
 
 
@@ -219,7 +253,7 @@ def finish():
     ses = SESSION
     board = pcbnew.LoadBoard(BOARD)
     for track in list(board.GetTracks()):
-        board.Remove(track)
+        board.Delete(track)     # Remove leaves pcbnew's object to Python, which crashed
     if not pcbnew.ImportSpecctraSES(board, ses):
         raise SystemExit("the session's import failed")
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
@@ -231,6 +265,9 @@ def finish():
 
 
 def main(argv):
+    if len(argv) > 2 and argv[2] in ("start", "run", "finish"):
+        configure(argv[1])
+        argv = argv[1:]
     if len(argv) < 2 or argv[1] not in ("start", "run", "finish"):
         raise SystemExit(__doc__)
     if argv[1] == "start":
