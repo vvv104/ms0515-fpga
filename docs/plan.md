@@ -62,9 +62,16 @@ Three places need care:
    ОСА with the RAM disk, floppy writes, Rodionov's system on ROM-A - frame
    by frame against the emulator.  A wrong candidate breaks something; if
    none does, the place does not matter to the machine and is marked so.
-   No candidate open: the bare wire on the owner's board (GND to
-   the lifted D70.15) is settled into `vvv104.csv`; the factory wires all
-   match Э3.
+   The factory wires all match Э3; the bare wire on the owner's board (GND
+   to the lifted D70.15) is in `vvv104.csv`.
+   **Open, and the stopper** (owner, 2026-11-05): Э3's board as drawn does
+   not draw the picture the emulator does - 640 x 200's left edge, the
+   frame's first word (`docs/findings.md`, D70; the two `video: Э3's
+   board ...` tests marked may_fail) - while the serial machines did.
+   Until it is settled, by the model found wrong or by Э3 found wrong,
+   every stage after this one (7 and 8) stands at its start: what was
+   done there is groundwork, kept, to be checked again on the settled
+   board rather than counted done.
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
@@ -74,7 +81,9 @@ Three places need care:
    platform the retro cores live on, whose framework (`sys/` of
    Template_MiSTer) gives the HDMI scaler, USB keyboards, disk images
    from the SD card and the menu.  The core is built with Quartus Prime
-   Lite 17.0.2, as MiSTer's cores are.  Whoever buys the board gets a
+   Lite 17.0.2, as MiSTer's cores are.  **At its start until 6b is
+   settled**: the "Groundwork" below is work on the board as it stood.
+   Whoever buys the board gets a
    core already checked; everything up to 7e runs without one.
    7a. **Synthesis.**  `ns4.sv` alone through Quartus for the 5CSEBA6:
        what does not synthesise, the resources (the delay lines' flops,
@@ -82,7 +91,7 @@ Three places need care:
        the chains of fast gates that go straight through, with no
        register, are the risk.  Should it not close: a lower master clock
        or more registered lines, and the board re-checked on the model.
-       **Done** (`boards/de10nano/synth.tcl`): 14 % of the ALMs, 19 % of
+       **Groundwork** (`boards/de10nano/synth.tcl`): 14 % of the ALMs, 19 % of
        the block memory, 120 MHz met in every timing model (Fmax 125-130
        MHz).  It took the delay lines' "held for the delay" registered a
        tick ahead, the LSI chips' read data a tick after the strobe
@@ -99,7 +108,7 @@ Three places need care:
        minimum and at its maximum delay, and from random power-up states
        under load (Omega and ОСА to their prompts) - a board that runs
        only on lucky delays would not on the FPGA.
-       **So far** (`docs/timing.md`, "Corners"): both corners pass every
+       **Groundwork**, the owner's board only (`docs/timing.md`, "Corners"): both corners pass every
        test; Omega and ОСА reach their prompts in both.  At the min
        corner the screen is clean.  At the max corner some frames show
        spoiled letters, one frame each, a different place each time.
@@ -116,14 +125,14 @@ Three places need care:
        power-on); at typ one request lost in each 25 s run (seed 2's at
        0 s, in the power-up state; the others' moment is not kept), at max about 5300 a second while the disk is
        read and the screen scrolls (ОСА: 108 013 in 17 s) - the same
-       margin, the screens' letters spoiled where it bites.  Done.
+       margin, the screens' letters spoiled where it bites.
    7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
        logic: the МС 5305's MFM stream for the ВГ93 from a disk image
        (MiSTer's SD block interface), the МС 7004's line from MiSTer's
        keyboard (its scan codes to LK201 codes), the video DAC's levels
        to MiSTer's video interface (15 kHz, the scaler does HDMI); each
        tested on the model against the C++ part it replaces.
-       **So far** (`rtl/parts/`): the video - `ns4_video.sv` puts the
+       **Groundwork** (`rtl/parts/`): the video - `ns4_video.sv` puts the
        board's lines out a line late, a pixel enable per sample, so that
        the frame's blanking, on one wire with the line's on the board, is
        told apart; from power-on every pixel matches the camera's sample.
@@ -157,7 +166,7 @@ Three places need care:
        the vvv104 changes and the undecided places as switches.  Built,
        timing closed; the post-fit netlist run on the bench against the
        emulator as the RTL is.
-       **So far**: the machine for the core (`rtl/ms0515.sv`, the board
+       **Groundwork**: the machine for the core (`rtl/ms0515.sv`, the board
        as `rtl/board/ns4_machine.sv` with only the ports it uses) holds
        tick for tick to the bench's board (`test_machine`); the core
        builds (`boards/de10nano/core.tcl`, an .rbf) and meets timing in
@@ -206,8 +215,12 @@ Three places need care:
    the model runs on: a new layout (four layers: signals, ground, +5 V,
    signals), not the 1991 one - its inner layers are not on any scan, and
    only the connections have to be the same.  KiCad 10 (`kicad-cli`),
-   Freerouting for the routing.
-   8a. **The copper's questions closed.**  Done: every join of the traces
+   Freerouting for the routing.  **At its start until 6b is settled**:
+   what is below is groundwork; the routing was stopped and begins again
+   from the empty board once 6b is (its run carried onto a board placed
+   again kept 12 clearance violations, so no routing is carried across a
+   change of placement).
+   8a. **The copper's questions closed.**  Groundwork: every join of the traces
        against Э3 is two outputs on a wire, Э3 right (`docs/findings.md`).
    8b. **What the software so far never touched**, run on the model with
        a test program from a boot disk, the emulator in lockstep and the
