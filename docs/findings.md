@@ -587,7 +587,15 @@ Looking for a misreading before blaming the boards:
 TI prints the ALS parts' maximums only (SN74ALS161B SDAS276A p.8: CLK to
 any Q 15/20 ns; SN74ALS00A SDAS187A p.3: 11/8 ns, both at 50 pF), so the
 typical values below - 8 ns for the counters, 5 for the gate - are an
-estimate, not a datasheet's.  With them on D30, D42, D37 and D14 (Э3's
+estimate, not a datasheet's.  Looked for again (2026-11-05), no typical
+for the counter turned up anywhere: Philips' 74ALS161B (IC05, 1991 Feb
+08, p.8) gives CP to Qn 4.0/6.0 ns min and 13.0/16.0 ns max (tPLH/tPHL,
+50 pF, 0..70 C) and only a typical count rate, 140 MHz; the КР1533ИЕ10
+sheet («Электроника и Связь», eandc.ru) gives pin 2 (C) to pins 11..14
+at most 17 ns switching on and 15 ns switching off, maximums only, as
+the КР1533ЛА3's 8 and 12 ns.  The one typical printed is the gate's:
+Philips' 74ALS00A, 4.0 ns (its maximums 11/8 ns).  The estimate stands
+between those bounds; nothing confirms or refutes it.  With them on D30, D42, D37 and D14 (Э3's
 board, typical delays otherwise, samples differing from the emulator):
 
 | `БОРДС L` rise added (ticks) | D21, ns | 640 x 200 | 320 x 200 |
