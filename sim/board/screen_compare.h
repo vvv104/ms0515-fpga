@@ -8,6 +8,17 @@
 // line and two a 320-mode point.  Where the active area sits in the frame
 // is searched for, not assumed.  Flashing cells match either phase (the
 // two count their own frames); a black point's brightness is not compared.
+//
+// `slack` 1 holds a sample to the picture within one sample: its point and
+// its attribute each taken there or one sample to the left or right (beyond
+// the area's ends the border stands).  The frame is sampled at the rises
+// of ТС15 H, and the board's outputs do not change together: the
+// attributes and the border's edges come some ticks before the points
+// (docs/timing.md, "Corners").  At the typical delays the sampling tick
+// has all of them on one side; at a corner it may fall between them, and
+// an edge then shows a sample early or late - on a monitor, some tens of
+// nanoseconds.  So a board at a corner is held to the picture within one
+// sample, the typical one to the sample.
 #pragma once
 
 #include <cstdint>
@@ -27,37 +38,54 @@ inline int norm(int s)
     return (s & 7) == 0 ? 0 : s;    // black has no brightness to see
 }
 
-// the expected sample(s) at point x (0..639), line y: two when it flashes
-inline void expect(const std::uint8_t* vram, bool hires, int border, int x, int y, int& a, int& b)
+// the expected sample(s) with the point of sample xp and the attribute of
+// sample xa (0..639), line y: two when it flashes
+inline void expect(const std::uint8_t* vram, bool hires, int border, int xp, int xa, int y, int& a, int& b)
 {
     const std::uint8_t* row = vram + y * 80;
     if (hires) {
-        const int w = x / 16, p = x % 16;
+        const int w = xp / 16, p = xp % 16;
         const std::uint8_t byte = p < 8 ? row[w * 2] : row[w * 2 + 1];
         const bool lit = ((byte >> (7 - (p % 8))) & 1) != 0;
         a = b = norm((lit ? (~border & 7) : (border & 7)) | 8);
         return;
     }
-    const int px = x / 2, w = px / 8, p = px % 8;
-    const std::uint8_t pix = row[w * 2], attr = row[w * 2 + 1];
+    const int px = xp / 2, p = px % 8;
+    const std::uint8_t pix = row[px / 8 * 2], attr = row[xa / 16 * 2 + 1];
     const bool lit = ((pix >> (7 - p)) & 1) != 0;
     const int bright = (attr >> 6) & 1, fg = attr & 7, bg = (attr >> 3) & 7;
     a = norm((lit ? fg : bg) | bright << 3);
     b = (attr & 0x80) ? norm((lit ? bg : fg) | bright << 3) : a;
 }
 
+// is sample s the picture's with its point taken at xp and its attribute at
+// xa?  A point beyond the line's ends is the border: its colour, whatever
+// the brightness; an attribute beyond them is the end word's.
+inline bool fits(const std::uint8_t* vram, bool hires, int border, int xp, int xa, int y, int s)
+{
+    if (xp < 0 || xp >= 640)
+        return (s & 7) == (border & 7);
+    int a = 0, b = 0;
+    expect(vram, hires, border, xp, xa < 0 ? 0 : xa > 639 ? 639 : xa, y, a, b);
+    return s == a || s == b;
+}
+
 inline int count(const std::vector<std::vector<std::uint8_t>>& frame, const std::uint8_t* vram, bool hires,
-                 int border, int dx, int dy, int limit, ScreenCompare* first)
+                 int border, int dx, int dy, int limit, int slack, ScreenCompare* first)
 {
     int n = 0;
     for (int y = 0; y < 200 && n <= limit; ++y) {
         const auto& line = frame[static_cast<std::size_t>(dy + y)];
         for (int x = 0; x < 640 && n <= limit; ++x) {
-            int a = 0, b = 0;
-            expect(vram, hires, border, x, y, a, b);
             const int s = norm(line[static_cast<std::size_t>(dx + x)]);
-            if (s != a && s != b) {
+            bool right = fits(vram, hires, border, x, x, y, s);
+            for (int dp = -slack; dp <= slack && !right; ++dp)
+                for (int da = -slack; da <= slack && !right; ++da)
+                    right = fits(vram, hires, border, x + dp, x + da, y, s);
+            if (!right) {
                 if (n == 0 && first) {
+                    int a = 0, b = 0;
+                    expect(vram, hires, border, x, x, y, a, b);
                     first->first_x = x;
                     first->first_y = y;
                     first->want = a;
@@ -72,10 +100,11 @@ inline int count(const std::vector<std::vector<std::uint8_t>>& frame, const std:
 
 }  // namespace screen_detail
 
-// The best fit of the 640 x 200 area within the frame near (x0, y0).
+// The best fit of the 640 x 200 area within the frame near (x0, y0), and
+// what differs there (within `slack` samples).
 inline ScreenCompare compare_screen(const std::vector<std::vector<std::uint8_t>>& frame,
                                     const std::uint8_t* vram, bool hires, int border, int x0 = 232, int y0 = 35,
-                                    int reach = 16)
+                                    int reach = 16, int slack = 0)
 {
     ScreenCompare best;
     for (int dy = y0 - reach; dy <= y0 + reach; ++dy) {
@@ -88,7 +117,7 @@ inline ScreenCompare compare_screen(const std::vector<std::vector<std::uint8_t>>
             if (!fits)
                 continue;
             const int limit = best.differ < 0 ? 1 << 30 : best.differ;
-            const int n = screen_detail::count(frame, vram, hires, border, dx, dy, limit, nullptr);
+            const int n = screen_detail::count(frame, vram, hires, border, dx, dy, limit, 0, nullptr);
             if (best.differ < 0 || n < best.differ) {
                 best.differ = n;
                 best.dx = dx;
@@ -96,7 +125,9 @@ inline ScreenCompare compare_screen(const std::vector<std::vector<std::uint8_t>>
             }
         }
     }
+    // the area sits where the picture fits to the sample; the slack is
+    // given there only, or a sample of it would go to the area's place too
     if (best.differ > 0)
-        screen_detail::count(frame, vram, hires, border, best.dx, best.dy, 1 << 30, &best);
+        best.differ = screen_detail::count(frame, vram, hires, border, best.dx, best.dy, 1 << 30, slack, &best);
     return best;
 }

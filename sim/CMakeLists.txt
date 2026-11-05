@@ -94,9 +94,6 @@ ms0515_model(Vns4 "${MS0515_BOARD_SV}" ns4
              ARGS --savable)
 ms0515_test(test_board board/test_board.cpp Vns4 ms0515_core)
 target_compile_definitions(test_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
-if(NOT MS0515_BOARD_SV STREQUAL "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv")
-    target_compile_definitions(test_board PRIVATE MS0515_DELAY_CORNER)
-endif()
 
 # the parts the software leaves alone, worked by test ROMs (firmware/tests)
 ms0515_test(test_parts board/test_parts.cpp Vns4 ms0515_core)
@@ -128,6 +125,16 @@ ms0515_model(Vms0515 "${PROJECT_SOURCE_DIR}/rtl/ms0515.sv" ms0515
 ms0515_test(test_machine board/test_machine.cpp Vns4 Vns4_video Vms0515)
 target_compile_definitions(test_machine PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
 
+# A board built at a corner of the chips' delays (docs/timing.md): its tests
+# know it - what counts the typical delays' ticks does not apply there, and
+# what compares it with the machine (generated at the typical delays only)
+# is passed over.
+if(NOT MS0515_BOARD_SV STREQUAL "${PROJECT_SOURCE_DIR}/rtl/board/ns4.sv")
+    foreach(test test_board test_parts test_machine)
+        target_compile_definitions(${test} PRIVATE MS0515_DELAY_CORNER)
+    endforeach()
+endif()
+
 # the МС 7004 keyboard generated from its netlist (rtl/board/ms7004.sv)
 ms0515_model(Vms7004 "${PROJECT_SOURCE_DIR}/rtl/board/ms7004.sv" ms7004
              PACKAGES "${MS0515_CHIPS}/km1816ve48_pkg.sv" ARGS --public-flat-rw)
@@ -141,6 +148,8 @@ ms0515_test(test_drive board/test_drive.cpp)
 ms0515_test(test_drive_mechanics board/test_drive_mechanics.cpp)
 # the keyboard stub on XS2 (sim/board/keyboard_stub.h)
 ms0515_test(test_keyboard_stub board/test_keyboard_stub.cpp)
+# the picture's comparison with the emulator's (sim/board/screen_compare.h)
+ms0515_test(test_screen_compare board/test_screen_compare.cpp)
 # their snapshots (sim/board/snapshot.h)
 ms0515_test(test_snapshot board/test_snapshot.cpp)
 

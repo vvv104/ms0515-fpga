@@ -28,6 +28,13 @@ namespace {
 
 constexpr std::uint64_t kMasterMhz = 120;
 
+// A board built at a corner of the chips' delays (docs/timing.md).
+#ifdef MS0515_DELAY_CORNER
+constexpr bool kCorner = true;
+#else
+constexpr bool kCorner = false;
+#endif
+
 std::vector<std::uint8_t> read_rom(const std::string& name)
 {
     std::ifstream f(std::string(MS0515_FIRMWARE_DIR) + "/tests/" + name, std::ios::binary);
@@ -127,12 +134,13 @@ TEST_CASE("МС 7007 port: port A's bytes come back on ports B and C through a p
 // timer's channel 2 gated and the way open it carries the channel's square
 // wave (1 kHz from 2 MHz / 2000); with the gate off it follows the control
 // bit, inverted; with the way shut it rests high (but for D93's delay as
-// the register changes).
+// the register changes: 19 ns typical, 2 ticks; 30 ns at the most, 4 -
+// netlist/delays.csv, delays-max.csv).
 TEST_CASE("sound: the timer's tone and the control bit reach the speaker on XP7")
 {
     Bench b("sound.rom");
     std::vector<std::uint64_t> tone_rises;
-    int bit_edges = 0, node_edges = 0, quiet_lows = 0, low_run = 0;
+    int bit_edges = 0, node_edges = 0, low_run = 0, longest_low = 0;
     std::uint64_t t = 0;
     CData node_was = 1, upr_was = 0;
     b.run_ms(110, [&](Vns4& m) {
@@ -144,7 +152,7 @@ TEST_CASE("sound: the timer's tone and the control bit reach the speaker on XP7"
             node_edges += node != node_was;
         }
         low_run = !m.n_RAZR_GR_H && !node ? low_run + 1 : 0;
-        quiet_lows += low_run == 4 ? 1 : 0;     // longer than D93's gate delay
+        longest_low = low_run > longest_low ? low_run : longest_low;
         node_was = node;
         upr_was = m.n_UPR_GR_H;
     });
@@ -155,7 +163,8 @@ TEST_CASE("sound: the timer's tone and the control bit reach the speaker on XP7"
     CHECK(period_us == doctest::Approx(1000.0).epsilon(0.001));
     CHECK(bit_edges >= 19);
     CHECK(node_edges == bit_edges);
-    CHECK(quiet_lows == 0);
+    INFO("the node low with the way shut for " << longest_low << " ticks at the longest");
+    CHECK(longest_low <= (kCorner ? 4 : 3));        // D93's delay and no longer
 }
 
 // The memory dispatcher: a tag in each of the 7 banks of the main and the
@@ -193,7 +202,8 @@ std::unique_ptr<ms0515_board_t> emulator_after(const std::string& rom_name)
 // board's video DAC inputs a whole frame after the program's end mark,
 // against the emulator's picture of its own video memory, point for point.
 // `drawn`: the board as 3.858.420 Э3 draws it, D70's enable on ~D14.3, not
-// on GND as on the owner's board (netlist/vvv104.csv).
+// on GND as on the owner's board (netlist/vvv104.csv).  A board at a corner
+// of the delays is held to the picture within one sample (screen_compare.h).
 void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool drawn = false)
 {
     Bench b(rom_name);
@@ -208,7 +218,7 @@ void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool dra
     REQUIRE(frames_after >= 2);
     const auto emu = emulator_after(rom_name);
     const ScreenCompare c = compare_screen(taken, board_get_vram(emu.get()), board_is_hires(emu.get()),
-                                           board_get_border_color(emu.get()));
+                                           board_get_border_color(emu.get()), 232, 35, 16, kCorner ? 1 : 0);
     INFO("area at " << c.dx << ", " << c.dy << "; first at " << c.first_x << ", " << c.first_y << ": " << c.got
                     << ", the emulator's " << c.want);
     CHECK(c.differ == 0);

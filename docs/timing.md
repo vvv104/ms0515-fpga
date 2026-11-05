@@ -108,6 +108,36 @@ What the corners show (Omega booted to its prompt in all three):
   has taken it, so the DRAM reads cell 243:160 or 243:170 for 003:160 or
   243:160 - about one read a frame, in the blanking: nothing on the
   screen.  None at typ and min.
+- **The picture at a corner: the emulator's within one sample.**  The
+  bench takes the picture's sample at each rise of ТС15 H (the board's
+  own 15 MHz; `sim/board/frame_grab.h`), and the board's outputs to the
+  video DAC do not change together.  Measured on `vid320.rom`, 6 ms of
+  picture, the changes of СЦ, КЦ, ЗЦ H and D69.9 by the master tick after
+  the rise they fall on (`run_board ... edges=`):
+
+  | Corner | The largest group (7457 changes) | The second (1164..1241) | The rest (some 240) |
+  |---|---|---|---|
+  | min | tick 1 | tick 0 | ticks 5, 6 |
+  | typ | tick 0 | tick 6 | ticks 2, 4 |
+  | max | tick 4 | tick 1 | tick 6 |
+
+  The second group comes ahead of the first by 1 tick at min, 2 at typ,
+  3 at max (8, 17, 25 ns).  At typ the sample at the rise takes both
+  changed, at max neither; at min the rise is the very tick of the
+  second group and the first comes a tick after it, so the sample takes
+  the one new and the other old.  On the frame it is single columns of samples: at
+  min against typ the border's and the picture's edges (samples 168,
+  232, 872, 936) and in 320 x 200 every 16th sample - a word's boundary,
+  where the attribute changes; by that the second group is the
+  attributes' and the first the points'.  The picture tests, brought on
+  2026-11-03 and run at typ only, failed at min from their first day by
+  just this (4222 samples in 320 x 200, 100 in 640 x 200).  On a monitor
+  nothing is sampled: the edges stand 8 to 25 ns apart, whatever the
+  corner - under half a 640 x 200 point (67 ns).  So a board at a corner is held to
+  the emulator's picture within one sample - its point and its attribute
+  each taken there or a sample to the left or right, where the picture
+  fits to the sample best (`sim/board/screen_compare.h`, `slack`); the
+  typical board to the sample.
 
 The test loads of the datasheets differ (LS 2 kOhm 15 pF; LS three-state
 667 Ohm 45 pF, but the LS251's 2 kOhm 15 pF; the open-collector 7416 and

@@ -620,6 +620,19 @@ D70 patch; if its 640 x 200 left edge is right, the chain there is
 20..25 ns faster than the model, or C70 is not what the drawing says.
 Asked on the forum; the model is not changed until then.
 
+The delay corners agree with it (2026-11-06, the baseline's walk,
+`docs/baseline.md`; the picture tests of Э3's board against the
+emulator's picture, `build/cornerfix-*.log`).  At the min corner - every
+chip at half its typical delay where no minimum is printed - Э3's board
+draws both modes as the owner's does: off the emulator's picture in the
+same 4222 and 100 samples as the owner's board there (the bench's
+sampling, `docs/timing.md`, "Corners"), and in none within one sample.
+At typ it is 1 sample in 320 x 200 and 1305 in 640 x 200; at max, within
+one sample, none in 320 x 200 and 7 in 640 x 200.  So the model's Э3
+loses the left edge at the typical К555 delays and not at half of them,
+as with the ALS estimates above - a matter of how fast the chain's chips
+are, which is the open question still.
+
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the

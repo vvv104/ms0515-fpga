@@ -131,7 +131,16 @@ Result compare(bool keyboard)
 
 }  // namespace
 
-TEST_CASE("ms0515: the machine's picture and lines from power-on, as the bench's board")
+// The machine is generated at the typical delays only (tools/board.py's
+// corner makes the bench's board): beside a board at a corner it is another
+// machine, and the two comparisons are passed over there.
+#ifdef MS0515_DELAY_CORNER
+constexpr bool kCorner = true;
+#else
+constexpr bool kCorner = false;
+#endif
+
+TEST_CASE("ms0515: the machine's picture and lines from power-on, as the bench's board" * doctest::skip(kCorner))
 {
     const Result r = compare(false);
     MESSAGE(r.pixels << " pixels");
@@ -139,7 +148,7 @@ TEST_CASE("ms0515: the machine's picture and lines from power-on, as the bench's
     CHECK(r.differ == 0);
 }
 
-TEST_CASE("ms0515: a keyboard on the serial line - keys sent, the board's line out")
+TEST_CASE("ms0515: a keyboard on the serial line - keys sent, the board's line out" * doctest::skip(kCorner))
 {
     const Result r = compare(true);
     MESSAGE(r.rxd_falls << " falls of the USART's RxD");
