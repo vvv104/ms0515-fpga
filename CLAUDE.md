@@ -1,6 +1,9 @@
 # MS0515 FPGA Project
 
-**Read this first after compacting!**
+**Read this first after compacting!**  Then `docs/map.md` (what is made
+from what, the chain, when to run what), `docs/plan.md` (the stages) and
+`docs/baseline.md` (the last walk of the chain).  A status is reported
+only from those files, with its reference - never from memory.
 
 ## What this is
 The Elektronika MS 0515 rebuilt in an FPGA **down to its circuits**: the
@@ -101,6 +104,16 @@ the emulator needs goes to the emulator's repository, by its rules.
 - **Test-driven development**: every chip module gets its function-table
   test before its implementation; every board block gets its test against
   the reference model before it is wired.  Run tests at each stage.
+- **Every corner when the board can change**: a change to `rtl/chips/`,
+  `tools/board.py`, `netlist/` (delays included) or `firmware/`, and every
+  new board-level test, runs ctest at typ, min **and** max
+  (`conan build . -o "&:corner=..."`, side by side) before the commit; a
+  corner's failure is fixed or written into `docs/baseline.md` with its
+  cause, never left unrun.  The picture tests of 2026-11-03 ran at typ
+  only and failed at min from their first day, unseen for two days.  A
+  test that holds only at typ says so and is skipped at the corners,
+  so a red corner is always news.  Before trusting a corner build, check
+  which board it took (`MS0515_BOARD_SV` in its CMakeCache).
 - **Revert failed attempts**: roll back unsuccessful approaches; no dead
   code.
 - **Zero warnings**: Verilator `--lint-only -Wall` and the synthesis tools

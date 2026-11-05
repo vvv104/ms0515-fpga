@@ -25,6 +25,19 @@ Three places need care:
   moved after OSA's ^Q hung), the board follows Э3, and a difference in
   behaviour there is a finding for the open question, not a fault.
 
+**Two boards, one model** (owner, 2026-11-05).  Stages 1-5 are shared:
+the netlist read off Э3 and the chips from their datasheets owe nothing
+to any one board.  From stage 6 on there are two projects:
+- **the owner's board, `vvv104`** (Э3 with `netlist/vvv104.csv`, D70.15
+  on GND) - **active**.  Every run since 2026-10-21 was of this board
+  (the model's default), so what was found in 6-8 is its groundwork;
+  but the model changed under it (К555ИР16's MODE, DA2 as logic), so it
+  is taken again in one baseline run on one commit, `docs/baseline.md`,
+  and only what passes there counts;
+- **Э3's board, `ns4`** - **paused at 6b**, its picture not the
+  emulator's.  When 6b is settled it goes on from the owner's board's
+  stages, done again where the two differ.
+
 1. **Netlist of НС4.**  Read the four Э3 sheets and the ПЭ3 element list
    into `netlist/` (parts, pins, nets, with sheet and zone), starting from
    the method of the МС 1702 read-out.  Check the nets against the copper: Mick's
@@ -69,9 +82,7 @@ Three places need care:
    frame's first word (`docs/findings.md`, D70; the two `video: Э3's
    board ...` tests marked may_fail) - while the serial machines did.
    Until it is settled, by the model found wrong or by Э3 found wrong,
-   every stage after this one (7 and 8) stands at its start: what was
-   done there is groundwork, kept, to be checked again on the settled
-   board rather than counted done.
+   Э3's board waits here; the owner's goes on (above, "Two boards").
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
@@ -81,8 +92,9 @@ Three places need care:
    platform the retro cores live on, whose framework (`sys/` of
    Template_MiSTer) gives the HDMI scaler, USB keyboards, disk images
    from the SD card and the menu.  The core is built with Quartus Prime
-   Lite 17.0.2, as MiSTer's cores are.  **At its start until 6b is
-   settled**: the "Groundwork" below is work on the board as it stood.
+   Lite 17.0.2, as MiSTer's cores are.  For the owner's board the
+   "Groundwork" below is taken again by the baseline (`docs/baseline.md`);
+   for Э3's it waits for 6b.
    Whoever buys the board gets a
    core already checked; everything up to 7e runs without one.
    7a. **Synthesis.**  `ns4.sv` alone through Quartus for the 5CSEBA6:
@@ -103,7 +115,8 @@ Three places need care:
        tick taken off tACC, tOE, tDF, as for any clocked chip) and went
        back to M10K: 10 % of the ALMs, 21 % of the block memory, 120 MHz
        met in every model with less to spare (Fmax 120.6 MHz slow 100 C,
-       123 MHz slow -40 C).
+       123 MHz slow -40 C).  The core's build (7d) has taken its place:
+       the board is not synthesised alone again.
    7b. **Margins.**  The board booted with every chip at its datasheet's
        minimum and at its maximum delay, and from random power-up states
        under load (Omega and ОСА to their prompts) - a board that runs
@@ -215,11 +228,11 @@ Three places need care:
    the model runs on: a new layout (four layers: signals, ground, +5 V,
    signals), not the 1991 one - its inner layers are not on any scan, and
    only the connections have to be the same.  KiCad 10 (`kicad-cli`),
-   Freerouting for the routing.  **At its start until 6b is settled**:
-   what is below is groundwork; the routing was stopped and begins again
-   from the empty board once 6b is (its run carried onto a board placed
-   again kept 12 clearance violations, so no routing is carried across a
-   change of placement).
+   Freerouting for the routing.  The owner's board first:
+   it is routed from the empty board, and Э3's made from it once 6b is
+   settled.  The routing begun before was stopped (carried onto a board
+   placed again it kept 12 clearance violations): no routing is carried
+   across a change of placement.
    8a. **The copper's questions closed.**  Groundwork: every join of the traces
        against Э3 is two outputs on a wire, Э3 right (`docs/findings.md`).
    8b. **What the software so far never touched**, run on the model with
@@ -246,9 +259,11 @@ Three places need care:
        (`netlist/pcb_parts.csv`, `pcb_nets.csv`, `pcb.csv`: D80.5 on its
        middle contact, 1-2 Э3's `ВБРЕГ L` as delivered, 2-3 `АД03 H`);
        the board's own additions are placed after Э3's parts, so those
-       stand where they would without them.  The variant is made from Э3's
-       routed board (`tools/pcb.py derive vvv104`) and only the nets its
-       pins left are routed again (`tools/route.py vvv104 ...`).  The
+       stand where they would without them.  The owner's board is routed
+       first, from the empty board; the other is made from it, as placed
+       and routed, and only the nets its pins left are routed again (the
+       tools do it the other way round so far - `tools/pcb.py derive
+       vvv104` from Э3's - and turn round with the routing).  The
        routing runs in chunks that survive a stop (`tools/route.py`).
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a

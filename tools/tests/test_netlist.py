@@ -1,4 +1,6 @@
 """Tests of tools/netlist.py: loading the netlist files and checking them."""
+import contextlib
+import io
 import os
 import sys
 import tempfile
@@ -91,6 +93,15 @@ class NetlistTest(unittest.TestCase):
         self.assertEqual(len(errs), 1)
         self.assertIn("1B", errs[0].text)
 
+    def test_pin_name_as_the_sheet_draws_it_is_fine(self):
+        pinouts = PINOUTS.replace("name,source", "name,source,drawn") \
+                         .replace("К555ЛА3,2,1B,74LS00", "К555ЛА3,2,1B,74LS00,B")
+        self.assertEqual(self.errors(pinouts=pinouts, nets=NETS + "X,D14,2,B,2,\nX,R62,2,,2,\n"), [])
+        self.assertEqual(self.errors(pinouts=pinouts, nets=NETS + "X,D14,2,1B,2,\nX,R62,2,,2,\n"), [])
+        errs = self.errors(pinouts=pinouts, nets=NETS + "X,D14,2,A,2,\nX,R62,2,,2,\n")
+        self.assertEqual(len(errs), 1)
+        self.assertIn("'B'", errs[0].text)
+
     def test_power_pin_in_a_signal_net(self):
         errs = self.errors(nets=NETS + "X,D14,7,,2,\nX,R62,2,,2,\n")
         self.assertEqual(len(errs), 1)
@@ -161,6 +172,24 @@ class ChangesTest(unittest.TestCase):
         _, errors = self.apply("ref,pin,from_net,to_net,evidence\nD14,1,АД00 H,ЛН,\n")
         self.assertEqual(len(errors), 1)
         self.assertIn("evidence", errors[0].text)
+
+
+class TheRepositorysNetlistTest(unittest.TestCase):
+    """netlist/ itself checks without an error, as Э3 and as each board: the
+    checker is of no use while nothing runs it on the netlist it is for."""
+
+    def check(self, *board):
+        out = io.TextIOWrapper(io.BytesIO(), encoding="utf-8")
+        with contextlib.redirect_stdout(out):
+            code = netlist.main(["netlist.py", "check", *board])
+        out.seek(0)
+        return code, [line for line in out.read().splitlines() if line.startswith("error")]
+
+    def test_e3_as_read(self):
+        self.assertEqual(self.check(), (0, []))
+
+    def test_the_owners_board(self):
+        self.assertEqual(self.check("vvv104"), (0, []))
 
 
 if __name__ == "__main__":

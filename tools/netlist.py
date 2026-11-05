@@ -15,7 +15,9 @@ netlist/parts.csv    ref,type,value,pins,gnd,vcc,vcc12,source,note
                      ("2,6" for several) as the power table of sheet 1 gives
                      them - those pins are on the power nets GND / +5V / +12V
                      and are not drawn on the sheets
-netlist/pinouts.csv  type,pin,name,source - the standard pinout of a type
+netlist/pinouts.csv  type,pin,name,source[,drawn] - the standard pinout of a
+                     type; `drawn` is Э3's label for the pin where its
+                     symbol names it otherwise than the datasheet
 netlist/nets.csv     net,ref,pin,pin_name,sheet,note - one row per pin on a
                      net, with the pin name as drawn and the sheet it was
                      read from; a note containing "open" marks a net known
@@ -75,11 +77,23 @@ def load_parts(path):
     return parts
 
 
+class Pinouts(dict):
+    """{type: {pin: name}}, the names the chip models and the generators
+    go by; `drawn` {type: {pin: label}} is Э3's own label where its symbol
+    names the pin otherwise than the datasheet (the column `drawn`)."""
+
+    def __init__(self):
+        super().__init__()
+        self.drawn = {}
+
+
 def load_pinouts(path):
-    pinouts = defaultdict(dict)
+    pinouts = Pinouts()
     for r in rows(path):
-        pinouts[r["type"]][int(r["pin"])] = r["name"]
-    return dict(pinouts)
+        pinouts.setdefault(r["type"], {})[int(r["pin"])] = r["name"]
+        if r.get("drawn"):
+            pinouts.drawn.setdefault(r["type"], {})[int(r["pin"])] = r["drawn"]
+    return pinouts
 
 
 def load_nets(path):
@@ -108,9 +122,11 @@ def check_conn(c, parts, pinouts, seen):
     if power and power != c.net:
         problems.append(Problem(True, f"{where}: a {power} pin of {part.type}"))
     expected = pinouts.get(part.type, {}).get(c.pin)
-    if c.pin_name and expected and c.pin_name != expected:
+    drawn = pinouts.drawn.get(part.type, {}).get(c.pin)
+    if c.pin_name and expected and c.pin_name not in (expected, drawn):
+        known = f"'{expected}'" + (f" (drawn '{drawn}')" if drawn else "")
         problems.append(Problem(True, f"{where}: drawn '{c.pin_name}', "
-                                      f"{part.type} pin {c.pin} is '{expected}'"))
+                                      f"{part.type} pin {c.pin} is {known}"))
     return problems
 
 
