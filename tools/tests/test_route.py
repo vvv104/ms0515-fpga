@@ -74,15 +74,34 @@ class Wiring(unittest.TestCase):
         self.assertNotIn('"ВБ1 H")(type', out)
         self.assertIn('(net "~D94.1")(type route))', out)
 
-    def test_a_moved_part_takes_its_nets_wires_off(self):
+    def test_a_moved_part_refuses_the_carry(self):
         def design(x):
             return DESIGN.replace(
                 '(network (net "ВБ1 H"))',
                 f'(placement (component DIP (place D1 {x} -10 front 270) (place R1 0 0 front 90)))'
                 '(network (net "ВБ1 H" (pins D1-1 R2-1)) (net ~D94.1 (pins R1-1 R2-2)))')
-        out, drop = route.carried(SESSION, design(5), design(7))
-        self.assertEqual(drop, ["ВБ1 H"])
+        with self.assertRaises(SystemExit) as refused:
+            route.carried(SESSION, design(5), design(7))
+        self.assertIn("D1", str(refused.exception))
+        out, drop = route.carried(SESSION, design(5), design(5))      # as placed: carried whole
+        self.assertEqual(drop, [])
         self.assertIn('(net "~D94.1")(type route))', out)
+
+    def test_a_start_is_from_the_empty_board_unless_told(self):
+        try:
+            route.configure("vvv104")
+            self.assertIsNone(route.carry_from([]))
+            self.assertEqual(route.carry_from(["--keep"]), route.WORK)
+            self.assertTrue(route.carry_from(["--from", "ns4"]).endswith(os.path.join("build", "route")))
+            route.configure()
+            self.assertIsNone(route.carry_from([]))
+            self.assertTrue(route.carry_from(["--from", "vvv104"]).endswith(os.path.join("build", "route-vvv104")))
+            with self.assertRaises(SystemExit):
+                route.carry_from(["--from"])
+            with self.assertRaises(SystemExit):
+                route.carry_from(["--from", "ns4"])                   # its own board: that is --keep
+        finally:
+            route.configure()
 
     def test_a_variant_has_its_own_files(self):
         try:

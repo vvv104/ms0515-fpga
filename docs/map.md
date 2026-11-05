@@ -70,9 +70,9 @@ again in memory and fails if the committed one differs.
 | `firmware/tests/*.rom` | `python tools/test_roms.py` | `firmware/tests/*.mac`, assembled by DEC's MACRO/LINK run in the emulator's `ms0515-run` | `... check` |
 | `kicad/ns4*.kicad_sch` | `python tools/kicad.py` | `netlist/` | `... check`; with kicad-cli a tool test reads the nets back |
 | `docs/pcb/bom.md` | `python tools/bom.py` | `parts.csv`, `pcb_parts.csv`, `packages.csv`, `docs/chips.md`, `firmware.csv` | `... check` |
-| `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py` | `netlist/` + `placement.csv` + footprints | `... pcb.py check`: every pad's net against the netlist |
-| `kicad/ns4.kicad_pcb` (routing) | `tools/route.py start / run / finish` (Freerouting) | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
-| `kicad/ns4-vvv104.kicad_pcb` | `tools/pcb.py derive vvv104` + `route.py vvv104` | the routed `ns4` + `vvv104.csv` | `pcb.py check vvv104` |
+| `kicad/ns4-vvv104.kicad_pcb`, `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py vvv104`, `... pcb.py` | `netlist/` (+ `vvv104.csv`) + `placement.csv` + footprints; the parts stand where Э3's nets put them on both | `... pcb.py check [vvv104]`: every pad's net against the netlist |
+| the same files (routing) | `tools/route.py [vvv104] start / run / finish` (Freerouting), state in `build/route[-vvv104]` | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
+| the second board | `tools/pcb.py derive TO FROM` + `route.py ... start --from` | the first board as routed; only the nets its pins left are routed again | `pcb.py check` |
 
 ## The comparison files (made by a command, not kept)
 
@@ -145,17 +145,32 @@ proves is said with it.
 5. **The board at its delay corners**: `conan build . -o "&:corner=min"`
    and `max` (build/min, build/max); check `MS0515_BOARD_SV` in
    `build/<corner>/CMakeCache.txt` names the corner's board.
-6. **The real software on the board**: `build/Release/sim/run_board.exe`
-   (`docs/bench.md`) - Omega (`test_vvv_system.dsk`) and ОСА
-   (`test_osa_games.dsk`, ROM-A) to their prompts, from random power-up
-   states (`seed=N`), at typ and max; each ends with a `summary:` line:
-   fetches as the emulator's, the last frame's differences.
+6. **The real software on the board**: `run_board` (`docs/bench.md`),
+   from `build/Release/sim`, `build/min/sim`, `build/max/sim`, the output
+   folder made beforehand (it is not made by the run):
+   `run_board 20000 FOLDER 30 disk=IMAGE keyboard [seed=N] [rom=ROM-A]`
+   - Omega (`test_vvv_system.dsk` of the emulator's
+   `src/lib/tests/disks/originals`) and ОСА (`test_osa_games.dsk`,
+   `rom=firmware/ms0515-roma.rom`).  **`keyboard` is needed**: without the
+   stub ROM-B stops at «Клавиатура не готова» and never reads the disk.
+   What is checked, and what is not: up to ROM-B's keyboard request the
+   fetches are the emulator's and the frames its screen; from there the
+   emulator (given the ROM alone - no keyboard, no disk) goes another
+   way, the log says `fetch N: the board at ..., the emulator at ...`,
+   and the run is judged by its own lines - the frames seen (the
+   system's prompt), `RAM: ... 0 differ` (every DRAM read as written),
+   the video requests lost.  Check a frame after the first minutes
+   before leaving a run for hours.
 7. **The core**: `quartus_sh -t boards/de10nano/core.tcl` -
    `build/mister/output_files/ms0515.fit.summary` (resources),
    `ms0515.sta.rpt` (Setup Summary: the 120 MHz domain's slack).
-8. **The printed board**: `<KiCad>/bin/python tools/pcb.py` (placement),
-   `route.py start/run/finish` (routing, hours), `pcb.py check` (pads
-   against the netlist), `kicad-cli pcb drc` (clearances, shorts).
+8. **The printed board**, the owner's first: `<KiCad>/bin/python
+   tools/pcb.py vvv104` (placement), `tools/route.py vvv104 start`, `run
+   2 5`, `finish` (routing from the empty board, a day; `run` again goes
+   on after a stop; progress in `build/route-vvv104/progress.txt`),
+   `pcb.py check vvv104` (pads against the netlist), `kicad-cli pcb drc`
+   (clearances, shorts).  Then Э3's from it: `pcb.py derive ns4 vvv104`,
+   `route.py start --from vvv104`, `run`, `finish`.
 
 Steps 1-5 take about half an hour; step 6 about two hours (side by
 side); step 7 about half an hour; step 8 a day.

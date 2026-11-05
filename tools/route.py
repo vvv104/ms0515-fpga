@@ -3,18 +3,21 @@
 
 Run with KiCad's own Python, which has pcbnew:
 
-    <KiCad>/bin/python tools/route.py start [--keep]
-    <KiCad>/bin/python tools/route.py run [passes per chunk] [chunks without gain]
-    <KiCad>/bin/python tools/route.py finish
-    <KiCad>/bin/python tools/route.py vvv104 start|run|finish
+    <KiCad>/bin/python tools/route.py [vvv104] start [--from BOARD | --keep]
+    <KiCad>/bin/python tools/route.py [vvv104] run [passes per chunk] [chunks without gain]
+    <KiCad>/bin/python tools/route.py [vvv104] finish
 
-The last routes kicad/ns4-vvv104.kicad_pcb (`tools/pcb.py derive vvv104`) in
-build/route-vvv104: its `start` takes Э3's board's routing (build/route's
-state.ses), so `run` routes only what differs.  `start --keep` does the
-same for Э3's board with its own last state, when the board was placed
-again with a part added.  Either way the routing carried over loses the
-nets that lost a pin (their wires may still reach it); a net that only
-gained one keeps its wires.
+Э3's board (kicad/ns4.kicad_pcb, work files in build/route) or, named, a
+variant's (kicad/ns4-vvv104.kicad_pcb, build/route-vvv104).  `start` is
+from the empty board.  `start --from BOARD` (ns4 for Э3's, or a variant's
+name) takes the other board's routing, so `run` routes only what differs
+- the two boards have one placement; `start --keep` takes the board's own
+last state, when it was made again with a part added.  The routing
+carried over loses the nets that lost a pin (their wires may still reach
+it); a net that only gained one keeps its wires.  It is refused when a
+part stands elsewhere than it stood: wires of other nets may pass where
+it stands now (a routing carried across 11 moved parts on 2026-11-05 kept
+12 clearance violations no pass took out).
 
 The routing is long (a night and more) and is made to survive being
 stopped.  `start` exports the placed board as a Specctra design with its
@@ -51,8 +54,7 @@ BASE = os.path.join(ROOT, "build", "route")         # Э3's board's work files
 def configure(variant=None):
     """The board routed and its work files: Э3's in build/route, a
     variant's (tools/pcb.py derive) in build/route-<variant>."""
-    global VARIANT, BOARD, WORK, STATE, NEXT, SESSION, NEXT_SES, LOG, PROGRESS
-    VARIANT = variant
+    global BOARD, WORK, STATE, NEXT, SESSION, NEXT_SES, LOG, PROGRESS
     name = f"ns4-{variant}" if variant else "ns4"
     BOARD = os.path.join(ROOT, "kicad", f"{name}.kicad_pcb")
     WORK = os.path.join(ROOT, "build", f"route-{variant}" if variant else "route")
@@ -187,16 +189,34 @@ def design_places(design_text):
 
 def carried(ses_text, old_design, new_design):
     """The new design with the old one's routing (its session) on it, but
-    the nets that lost a pin since - their wires may still reach it - and
-    the nets of every part that moved - their wires end where its pins no
-    longer are.  A net that only gained a pin keeps its wires, the new pin
-    is routed to them.  Returns the design and the nets left unrouted."""
+    the nets that lost a pin since - their wires may still reach it.  A net
+    that only gained a pin keeps its wires, the new pin is routed to them.
+    Refused when a part moved: the old wires know nothing of where it
+    stands now.  Returns the design and the nets left unrouted."""
     old, new = design_nets(old_design), design_nets(new_design)
     was, now = design_places(old_design), design_places(new_design)
-    moved = {ref for ref, at in now.items() if ref in was and was[ref] != at}
-    drop = sorted(net for net, pins in old.items()
-                  if pins - new.get(net, set()) or any(p.rsplit("-", 1)[0] in moved for p in pins))
+    moved = sorted(ref for ref, at in now.items() if ref in was and was[ref] != at)
+    if moved:
+        raise SystemExit(f"{len(moved)} parts moved since that routing ({', '.join(moved[:8])}"
+                         f"{', ...' if len(moved) > 8 else ''}): start from the empty board")
+    drop = sorted(net for net, pins in old.items() if pins - new.get(net, set()))
     return session_wiring(ses_text, new_design, drop=drop), drop
+
+
+def carry_from(options):
+    """The work folder whose routing `start` takes: none (the empty board),
+    the board's own (--keep), another board's (--from ns4 | <variant>)."""
+    if "--keep" in options:
+        return WORK
+    if "--from" not in options:
+        return None
+    name = options[options.index("--from") + 1:][:1]
+    if not name:
+        raise SystemExit("--from which board: ns4 or a variant's name")
+    other = BASE if name[0] == "ns4" else os.path.join(ROOT, "build", f"route-{name[0]}")
+    if os.path.normpath(other) == os.path.normpath(WORK):
+        raise SystemExit("--from the board itself: that is --keep")
+    return other
 
 
 def freerouting(design, output, passes):
@@ -215,10 +235,9 @@ def freerouting(design, output, passes):
     return tuple(map(int, counts[-1])) if counts else None
 
 
-def start(keep=False):
-    """The board as a design to route.  A variant's starts from Э3's
-    board's routing; Э3's from none, or with `keep` from its own last
-    state - the board placed again with a part added, say."""
+def start(base=None):
+    """The board as a design to route: with no wires, or with the routing
+    of the work folder `base` (carry_from) on it."""
     import pcbnew               # KiCad's Python only; the rest is plain
     os.makedirs(WORK, exist_ok=True)
     exported = os.path.join(WORK, "ns4.dsn")
@@ -227,8 +246,7 @@ def start(keep=False):
     with open(exported, encoding="utf-8") as src:
         design = without_wiring(src.read())
     told = "the placed board, no wires"
-    if VARIANT or keep:
-        base = BASE if VARIANT else WORK
+    if base:
         ses_path, old_path = (os.path.join(base, n) for n in ("state.ses", "state.dsn"))
         if not os.path.exists(ses_path):
             raise SystemExit(f"no {ses_path} to start from")
@@ -303,7 +321,7 @@ def main(argv):
     if len(argv) < 2 or argv[1] not in ("start", "run", "finish"):
         raise SystemExit(__doc__)
     if argv[1] == "start":
-        return start(keep="--keep" in argv[2:])
+        return start(carry_from(argv[2:]))
     if argv[1] == "run":
         chunk = int(argv[2]) if len(argv) > 2 else 2
         patience = int(argv[3]) if len(argv) > 3 else 5

@@ -6,20 +6,22 @@ not in this file with its run.  The board run is the owner's (`vvv104`,
 the model's default: D70.15 on GND); Э3's board is paused at stage 6b
 (`docs/plan.md`).
 
-**Begun 2026-11-05** on commit a17d511 (trees: `rtl` 303e8f4, `sim`
-62cd21d, `firmware` 1a957b3); the emulator `../ms0515` at 4325511.
-Steps marked *running* or *to do* have no result yet.
+**Walked 2026-11-05..06**, begun on commit a17d511 (trees: `rtl`
+303e8f4, `firmware` 1a957b3 - neither changed by the walk); the emulator
+`../ms0515` at 4325511.  What the walk found it fixed as it went, each in
+a commit of its own; the corners and the tools' tests were run again on
+the fixed tree.
 
 | Step | State |
 |---|---|
-| 1. The netlist is consistent | pass, after a fix (below) |
+| 1. The netlist is consistent | pass, after a fix |
 | 2. The netlist is the copper | pass: reproduces; Mick's last four differences read on Э3 |
 | 3. The generated files are current | pass |
-| 4. Chips and board, typical delays | pass, 72 of 72 |
-| 5. The corners | **fail**: min 2 tests, max 2 tests (below) |
-| 6. The real software on the board | running |
+| 4. Chips and board, typical delays | pass, 73 of 73 |
+| 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
+| 6. The real software on the board | ОСА to its prompt: pass; Omega: its startup file not at its end in 20 s - running to 30 s |
 | 7. The core | pass: timing met, +0.647 ns at 120 MHz |
-| 8. The printed board | to do: placed, not routed |
+| 8. The printed board | the owner's board placed, checked against the netlist, its routing running |
 
 ## 1. The netlist is consistent
 
@@ -33,12 +35,13 @@ discover -s tools/tests` with `$KICAD_CLI` set.
   Э3 draws (`OE`; `E`, `B`, `A`, `Y`, `YN`).  No net was wrong: the pin
   numbers agree.  It went unseen because no test ran the checker on the
   repository's own netlist.
-- **Fixed**: `pinouts.csv` has a column `drawn` - Э3's label where it
-  differs from the datasheet's name - and the checker takes either; two
-  tests now run the checker on `netlist/` itself, as Э3 and as `vvv104`.
+- **Fixed** (0c7c524): `pinouts.csv` has a column `drawn` - Э3's label
+  where it differs from the datasheet's name - and the checker takes
+  either; two tests now run the checker on `netlist/` itself, as Э3 and
+  as `vvv104`.
 - **Result**: 0 errors both ways; 315 parts, 534 nets, 2129 pins on
   nets, 47 pinouts.  One warning, known: net `НАЧ H` has one pin
-  (D97.12).  Tool tests: 111 of 111, none skipped.
+  (D97.12).  Tool tests: 112 of 112, none skipped.
 
 ## 2. The netlist is the copper
 
@@ -59,9 +62,9 @@ the repository, so the check is their counts against `docs/findings.md`:
 - **Found**: four places of the 20 lines were written up nowhere in
   `docs/` (the findings said "settled so far"): `ЗАДЕРЖ L` (D83.26,
   D98.9), `ЗАП РЕГ H` (D79.3), `РВК1 H` (E3.1), `ЗЦ H` (D81.10).
-- **Closed**: each read on Э3 at full resolution - all four are as
-  `nets.csv` has them; written into the findings with the crops in
-  `docs/evidence/mick-differences`.  None of the 20 is open.
+- **Closed** (9c36306): each read on Э3 at full resolution - all four
+  are as `nets.csv` has them; written into the findings with the crops
+  in `docs/evidence/mick-differences`.  None of the 20 is open.
 
 ## 3. The generated files are current
 
@@ -72,59 +75,88 @@ nothing drives: `~D10.14`, `~D70.14`, `~D70.13`, `~D89.18`.
 
 ## 4. Chips and board, typical delays
 
-`conan build . --build=missing -s compiler.cppstd=20`: **72 of 72 tests
-pass** (1085 s); log `build/baseline-typ.log`.  The two tests of Э3's
-picture (`video: Э3's board draws ...`) are marked may_fail and fail, as
-stage 6b says.
+`conan build . --build=missing -s compiler.cppstd=20`: 72 of 72 on
+a17d511 (`build/baseline-typ.log`); with the walk's fixes and the one
+test they added, `ctest --test-dir build/Release`: **73 of 73**
+(`build/ctest-Release.log`).  The two tests of Э3's picture (`video:
+Э3's board draws ...`) are marked may_fail and fail at typ (1 sample in
+320 x 200, 1305 in 640 x 200), as stage 6b says.
 
 ## 5. The corners
 
-`conan build . ... -o "&:corner=min"` / `max`; logs
-`build/baseline-min.log`, `build/baseline-max.log`.  70 of 72 at each.
+`conan build . ... -o "&:corner=min"` / `max` on a17d511: 70 of 72 at
+each (`build/baseline-min.log`, `build/baseline-max.log`).  None of the
+failing tests had ever been run at a corner: the corners were last run
+on 2026-11-01, the tests came on 2026-11-01..03.  Hence the rule in
+`CLAUDE.md`: every corner when the board can change, a new test at every
+corner on its first day.
 
-- **min, `test_parts`: the picture is not the emulator's.**  `video: 320
-  x 200 with every attribute` differs in 4222 samples (first at 31, 0),
-  `video: 640 x 200 in the border's colour` in 100 (first at 639, 1).
-  Э3's board gives the same two numbers, so D70's change has no part in
-  it.  No change made it so: on the commit that brought these tests
-  (421012f, 2026-11-03) they fail at min with the same numbers - they
-  had only ever been run at typ.  (`docs/plan.md` 7b's "at the min
-  corner the screen is clean" was of ROM-B's own screens, 2026-11-01,
-  before these tests were.)  The min corner is half the typical delay
-  where a datasheet prints no minimum - an assumption (`docs/timing.md`).
-  **Open: the cause is not known.**
-- **min and max, `test_machine`**: the core's machine
-  (`rtl/board/ns4_machine.sv`, typical delays - the corner generator
-  makes `ns4.sv` only) is compared with the bench's board at the corner.
-  A test that holds at typ only; **open: say so in the test or build the
-  machine at the corner too.**
-- **max, `test_parts`, sound**: `quiet_lows == 0` fails with 2 - the
-  node low for 4 ticks and more while the way is shut; the test's 4
-  ticks stand for D93's delay at typ.  **Open: measure the pulse at max
-  before calling it the test's threshold.**
+- **min, `test_parts`: the two picture tests** - 4222 samples off the
+  emulator's picture in 320 x 200, 100 in 640 x 200; Э3's board the same
+  two numbers.  No change made it so: on the commit that brought the
+  tests (421012f) they fail at min alike.  **Cause, measured**: the
+  bench samples the picture at the rises of ТС15 H; the attributes'
+  changes come 1 tick (min), 2 (typ), 3 (max) before the points', and at
+  min the sampling tick falls between the two.  Single columns of
+  samples at the edges and at every word's boundary; on a monitor, 8 to
+  25 ns.  Not the board's fault (`docs/timing.md`, "Corners";
+  `docs/evidence/corner-picture`).  **Fixed**: a board at a corner is
+  held to the picture within one sample (`screen_compare.h`'s `slack`,
+  with tests of its own); the typical board to the sample, as before.
+- **min and max, `test_machine`**: its two comparisons set the core's
+  machine (generated at the typical delays only) beside the bench's
+  board at the corner - two different machines.  **Fixed**: the two are
+  passed over at a corner, and say so.
+- **max, `test_parts`, sound**: the node stood low with the way shut for
+  4 ticks, the test allowing 3 - D93's delay (К555ЛА13: 19 ns typical, 2
+  ticks; 30 ns at the most, 4).  **Fixed**: 4 at a corner.
 
-Neither `test_machine` (2026-11-01..03) nor the picture and sound tests
-(2026-11-03) had been run at a corner before: the corners were last run
-on 2026-11-01.  Hence the rule in `CLAUDE.md`: every corner when the
-board can change, a new test at every corner on its first day.
+With these, `ctest --test-dir build/min` and `build/max`: **73 of 73**
+each (`build/ctest-min.log`, `build/ctest-max.log`).  Э3's two picture
+tests (may_fail): at min both pass within one sample; at max 320 x 200
+passes and 640 x 200 is 7 samples off - into the findings, the D70 case.
 
 ## 6. The real software on the board
 
-`run_board 20000 <folder> 30 disk=... seed=N`, side by side, into
-`build/baseline/<run>/run.log`:
+`run_board 20000 FOLDER 30 disk=IMAGE keyboard [seed=N] [rom=...]`, 16
+runs side by side, `build/baseline/boot/<run>/run.log` and frames.
 
-| Run | Disk | Corner | Seeds |
-|---|---|---|---|
-| Omega | `test_vvv_system.dsk` | typ | 0, 1, 2, 3 |
-| Omega | `test_vvv_system.dsk` | max | 1, 2, 3 |
-| ОСА | `test_osa_games.dsk`, ROM-A | typ, max | 0 |
-
-*Running.*
+- **A launch gone wrong, kept as a lesser result.**  The first nine runs
+  were started without `keyboard`: ROM-B (and ROM-A) stopped at
+  «Клавиатура не готова» and never read the disk
+  (`build/baseline/<run>`).  What they do show, 20 s each: the ROM's
+  self-test from random power-up states at typ (seeds 0-3) and max (1-3)
+  with every fetch the emulator's; every frame compared the emulator's
+  at max; at typ some frames 8 samples off at one place (400, 192: where
+  the cursor stands - taken for the cursor's blink out of step, not
+  looked into).
+- **What a boot run checks.**  Up to the ROM's keyboard request the
+  fetches are the emulator's; from there the emulator, given the ROM
+  alone, goes another way (`fetch 1914937: the board at 173670, the
+  emulator at 173640`; ОСА's at fetch 2685917) and the run is judged by
+  its own lines.
+- **ОСА** (`test_osa_games.dsk`, ROM-A), typ seeds 0, 1, 2, max, min:
+  «ОСА Версия 1.0», `.SET TT QUIET`, the prompt, in 20 s - **pass**.
+  Every DRAM read as written, but at max the cell 000:000 twice in the
+  first 0.2 s (plan 7b's power-up cell).  Video requests lost: 0 or 1 at
+  typ and min; 178 134 at max, the letters spoiled there (the design's
+  margin, `docs/timing.md`).
+- **Omega** (`test_vvv_system.dsk`), typ seeds 0-3, max 1-3, min 0-2:
+  «ОМЕГА SJ(S) V05.04» and `.SET TT QUIET` in 20 s, every DRAM read as
+  written; lost requests 0 or 1 at typ and min, about 80 800 at max.
+  Its startup file's second line (`SET SL ON`) was not through: no
+  prompt yet.  **Running** to 30 s (`build/baseline/boot30`).
+- **The core's drive** (`drive=logic`, Omega, typ): 2420 blocks read, 4
+  written, the two images the same at the end - plan 7c's figures.  The
+  two drives' lines differed in 7322 stretches, the longest 120 ticks,
+  the first at 0 s; `docs/bench.md` says "only while a track is loaded
+  after a step, some thousand ticks each".  **Open: the description or
+  the drive - not looked into.**
 
 ## 7. The core
 
-`quartus_sh -t boards/de10nano/core.tcl`; log `build/baseline-core.log`,
-reports in `build/mister/output_files/`.
+`quartus_sh -t boards/de10nano/core.tcl` on a17d511; log
+`build/baseline-core.log`, reports in `build/mister/output_files/`.
 
 - Resources (`ms0515.fit.summary`): 13 963 of 41 910 ALMs (33 %),
   1 643 857 of 5 662 720 block memory bits (29 %), 214 of 553 RAM
@@ -137,12 +169,25 @@ reports in `build/mister/output_files/`.
 
 ## 8. The printed board
 
-To do.  `kicad/ns4.kicad_pcb` in the working copy is placed with E9 and
-not routed (not committed); the routing begins from the empty board
-(`docs/plan.md` 8d).
+The owner's board first (`docs/plan.md` 8d).
+
+- `tools/pcb.py vvv104`: 312 footprints, 536 nets,
+  `kicad/ns4-vvv104.kicad_pcb` - placed, no wires.  `pcb.py check
+  vvv104`: 0 differences from the netlist; `pcb.py check` (Э3's board,
+  placed the same way): 0.  The two boards' placements compared part by
+  part: none differs.
+- `tools/route.py vvv104 start`, `run 2 5`: from the empty board, 1258
+  connections; after the first chunk 382 unrouted, 0 violations
+  (`build/route-vvv104/progress.txt`).  **Running.**
+- To do: `finish`, `pcb.py check vvv104`, DRC; then Э3's board from it.
 
 ## Open after this walk
 
-1. The min corner's picture (step 5).
-2. `test_machine` at the corners; the sound test's threshold at max.
-3. Э3's board, stage 6b - paused.
+1. Omega's startup to its end (step 6) - running.
+2. The core's drive against the bench's: 7322 short stretches where the
+   description says a few long ones (step 6).
+3. The cursor's 8 samples in the self-test's frames at typ (step 6) -
+   taken for the blink's phase, not shown.
+4. The post-fit netlist on the bench (step 7, plan 7d).
+5. The printed board's routing, DRC, and Э3's board from it (step 8).
+6. Э3's board, stage 6b - paused.

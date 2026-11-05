@@ -261,10 +261,14 @@ to any one board.  From stage 6 on there are two projects:
        the board's own additions are placed after Э3's parts, so those
        stand where they would without them.  The owner's board is routed
        first, from the empty board; the other is made from it, as placed
-       and routed, and only the nets its pins left are routed again (the
-       tools do it the other way round so far - `tools/pcb.py derive
-       vvv104` from Э3's - and turn round with the routing).  The
-       routing runs in chunks that survive a stop (`tools/route.py`).
+       and routed, and only the nets its pins left are routed again
+       (`tools/pcb.py vvv104` places it - every part where Э3's nets put
+       it, so the two boards have one placement; `tools/pcb.py derive ns4
+       vvv104` and `tools/route.py start --from vvv104` then make Э3's).
+       The routing runs in chunks that survive a stop (`tools/route.py`);
+       a routing is never carried onto a board with a part moved.  The
+       owner's board's routing began from the empty board on 2026-11-05
+       (1258 connections to route).
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.
