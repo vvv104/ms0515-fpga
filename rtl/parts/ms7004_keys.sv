@@ -36,7 +36,8 @@ module ms7004_keys
     logic [9:0] fifo [8];               // {pressed, code}
     logic [2:0] head, tail;
     logic       empty;
-    logic [9:0] ev;
+    logic [9:0] ev;                     // the head as it stands now
+    logic [8:0] ev_q;                   // the head's code a tick ago: what the tables look up
     assign empty = head == tail;
     assign ev = fifo[head];
 
@@ -62,16 +63,20 @@ module ms7004_keys
     logic [1:0]  need;                  // ВР: 0 as the PC's Shift, 1 let go, 2 pressed
     logic        lat;                   // РУС/ЛАТ to turn over for it
     logic        ms_shift, key_down, lat_down;
-    // the tables looked up for the queue's head, a tick late (they are
-    // large): after taking an event the steps wait a tick for the next
+    // the tables looked up for the queue's head two ticks late (they are
+    // large, and the queue's read before them misses 120 MHz in one): the
+    // head is registered, then looked up; after taking an event the steps
+    // wait two ticks for the next
     logic [10:0] found;
     logic [7:0]  pos;
-    logic        looked;                // the head has stood a tick: found and pos are its
+    logic        stood, looked;         // the head has stood a tick, two: found and pos are its
 
     always_ff @(posedge clk) begin
-        found <= character(ev[8:0], pc_shift, rus);
-        looked <= !empty;
-        pos <= position(ev[8:0]);
+        ev_q <= ev[8:0];
+        found <= character(ev_q, pc_shift, rus);
+        pos <= position(ev_q);
+        stood <= !empty;
+        looked <= stood && !empty;
         toggle_was <= ps2_key[10];
         if (ps2_key[10] != toggle_was && tail + 3'd1 != head) begin
             fifo[tail] <= {ps2_key[9], ps2_key[8:0]};
@@ -94,10 +99,10 @@ module ms7004_keys
             ms_shift <= e[9] || (e[8:0] == 9'h012 ? shift_r : shift_l);
     endtask
 
-    // the queue's head taken: a tick for the tables' lookup of the next
+    // the queue's head taken: two ticks for the tables' lookup of the next
     task automatic next_event();
         head <= head + 3'd1;
-        wait_n <= 23'd1;
+        wait_n <= 23'd2;
     endtask
 
     task automatic pause(step_t next);

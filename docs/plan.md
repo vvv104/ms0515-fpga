@@ -183,7 +183,12 @@ Three places need care:
        machine is held in reset (34 % of the ALMs now; the 120 MHz
        domain +0.07 ns, once the processor's core-to-bus paths got the two
        ticks its request stands before the bus takes it - five and more,
-       `test_machine`).  The owner's board's changes
+       `test_machine`).  Built again on 2026-11-05 (after the key
+       detector and the К555ИР16 change) it missed by 0.24 ns, all of it
+       the translator's: its eight-word queue, placed in an MLAB, read and
+       looked up in the tables in one tick.  The queue's head is now
+       registered and looked up a tick later, two ticks after an event
+       instead of one: the 120 MHz domain +0.65 ns (33 % of the ALMs).  The owner's board's changes
        (`netlist/rev3a.csv`) are switches: the generator gives each moved
        input an `s_<ref>_<pin>` that takes it back to Э3's net, and the
        menu has one for D70.15 (on GND, or as drawn).  Left for 7d: the
