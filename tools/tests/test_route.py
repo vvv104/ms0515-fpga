@@ -64,6 +64,26 @@ class Wiring(unittest.TestCase):
         self.assertNotIn('"ВБ1 H")(type', out)
         self.assertIn('(net "~D94.1")(type route))', out)
 
+    def test_a_net_that_lost_a_pin_loses_its_wires_one_that_gained_keeps_them(self):
+        old = DESIGN.replace('(network (net "ВБ1 H"))',
+                             '(network (net "ВБ1 H" (pins D1-1 D80-5)) (net ~D94.1 (pins R1-1 R2-1)))')
+        new = DESIGN.replace('(network (net "ВБ1 H"))',
+                             '(network (net "ВБ1 H" (pins D1-1 E9-1)) (net ~D94.1 (pins R1-1 R2-1 E9-3)))')
+        out, drop = route.carried(SESSION, old, new)
+        self.assertEqual(drop, ["ВБ1 H"])
+        self.assertNotIn('"ВБ1 H")(type', out)
+        self.assertIn('(net "~D94.1")(type route))', out)
+
+    def test_a_moved_part_takes_its_nets_wires_off(self):
+        def design(x):
+            return DESIGN.replace(
+                '(network (net "ВБ1 H"))',
+                f'(placement (component DIP (place D1 {x} -10 front 270) (place R1 0 0 front 90)))'
+                '(network (net "ВБ1 H" (pins D1-1 R2-1)) (net ~D94.1 (pins R1-1 R2-2)))')
+        out, drop = route.carried(SESSION, design(5), design(7))
+        self.assertEqual(drop, ["ВБ1 H"])
+        self.assertIn('(net "~D94.1")(type route))', out)
+
     def test_a_variant_has_its_own_files(self):
         try:
             route.configure("vvv104")

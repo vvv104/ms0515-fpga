@@ -1,0 +1,13 @@
+# Parts of the printed board made anew (docs/plan.md stage 8) that Э3 does
+# not have - on both its versions, ns4 and ns4-vvv104.  A part goes in only
+# as a mode of the machine, as Э3's own jumpers E1..E8 are, never as a
+# repair.  The board model (tools/board.py) does not read this file: with
+# its jumpers as delivered the board is Э3.
+#
+# E9: the green wire of the owner's board (docs/findings.md, "The green wire
+# on the owner's board") as a jumper.  1-2 (as delivered): D80.5, G2B of the
+# register decoder, on ВБРЕГ L, as Э3 draws it.  2-3: G2B on АД03 H - the
+# board's registers answer only with АД03 low, the half of its register
+# space the RAM-disk module (plan 6a) uses left to it.
+ref,type,value,pins,gnd,vcc,vcc12,source,note
+E9,перемычка на 3,jumper (three contacts),3,,,,netlist/pcb_parts.csv,the green wire as a mode: 1-2 Э3; 2-3 the RAM-disk module

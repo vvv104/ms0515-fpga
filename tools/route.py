@@ -3,15 +3,18 @@
 
 Run with KiCad's own Python, which has pcbnew:
 
-    <KiCad>/bin/python tools/route.py start
+    <KiCad>/bin/python tools/route.py start [--keep]
     <KiCad>/bin/python tools/route.py run [passes per chunk] [chunks without gain]
     <KiCad>/bin/python tools/route.py finish
     <KiCad>/bin/python tools/route.py vvv104 start|run|finish
 
 The last routes kicad/ns4-vvv104.kicad_pcb (`tools/pcb.py derive vvv104`) in
 build/route-vvv104: its `start` takes Э3's board's routing (build/route's
-state.ses) without the nets netlist/vvv104.csv's pins left, so `run` routes
-only those.
+state.ses), so `run` routes only what differs.  `start --keep` does the
+same for Э3's board with its own last state, when the board was placed
+again with a part added.  Either way the routing carried over loses the
+nets that lost a pin (their wires may still reach it); a net that only
+gained one keeps its wires.
 
 The routing is long (a night and more) and is made to survive being
 stopped.  `start` exports the placed board as a Specctra design with its
@@ -41,12 +44,8 @@ import re
 import subprocess
 import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
-sys.path.insert(0, HERE)
-import netlist as nl  # noqa: E402
-
-BASE_SESSION = os.path.join(ROOT, "build", "route", "state.ses")   # Э3's board's
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE = os.path.join(ROOT, "build", "route")         # Э3's board's work files
 
 
 def configure(variant=None):
@@ -109,7 +108,9 @@ TOKEN = re.compile(r'\s*(?:(\()|(\))|"((?:[^"\\]|\\.)*)"|([^\s()"]+))')
 
 
 def sexpr(text):
-    """A Specctra s-expression as nested lists of strings."""
+    """A Specctra s-expression as nested lists of strings.  A design's
+    header names its quote character with a lone one, `(string_quote ")`."""
+    text = text.replace('(string_quote ")', "(string_quote quote)")
     stack, pos = [[]], 0
     while True:
         m = TOKEN.match(text, pos)
@@ -170,6 +171,34 @@ def session_wiring(ses_text, design_text, drop=()):
     return empty[:at] + "\n".join(lines) + empty[at + len("(wiring\n  )"):]
 
 
+def design_nets(design_text):
+    """{net: {pin}} of a design's network section."""
+    network = child(sexpr(design_text), "network")
+    return {n[1]: set(child(n, "pins")[1:]) for n in network[1:]
+            if isinstance(n, list) and n[0] == "net" and child(n, "pins")}
+
+
+def design_places(design_text):
+    """{ref: (x, y, side, rotation)} of a design's placement section."""
+    placement = child(sexpr(design_text), "placement") or ["placement"]
+    return {p[1]: tuple(p[2:6]) for comp in placement[1:] if isinstance(comp, list)
+            for p in comp[1:] if isinstance(p, list) and p[0] == "place"}
+
+
+def carried(ses_text, old_design, new_design):
+    """The new design with the old one's routing (its session) on it, but
+    the nets that lost a pin since - their wires may still reach it - and
+    the nets of every part that moved - their wires end where its pins no
+    longer are.  A net that only gained a pin keeps its wires, the new pin
+    is routed to them.  Returns the design and the nets left unrouted."""
+    old, new = design_nets(old_design), design_nets(new_design)
+    was, now = design_places(old_design), design_places(new_design)
+    moved = {ref for ref, at in now.items() if ref in was and was[ref] != at}
+    drop = sorted(net for net, pins in old.items()
+                  if pins - new.get(net, set()) or any(p.rsplit("-", 1)[0] in moved for p in pins))
+    return session_wiring(ses_text, new_design, drop=drop), drop
+
+
 def freerouting(design, output, passes):
     """One Freerouting run; its log is appended to LOG, its last count returned."""
     begin = os.path.getsize(LOG) if os.path.exists(LOG) else 0
@@ -186,7 +215,10 @@ def freerouting(design, output, passes):
     return tuple(map(int, counts[-1])) if counts else None
 
 
-def start():
+def start(keep=False):
+    """The board as a design to route.  A variant's starts from Э3's
+    board's routing; Э3's from none, or with `keep` from its own last
+    state - the board placed again with a part added, say."""
     import pcbnew               # KiCad's Python only; the rest is plain
     os.makedirs(WORK, exist_ok=True)
     exported = os.path.join(WORK, "ns4.dsn")
@@ -195,14 +227,14 @@ def start():
     with open(exported, encoding="utf-8") as src:
         design = without_wiring(src.read())
     told = "the placed board, no wires"
-    if VARIANT:                 # Э3's routing, but the nets the variant's pins left
-        if not os.path.exists(BASE_SESSION):
-            raise SystemExit(f"no {BASE_SESSION}: route Э3's board first")
-        left = sorted({ch.from_net for ch in
-                       nl.load_changes(os.path.join(ROOT, "netlist", f"{VARIANT}.csv"))})
-        with open(BASE_SESSION, encoding="utf-8") as ses:
-            design = session_wiring(ses.read(), design, drop=left)
-        told = f"Э3's routing without {', '.join(left)}"
+    if VARIANT or keep:
+        base = BASE if VARIANT else WORK
+        ses_path, old_path = (os.path.join(base, n) for n in ("state.ses", "state.dsn"))
+        if not os.path.exists(ses_path):
+            raise SystemExit(f"no {ses_path} to start from")
+        with open(ses_path, encoding="utf-8") as ses, open(old_path, encoding="utf-8") as old:
+            design, drop = carried(ses.read(), old.read(), design)
+        told = f"{base}'s routing, but {', '.join(drop) or 'no net'}"
     put_aside(STATE)
     put_aside(SESSION)
     with open(STATE, "w", encoding="utf-8") as dst:
@@ -271,7 +303,7 @@ def main(argv):
     if len(argv) < 2 or argv[1] not in ("start", "run", "finish"):
         raise SystemExit(__doc__)
     if argv[1] == "start":
-        return start()
+        return start(keep="--keep" in argv[2:])
     if argv[1] == "run":
         chunk = int(argv[2]) if len(argv) > 2 else 2
         patience = int(argv[3]) if len(argv) > 3 else 5

@@ -228,7 +228,12 @@ Three places need care:
        - and `ns4-vvv104` the owner's board as it worked, with
        `netlist/vvv104.csv`'s change (D70.15 on GND), the conditionally
        working one.  No jumper chooses between them: on Э3 a jumper is a
-       mode of the machine, not a repair.  The variant is made from Э3's
+       mode of the machine, not a repair.  The green wire is such a mode
+       (the RAM-disk module's), so both boards have it as a jumper, E9
+       (`netlist/pcb_parts.csv`, `pcb_nets.csv`, `pcb.csv`: D80.5 on its
+       middle contact, 1-2 Э3's `ВБРЕГ L` as delivered, 2-3 `АД03 H`);
+       the board's own additions are placed after Э3's parts, so those
+       stand where they would without them.  The variant is made from Э3's
        routed board (`tools/pcb.py derive vvv104`) and only the nets its
        pins left are routed again (`tools/route.py vvv104 ...`).  The
        routing runs in chunks that survive a stop (`tools/route.py`).

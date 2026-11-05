@@ -36,3 +36,4 @@ type,footprint,equivalent,note
 РС-40-7,Package_DIP:DIP-40_W15.24mm_Socket,40-pin DIP socket,"XS5, XS6: D1, D83 (the chip takes the socket's place)"
 лепесток 7.750.008,MountingHole:MountingHole_3.2mm_M3_Pad,M3 hole with a ground pad,the ground lugs XT1..XT3
 перемычка,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,2-pin header and a jumper,"E1..E8, fitted as netlist/analog.csv says"
+перемычка на 3,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,3-pin header and a jumper,"E9 (netlist/pcb_parts.csv), a jumper on 1-2 as delivered"

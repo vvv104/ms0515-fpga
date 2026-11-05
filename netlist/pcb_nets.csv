@@ -1,0 +1,6 @@
+# The nets of netlist/pcb_parts.csv's parts on the printed board made anew.
+# A pin of Э3's moved onto one of them is a row of netlist/pcb.csv.
+net,ref,pin,pin_name,sheet,note
+ВБРЕГ L,E9,1,,2,Э3's G2B
+~E9.2,E9,2,,2,"to D80.5, G2B (netlist/pcb.csv)"
+АД03 H,E9,3,,2,the RAM-disk module's G2B

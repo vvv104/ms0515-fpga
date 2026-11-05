@@ -142,10 +142,14 @@ XS2, SA1's odd switches closed; ROM-B in the sockets XS3, XS4.
 
 def main(argv):
     check = argv[1:] == ["check"]
-    found, problems = items(os.path.join(ROOT, "netlist", "parts.csv"),
+    found, problems = {}, []
+    for parts in ("parts.csv", "pcb_parts.csv"):        # Э3's, and the board's own additions
+        more, wrong = items(os.path.join(ROOT, "netlist", parts),
                             os.path.join(ROOT, "netlist", "packages.csv"),
                             os.path.join(ROOT, "docs", "chips.md"),
                             os.path.join(ROOT, "netlist", "firmware.csv"))
+        found.update(more)
+        problems += wrong
     for p in problems:
         print("error:", p)
     text = HEAD + markdown(lines(found))

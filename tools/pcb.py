@@ -87,7 +87,11 @@ def pin_nets(variant=None):
     pins given to the socket.  With a variant its changes are applied."""
     parts, _, conns = nl.load(os.path.join(NET, "parts.csv"), os.path.join(NET, "pinouts.csv"),
                               os.path.join(NET, "nets.csv"))
-    conns, errors = nl.apply_changes(conns, changes(variant))
+    parts.update(nl.load_parts(os.path.join(NET, "pcb_parts.csv")))
+    conns += nl.load_nets(os.path.join(NET, "pcb_nets.csv"))
+    conns, errors = nl.apply_changes(conns, nl.load_changes(os.path.join(NET, "pcb.csv")))
+    if not errors:
+        conns, errors = nl.apply_changes(conns, changes(variant))
     if errors:
         raise SystemExit("\n".join(p.text for p in errors))
     nets = {}
@@ -98,11 +102,22 @@ def pin_nets(variant=None):
 
 
 def load_items():
-    found, problems = bom.items(os.path.join(NET, "parts.csv"), os.path.join(NET, "packages.csv"),
+    """Э3's parts and the board's own additions (netlist/pcb_parts.csv)."""
+    found, problems = {}, []
+    for parts in ("parts.csv", "pcb_parts.csv"):
+        more, wrong = bom.items(os.path.join(NET, parts), os.path.join(NET, "packages.csv"),
                                 os.path.join(ROOT, "docs", "chips.md"), os.path.join(NET, "firmware.csv"))
+        found.update(more)
+        problems += wrong
     if problems:
         raise SystemExit("\n".join(problems))
     return {ref: item for ref, item in found.items() if item.placed}
+
+
+def added():
+    """The refs of the board's own additions: placed after Э3's parts, so
+    that Э3's stand where they would without them."""
+    return {r.ref for r in nl.load_parts(os.path.join(NET, "pcb_parts.csv")).values()}
 
 
 def new_footprint(board, dirs, item):
@@ -304,8 +319,8 @@ def place_rest(fps, free, nets):
                 chips[ref].add(net)
     order = sorted(chips, key=lambda r: (fps[r].GetPosition().y, fps[r].GetPosition().x) if r in fps else (0, 0))
     spare = iter(order * 2)
-    failed = []
-    for ref in sorted(fps, key=bom.natural):
+    failed, extra = [], added()
+    for ref in sorted(fps, key=lambda r: (r in extra, bom.natural(r))):
         if ref in placed:
             continue
         fp = fps[ref]
@@ -314,6 +329,21 @@ def place_rest(fps, free, nets):
         if not free.near(fp, pcbnew.ToMM(target.x), pcbnew.ToMM(target.y)):
             failed.append(ref)
     return failed
+
+
+ROUTING_STEP = 100                        # nm: the Specctra design's resolution (um 10)
+
+
+def snap(fps):
+    """Every part on the routing's 0.1 um grid: a session's wires end on the
+    pins at those coordinates, and a board placed again must have its pins
+    there too, or the routing carried over (tools/route.py start --keep)
+    misses them by a few hundredths of a micron - Freerouting counts such a
+    wire unconnected."""
+    for fp in fps.values():
+        at = fp.GetPosition()
+        fp.SetPosition(pcbnew.VECTOR2I(round(at.x / ROUTING_STEP) * ROUTING_STEP,
+                                       round(at.y / ROUTING_STEP) * ROUTING_STEP))
 
 
 def outline(board):
@@ -382,6 +412,7 @@ def build():
     place_dips(fps, free)
     place_edge(fps, free)
     failed = place_rest(fps, free, nets)
+    snap(fps)
     plane(board, codes, "GND", pcbnew.In1_Cu)
     plane(board, codes, "+5V", pcbnew.In2_Cu)
     return board, skipped, missing, failed

@@ -245,6 +245,10 @@ layer px, under a pin pitch; the pin labels then sit on the pins):
   (lifted, most likely), on `АД03 Н` - to
   go into `vvv104.csv` with the RAM disk (plan 6a), where it can be tested.
 - Pictures: [evidence/green-wire-ad03](evidence/green-wire-ad03/).
+- On the printed board made anew (2026-11-05, the owner) it is a jumper,
+  E9, on both its versions: a mode of the machine, as Э3's E1..E8 are,
+  not a repair - D80.5 on its middle contact, 1-2 `ВБРЕГ L` (Э3, as
+  delivered), 2-3 `АД03 H` for the module.  `netlist/pcb_parts.csv`.
 
 Why it is there - a hypothesis the documents support:
 

@@ -1,0 +1,4 @@
+# Pins of Э3 the printed board made anew moves onto netlist/pcb_parts.csv's
+# parts (tools/pcb.py), on both its versions; the format of vvv104.csv.
+ref,pin,from_net,to_net,evidence
+D80,5,ВБРЕГ L,~E9.2,"E9, the green wire as a jumper (netlist/pcb_parts.csv; docs/findings.md, The green wire on the owner's board)"
