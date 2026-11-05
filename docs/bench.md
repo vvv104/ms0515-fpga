@@ -60,7 +60,7 @@ plays, in `sim/board/`, at the board's connectors.
   that stretch and implies `irq` (it found how OSA's ^Q sticks,
   `docs/findings.md`).
 - `drawn`: the board as Э3 draws it, without the owner's board's changes
-  (`netlist/rev3a.csv`: D70.15 on `~D14.3`, not on GND);
+  (`netlist/vvv104.csv`: D70.15 on `~D14.3`, not on GND);
 - `edges=FROM-TO` (machine microseconds): every change of the nets at the
   picture's left edge, master tick by tick - the border (`БОРДС`,
   `БОРДК`), D70's enable (`~D14.3`), the strobes `ВК2`..`ВК5`, `СТРОБ`,

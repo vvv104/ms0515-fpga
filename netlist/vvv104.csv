@@ -1,4 +1,6 @@
-# НС4 rev. 3А as built, against 3.858.420 Э3: a change goes in only when
+# The owner's (vvv104's) НС4 rev. 3А as built, against 3.858.420 Э3 - named
+# after him, not the revision: other rev. 3А boards do not have these
+# changes (Frolov's has neither).  A change goes in only when
 # the copper or a photo shows it beyond doubt AND the factory wire patches
 # (drawn on the assembly drawing 3.858.420 СБ) do not already bring the
 # board back to Э3; everything uncertain stays by Э3 and is listed in

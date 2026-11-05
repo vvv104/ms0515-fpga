@@ -66,9 +66,9 @@ class Wiring(unittest.TestCase):
 
     def test_a_variant_has_its_own_files(self):
         try:
-            route.configure("rev3a")
-            self.assertTrue(route.BOARD.endswith(os.path.join("kicad", "ns4-rev3a.kicad_pcb")))
-            self.assertTrue(route.STATE.endswith(os.path.join("build", "route-rev3a", "state.dsn")))
+            route.configure("vvv104")
+            self.assertTrue(route.BOARD.endswith(os.path.join("kicad", "ns4-vvv104.kicad_pcb")))
+            self.assertTrue(route.STATE.endswith(os.path.join("build", "route-vvv104", "state.dsn")))
         finally:
             route.configure()
         self.assertTrue(route.STATE.endswith(os.path.join("build", "route", "state.dsn")))

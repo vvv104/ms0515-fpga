@@ -243,7 +243,7 @@ layer px, under a pin pitch; the pin labels then sit on the pins):
   over R39, as a wire's does on the end of a pin bent up off the board -
   the way D70.15 is done - not down at the pad.  So: D80.5 off `ВБРЕГ L`
   (lifted, most likely), on `АД03 Н` - to
-  go into `rev3a.csv` with the RAM disk (plan 6a), where it can be tested.
+  go into `vvv104.csv` with the RAM disk (plan 6a), where it can be tested.
 - Pictures: [evidence/green-wire-ad03](evidence/green-wire-ad03/).
 
 Why it is there - a hypothesis the documents support:
@@ -346,7 +346,7 @@ b) changes only the border picture; the frame comparison will tell.
 
 Settled the same day: the owner sees **D70 pin 15 lifted** off its pad.
 So b) it is - D70.15 off `~D14.3` and on GND, D14.3 still driving D74.1;
-in `rev3a.csv`.  Not on the assembly drawing and not on the leningrad.su
+in `vvv104.csv`.  Not on the assembly drawing and not on the leningrad.su
 board as far as its photo shows: a later fix, most likely made by the
 plant with the RAM-disk upgrade.  The owner looked at that board's photo
 again (2026-11-03, `mc0515-6.jpg` as the museum serves it, 980 px - the
@@ -619,7 +619,7 @@ Asked on the forum; the model is not changed until then.
 So **Э3 is the patched board**: the copper had errors, the patches fix
 them, and Э3 was drawn after.  This settles three of the six
 "cannot tell from the scans" places (D16.1/D40.9, ~D30.15/СТРОБ, and the
-`ИМП ЧТ` and `АПК7` splits) - in Э3's favour.  `rev3a.csv` loses its
+`ИМП ЧТ` and `АПК7` splits) - in Э3's favour.  `vvv104.csv` loses its
 D40.9 entry: the copper there is the unpatched state, not the machine.
 The same white wires are on the owner's board and the leningrad.su one.
 Still to trace on the drawing: the other end of D98.3's and D84.4's
@@ -709,9 +709,10 @@ read and Mick's redraw (below) both have it.
 Э3 was drawn by hand, the board may have changed after it, and the
 documents we have come from unknown copies - neither source wins by rule.
 `nets.csv` stays Э3 as read; a real board's differences live in
-`netlist/<board>.csv` (`rev3a.csv` for НС4 rev. 3А), one moved pin per row
+`netlist/<board>.csv` (`vvv104.csv` for the owner's НС4 rev. 3А, named after him - another
+rev. 3А board, Frolov's, does not have its changes), one moved pin per row
 with its evidence, and go in only when the copper or a photo shows them
-beyond doubt.  `python tools/netlist.py check rev3a` applies and checks
+beyond doubt.  `python tools/netlist.py check vvv104` applies and checks
 them.  Where the drawing itself cannot be right - it contradicts the
 technical description and stops the machine's software - the correction
 lives apart again, in `netlist/deviations.csv`, in the same form, applied
@@ -719,7 +720,7 @@ over Э3 before the board's changes (none so far: R45, the first taken
 for one, was a misread of the sheet).  The FPGA is built from Э3 with the rev. 3А changes, each one
 switchable; where a change matters, software on the model decides.
 
-In `rev3a.csv` so far: nothing - D40.9 was taken out again once the factory
+In `vvv104.csv` so far: nothing - D40.9 was taken out again once the factory
 patch D15.9-D40.9 was found (see below).
 
 ## Mick's redraw of Э3 in P-CAD 2002 (2012)

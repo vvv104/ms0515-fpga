@@ -28,7 +28,7 @@
 // fetch, and every 20 ms the last fetch (docs/bench.md); fetches=FROM-TO
 // (machine microseconds) adds every fetch in that stretch.  `drawn` builds
 // the board as Э3 draws it, without the owner's board's changes
-// (netlist/rev3a.csv: D70.15 on ~D14.3, not on GND).  edges=FROM-TO
+// (netlist/vvv104.csv: D70.15 on ~D14.3, not on GND).  edges=FROM-TO
 // (machine microseconds) prints, master tick by tick, every change of the
 // nets at the picture's left edge: the border (БОРДС, БОРДК), D70's enable
 // (~D14.3), the strobes ВК2..ВК5, СТРОБ, ЧТ ВЗУ, ССИ, РАЗР; then, in hex,
@@ -231,7 +231,7 @@ struct Options {
     std::string layout = "omega";       // the formatter its tracks are laid out as
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
     bool logic_drive = false;           // the MiSTer core's drive in place of the bench's (logic_drive.h)
-    bool drawn = false;                 // Э3's board, not the owner's (netlist/rev3a.csv)
+    bool drawn = false;                 // Э3's board, not the owner's (netlist/vvv104.csv)
     std::uint64_t edge_from = 0, edge_to = 0;  // the left edge's nets logged (machine us)
     std::vector<std::pair<std::uint64_t, std::string>> saves;  // snapshots: (machine ms, file)
     std::string load;                   // a snapshot the run goes on from

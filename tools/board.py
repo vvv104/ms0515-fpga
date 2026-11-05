@@ -12,7 +12,7 @@ is plugged in there, and what reaches none of the nets taken left out.
 
 The board is the chips of netlist/parts.csv wired by netlist/nets.csv, with
 the places where the drawing cannot be right (netlist/deviations.csv) and
-then the owner's board's changes (netlist/rev3a.csv) applied - each of
+then the owner's board's changes (netlist/vvv104.csv) applied - each of
 these a switch: a board input s_<ref>_<pin> takes the moved chip input
 back to Э3's net while 1; a chip's socket ports (load_*) come out as
 board inputs l_<ref>_<name>, its cells loaded from outside:
@@ -201,7 +201,7 @@ def ms7004_sources():
 def ns4_sources():
     n = os.path.join(REPO, "netlist")
     return Sources(os.path.join(n, "parts.csv"), os.path.join(n, "pinouts.csv"),
-                   os.path.join(n, "nets.csv"), os.path.join(n, "rev3a.csv"),
+                   os.path.join(n, "nets.csv"), os.path.join(n, "vvv104.csv"),
                    os.path.join(n, "analog.csv"), os.path.join(REPO, "rtl", "chips"),
                    os.path.join(n, "firmware.csv"), os.path.join(n, "delays.csv"),
                    os.path.join(n, "deviations.csv"), os.path.join(n, "delays-max.csv"))

@@ -7,15 +7,15 @@ Run with KiCad's own Python, which has pcbnew:
     <KiCad>/bin/python tools/pcb.py check    - the board's pads against the
                                                netlist (stage 8e), exit 1 on
                                                a difference
-    <KiCad>/bin/python tools/pcb.py derive rev3a
-                                             - kicad/ns4-rev3a.kicad_pcb: Э3's
-                                               board with netlist/rev3a.csv's
+    <KiCad>/bin/python tools/pcb.py derive vvv104
+                                             - kicad/ns4-vvv104.kicad_pcb: Э3's
+                                               board with netlist/vvv104.csv's
                                                changes, the moved pins' old
                                                nets unrouted
-    <KiCad>/bin/python tools/pcb.py check rev3a
+    <KiCad>/bin/python tools/pcb.py check vvv104
 
 Two boards, one placement: ns4 is Э3 as drawn (the one whose 640 x 200
-left edge is still open, docs/findings.md), ns4-rev3a the owner's board as
+left edge is still open, docs/findings.md), ns4-vvv104 the owner's board as
 it worked, D70.15 on GND.  The variant is made from Э3's board, so the two
 differ only in the changed nets' copper.
 

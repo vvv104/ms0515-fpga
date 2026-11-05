@@ -3,8 +3,8 @@
 
     python tools/netlist.py check   - list the problems (exit 1 on errors)
     python tools/netlist.py stats   - parts, nets and pins read so far
-    python tools/netlist.py check rev3a - the same with a board's changes
-                                    (netlist/rev3a.csv) applied over Э3
+    python tools/netlist.py check vvv104 - the same with a board's changes
+                                    (netlist/vvv104.csv) applied over Э3
 
 netlist/<board>.csv  ref,pin,from_net,to_net,evidence - the changes a real
                      board makes to Э3: a pin moved off one net onto

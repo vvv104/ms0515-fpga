@@ -377,7 +377,7 @@ class Sockets(unittest.TestCase):
 
 
 class Switches(unittest.TestCase):
-    """A board's change (netlist/rev3a.csv) on a chip's input is a switch:
+    """A board's change (netlist/vvv104.csv) on a chip's input is a switch:
     the pin reads the board's net, or Э3's when s_<ref>_<pin> is 1."""
 
     def build(self, changes):

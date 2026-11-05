@@ -193,7 +193,7 @@ std::unique_ptr<ms0515_board_t> emulator_after(const std::string& rom_name)
 // board's video DAC inputs a whole frame after the program's end mark,
 // against the emulator's picture of its own video memory, point for point.
 // `drawn`: the board as 3.858.420 Э3 draws it, D70's enable on ~D14.3, not
-// on GND as on the owner's board (netlist/rev3a.csv).
+// on GND as on the owner's board (netlist/vvv104.csv).
 void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool drawn = false)
 {
     Bench b(rom_name);

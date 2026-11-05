@@ -2,7 +2,7 @@
 
 The case is told in [findings.md](../../findings.md), section «The factory
 wire patches restore Э3», the paragraphs on the thin bare wire; the change
-is `netlist/rev3a.csv` (D70.15 off `~D14.3`, on GND).
+is `netlist/vvv104.csv` (D70.15 off `~D14.3`, on GND).
 
 | File | What |
 |---|---|

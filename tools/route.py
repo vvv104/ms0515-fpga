@@ -6,11 +6,11 @@ Run with KiCad's own Python, which has pcbnew:
     <KiCad>/bin/python tools/route.py start
     <KiCad>/bin/python tools/route.py run [passes per chunk] [chunks without gain]
     <KiCad>/bin/python tools/route.py finish
-    <KiCad>/bin/python tools/route.py rev3a start|run|finish
+    <KiCad>/bin/python tools/route.py vvv104 start|run|finish
 
-The last routes kicad/ns4-rev3a.kicad_pcb (`tools/pcb.py derive rev3a`) in
-build/route-rev3a: its `start` takes Э3's board's routing (build/route's
-state.ses) without the nets netlist/rev3a.csv's pins left, so `run` routes
+The last routes kicad/ns4-vvv104.kicad_pcb (`tools/pcb.py derive vvv104`) in
+build/route-vvv104: its `start` takes Э3's board's routing (build/route's
+state.ses) without the nets netlist/vvv104.csv's pins left, so `run` routes
 only those.
 
 The routing is long (a night and more) and is made to survive being

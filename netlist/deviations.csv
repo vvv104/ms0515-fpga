@@ -1,7 +1,7 @@
 # Where the model leaves 3.858.420 Э3 because the drawing cannot be right:
 # what it draws contradicts the technical description and stops the
 # machine's own software, and the copper does not contradict the correction.  Kept
-# apart from nets.csv (Э3 as read) and from rev3a.csv (one real board's
+# apart from nets.csv (Э3 as read) and from vvv104.csv (one real board's
 # changes); applied over Э3 before them.  docs/findings.md tells each case.
 ref,pin,from_net,to_net,evidence
 # None so far: R45, the first, turned out a misread of the sheet (docs/findings.md).

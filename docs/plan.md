@@ -56,14 +56,14 @@ Three places need care:
    `СТАРТ Н` pulse, and after it no net may have two drivers on at once
    (`contention_at` names the net).
 6b. **Disputed places decided by software.**  Every place the sources do
-   not settle becomes a switchable change in `netlist/rev3a.csv` with its
+   not settle becomes a switchable change in `netlist/vvv104.csv` with its
    candidates (as Э3, as the copper, to pin X or Y).  The board is built
    with each and runs the real software - the ROM self-test, Omega and
    ОСА with the RAM disk, floppy writes, Rodionov's system on ROM-A - frame
    by frame against the emulator.  A wrong candidate breaks something; if
    none does, the place does not matter to the machine and is marked so.
    No candidate open: the bare wire on the owner's board (GND to
-   the lifted D70.15) is settled into `rev3a.csv`; the factory wires all
+   the lifted D70.15) is settled into `vvv104.csv`; the factory wires all
    match Э3.
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
@@ -154,7 +154,7 @@ Three places need care:
    7d. **The core.**  Template_MiSTer's `sys/` unchanged - a git
        submodule, not copied in: no third-party HDL in the tree - the board and
        the parts of 7c under `emu`, the menu: disk images, ROM-A/ROM-B,
-       the rev3a changes and the undecided places as switches.  Built,
+       the vvv104 changes and the undecided places as switches.  Built,
        timing closed; the post-fit netlist run on the bench against the
        emulator as the RTL is.
        **So far**: the machine for the core (`rtl/ms0515.sv`, the board
@@ -189,7 +189,7 @@ Three places need care:
        looked up in the tables in one tick.  The queue's head is now
        registered and looked up a tick later, two ticks after an event
        instead of one: the 120 MHz domain +0.65 ns (33 % of the ALMs).  The owner's board's changes
-       (`netlist/rev3a.csv`) are switches: the generator gives each moved
+       (`netlist/vvv104.csv`) are switches: the generator gives each moved
        input an `s_<ref>_<pin>` that takes it back to Э3's net, and the
        menu has one for D70.15 (on GND, or as drawn).  Left for 7d: the
        post-fit netlist on the bench.
@@ -225,12 +225,12 @@ Three places need care:
        Freerouting, DRC to a common fab's rules.  Two boards, one
        placement (owner, 2026-11-05): `ns4` is Э3 as drawn - the one that
        still needs work, its 640 x 200 left edge open (`docs/findings.md`)
-       - and `ns4-rev3a` the owner's board as it worked, with
-       `netlist/rev3a.csv`'s change (D70.15 on GND), the conditionally
+       - and `ns4-vvv104` the owner's board as it worked, with
+       `netlist/vvv104.csv`'s change (D70.15 on GND), the conditionally
        working one.  No jumper chooses between them: on Э3 a jumper is a
        mode of the machine, not a repair.  The variant is made from Э3's
-       routed board (`tools/pcb.py derive rev3a`) and only the nets its
-       pins left are routed again (`tools/route.py rev3a ...`).  The
+       routed board (`tools/pcb.py derive vvv104`) and only the nets its
+       pins left are routed again (`tools/route.py vvv104 ...`).  The
        routing runs in chunks that survive a stop (`tools/route.py`).
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
