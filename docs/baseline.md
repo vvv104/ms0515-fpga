@@ -20,7 +20,7 @@ the fixed tree.
 | 4. Chips and board, typical delays | pass, 73 of 73 |
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
 | 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes - the boot runs are being made again |
-| 7. The core | pass on a17d511's tree: timing met, +0.647 ns at 120 MHz; to be built again, the controller's model having changed in step 6 |
+| 7. The core | pass: built again after step 6's fix, timing met, +0.239 ns at 120 MHz |
 | 8. The printed board | the owner's board placed, checked against the netlist, its routing running |
 
 ## 1. The netlist is consistent
@@ -218,19 +218,25 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
 
 ## 7. The core
 
-`quartus_sh -t boards/de10nano/core.tcl` on a17d511; log
-`build/baseline-core.log`, reports in `build/mister/output_files/`.
-Step 6 then changed `rtl/chips/kr1818vg93.sv` (a state more in the
-write's sequence): the figures below are of the tree before it, and the
-core is to be built again.
+`quartus_sh -t boards/de10nano/core.tcl`, reports in
+`build/mister/output_files/`.  Built twice: on a17d511
+(`build/baseline-core.log`), and again on 26b39da
+(`build/baseline-core2.log`, 2026-11-06, 20 minutes) after step 6
+changed `rtl/chips/kr1818vg93.sv` (a state more in the write's
+sequence).  The figures are the second build's, the first's in
+brackets.
 
-- Resources (`ms0515.fit.summary`): 13 963 of 41 910 ALMs (33 %),
-  1 643 857 of 5 662 720 block memory bits (29 %), 214 of 553 RAM
-  blocks, 33 of 112 DSP blocks (29 %).
+- Resources (`ms0515.fit.summary`): 13 557 of 41 910 ALMs, 32 %
+  (13 963, 33 %); 1 643 857 of 5 662 720 block memory bits (29 %), 214
+  of 553 RAM blocks, 33 of 112 DSP blocks (29 %) - as before.
 - Timing (`ms0515.sta.rpt`, the template's single model): every domain
   met.  The 120 MHz domain (`emu|pll ... general[0]`): setup slack
-  +0.647 ns, Fmax 130.11 MHz, hold +0.350 ns.  The least setup slack of
-  all: +0.469 ns (HDMI's PLL, the template's own).
+  +0.239 ns, Fmax 123.55 MHz, hold +0.344 ns (+0.647 ns, 130.11 MHz,
+  +0.350 ns).  It is now the least setup slack of all (before: +0.469
+  ns, HDMI's PLL).  The change is one state in one chip; the 0.4 ns
+  between the two builds is the fitter's placement, not that state's
+  path - the margin of this design at 120 MHz is a few tenths of a
+  nanosecond either way, as plan 7d's history shows.
 - Not done: the post-fit netlist on the bench (plan 7d).
 
 ## 8. The printed board
@@ -265,9 +271,9 @@ The owner's board first (`docs/plan.md` 8d).
    short.
 2. The core's drive against the bench's (step 6): found and fixed -
    the controller's model ended a sector's write a byte early and the
-   bench's drive then lost the write; the core's drive was right.  Left:
-   the boot runs again on the fixed board (going), and the core built
-   again, its controller having changed.
+   bench's drive then lost the write; the core's drive was right.  The
+   core is built again (step 7).  Left: the boot runs again on the
+   fixed board (going).
 3. The cursor's 8 samples in the self-test's frames at typ (step 6) -
    taken for the blink's phase, not shown.
 4. The post-fit netlist on the bench (step 7, plan 7d).  Tried on
