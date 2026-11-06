@@ -149,9 +149,11 @@ to any one board.  From stage 6 on there are two projects:
        (BIRDS, Saboteur 2 from a DEC RT-11 diskette) stood still at their
        first instructions: the КР580ВВ51А's model held a character
        written before TxEN went off, which ROM-B does to the keyboard,
-       and the games wait for TxRDY.  Fixed, with tests, 75 of 75 in the
-       three corners; the boots and the games on the fixed board are
-       being run.  The cell 000:000 "read not as written" at max
+       and the games wait for TxRDY.  And a character written with TxEN
+       off - as ROM-B leaves it, under Omega too - never left the buffer,
+       where the machine's own games show TxRDY coming back.  Both
+       fixed, with tests, 76 of 76 in the three corners; the boots and
+       the games on the fixed board are being run.  The cell 000:000 "read not as written" at max
        (above) was the bench's watch, not the board: it took strobes
        standing low at the first tick for a write; fixed, with a test.
    7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
@@ -241,7 +243,8 @@ to any one board.  From stage 6 on there are two projects:
        **Baseline** (2026-11-06, `docs/baseline.md`, step 7): built
        again - on the walk's tree 33 % of the ALMs, the 120 MHz domain
        +0.647 ns; after the controller's fix of step 6, 32 % and +0.239
-       ns; after the USART's, 33 % and +0.633 ns.  The
+       ns; after the USART's first fix, 33 % and +0.633 ns (the build
+       after its second is in `docs/baseline.md`, step 7).  The
        post-fit netlist on the bench was tried and does not work with
        Quartus's own cell models (the baseline's open item 4): the
        owner's to decide.

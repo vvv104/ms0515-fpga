@@ -2,6 +2,8 @@
 // character leaves on the falling edges of TxC, as the chip's CLK sees
 // them (docs/vv51.md §7): a start bit, the data LSB first, the parity bit,
 // the stop bits - each bit `factor` TxC periods, 1½ stop bits a half more.
+// A character leaves the buffer for the shifter as soon as the shifter is
+// free, and begins there once the transmitter is on (§7, "TxEN off").
 module kr580vv51_tx (
     input  logic       clk,
     input  logic       reset,           // master or internal reset: idle
@@ -23,6 +25,7 @@ module kr580vv51_tx (
     logic [6:0]  ticks;                 // TxC falls left in this bit
     logic [6:0]  per_bit;
     logic        out;
+    logic        held;                  // a character in the shifter, not begun: the transmitter is off
 
     always_comb
         case (factor)
@@ -60,6 +63,7 @@ module kr580vv51_tx (
         take <= 1'b0;
         if (reset) begin
             busy <= 1'b0;
+            held <= 1'b0;
             out  <= 1'b1;
         end else if (fall) begin
             if (busy && ticks != 7'd1)
@@ -68,14 +72,17 @@ module kr580vv51_tx (
                 bit_no <= bit_no + 4'd1;
                 out    <= frame[bit_no + 4'd1];
                 ticks  <= bit_no + 4'd1 == last ? stop_ticks(stops, per_bit) : per_bit;
-            end else if (full && enable) begin      // the next character: its start bit
-                frame  <= framed(data, length, pen, ep);
-                last   <= 4'd6 + {2'd0, length} + {3'd0, pen};
+            end else if (held ? enable : full) begin
+                if (!held) begin                    // the next character leaves the buffer
+                    frame <= framed(data, length, pen, ep);
+                    last  <= 4'd6 + {2'd0, length} + {3'd0, pen};
+                    take  <= 1'b1;
+                end
+                held   <= !enable;                  // ... and waits here while the transmitter is off
+                busy   <= enable;
+                out    <= !enable;                  // its start bit
                 bit_no <= 4'd0;
-                out    <= 1'b0;
                 ticks  <= per_bit;
-                busy   <= 1'b1;
-                take   <= 1'b1;
             end else begin
                 busy <= 1'b0;
                 out  <= 1'b1;

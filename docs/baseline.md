@@ -19,8 +19,8 @@ the fixed tree.
 | 3. The generated files are current | pass |
 | 4. Chips and board, typical delays | pass, 73 of 73 |
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
-| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass.  Then games (BIRDS, Saboteur 2) found the КР580ВВ51А's model holding a character written before TxEN went off, so that both stood still at their first instructions - fixed; the boots and the games on the fixed board are **running** |
-| 7. The core | pass: built again after each of step 6's two fixes, timing met, +0.633 ns at 120 MHz |
+| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass.  Then games (BIRDS, Saboteur 2) found the КР580ВВ51А's model wrong twice about TxEN - a character written before TxEN went off was held, and one written with TxEN off never left the buffer - so that both stood still at their first instructions; fixed; the boots and the games on the fixed board are **running** |
+| 7. The core | built again after each of step 6's fixes, timing met (+0.633 ns at 120 MHz after the USART's first); the build after its second is **running** |
 | 8. The printed board | the owner's board placed and checked against the netlist.  Its routing stopped with 8 connections unrouted and **is not the board planned**: Freerouting ran the signals over the two plane layers - open |
 
 ## 1. The netlist is consistent
@@ -306,7 +306,28 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
     of `test_kr580vv51` (TxEN, -CTS), seen failing.  `ctest` at typ, min
     and max after it: **75 of 75** each (the two bench tests of 6716c7b
     added to the 73).  On the fixed board the keyboard hears 247, 021,
-    220 one after another at 2.78 s.
+    220 one after another at 2.78 s, and 253, 021, 220 at 4.81 s
+    (`build/games2/boot-<corner>`, fa63fda's tree, to 16 s: the prompt
+    in the three corners).
+  - *The same chip, a second time.*  On the board so fixed the games
+    still stood (`build/games2/birds-<corner>`, `sabot-load-<corner>`):
+    BIRDS writes its first 231 at 16.550372 s and stands at 001030, its
+    second wait for TxRDY (`build/games2/birds-diag`).  ROM-B turns TxEN
+    on only around its own writes and leaves the command at 006, TxEN
+    off; the character written then never left the buffer.  And 006 is
+    what a program finds under Omega too (the emulator's states at the
+    prompts: Omega and DEC RT-11 on ROM-B 006, ОСА on ROM-A 047) - the
+    system the games were written under, so on the machine TxRDY comes
+    back after a write with TxEN off.  The datasheet does not say what
+    becomes of such a character.  Chosen: it leaves the buffer for the
+    shift register as soon as that is free and begins there when TxEN
+    comes on; TxEMPTY stays high meanwhile (`docs/vv51.md` §7; what is
+    left open is §13, 13: kept, dropped or sent at once - only if sent
+    at once does the keyboard hear the games' 231, "no key click",
+    while the game runs; asked of the owner).  Test first: a case of
+    `test_kr580vv51`, seen failing.
+    `ctest` at typ, min and max after it: **76 of 76** each (with
+    `test_dram_watch`).
   - *What it means for the runs above.*  Every boot run of this walk
     was made with the keyboard's commands late or lost - nothing in the
     bench's keyboard stub acts on them, but the processor's path is not
@@ -314,9 +335,10 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
     after the fix part at 2.79 s by a fetch or three
     (`build/games/boot-typ`, `build/games2/boot-typ`).  In the MiSTer
     core the МС 7004's own model was the one not hearing them.  So the
-    seventeen boots are being made once more
-    (`build/baseline/after2`), with the diskette's boot and the games
-    (`build/games2`) - **running**; their end goes here.
+    seventeen boots are being made once more, on the board after both
+    fixes (`build/baseline/after3`; those begun after the first,
+    `after2`, were stopped), with the diskette's boot and the games
+    (`build/games3`) - **running**; their end goes here.
 
 ## 7. The core
 
@@ -331,8 +353,10 @@ to 16:05) after step 6 changed `rtl/chips/kr580vv51.sv` (the character
 owed): 13 983 ALMs (33 %), the memory, RAM and DSP blocks as before;
 every domain met; the 120 MHz domain's setup slack +0.633 ns, Fmax
 129.87 MHz, hold +0.374 ns; the least setup slack of all +0.387 ns
-(HDMI's PLL), the least hold +0.220 ns (the same).  The `.rbf` is the
-third build's.
+(HDMI's PLL), the least hold +0.220 ns (the same).  A fourth
+(`build/baseline-core4.log`, begun 2026-11-06 18:09) after the same
+chip's second change (the character held in the shifter) - **running**;
+its figures go here.
 
 - Resources (`ms0515.fit.summary`): 13 557 of 41 910 ALMs, 32 %
   (13 963, 33 %); 1 643 857 of 5 662 720 block memory bits (29 %), 214

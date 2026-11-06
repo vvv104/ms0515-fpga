@@ -189,16 +189,33 @@ TEST_CASE("КР580ВВ51: what was written before TxEN went off is still sent")
     CHECK(sent(u.txd_) == std::vector<int>{0xA5, 0x3C});
     CHECK((u.read(true) & 0x05) == 0x05);       // TxRDY and TxEMPTY: nothing left
     CHECK(u.m().p19);                           // marking
+}
 
+// What the datasheet leaves unsaid, taken from the machine's own software:
+// under Omega ROM-B leaves the keyboard USART's command at 006 (TxEN off),
+// and BIRDS and Saboteur 2 begin by waiting for TxRDY, writing the keyboard
+// 231, waiting for TxRDY again and writing 231 once more.  So with TxEN
+// off a character leaves the buffer - for the shift register, where it
+// waits for TxEN - and TxRDY comes back; TxEMPTY stays high (DS p.2-4).
+TEST_CASE("КР580ВВ51: a character written with TxEN off leaves the buffer and waits in the shifter")
+{
+    Usart u;
+    init(u, 0x4E, 0x06);                        // ROM-B's: 1 stop bit, 8 bits, x16; DTR, RxE - no TxEN
     u.txd_.clear();
-    u.write(false, 0x55);                       // written with the transmitter off: it waits
-    u.run(2 * kFrame);
-    CHECK(sent(u.txd_).empty());
-    CHECK((u.read(true) & 0x01) == 0);
-    u.write(true, 0x05);                        // ... for TxEN
-    u.run(2 * kFrame);
-    CHECK(sent(u.txd_) == std::vector<int>{0x55});
     CHECK((u.read(true) & 0x01) != 0);
+    u.write(false, 0x99);
+    u.run(2 * kFrame);
+    CHECK(sent(u.txd_).empty());                // nothing on the line
+    CHECK((u.read(true) & 0x05) == 0x05);       // TxRDY back, TxEMPTY still high
+    u.write(false, 0x66);                       // the second fills the buffer
+    u.run(2 * kFrame);
+    CHECK((u.read(true) & 0x01) == 0);
+    CHECK(sent(u.txd_).empty());
+    CHECK(u.m().p19);
+    u.write(true, 0x07);                        // TxEN: both leave, in their order
+    u.run(3 * kFrame);
+    CHECK(sent(u.txd_) == std::vector<int>{0x99, 0x66});
+    CHECK((u.read(true) & 0x05) == 0x05);
 }
 
 TEST_CASE("КР580ВВ51: what was written before -CTS went off is still sent")
