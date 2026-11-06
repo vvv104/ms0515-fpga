@@ -117,6 +117,25 @@ void init(Usart& u, std::uint8_t mode, std::uint8_t command)
     u.write(true, command);
 }
 
+// The characters on TxD (its level at each TxC fall) at x16, 8 bits, no
+// parity: a start bit, the bits taken at each one's first TxC period.
+std::vector<int> sent(const std::vector<int>& t)
+{
+    std::vector<int> out;
+    std::size_t s = 0;
+    while (s < t.size()) {
+        if (t[s] == 1) { ++s; continue; }
+        if (s + 9 * 16 > t.size()) break;
+        int v = 0;
+        for (std::size_t b = 0; b < 8; ++b) v |= t[s + 16 * (b + 1)] << b;
+        out.push_back(v);
+        s += 10 * 16;                           // past the first stop bit
+    }
+    return out;
+}
+
+constexpr int kFrame = 12 * 16 * 2 * kBaudHalf; // a character with two stop bits, and to spare
+
 }  // namespace
 
 TEST_CASE("КР580ВВ51: the reset sequence, then the mode and the command")
@@ -151,6 +170,54 @@ TEST_CASE("КР580ВВ51: a character leaves at x16: start, LSB first, two stop 
     CHECK(bits == std::vector<int>{0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1});
     CHECK(u.m().p18);                           // TxEMPTY back
     CHECK(u.m().p19);                           // marking
+}
+
+// The 8251A's own (docs/vv51.md §7, DS p.2-2, p.2-4): a Tx Disable or -CTS
+// going off does not stop what was written before it.  The MS 0515's
+// programs write the keyboard a command and take TxEN off in the next
+// instruction (BIRDS: 231, 231, then the command 064).
+TEST_CASE("КР580ВВ51: what was written before TxEN went off is still sent")
+{
+    Usart u;
+    init(u, 0xCE, 0x05);
+    u.txd_.clear();
+    u.write(false, 0xA5);                       // into the shifter
+    u.write(false, 0x3C);                       // waits in the buffer
+    u.write(true, 0x04);                        // TxEN off, before the first has left
+    CHECK((u.read(true) & 0x01) == 0);          // the buffer still holds the second
+    u.run(3 * kFrame);
+    CHECK(sent(u.txd_) == std::vector<int>{0xA5, 0x3C});
+    CHECK((u.read(true) & 0x05) == 0x05);       // TxRDY and TxEMPTY: nothing left
+    CHECK(u.m().p19);                           // marking
+
+    u.txd_.clear();
+    u.write(false, 0x55);                       // written with the transmitter off: it waits
+    u.run(2 * kFrame);
+    CHECK(sent(u.txd_).empty());
+    CHECK((u.read(true) & 0x01) == 0);
+    u.write(true, 0x05);                        // ... for TxEN
+    u.run(2 * kFrame);
+    CHECK(sent(u.txd_) == std::vector<int>{0x55});
+    CHECK((u.read(true) & 0x01) != 0);
+}
+
+TEST_CASE("КР580ВВ51: what was written before -CTS went off is still sent")
+{
+    Usart u;
+    init(u, 0xCE, 0x05);
+    u.txd_.clear();
+    u.write(false, 0xA5);
+    u.write(false, 0x3C);
+    u.m().p17 = 1;                              // -CTS off
+    u.run(3 * kFrame);
+    CHECK(sent(u.txd_) == std::vector<int>{0xA5, 0x3C});
+    u.txd_.clear();
+    u.write(false, 0x55);                       // written with -CTS off: it waits
+    u.run(2 * kFrame);
+    CHECK(sent(u.txd_).empty());
+    u.m().p17 = 0;
+    u.run(2 * kFrame);
+    CHECK(sent(u.txd_) == std::vector<int>{0x55});
 }
 
 TEST_CASE("КР580ВВ51: a character arrives; RxRDY until it is read; overrun")

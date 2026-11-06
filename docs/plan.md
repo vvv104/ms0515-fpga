@@ -145,7 +145,13 @@ to any one board.  From stage 6 on there are two projects:
        written; lost requests 0 or 1 a run at typ and min; at max 178 134
        (ОСА) and some 246 450 (Omega) - some 16 500 a second while Omega
        waits at its prompt.  The same on the board after step 6's fix
-       (17 runs): 178 210 and some 246 400 at max.
+       (17 runs): 178 210 and some 246 400 at max.  Then two games
+       (BIRDS, Saboteur 2 from a DEC RT-11 diskette) stood still at their
+       first instructions: the КР580ВВ51А's model held a character
+       written before TxEN went off, which ROM-B does to the keyboard,
+       and the games wait for TxRDY.  Fixed, with tests, 75 of 75 in the
+       three corners; the boots and the games on the fixed board are
+       being run.
    7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
        logic: the МС 5305's MFM stream for the ВГ93 from a disk image
        (MiSTer's SD block interface), the МС 7004's line from MiSTer's
@@ -233,7 +239,7 @@ to any one board.  From stage 6 on there are two projects:
        **Baseline** (2026-11-06, `docs/baseline.md`, step 7): built
        again - on the walk's tree 33 % of the ALMs, the 120 MHz domain
        +0.647 ns; after the controller's fix of step 6, 32 % and +0.239
-       ns.  The
+       ns; after the USART's, 33 % and +0.633 ns.  The
        post-fit netlist on the bench was tried and does not work with
        Quartus's own cell models (the baseline's open item 4): the
        owner's to decide.

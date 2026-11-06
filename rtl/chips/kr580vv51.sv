@@ -28,6 +28,7 @@ module kr580vv51 (
     logic       cd_was, cs_was, wr_was, rd_was, wrote, read_start;
     logic       txen, dtr, rxe, sbrk, rts, internal_reset;
     logic       full, rxrdy, pe, oe, fe;
+    logic       sending, owed;
     logic       clk_was, txc_was, rxc_was, tx_fall, rx_rise;
     logic       take, busy, rx_done, rx_pe, rx_fe;
     logic [7:0] rx_data, rx_buf;
@@ -50,12 +51,17 @@ module kr580vv51 (
             seq <= S_MODE; mode <= '0;
             {txen, dtr, rxe, sbrk, rts} <= '0;
             {full, rxrdy, pe, oe, fe} <= '0;
+            owed <= 1'b0;
         end else begin
             if (wrote && !cd_was) begin
                 tx_buf <= d_was;
                 full   <= 1'b1;
-            end else if (take)
+                owed   <= sending;
+            end else if (take) begin
                 full <= 1'b0;
+                owed <= 1'b0;
+            end else if (full && sending)
+                owed <= 1'b1;
             if (wrote && cd_was) control(d_was);
             if (read_start && !p12) rxrdy <= 1'b0;
             if (rx_done) begin
@@ -84,16 +90,21 @@ module kr580vv51 (
                     seq <= S_MODE;
                     {txen, dtr, rxe, sbrk, rts} <= '0;
                     full <= 1'b0;
+                    owed <= 1'b0;
                     internal_reset <= 1'b1;
                 end
             end
         endcase
     endtask
 
+    // The transmitter sends while TxEN is on and -CTS low - and what was
+    // written while it did, even if either goes off before the character
+    // has left the buffer (the 8251A's own, docs/vv51.md §7).
+    assign sending = txen && !p17;
     kr580vv51_tx tx (
         .clk, .reset(p21 || internal_reset), .fall(tx_fall),
         .factor(mode[1:0]), .length(mode[3:2]), .pen(mode[4]), .ep(mode[5]), .stops(mode[7:6]),
-        .enable(txen && !p17), .sbrk, .full, .data(tx_buf), .take, .busy, .txd(p19)
+        .enable(sending || owed), .sbrk, .full, .data(tx_buf), .take, .busy, .txd(p19)
     );
 
     kr580vv51_rx rx (
@@ -119,7 +130,7 @@ module kr580vv51 (
     assign {p8, p7, p6, p5, p2, p1, p28, p27} = out_byte;
     assign {p8_oe, p7_oe, p6_oe, p5_oe, p2_oe, p1_oe, p28_oe, p27_oe} = {8{driving}};
 
-    assign p15 = !full && txen && !p17;     // the pin is gated, the status bit is not
+    assign p15 = !full && sending;          // the pin is gated, the status bit is not
     assign p18 = !full && !busy;
     assign p14 = rxrdy;
     assign p24 = !dtr;

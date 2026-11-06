@@ -19,8 +19,8 @@ the fixed tree.
 | 3. The generated files are current | pass |
 | 4. Chips and board, typical delays | pass, 73 of 73 |
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
-| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass |
-| 7. The core | pass: built again after step 6's fix, timing met, +0.239 ns at 120 MHz |
+| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass.  Then games (BIRDS, Saboteur 2) found the КР580ВВ51А's model holding a character written before TxEN went off, so that both stood still at their first instructions - fixed; the boots and the games on the fixed board are **running** |
+| 7. The core | pass: built again after each of step 6's two fixes, timing met, +0.633 ns at 120 MHz |
 | 8. The printed board | the owner's board placed and checked against the netlist.  Its routing stopped with 8 connections unrouted and **is not the board planned**: Freerouting ran the signals over the two plane layers - open |
 
 ## 1. The netlist is consistent
@@ -232,8 +232,9 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
     2740 blocks read, 8 written, **the two images the same**; 0 ticks
     of their lines apart within four bytes after a write's end, 0 later
     than 3 ms after a head's move - the lines differ only while a track
-    loads (8368 stretches, none longer than a pulse, 120 ticks).  Neither image differs from the one
-    mounted, and that is what a drive that took all eight writes ends
+    loads (8368 stretches, none longer than a pulse, 120 ticks).
+    Neither image differs from the one mounted, and that is what a
+    drive that took all eight writes ends
     with: the system's later writes put back what its earlier ones
     changed (the run before the fix that printed every write,
     `build/baseline/logic3`: after them the logic's blocks 159 and 168
@@ -243,6 +244,58 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
     read, none written, the images the same, no tick apart late.
   - `omega-typ` left a snapshot of the machine at the prompt
     (`build/baseline/after/omega-typ-24s.snap`, at 24 s).
+- **Games** (the owner's word, 2026-11-06: a harder test than a boot -
+  BIRDS, which sounds at once, and the 1991 Saboteur 2, which works
+  through the memory dispatcher's banks and reads the joystick).  The
+  bench was given the speaker's node as `sound.wav` and the joystick
+  (`joy=FILE`), and a diskette is made for it - DEC RT-11 SJ with the two
+  games (`tools/games_disk.py`; `docs/bench.md`, "Games"; 6716c7b).
+  - *The diskette booted* at typ, min and max (`build/games/boot-<corner>`,
+    24 s, the tree of 6716c7b): «RT-11SJ V05.04», `.SET TT QUIET`, the
+    prompt at 13.5 s in all three.  The speaker's node gives the ROM's
+    self-test's three notes - 496.2, 662.3 and 331.1 Hz, 0.35 s each,
+    from 3.69 s (typ) - the same in the three corners.  Every DRAM read
+    as written at typ and min.  At max 900 reads of the cell 000:000
+    differ (000000 read, 177605 written; the first five within 30 ms of
+    power-on, the rest not timed) - plan 7b's power-up cell, but ОСА's
+    unseeded max run had two of them: open (the list, 7).  Lost
+    requests: 0 at typ and min, 337 952 at max.
+  - *Found: the model of КР580ВВ51А held a character.*  `R BIRDS` and
+    `R SABOT2` typed at the prompt from the snapshot at 14 s (`keys=`,
+    `build/games/birds-<corner>`, `sabot-load-<corner>`): both load;
+    Saboteur 2's title picture stands from 16.5 s in the three corners
+    (max's the very samples of typ's); then neither game goes on.
+    BIRDS sits at 001012 from 16.55 s (`irq`, `build/games/birds-diag`):
+    its first instructions wait for TxRDY in the keyboard USART's status
+    (`BIT #1,@#177442`), send the keyboard 231 twice and take TxEN off
+    (command 064); Saboteur 2's `SABOT2.DAT` begins with the same lines.
+    TxRDY never came, because ROM-B had left a character in D22's
+    buffer: at 4.8158 s it writes the command 007, the data 021, the
+    data 220 and, 10 µs after it, the command 006 - TxEN off with 220
+    still in the buffer (`watch=0177440-0177463`,
+    `build/games/kbd-diag-a`; the keyboard heard 021 and no 220).  The
+    same at 2.78 s, where the 220 left only at 4.808 s, when TxEN came
+    back.  The 8251A sends what was written before a Tx Disable
+    (`docs/vv51.md` §7, DS p.2-2, p.2-4 - written down there and not
+    done by the model, which began a character only with TxEN on).  The
+    emulator's USART is always ready, so both games run there.
+  - *Fixed*: `rtl/chips/kr580vv51.sv` - a character that waited in the
+    buffer while the transmitter was on is still sent after TxEN or
+    -CTS goes off; one written with it off waits.  Test first: two cases
+    of `test_kr580vv51` (TxEN, -CTS), seen failing.  `ctest` at typ, min
+    and max after it: **75 of 75** each (the two bench tests of 6716c7b
+    added to the 73).  On the fixed board the keyboard hears 247, 021,
+    220 one after another at 2.78 s.
+  - *What it means for the runs above.*  Every boot run of this walk
+    was made with the keyboard's commands late or lost - nothing in the
+    bench's keyboard stub acts on them, but the processor's path is not
+    the same: the fetch counts of the games diskette's boot before and
+    after the fix part at 2.79 s by a fetch or three
+    (`build/games/boot-typ`, `build/games2/boot-typ`).  In the MiSTer
+    core the МС 7004's own model was the one not hearing them.  So the
+    seventeen boots are being made once more
+    (`build/baseline/after2`), with the diskette's boot and the games
+    (`build/games2`) - **running**; their end goes here.
 
 ## 7. The core
 
@@ -252,7 +305,13 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
 (`build/baseline-core2.log`, 2026-11-06, 20 minutes) after step 6
 changed `rtl/chips/kr1818vg93.sv` (a state more in the write's
 sequence).  The figures are the second build's, the first's in
-brackets.
+brackets.  A third build (`build/baseline-core3.log`, 2026-11-06 15:39
+to 16:05) after step 6 changed `rtl/chips/kr580vv51.sv` (the character
+owed): 13 983 ALMs (33 %), the memory, RAM and DSP blocks as before;
+every domain met; the 120 MHz domain's setup slack +0.633 ns, Fmax
+129.87 MHz, hold +0.374 ns; the least setup slack of all +0.387 ns
+(HDMI's PLL), the least hold +0.220 ns (the same).  The `.rbf` is the
+third build's.
 
 - Resources (`ms0515.fit.summary`): 13 557 of 41 910 ALMs, 32 %
   (13 963, 33 %); 1 643 857 of 5 662 720 block memory bits (29 %), 214
@@ -381,6 +440,10 @@ The owner's board first (`docs/plan.md` 8d).
    layers, or other rules).  After that: DRC, the silkscreen's
    warnings, Э3's board from it.
 6. Э3's board, stage 6b - paused.
+7. The cell 000:000 at max from an unseeded power-up (step 6, the games
+   diskette's boot): 900 reads of it not as written in 24 s, where
+   ОСА's run had 2 in its first 0.2 s.  When they come and whether the
+   watch's shadow or the cell is the one off - not looked into.
 
 ## Said from memory before this walk, and wrong
 

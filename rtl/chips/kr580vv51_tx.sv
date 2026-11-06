@@ -10,7 +10,7 @@ module kr580vv51_tx (
     input  logic [1:0] length,          // L2L1: 5..8 bits
     input  logic       pen, ep,
     input  logic [1:0] stops,           // S2S1: 01 1, 10 1½, 11 2
-    input  logic       enable,          // TxEN and -CTS low
+    input  logic       enable,          // TxEN and -CTS low, or a character owed
     input  logic       sbrk,
     input  logic       full,            // a character waits in the buffer
     input  logic [7:0] data,
