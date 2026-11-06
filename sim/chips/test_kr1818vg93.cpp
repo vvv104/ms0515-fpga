@@ -111,6 +111,7 @@ public:
     V& m() { return *m_; }
     Disk disk;
     int head = 5;                               // the head's track
+    std::uint64_t wg_ticks = 0;                 // the ticks WG has been on
 
     void run(std::uint64_t ticks)
     {
@@ -186,6 +187,7 @@ private:
         }
         step_was_ = x.p15;
         if (x.p30) {                                                    // WG: record the cells
+            ++wg_ticks;
             if (cell != wcell_) {
                 disk.track(head)[wcell_] = wpulse_;
                 wcell_ = cell;
@@ -293,6 +295,8 @@ TEST_CASE("КР1818ВГ93: Write Sector, then the sector reads back")
     REQUIRE(b.until_intrq(1200000, [&] { b.write(3, static_cast<std::uint8_t>(n++ * 5 + 1)); }));
     CHECK(n == 512);
     CHECK((b.read(0) & 0x5C) == 0);
+    // WG on for the 12 00s, three A1s, the mark, the data, the CRC and the FF (DS p.13): 531 bytes
+    CHECK((b.wg_ticks + 16 * kTicksPerUs) / (32 * kTicksPerUs) == 531);
     const std::vector<std::uint8_t> data = read_command(b, 0x80, 1200000);
     REQUIRE(data.size() == 512);
     for (std::size_t i = 0; i < 512; ++i)

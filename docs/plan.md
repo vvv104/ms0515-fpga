@@ -169,12 +169,12 @@ to any one board.  From stage 6 on there are two projects:
        and 4 written, the two drives' lines apart only while a track
        loads after a step.
        **Baseline** (2026-11-06, `docs/baseline.md`, step 6): it boots
-       Omega to its prompt, the two images the same at 20 s (4 blocks
-       written) - but **at 30 s, 8 blocks written, they differ**: a
-       write taken wrongly by the core's drive or by the bench's; and 42
-       ticks of the two drives' lines differ later than 3 ms after a
-       head's move, where the design has none.  **Open**, looked into;
-       until settled the core's writing is not to be trusted.
+       Omega to its prompt.  After 8 blocks written its image was not
+       the bench drive's - and the core's drive was the one that was
+       right: the controller's model ended a sector's write a byte early
+       (no FF after the CRC) and the bench's drive then lost a write
+       whose CRC ends in a 0.  Both fixed, with tests; the boot runs are
+       made again on the fixed board.
        The keyboard: the МС 7004 itself, read from its own documents
        (`docs/ms7004.md`) as the board was - its netlist, its 8035
        (`docs/km1816ve48.md`) and the other chips, the keyboard generated

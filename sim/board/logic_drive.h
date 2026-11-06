@@ -9,8 +9,13 @@
 // track is loaded after a step, a side's change or the motor's start (the
 // bench's drive has every track at once): the bench's drive gives its flux
 // pulses there and the logic none yet, so a stretch of difference is a
-// pulse, 120 ticks, a run of them each load.  The report counts apart
-// the ticks that differ later than kSettle after such a moment - the time
+// pulse, 120 ticks, a run of them each load.  And they may for a few
+// bytes after a write: the bench's drive shows the new sector as the gate
+// goes off and the logic from its next field, so if the write ends before
+// the layout's field does, or right at its CRC's last cell, the cells up
+// to the first of the gap after it can differ (kAfterWrite; nothing reads
+// there).  The report counts those ticks, and apart from them the ticks
+// that differ later than kSettle after a head's move - the time
 // test_mc5305 gives the logic, inside the 15 ms the controller waits for
 // the head: by design, none.
 #pragma once
@@ -26,6 +31,10 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+// After a write's end the two drives' flux may differ up to the first cell
+// after the layout's field: within four bytes of the turn (test_mc5305).
+inline constexpr std::uint64_t kAfterWrite = 4 * 16 * 240;
 
 // A 512-byte block where two images differ: how many of its bytes, and
 // the first of them.
@@ -84,8 +93,15 @@ public:
         side_was_ = in.side;
         motor_was_ = in.motor;
         select_was_ = in.select0;
-        if (differ && t - moved_ > kSettle && late_++ == 0)
-            late_first_ = t;
+        if (in.write_gate && !gate_was_)
+            wrote_ = t;
+        gate_was_ = in.write_gate;
+        if (differ && t - moved_ > kSettle) {
+            if (wrote_ != 0 && t - wrote_ < kAfterWrite)
+                ++after_write_;
+            else if (late_++ == 0)
+                late_first_ = t;
+        }
         if (differ) {
             if (run_ == 0) {
                 ++stretches_;
@@ -107,9 +123,9 @@ public:
                     device_.reads, device_.writes, static_cast<unsigned long long>(ticks_),
                     static_cast<unsigned long long>(stretches_), static_cast<unsigned long long>(longest_),
                     static_cast<double>(first_) / 120e6, device_.image() == reference_.image() ? "the same" : "differ");
-        std::printf("the logic's drive: %llu of those ticks later than 3 ms after a step, a side's change or the "
-                    "motor's start",
-                    static_cast<unsigned long long>(late_));
+        std::printf("the logic's drive: %llu of those ticks within 4 bytes after a write's end; %llu later than 3 ms "
+                    "after a step, a side's change or the motor's start and not after a write",
+                    static_cast<unsigned long long>(after_write_), static_cast<unsigned long long>(late_));
         if (late_)
             std::printf(" (the first at %.6f s)", static_cast<double>(late_first_) / 120e6);
         std::printf("\n");
@@ -173,6 +189,8 @@ private:
     static constexpr std::uint64_t kSettle = 3000 * 120;    // 3 ms, as test_mc5305's
     std::uint64_t ticks_ = 0, stretches_ = 0, longest_ = 0, run_ = 0, first_ = 0;
     std::uint64_t moved_ = 0, late_ = 0, late_first_ = 0;
+    std::uint64_t wrote_ = 0, after_write_ = 0;         // the last write's end; the ticks that differ after one
+    bool gate_was_ = true;
     bool ref_data_ = true;
     bool step_was_ = true, side_was_ = true, motor_was_ = true, select_was_ = true;
 };

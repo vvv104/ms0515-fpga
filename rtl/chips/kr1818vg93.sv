@@ -42,7 +42,7 @@ module kr1818vg93 (
         SEARCH, ID_FIELD, DAM_WAIT, READ_DATA, READ_CRC, W_GAP, W_FIELD,
         READ_ADDR, RT_WAIT, READ_TRACK, WT_WAIT, WT_WRITE, DONE
     } state_t;
-    typedef enum logic [2:0] { F_PRE, F_SYNC, F_MARK, F_DATA, F_CRC1, F_CRC2, F_TAIL } field_t;
+    typedef enum logic [2:0] { F_PRE, F_SYNC, F_MARK, F_DATA, F_CRC1, F_CRC2, F_TAIL, F_END } field_t;
     state_t      state, searching;               // ID_FIELD returns to `searching`
     field_t      field;
     logic        busy, intrq, drq, hld, dirc, step, wg, type1, tg43, restore_pending, stepped;
@@ -426,6 +426,7 @@ module kr1818vg93 (
                 end
             F_CRC1: begin field <= F_CRC2; schedule(2'd0, crc[7:0], crc); end
             F_CRC2: begin field <= F_TAIL; schedule(2'd0, 8'hFF, crc); end
+            F_TAIL: field <= F_END;                     // the FF is taken: a byte's time for it
             default: begin                              // the FF is out: WG falls
                 wg <= 1'b0;
                 if (cr[4]) begin sr <= sr + 8'd1; indexes <= '0; syncs <= '0; state <= SEARCH; end

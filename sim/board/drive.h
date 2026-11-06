@@ -190,7 +190,9 @@ inline int data_field_at(const Layout& l, int k)
 // The flux a controller writes, back into a side's sectors.  The cells come
 // from the times of ДЗП's falls: between two falls as many cells as fit,
 // rounded, the first fall a cell of its own - the writer's clock and the
-// turn's need not agree.  They are read as the controller reads: a field
+// turn's need not agree; after the last fall, the cells that fit before
+// the write's end, so a field is whole with its last cell whether the
+// flux turns in it or not.  They are read as the controller reads: a field
 // from its A1s (the missing clock, 4489), its mark, an ID (FE) naming the
 // sector of the data field (FB or F8) after it, a field taken only with
 // its CRC right.  A data field with no ID before it in the write - a sector
@@ -204,21 +206,27 @@ public:
     {
     }
 
-    void falls(const std::vector<std::uint64_t>& ticks, std::uint64_t cell_ticks)
+    // ticks: ДЗП's falls; last: the last tick of the write (РЗП still on)
+    void falls(const std::vector<std::uint64_t>& ticks, std::uint64_t cell_ticks, std::uint64_t last)
     {
         for (std::size_t i = 0; i < ticks.size(); ++i) {
-            if (i > 0) {
-                const std::uint64_t n = (ticks[i] - ticks[i - 1] + cell_ticks / 2) / cell_ticks;
-                for (std::uint64_t z = 1; z < n; ++z) cell(0);
-            }
+            if (i > 0) zeros(ticks[i] - ticks[i - 1], cell_ticks);
             cell(1);
         }
+        if (!ticks.empty() && last > ticks.back()) zeros(last - ticks.back(), cell_ticks);
     }
 
     const std::vector<int>& written() const { return written_; }
 
 private:
     enum class State { hunt, mark, id, data };
+
+    // the cells with no fall in the `apart` ticks after one
+    void zeros(std::uint64_t apart, std::uint64_t cell_ticks)
+    {
+        const std::uint64_t n = (apart + cell_ticks / 2) / cell_ticks;
+        for (std::uint64_t z = 1; z < n; ++z) cell(0);
+    }
 
     void cell(int c)
     {
@@ -438,7 +446,7 @@ private:
             }
         } else if (writing_ && !falls_.empty()) {
             Writer w(layout_, first_byte_, image_.data() + track_at(write_head_, write_side_));
-            w.falls(falls_, kCellTicks);
+            w.falls(falls_, kCellTicks, t - 1);
             cached_ = -1;
             falls_.clear();
         }

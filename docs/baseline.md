@@ -19,8 +19,8 @@ the fixed tree.
 | 3. The generated files are current | pass |
 | 4. Chips and board, typical delays | pass, 73 of 73 |
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
-| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; the core's drive boots Omega but a write leaves its image other than the bench's - **open**, looked into |
-| 7. The core | pass: timing met, +0.647 ns at 120 MHz |
+| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes - the boot runs are being made again |
+| 7. The core | pass on a17d511's tree: timing met, +0.647 ns at 120 MHz; to be built again, the controller's model having changed in step 6 |
 | 8. The printed board | the owner's board placed, checked against the netlist, its routing running |
 
 ## 1. The netlist is consistent
@@ -166,44 +166,63 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
   its flux pulses and the logic none, so a stretch is one pulse (120
   ticks) and a load a run of them - `docs/bench.md` and
   `logic_drive.h` now say so.
-- **The core's drive, later than a load** (`build/baseline/logic`, the
-  same run with the report counting apart what differs later than 3 ms
-  after a step, a side's change, the motor's start or a select): **42
-  ticks, the first at 18.219156 s - by design none.**  Not a plain
-  sector's write: `test_mc5305` now compares the two drives' lines while
-  a sector is written and for two turns after, and they agree.  A
-  likely cause, found in that harness and not kept as a test yet: a
-  field written a little before its place in the layout.  The write
-  then ends while the layout's field is still under the head; the
-  bench's drive shows the new sector at once and the logic from its next
-  field, so their flux differs up to the field's end and never after -
-  four sectors written 4800 ticks (1.25 bytes) early give 102 such
-  ticks, the images the same, nothing on the turn after.  42 ticks for
-  the run's four writes would be 1.15 bytes early.  Nothing reads
-  there; it is the two models' difference, not a fault of either.  To
-  be confirmed by the run again with each such tick printed
-  (`build/baseline/logic2` - **running**): the ticks right after a
-  write's end.
-- **The core's drive to 30 s**
-  (`build/baseline/boot30/omega-typ-logic-drive`): Omega reaches its
-  prompt as on the bench's drive (its kept frames change where and when
-  that run's do), 2740 blocks read, 8
-  written - and **the two drives' images differ at the end**, where at
-  20 s, 4 blocks written, they were the same.  One of the two takes a
-  write between 20 and 30 s otherwise than the other: the core's drive
-  or the bench's, not known which.  Not shown by the drives alone:
-  `test_mc5305` now also writes each of a track's ten sectors by its
-  place, in every layout, on a single-sided image as the run's, and
-  four sectors one after another in a turn - the images and the lines
-  agree in all, in the typ, min and max builds
-  (`build/mc5305-corners.log`).  So the cause is in what the board's
-  controller puts on the lines.  The run again with every write and
-  the images' blocks printed: `build/baseline/logic3` - **running**.
+- **The core's drive against the bench's, to 30 s**
+  (`build/baseline/logic`, `boot30/omega-typ-logic-drive`): Omega
+  reaches its prompt as on the bench's drive (its kept frames change
+  where and when that run's do), 2740 blocks read, 8 written - and **the
+  two drives' images differed at the end**, where at 20 s, 4 blocks
+  written, they were the same; and 42 ticks of their lines differed
+  later than 3 ms after a head's move, where the design has none.
+- **Found** with two runs printing every write (`build/baseline/logic2`,
+  `logic3`; the printing not in the tree) and `test_mc5305`.  Two faults,
+  neither the core's drive's:
+  - *The controller's model* (`rtl/chips/kr1818vg93.sv`) let WG fall as
+    the FF byte after a sector's CRC began, not as it ended: the gate on
+    for 530 bytes (measured on the board: 2 035 321 ticks) where the
+    datasheet's sequence, which `docs/vg93.md` gives, is 531.
+  - *The bench's drive* (`sim/board/drive.h`) made the cells it reads a
+    write by from ДЗП's falls alone, so the cells after the last fall
+    never came: with nothing written after the CRC, a field whose CRC
+    ends in a 0 was never whole and **the write was lost**.  The logic's
+    drive counts cells by time and took it.
+  On the board: the writes at 14.704 and 14.743 s (blocks 143, 145)
+  change nothing in either image; those at 18.202 and 18.422 s (168,
+  159) both drives take; those at 21.802 and 22.022 s (168, 159 again)
+  the logic's takes and the bench's does not - two bytes apart in each.
+  The 42 ticks are 21 after each of the writes at 18.2 and 18.4 s: the
+  first cell after the CRC is a clock cell that depends on the CRC's
+  last bit, the bench's drive had the new sector there at once and the
+  logic the old one still, and the gate went off 99 ticks into that
+  120-tick pulse.
+- **Fixed**: the controller's model holds WG for the FF byte (a test of
+  the gate's length, 531 bytes); the bench's drive counts the cells
+  after the last fall up to the write's end (a test of a field with
+  nothing after its CRC, its last bit 0 or 1; and the two drives beside
+  each other on such a field in `test_mc5305`).  `test_mc5305` also
+  writes each of a track's ten sectors by its place in every layout on a
+  single-sided image, four sectors one after another in a turn, a sector
+  before its place, and compares the lines while a sector is written.
+  The run's report now counts the ticks within four bytes after a
+  write's end apart, and lists the blocks where the images differ.
+  `ctest` at typ, min and max after the fix: **73 of 73** each
+  (`build/ctest-Release.log`, `ctest-min.log`, `ctest-max.log`).
+- **What it means for the runs above.**  Every boot run of this walk was
+  made with the controller's model a byte short and, but for the two
+  `drive=logic` ones, on the bench's drive that lost such writes: the
+  system's later writes of its own disk did not reach the image.  They
+  reached their prompts all the same (the blocks were not read again
+  within the runs), but the runs are of the board before the fix.
+  **Run again after it** (`build/baseline/after`, begun 2026-11-06
+  08:30): Omega 30 s and ОСА 20 s at typ, min and max on the bench's
+  drive, and each at typ on the core's - **running**.
 
 ## 7. The core
 
 `quartus_sh -t boards/de10nano/core.tcl` on a17d511; log
 `build/baseline-core.log`, reports in `build/mister/output_files/`.
+Step 6 then changed `rtl/chips/kr1818vg93.sv` (a state more in the
+write's sequence): the figures below are of the tree before it, and the
+core is to be built again.
 
 - Resources (`ms0515.fit.summary`): 13 963 of 41 910 ALMs (33 %),
   1 643 857 of 5 662 720 block memory bits (29 %), 214 of 553 RAM
@@ -244,12 +263,11 @@ The owner's board first (`docs/plan.md` 8d).
    and whether `SET SL ON` took effect.  Some four hours of a run; a
    snapshot at the prompt (`save=FILE@MS`) would make the next ones
    short.
-2. The core's drive against the bench's (step 6): after 8 blocks
-   written the two images differ - a write taken wrongly by one of
-   them; and 42 ticks of their lines differ later than 3 ms after a
-   head's move, where the design has none.  Two runs with the details
-   printed are going (`build/baseline/logic2`, `logic3`).  Until it is
-   settled the core's writing to a disk image is not to be trusted.
+2. The core's drive against the bench's (step 6): found and fixed -
+   the controller's model ended a sector's write a byte early and the
+   bench's drive then lost the write; the core's drive was right.  Left:
+   the boot runs again on the fixed board (going), and the core built
+   again, its controller having changed.
 3. The cursor's 8 samples in the self-test's frames at typ (step 6) -
    taken for the blink's phase, not shown.
 4. The post-fit netlist on the bench (step 7, plan 7d).  Tried on
@@ -297,6 +315,11 @@ Kept as the reason for the rule "a state only from the files":
 - The first boot runs of this walk, launched without `keyboard` from a
   command remembered, not written anywhere: two hours of the ROM's
   self-test.  The command is in `docs/map.md` now.
+- "The 42 ticks: the board's controller writes its field a byte and a
+  part before the layout's place" (commit 4761fe4, as a likely cause,
+  and for an hour as confirmed in the working tree): a guess that fitted
+  one number.  The field is at its place and was a byte short; the ticks
+  are the first cell after the CRC (step 6).
 - "Omega's screen at its end, per the emulator: the banner and a cursor
   under it": that picture was the emulator's on ROM-A, its default, where
   Omega stops after its banner.  The board runs Omega on ROM-B; on ROM-B

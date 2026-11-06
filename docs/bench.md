@@ -29,9 +29,14 @@ plays, in `sim/board/`, at the board's connectors.
   ended the same.  By design they differ only while the logic loads a
   track after a step, a side's change or the motor's start: the bench's
   drive gives its flux pulses there and the logic none yet, so each
-  stretch of difference is one pulse, 120 ticks.  The ticks that differ
-  later than 3 ms after such a moment are counted apart - by design
-  none.  Where the two images differ the blocks are listed, each with
+  stretch of difference is one pulse, 120 ticks.  And they may for a few
+  bytes after a write: the bench's drive shows the new sector as the
+  gate goes off and the logic from its next field, so if the write ends
+  before the layout's field does, or right at its CRC's last cell, the
+  cells up to the first of the gap after it can differ (nothing reads
+  there).  The ticks within four bytes after a write's end are counted,
+  and apart from them the ticks that differ later than 3 ms after a
+  head's move - by design none.  Where the two images differ the blocks are listed, each with
   what the logic's drive and the bench's changed in it since the image
   was mounted.  From power-on only: the logic's state is not in
   a snapshot, and a drive started afresh under a controller that has

@@ -74,6 +74,10 @@ public:
             const bool same = o.index == (m_.index != 0) && o.track0 == (m_.track0 != 0) &&
                               o.ready == (m_.ready != 0) && o.protect == (m_.protect != 0) &&
                               data_was == (m_.data != 0);
+            if (!same) {
+                if (differ == 0) first_differ_at = t_;
+                last_differ_at = t_;
+            }
             if (!same && ++differ <= 5)
                 MESSAGE("tick " << t_ << ": ref index " << o.index << " track0 " << o.track0 << " ready " << o.ready
                                 << " data " << o.data << "; logic " << int(m_.index) << " " << int(m_.track0) << " "
@@ -118,6 +122,7 @@ public:
         }
         run(drive::Mc5305::kCellTicks, compare);
         set_gate(true);
+        write_end = t_;
     }
     // the tick of the next index, and of a byte of the turn after it
     std::uint64_t next_index() const { return ref_.turn_start(t_) + drive::Mc5305::kTurnTicks; }
@@ -127,6 +132,8 @@ public:
     const std::vector<std::uint8_t>& ref_image() const { return ref_.image(); }
 
     std::uint64_t compared = 0, differ = 0;
+    std::uint64_t first_differ_at = 0, last_differ_at = 0;      // the ticks of the first and the last difference
+    std::uint64_t write_end = 0;        // the tick the last write's gate went off
     std::uint64_t pulled = 0;           // ticks with the index, ready, data or protect line pulled low
 
 private:
@@ -327,6 +334,65 @@ TEST_CASE("mc5305: four sectors written one after another in a turn, each by its
         b.run(kTurn, true);
         CHECK(b.differ == 0);
     }
+}
+
+TEST_CASE("mc5305: a sector written before its place - the flux apart only up to the field's end")
+{
+    // The bench's drive shows the new sector as the gate goes off, the
+    // logic from its next field: what is left of the layout's field under
+    // the head differs, and nothing after it.
+    const drive::Layout layout = drive::omega();
+    std::uint64_t apart = 0;
+    for (const std::uint64_t early : {4400u, 4800u, 7000u, 3 * 3840u}) {
+        INFO("early by " << early << " ticks");
+        Bench b(image(1), 0);
+        spin_up(b);
+        const std::vector<std::uint8_t> data = sector_of(0x55);
+        drive::Encoder e;
+        drive::field(e, layout.data_sync, 0xFB, data.data(), data.size());
+        e.byte(0xFF);
+        b.write(b.next_index() + static_cast<std::uint64_t>(drive::data_field_at(layout, 3)) * kByte - early, e.cells,
+                true);
+        b.run(kTurn, true);
+        CHECK(b.writes() == 1);
+        CHECK(b.image() == b.ref_image());
+        if (b.differ != 0) {                            // by the sector's bytes: the two CRCs' cells
+            CHECK(b.first_differ_at >= b.write_end);
+            CHECK(b.last_differ_at < b.write_end + kAfterWrite);
+        }
+        apart += b.differ;
+    }
+    CHECK(apart > 0);
+}
+
+TEST_CASE("mc5305: a sector written with nothing after its CRC, the gate off a cell later")
+{
+    // a field is whole with its CRC's last cell, be it 0 or 1 and whatever comes after
+    const drive::Layout layout = drive::omega();
+    int ending_0 = 0, ending_1 = 0;
+    for (int seed = 1; seed < 40 && (ending_0 < 2 || ending_1 < 2); ++seed) {
+        const std::vector<std::uint8_t> data = sector_of(static_cast<std::uint8_t>(seed * 7));
+        std::vector<std::uint8_t> f = {0xA1, 0xA1, 0xA1, 0xFB};
+        f.insert(f.end(), data.begin(), data.end());
+        const bool last = (drive::crc(f.data(), f.size()) & 1) != 0;
+        if ((last ? ending_1 : ending_0) >= 2)
+            continue;
+        ++(last ? ending_1 : ending_0);
+        INFO("seed " << seed << ", the CRC's last bit " << last);
+        Bench b(image(1), 0);
+        spin_up(b);
+        drive::Encoder e;
+        drive::field(e, layout.data_sync, 0xFB, data.data(), data.size());
+        b.write(b.next_index() + static_cast<std::uint64_t>(drive::data_field_at(layout, 3)) * kByte, e.cells, true);
+        b.run(kSettle, false);
+        CHECK(b.writes() == 1);
+        CHECK(b.image() == b.ref_image());
+        CHECK(std::equal(data.begin(), data.end(), b.ref_image().begin() + 3 * drive::kSectorBytes));
+        b.run(kTurn, true);
+        CHECK(b.last_differ_at < b.write_end + kAfterWrite);
+    }
+    CHECK(ending_0 == 2);
+    CHECK(ending_1 == 2);
 }
 
 TEST_CASE("mc5305: a track written from the index (Write Track) - every sector into the image")

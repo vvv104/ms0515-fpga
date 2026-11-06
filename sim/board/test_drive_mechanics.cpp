@@ -186,6 +186,33 @@ TEST_CASE("МС 5305: a sector written where its data field is goes into the ima
     CHECK(std::equal(now.begin() + 5120, now.end(), img.begin() + 5120));     // the rest untouched
 }
 
+TEST_CASE("МС 5305: a field with nothing written after its CRC is whole, its last cells 0 or not")
+{
+    // the cells with no turn of the flux after them count by the time to the write's end
+    const drive::Layout layout = drive::omega();
+    int ending_0 = 0, ending_1 = 0;
+    for (int seed = 1; seed < 40 && (ending_0 < 2 || ending_1 < 2); ++seed) {
+        const std::vector<std::uint8_t> data = sector_of(static_cast<std::uint8_t>(seed * 7));
+        std::vector<std::uint8_t> f = {0xA1, 0xA1, 0xA1, 0xFB};
+        f.insert(f.end(), data.begin(), data.end());
+        const bool last = (drive::crc(f.data(), f.size()) & 1) != 0;
+        if ((last ? ending_1 : ending_0) >= 2)
+            continue;
+        ++(last ? ending_1 : ending_0);
+        INFO("seed " << seed << ", the CRC's last bit " << last);
+        Mc5305 d(image_of(1), layout);
+        Lines in = selected();
+        const std::uint64_t index = spin_up(d, in);
+        drive::Encoder e;
+        drive::field(e, layout.data_sync, 0xFB, data.data(), data.size());
+        write(d, in, index + static_cast<std::uint64_t>(drive::data_field_at(layout, 3)) * 16 * Mc5305::kCellTicks,
+              e.cells);
+        CHECK(std::equal(data.begin(), data.end(), d.image().begin() + 3 * drive::kSectorBytes));
+    }
+    CHECK(ending_0 == 2);
+    CHECK(ending_1 == 2);
+}
+
 TEST_CASE("МС 5305: a track written from the index (Write Track) puts every sector in the image")
 {
     const drive::Layout layout = drive::omega();
