@@ -171,9 +171,19 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
   after a step, a side's change, the motor's start or a select): **42
   ticks, the first at 18.219156 s - by design none.**  Not a plain
   sector's write: `test_mc5305` now compares the two drives' lines while
-  a sector is written and for two turns after, and they agree.  The run
-  again with each such tick printed: `build/baseline/logic2` -
-  **running**.
+  a sector is written and for two turns after, and they agree.  A
+  likely cause, found in that harness and not kept as a test yet: a
+  field written a little before its place in the layout.  The write
+  then ends while the layout's field is still under the head; the
+  bench's drive shows the new sector at once and the logic from its next
+  field, so their flux differs up to the field's end and never after -
+  four sectors written 4800 ticks (1.25 bytes) early give 102 such
+  ticks, the images the same, nothing on the turn after.  42 ticks for
+  the run's four writes would be 1.15 bytes early.  Nothing reads
+  there; it is the two models' difference, not a fault of either.  To
+  be confirmed by the run again with each such tick printed
+  (`build/baseline/logic2` - **running**): the ticks right after a
+  write's end.
 - **The core's drive to 30 s**
   (`build/baseline/boot30/omega-typ-logic-drive`): Omega reaches its
   prompt as on the bench's drive (its kept frames change where and when
