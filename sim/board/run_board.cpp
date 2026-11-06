@@ -711,6 +711,10 @@ void report(const Options& o, const Fetches& f, const Camera& cam, const Emulato
     std::printf("RAM: %llu writes (%llu of 047777 words), %llu reads, %llu of them of written cells, %llu differ\n",
                 static_cast<ull>(s.writes), static_cast<ull>(s.fills), static_cast<ull>(s.reads),
                 static_cast<ull>(s.checked), static_cast<ull>(s.differ));
+    if (s.differ != 0)
+        std::printf("RAM: the reads that differ: %llu of them the video's, the first at %.6f s, the last at %.6f s\n",
+                    static_cast<ull>(s.differ_video), DramWatch::seconds(s.first_differ),
+                    DramWatch::seconds(s.last_differ));
     std::printf("video: %llu reads, %llu of them 047777, %llu not zero\n", static_cast<ull>(s.video_reads),
                 static_cast<ull>(s.video_fills), static_cast<ull>(s.video_nonzero));
     dram.print_cells();
@@ -843,7 +847,7 @@ int main(int argc, char** argv)
         m->clk = 1;
         m->eval();
         sound.see(t, m->nx_D93_3);
-        dram.see(*m);
+        dram.see(*m, t);
         video.see(*m, dram, t);
         fetches.see(*m, emu, t);
         writes.see(*m, t, dram);

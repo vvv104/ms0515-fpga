@@ -151,7 +151,9 @@ to any one board.  From stage 6 on there are two projects:
        written before TxEN went off, which ROM-B does to the keyboard,
        and the games wait for TxRDY.  Fixed, with tests, 75 of 75 in the
        three corners; the boots and the games on the fixed board are
-       being run.
+       being run.  The cell 000:000 "read not as written" at max
+       (above) was the bench's watch, not the board: it took strobes
+       standing low at the first tick for a write; fixed, with a test.
    7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
        logic: the МС 5305's MFM stream for the ВГ93 from a disk image
        (MiSTer's SD block interface), the МС 7004's line from MiSTer's

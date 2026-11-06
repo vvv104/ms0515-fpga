@@ -91,6 +91,15 @@ plays, in `sim/board/`, at the board's connectors.
   `ДПСЛ H`, V the video output as the frames take it (blue 1, red 2,
   green 4, brightness 8) - between the frames' samples.
 
+Every run watches the dynamic RAM at the chips' pins
+(`sim/board/dram_watch.h`): each write goes into a shadow of the cells
+and each read of a cell written in both bytes is checked against it.
+The run ends with a "RAM:" line - the writes, the reads, how many were
+checked and how many differ; the first five that differ are printed with
+their time, whose read it was (the processor's or the video's) and when
+the cell was written, and a second "RAM:" line gives the first and the
+last of them.  Strobes that stand low at the first tick are no cycle.
+
 Every run also watches the video's words (`sim/board/video_watch.h`) and
 ends with three "video words" lines and a "video requests" one:
 

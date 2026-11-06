@@ -3,7 +3,11 @@
 // (-WE of the low and high byte), МК00..15 H in, Д00..15 H out.  Every
 // write goes into a shadow of the cells; every read is checked against it.
 // The strobes are taken as the chips take them (rtl/chips/kr565ru5.sv):
-// the row the tick before -RAS falls, the column as -CAS falls.
+// the row the tick before -RAS falls, the column as -CAS falls.  Strobes
+// that stand low at the watch's first tick are no edges - at a power-up
+// no chip takes them for a cycle either.  A read that differs is printed
+// with its time, whose it is and when the cell was written (the first
+// five), and the first and the last of them are kept.
 #pragma once
 
 #include "Vns4.h"
@@ -18,6 +22,8 @@ class DramWatch {
 public:
     struct Stats {
         std::uint64_t writes = 0, reads = 0, checked = 0, differ = 0, fills = 0;
+        // of the reads that differ: the video's, and the master ticks of the first and the last
+        std::uint64_t differ_video = 0, first_differ = 0, last_differ = 0;
         std::uint64_t video_reads = 0, video_fills = 0, video_nonzero = 0;
     };
 
@@ -40,11 +46,21 @@ public:
     // `cycles` RAS cycles that write
     void trace(int cycles) { trace_left_ = cycles; }
 
-    void see(const Vns4& m)
+    void see(const Vns4& m, std::uint64_t t)
     {
+        t_ = t;
         const std::uint8_t a = address(m);
         const bool ras = m.n_VAS_L != 0, cas = m.n_VAK_L != 0;
         const bool we_lo = !m.n_ZP_ML_L, we_hi = !m.n_ZP_ST_L;
+        if (!started_) {                        // the first tick: the strobes as they stand are no edges
+            started_ = true;
+            a_was_ = a;
+            video_row_was_ = video_row(m);
+            ras_was_ = ras;
+            cas_was_ = cas;
+            we_lo_was_ = we_lo;
+            we_hi_was_ = we_hi;
+        }
         if (trace_left_ > 0) {
             if (!ras) {
                 lines_.push_back({ras, cas, we_lo, we_hi, a, data_in(m), data_out(m),
@@ -95,6 +111,7 @@ public:
     }
 
     const Stats& stats() const { return stats_; }
+    static double seconds(std::uint64_t t) { return static_cast<double>(t) / 120e6; }
 
     // the cell (row << 8 | column) the last write went to
     std::size_t last_write() const { return last_write_; }
@@ -175,6 +192,7 @@ private:
     void write(const Vns4& m, bool lo, bool hi)
     {
         last_write_ = cell();
+        written_at_[cell()] = t_;
         const std::uint16_t d = data_in(m);
         std::uint16_t& w = cells_[cell()];
         if (lo) w = static_cast<std::uint16_t>((w & 0xFF00) | (d & 0x00FF));
@@ -200,19 +218,28 @@ private:
         if (known_[cell()] != 3)
             return;
         ++stats_.checked;
-        if (last_ != cells_[cell()] && ++stats_.differ <= 5)
-            std::printf("read row %03o column %03o: %06o, written %06o\n", row_, column_, last_,
-                        cells_[cell()]);
+        if (last_ == cells_[cell()])
+            return;
+        if (stats_.differ++ == 0) stats_.first_differ = t_;
+        stats_.last_differ = t_;
+        if (video_) ++stats_.differ_video;
+        if (stats_.differ <= 5)
+            std::printf("%.6f s: %s read row %03o column %03o: %06o, written %06o at %.6f s\n", seconds(t_),
+                        video_ ? "the video" : "the processor", row_, column_, last_, cells_[cell()],
+                        seconds(written_at_[cell()]));
     }
 
     std::vector<std::uint16_t> cells_ = std::vector<std::uint16_t>(65536, 0);
     std::vector<std::uint8_t> known_ = std::vector<std::uint8_t>(65536, 0);
+    std::vector<std::uint64_t> written_at_ = std::vector<std::uint64_t>(65536, 0);
+    std::uint64_t t_ = 0;
     std::vector<std::uint8_t> fill_cells_ = std::vector<std::uint8_t>(65536, 0);
     std::vector<std::uint8_t> video_cells_ = std::vector<std::uint8_t>(65536, 0);
     bool video_ = false;
     std::uint8_t a_was_ = 0, row_ = 0, column_ = 0;
     std::uint8_t video_row_was_ = 0, video_row_ = 0, video_column_ = 0;
     std::size_t last_write_ = 0, last_video_ = 0;
+    bool started_ = false;
     bool ras_was_ = true, cas_was_ = true, we_lo_was_ = false, we_hi_was_ = false, reading_ = false;
     std::uint16_t last_ = 0;
     Stats stats_;

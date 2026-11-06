@@ -156,6 +156,8 @@ ms0515_test(test_snapshot board/test_snapshot.cpp)
 ms0515_test(test_sound_log board/test_sound_log.cpp)
 # the joystick a run holds on the МС 7007's port (sim/board/joystick.h)
 ms0515_test(test_joystick board/test_joystick.cpp)
+# the DRAM's shadow a run checks every read against (sim/board/dram_watch.h)
+ms0515_test(test_dram_watch board/test_dram_watch.cpp Vns4)
 
 # the board model's speed (not a test): sim/board/bench_board.cpp
 add_executable(bench_board board/bench_board.cpp)

@@ -138,7 +138,8 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
 - **ОСА** (`test_osa_games.dsk`, ROM-A), typ seeds 0, 1, 2, max, min:
   «ОСА Версия 1.0», `.SET TT QUIET`, the prompt, in 20 s - **pass**.
   Every DRAM read as written, but at max the cell 000:000 twice in the
-  first 0.2 s (plan 7b's power-up cell).  Video requests lost: 0 or 1 at
+  first 0.2 s (plan 7b's power-up cell - the bench's watch's own, not
+  the board's: "Games" below).  Video requests lost: 0 or 1 at
   typ and min; 178 134 at max, the letters spoiled there (the design's
   margin, `docs/timing.md`).
 - **Omega** (`test_vvv_system.dsk`), typ seeds 0-3, max 1-3, min 0-2:
@@ -256,10 +257,30 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
     self-test's three notes - 496.2, 662.3 and 331.1 Hz, 0.35 s each,
     from 3.69 s (typ) - the same in the three corners.  Every DRAM read
     as written at typ and min.  At max 900 reads of the cell 000:000
-    differ (000000 read, 177605 written; the first five within 30 ms of
-    power-on, the rest not timed) - plan 7b's power-up cell, but ОСА's
-    unseeded max run had two of them: open (the list, 7).  Lost
-    requests: 0 at typ and min, 337 952 at max.
+    differ (000000 read, 177605 written) - the bench's watch's own, not
+    the board's (the next item).  Lost requests: 0 at typ and min,
+    337 952 at max.
+  - *The cell 000:000 at max: the watch's shadow was the one off.*  The
+    watch (`sim/board/dram_watch.h`) had no time in its lines; given
+    one (each read that differs with its time, whose it is and when the
+    cell was written; the first and the last kept), the max corner's
+    first 0.4 s (`build/cell0/short`) says: the "write" of 177605 is at
+    0.000000 s, all 900 reads are the processor's, none the video's,
+    the first at 0.000374 s, the last at 0.207377 s - a microsecond
+    before ROM-B's test first writes the cell (0.207378 s).  From an
+    unseeded power-up at max -RAS, -CAS and both -WE stand low at the
+    first tick with 177605 on МК; the watch began with its "strobes
+    before" high and took that for a falling edge and a write.  No
+    КР565РУ5 does: the chips' own "before" start low (the cell reads
+    000000).  The reads are the processor's of address 0 before the
+    board's reset has started it at the ROM (fetches at 000000 and
+    140004 from 24.3 ms, `build/cell0/f`; the first fetch counted comes
+    between 60 and 70 ms) and its test's; with ROM-A the cell is read
+    twice in that time, hence ОСА's two.  Fixed in the
+    bench: strobes that stand low at the watch's first tick are no
+    edges (`test_dram_watch`, seen failing with the very line of the
+    run).  The same 0.4 s after it: 0 differ, one write and 900 checked
+    reads fewer (`build/cell0/short-fixed`).  The board is not touched.
   - *Found: the model of КР580ВВ51А held a character.*  `R BIRDS` and
     `R SABOT2` typed at the prompt from the snapshot at 14 s (`keys=`,
     `build/games/birds-<corner>`, `sabot-load-<corner>`): both load;
@@ -441,9 +462,11 @@ The owner's board first (`docs/plan.md` 8d).
    warnings, Э3's board from it.
 6. Э3's board, stage 6b - paused.
 7. The cell 000:000 at max from an unseeded power-up (step 6, the games
-   diskette's boot): 900 reads of it not as written in 24 s, where
-   ОСА's run had 2 in its first 0.2 s.  When they come and whether the
-   watch's shadow or the cell is the one off - not looked into.
+   diskette's boot): 900 reads of it not as written, where ОСА's run
+   had 2.  Looked into: the bench's watch took the strobes standing low
+   at its first tick for a write no chip made; all the reads are the
+   processor's in the first 0.207 s, before the cell's first write.
+   The watch fixed, with a test.  Closed.
 
 ## Said from memory before this walk, and wrong
 
