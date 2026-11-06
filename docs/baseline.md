@@ -194,13 +194,30 @@ The owner's board first (`docs/plan.md` 8d).
    description says a few long ones (step 6).
 3. The cursor's 8 samples in the self-test's frames at typ (step 6) -
    taken for the blink's phase, not shown.
-4. The post-fit netlist on the bench (step 7, plan 7d).  Looked at for
-   what it takes, not begun: Quartus's Cyclone V simulation models are
-   open for the flip-flops, logic cells, RAM blocks and MLABs and
-   encrypted for the PLLs, the clock network and more
-   (`quartus/eda/sim_lib/cyclonev_atoms.v`), so only the machine alone,
-   without `sys/`, could be run - and whether Verilator takes those
-   models is not tried.
+4. The post-fit netlist on the bench (step 7, plan 7d).  Tried on
+   2026-11-06 in the build tree (`build/postfit`, nothing of it in the
+   repository), and it does not work as tried:
+   - the machine alone (`rtl/ms0515.sv`, no `sys/`) goes through Quartus
+     - 6 021 ALMs, 1 259 600 block memory bits, no DSP block - and the
+     EDA netlist writer gives its post-fit netlist as Verilog: 9 912
+     `cyclonev_lcell_comb`, 5 237 `dffeas`, 158 `cyclonev_ram_block`, the
+     pins' buffers and one `cyclonev_clkena`;
+   - Quartus's simulation models are open for those cells but the last
+     (`quartus/eda/sim_lib`: `cyclonev_atoms.v`, `altera_primitives.v`,
+     `altera_lnsim.sv`); the clock's enable cell, encrypted, needs a
+     stand-in of two lines;
+   - Verilator 5.044 stops on the netlist with an internal error
+     (`V3Gate.cpp:962`) unless its gate optimisation is off (`-fno-gate`),
+     and wants `--no-timing` for the models' delays;
+   - so built, beside the RTL machine with the same inputs, the model
+     runs some 80 master ticks a second and its outputs differ from the
+     RTL's at every tick from the first (`ce_pix` stuck high, `kbd_tx`,
+     `kbd_bell`, `speaker`): Quartus's models do not work without their
+     delays, not a finding about the fit.
+   What it would take: models of our own for the three cells (the
+   flip-flop, the look-up table, the RAM block), which Verilator can
+   optimise.  The owner's to decide; until then the fit is trusted as
+   every MiSTer core trusts it, and 7e - a board - is its check.
 5. The printed board's routing, DRC, the silkscreen's warnings, and
    Э3's board from it (step 8).
 6. Э3's board, stage 6b - paused.

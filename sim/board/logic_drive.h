@@ -6,8 +6,13 @@
 // The bench's drive runs beside it on the same lines, from the same image,
 // as the reference: the report says where their outputs differed and
 // whether the two images ended the same.  They differ, by design, while a
-// track is loaded after a step (the bench's drive has every track at once),
-// a stretch of some thousand ticks each.
+// track is loaded after a step, a side's change or the motor's start (the
+// bench's drive has every track at once): the bench's drive gives its flux
+// pulses there and the logic none yet, so a stretch of difference is a
+// pulse, 120 ticks, some hundreds of them a load.  The report counts apart
+// the ticks that differ later than kSettle after such a moment - the time
+// test_mc5305 gives the logic, inside the 15 ms the controller waits for
+// the head: by design, none.
 #pragma once
 
 #include "Vmc5305.h"
@@ -45,6 +50,14 @@ public:
         ref_data_ = r.data;
         const bool differ = o.index != r.index || o.track0 != r.track0 || o.protect != r.protect ||
                             o.data != data_was || o.ready != r.ready;
+        if ((!in.step && step_was_) || in.side != side_was_ || in.motor != motor_was_ || in.select0 != select_was_)
+            moved_ = t;
+        step_was_ = in.step;
+        side_was_ = in.side;
+        motor_was_ = in.motor;
+        select_was_ = in.select0;
+        if (differ && t - moved_ > kSettle && late_++ == 0)
+            late_first_ = t;
         if (differ) {
             if (run_ == 0) {
                 ++stretches_;
@@ -66,6 +79,12 @@ public:
                     device_.reads, device_.writes, static_cast<unsigned long long>(ticks_),
                     static_cast<unsigned long long>(stretches_), static_cast<unsigned long long>(longest_),
                     static_cast<double>(first_) / 120e6, device_.image() == reference_.image() ? "the same" : "differ");
+        std::printf("the logic's drive: %llu of those ticks later than 3 ms after a step, a side's change or the "
+                    "motor's start",
+                    static_cast<unsigned long long>(late_));
+        if (late_)
+            std::printf(" (the first at %.6f s)", static_cast<double>(late_first_) / 120e6);
+        std::printf("\n");
     }
 
     const std::vector<std::uint8_t>& image() const { return device_.image(); }
@@ -98,6 +117,9 @@ private:
     Vmc5305& m_ = *model_;
     BlockDevice<Vmc5305> device_;
     drive::Mc5305 reference_;
+    static constexpr std::uint64_t kSettle = 3000 * 120;    // 3 ms, as test_mc5305's
     std::uint64_t ticks_ = 0, stretches_ = 0, longest_ = 0, run_ = 0, first_ = 0;
+    std::uint64_t moved_ = 0, late_ = 0, late_first_ = 0;
     bool ref_data_ = true;
+    bool step_was_ = true, side_was_ = true, motor_was_ = true, select_was_ = true;
 };
