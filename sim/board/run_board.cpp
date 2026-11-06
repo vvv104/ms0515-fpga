@@ -4,7 +4,8 @@
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
 //             [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
-//             [rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO] [drawn] [edges=FROM-TO]
+//             [rom=IMAGE] [keys=FILE] [joy=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO] [drawn]
+//             [edges=FROM-TO]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
@@ -19,8 +20,10 @@
 // time MS; load=FILE goes on from one, to machine time <machine ms> (no
 // lockstep then: the emulator starts at power-on).  rom=IMAGE puts another
 // ROM pair in the sockets (ROM-A: firmware/ms0515-roma.rom), the emulator
-// too; a snapshot carries the ROM it was taken with.  watch= and spot=:
-// docs/bench.md.  The video's words are watched on their way from the
+// too; a snapshot carries the ROM it was taken with.  joy=FILE holds the
+// joystick's lines on the МС 7007's port (joystick.h).  The speaker's node
+// is heard throughout and kept as <folder>/sound.wav (sound_log.h).  watch=
+// and spot=: docs/bench.md.  The video's words are watched on their way from the
 // DRAM to the shift registers (video_watch.h, docs/bench.md).  The last line,
 // "summary: key=value ...", is for tools/run_many.py.  `irq` logs the
 // interrupt requests at D89's inputs as they change, with the code D96
@@ -56,6 +59,8 @@
 #include "snapshot.h"
 #include "snapshot_file.h"
 #include "rom_socket.h"
+#include "sound_log.h"
+#include "joystick.h"
 
 extern "C" {
 #include <ms0515/core/board.h>
@@ -237,6 +242,7 @@ struct Options {
     std::string load;                   // a snapshot the run goes on from
     std::string rom;                    // another ROM image in the sockets (sim/board/rom_socket.h)
     std::string keys;                   // the keys the stub presses: lines "MS CODE ..." (codes octal)
+    std::string joy;                    // the joystick's lines held: lines "MS LINES" (joystick.h)
     std::vector<std::pair<unsigned, unsigned>> watch;  // writes logged: address ranges, octal
     std::vector<std::size_t> spots;     // DRAM cells (row:column, octal) whose video reads are placed
     bool irq = false;                   // the interrupts logged (class Irqs)
@@ -291,6 +297,8 @@ struct Options {
                 rom = arg.substr(4);
             else if (arg.rfind("keys=", 0) == 0)
                 keys = arg.substr(5);
+            else if (arg.rfind("joy=", 0) == 0)
+                joy = arg.substr(4);
             else if (arg.rfind("watch=", 0) == 0 && arg.find('-') != std::string::npos)
                 watch.emplace_back(static_cast<unsigned>(std::strtoul(arg.c_str() + 6, nullptr, 8)),
                                    static_cast<unsigned>(std::strtoul(arg.c_str() + arg.find('-') + 1, nullptr, 8)));
@@ -626,6 +634,70 @@ private:
     std::uint64_t reads_ = 0;
 };
 
+// The joystick on XP8: a line held is its pin to ground, a line let go the pin open.
+void xp8_joystick(Vns4& m, unsigned held)
+{
+    CData* const pin[Joystick::kLines] = {&m.x_XP8_p10, &m.x_XP8_p11, &m.x_XP8_p12, &m.x_XP8_p13, &m.x_XP8_p14};
+    CData* const oe[Joystick::kLines] = {&m.x_XP8_p10_oe, &m.x_XP8_p11_oe, &m.x_XP8_p12_oe, &m.x_XP8_p13_oe,
+                                         &m.x_XP8_p14_oe};
+    for (unsigned i = 0; i < Joystick::kLines; ++i) {
+        *pin[i] = 0;
+        *oe[i] = (held >> i) & 1;
+    }
+}
+
+Joystick joystick_of(const std::string& path)
+{
+    std::ifstream file(path);                           // no file: no line ever held
+    return Joystick(file);
+}
+
+// What the run heard: the speaker's node's edges, its first tones, and the node as <folder>/sound.wav.
+void report_sound(const Options& o, const SoundLog& sound, std::uint64_t from, std::uint64_t to)
+{
+    constexpr double kTicksPerSecond = static_cast<double>(SoundLog::kTicksPerSecond);
+    const std::vector<std::uint64_t>& edges = sound.edges();
+    if (edges.empty()) {
+        std::printf("sound: the speaker's node never changed\n");
+        return;
+    }
+    const std::vector<SoundLog::Tone> tones = sound.tones();
+    std::printf("sound: %zu edges of the speaker's node, the first at %.6f s, the last at %.6f s; %zu tones\n",
+                edges.size(), static_cast<double>(edges.front()) / kTicksPerSecond,
+                static_cast<double>(edges.back()) / kTicksPerSecond, tones.size());
+    for (std::size_t i = 0; i < tones.size() && i < 12; ++i)
+        std::printf("sound: at %.6f s %.1f Hz for %.3f ms\n", static_cast<double>(tones[i].from) / kTicksPerSecond,
+                    tones[i].hz, static_cast<double>(tones[i].to - tones[i].from) * 1000 / kTicksPerSecond);
+    const std::vector<std::uint8_t> wav = sound.wav(from, to, 44100);
+    std::ofstream file(o.folder + "/sound.wav", std::ios::binary);
+    file.write(reinterpret_cast<const char*>(wav.data()), static_cast<std::streamsize>(wav.size()));
+    std::printf("sound: %s/sound.wav, from %.3f s\n", o.folder.c_str(), static_cast<double>(from) / kTicksPerSecond);
+}
+
+// The image in drive 0: the bench's drive, and with drive=logic the core's beside it.
+void mount(const Options& o, std::unique_ptr<drive::Mc5305>& fdd, std::unique_ptr<LogicDrive>& logic)
+{
+    if (o.disk.empty()) return;
+    std::ifstream f(o.disk, std::ios::binary);
+    std::vector<std::uint8_t> image{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
+    std::printf("drive 0: %s, %zu bytes, laid out as %s's\n", o.disk.c_str(), image.size(), o.layout.c_str());
+    if (o.logic_drive)
+        logic = std::make_unique<LogicDrive>(image, o.layout, o.track_layout());
+    fdd = std::make_unique<drive::Mc5305>(std::move(image), o.track_layout());
+}
+
+// The run's line every 10 ms of machine time.
+void progress(std::uint64_t t, const Fetches& fetches, const Camera& camera,
+              std::chrono::steady_clock::time_point wall)
+{
+    const double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - wall).count();
+    std::printf("%llu ms: %llu fetches, %llu as the emulator's, %d frames (%.0f s)\n",
+                static_cast<unsigned long long>(t / (1000ull * kMasterMhz)),
+                static_cast<unsigned long long>(fetches.fetches), static_cast<unsigned long long>(fetches.matched),
+                camera.frames, s);
+    std::fflush(stdout);
+}
+
 void report(const Options& o, const Fetches& f, const Camera& cam, const Emulator& emu, const DramWatch& dram)
 {
     using ull = unsigned long long;
@@ -728,17 +800,12 @@ int main(int argc, char** argv)
     Edges edges(o.edge_from, o.edge_to);
     keyboard::Stub kbd;
     Keys keys(o.keys);
+    const Joystick joy = joystick_of(o.joy);
+    SoundLog sound;
     std::size_t heard = 0;
     std::unique_ptr<drive::Mc5305> fdd;
     std::unique_ptr<LogicDrive> logic;
-    if (!o.disk.empty()) {
-        std::ifstream f(o.disk, std::ios::binary);
-        std::vector<std::uint8_t> image{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
-        std::printf("drive 0: %s, %zu bytes, laid out as %s's\n", o.disk.c_str(), image.size(), o.layout.c_str());
-        if (o.logic_drive)
-            logic = std::make_unique<LogicDrive>(image, o.layout, o.track_layout());
-        fdd = std::make_unique<drive::Mc5305>(std::move(image), o.track_layout());
-    }
+    mount(o, fdd, logic);
 
     const Parts parts{*m, fdd, kbd, camera.frames};
     std::uint64_t from = 0;
@@ -770,10 +837,12 @@ int main(int argc, char** argv)
                 heard = kbd.heard().size();
             }
         }
+        xp8_joystick(*m, joy.held(t));
         m->clk = 0;
         m->eval();
         m->clk = 1;
         m->eval();
+        sound.see(t, m->nx_D93_3);
         dram.see(*m);
         video.see(*m, dram, t);
         fetches.see(*m, emu, t);
@@ -783,20 +852,15 @@ int main(int argc, char** argv)
         if (o.irq)
             irqs.see(*m, t);
         edges.see(*m, t);
-        if (t % (10000ull * kMasterMhz) == 0 && t != 0) {
-            const double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - wall).count();
-            std::printf("%llu ms: %llu fetches, %llu as the emulator's, %d frames (%.0f s)\n",
-                        static_cast<unsigned long long>(t / (1000ull * kMasterMhz)),
-                        static_cast<unsigned long long>(fetches.fetches),
-                        static_cast<unsigned long long>(fetches.matched), camera.frames, s);
-            std::fflush(stdout);
-        }
+        if (t % (10000ull * kMasterMhz) == 0 && t != 0)
+            progress(t, fetches, camera, wall);
     }
     // a snapshot asked for at the run's last moment: the state it ends in
     while (next_save < saves.size() && saves[next_save].first * 1000 * kMasterMhz == ticks)
         save_snapshot(saves[next_save++].second, parts, ticks);
     write_bmp(o.folder + "/last.bmp", camera.grab.lines);
     report(o, fetches, camera, emu, dram);
+    report_sound(o, sound, from, ticks);
     video.report();
     if (logic)
         logic->report();

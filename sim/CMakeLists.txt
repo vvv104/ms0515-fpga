@@ -152,6 +152,10 @@ ms0515_test(test_keyboard_stub board/test_keyboard_stub.cpp)
 ms0515_test(test_screen_compare board/test_screen_compare.cpp)
 # their snapshots (sim/board/snapshot.h)
 ms0515_test(test_snapshot board/test_snapshot.cpp)
+# what a run hears on the speaker's node (sim/board/sound_log.h)
+ms0515_test(test_sound_log board/test_sound_log.cpp)
+# the joystick a run holds on the МС 7007's port (sim/board/joystick.h)
+ms0515_test(test_joystick board/test_joystick.cpp)
 
 # the board model's speed (not a test): sim/board/bench_board.cpp
 add_executable(bench_board board/bench_board.cpp)

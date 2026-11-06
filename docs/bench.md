@@ -15,8 +15,8 @@ plays, in `sim/board/`, at the board's connectors.
 
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
 [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
-[rom=IMAGE] [keys=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO]
-[drawn] [edges=FROM-TO]`
+[rom=IMAGE] [keys=FILE] [joy=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq]
+[fetches=FROM-TO] [drawn] [edges=FROM-TO]`
 
 - the processor's fetches against the emulator's (from power-on only: a
   run from a snapshot is not followed), every Nth frame against its
@@ -56,6 +56,14 @@ plays, in `sim/board/`, at the board's connectors.
   ALL-UP 263 when a modifier is let go), sent one after another; `#`
   begins a comment.  From a snapshot, the lines before its time are passed
   over;
+- `joy=FILE`: the joystick on the МС 7007's port - five switches to
+  ground on port B of D82 (XP8.10..14: right, left, down, up, fire) - a
+  line `MS LINES`, the lines held from that machine time on, octal (1, 2,
+  4, 010, 020; 0 lets go) (`sim/board/joystick.h`);
+- the speaker's node (D93.3, to XP7.2) is heard throughout: the run ends
+  with the number of its edges, its first tones (stretches of edges
+  evenly apart) and the node as `<folder>/sound.wav`, 8-bit mono at
+  44.1 kHz, to listen to (`sim/board/sound_log.h`);
 - `watch=LO-HI` (octal, may repeat): every write of the processor to
   those addresses - the time, the address, word or byte, the data, and
   the DRAM cell (row:column, octal) it went to, if it went to the DRAM;
@@ -102,6 +110,21 @@ The first findings of each kind each machine second are printed, the
 first few with the nets around them tick by tick.
 
 `tools/run_many.py` runs several side by side, a power-up state each.
+
+## Games
+
+`tools/games_disk.py` makes `build/games/games.dsk`: the emulator's DEC
+RT-11 system diskette (for ROM-B) with two games of the software
+collection on it - BIRDS, which sounds from its first second, and the
+1991 build of Saboteur 2, which works through the memory dispatcher's
+banks and reads the joystick on the МС 7007's port (the 1990 build on
+the ОСА diskettes never reads it).  Nothing of the diskette is kept
+here.  A run boots it to the prompt and leaves a snapshot; the games are
+run from the snapshot with `keys=` (`R BIRDS`, `R SABOT2` and the game's
+keys) and `joy=`, and judged by the frames against the emulator's
+screens, by the DRAM read as written, by `sound.wav` and the tones, and
+for the joystick by the game's byte 041460 (`watch=041460-041461`),
+which follows the lines held.
 
 ## Times
 
