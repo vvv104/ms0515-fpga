@@ -19,8 +19,8 @@ the fixed tree.
 | 3. The generated files are current | pass |
 | 4. Chips and board, typical delays | pass, 73 of 73 |
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
-| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass.  Then games (BIRDS, Saboteur 2) found the КР580ВВ51А's model wrong twice about TxEN - a character written before TxEN went off was held, and one written with TxEN off never left the buffer - so that both stood still at their first instructions; fixed; the boots and the games on the fixed board are **running** |
-| 7. The core | built again after each of step 6's fixes, timing met (+0.633 ns at 120 MHz after the USART's first); the build after its second is **running** |
+| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass.  Then games (BIRDS, Saboteur 2) found the КР580ВВ51А's model wrong twice about TxEN - a character written before TxEN went off was held, and one written with TxEN off never left the buffer - so that both stood still at their first instructions; fixed; the boots on the board so fixed, 17 of 17 pass; the games on it are **running** |
+| 7. The core | pass: built again after each of step 6's fixes, timing met, +0.630 ns at 120 MHz after the last |
 | 8. The printed board | the owner's board placed and checked against the netlist.  Its routing stopped with 8 connections unrouted and **is not the board planned**: Freerouting ran the signals over the two plane layers - open |
 
 ## 1. The netlist is consistent
@@ -254,8 +254,9 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
   - *The diskette booted* at typ, min and max (`build/games/boot-<corner>`,
     24 s, the tree of 6716c7b): «RT-11SJ V05.04», `.SET TT QUIET`, the
     prompt at 13.5 s in all three.  The speaker's node gives the ROM's
-    self-test's three notes - 496.2, 662.3 and 331.1 Hz, 0.35 s each,
-    from 3.69 s (typ) - the same in the three corners.  Every DRAM read
+    self-test's five notes - 331.1, 417.3, 496.2, 662.3 and 331.1 Hz,
+    0.35 s each, from 2.94 s (typ) - the same in the three corners.
+    Every DRAM read
     as written at typ and min.  At max 900 reads of the cell 000:000
     differ (000000 read, 177605 written) - the bench's watch's own, not
     the board's (the next item).  Lost requests: 0 at typ and min,
@@ -335,10 +336,37 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
     after the fix part at 2.79 s by a fetch or three
     (`build/games/boot-typ`, `build/games2/boot-typ`).  In the MiSTer
     core the МС 7004's own model was the one not hearing them.  So the
-    seventeen boots are being made once more, on the board after both
+    seventeen boots were made once more, on the board after both
     fixes (`build/baseline/after3`; those begun after the first,
     `after2`, were stopped), with the diskette's boot and the games
-    (`build/games3`) - **running**; their end goes here.
+    (`build/games3`).
+  - *The seventeen boots on the board after both fixes*
+    (`build/baseline/after3/<run>`, 2026-11-06 17:44 to 21:08, the tree
+    of 127a404; `build/baseline-after3.log`,
+    `baseline-after3-seeds.log`) - **pass**, all seventeen, the runs of
+    "Run again after it" above one for one: the banners, `.SET TT
+    QUIET` and the prompt in each (`build/baseline/after3/last.png`,
+    the last kept frame of each; the letters spoiled at max as before);
+    every DRAM read as written (`0 differ`, at max too - the watch's
+    start is mended); lost requests 0 or 1 at typ and min, at max
+    178 210 (ОСА) and 246 366, 246 467, 246 420 (Omega).  The keyboard
+    hears ROM's commands whole in every run: 247, 021, 220 at 2.75 to
+    2.80 s, and 253, 021, 220 at 4.78 to 4.82 s under ROM-B, at 6.64 to
+    6.68 s under ROM-A.  ОСА's six runs end on the very fetch counts of
+    the runs before the USART's fixes, and their last frames are the
+    same file for file: ROM-A never waits for the transmitter.  Omega's
+    eleven are 140 to 200 fetches short of theirs (typ, seed 0:
+    11 633 813, was 11 633 968); the last frames of the five at typ are
+    the same, those at min and max not sample for sample.  The core's
+    drive beside the bench's as before: Omega 2740 blocks read, 8
+    written, ОСА 1330 read, none written, the two images the same and
+    as mounted.
+  - *The games diskette's boot on that board* (`build/games3/boot-<corner>`,
+    15 s): the prompt in the three corners
+    (`build/games3/view/boot840.png`), the five notes at the times
+    above within 0.1 ms, every DRAM read as written in all three, lost
+    requests 0, 0 and 126 714.  The games on it - **running**; their
+    end goes here.
 
 ## 7. The core
 
@@ -354,9 +382,13 @@ owed): 13 983 ALMs (33 %), the memory, RAM and DSP blocks as before;
 every domain met; the 120 MHz domain's setup slack +0.633 ns, Fmax
 129.87 MHz, hold +0.374 ns; the least setup slack of all +0.387 ns
 (HDMI's PLL), the least hold +0.220 ns (the same).  A fourth
-(`build/baseline-core4.log`, begun 2026-11-06 18:09) after the same
-chip's second change (the character held in the shifter) - **running**;
-its figures go here.
+(`build/baseline-core4.log`, 2026-11-06 18:09 to 18:38) after the same
+chip's second change (the character held in the shifter): 13 850 ALMs
+(33 %), 17 760 registers, the memory, RAM and DSP blocks as before;
+every domain met; the 120 MHz domain's setup slack +0.630 ns, Fmax
+129.82 MHz, hold +0.364 ns; the least setup slack of all +0.304 ns
+(HDMI's PLL), the least hold +0.208 ns (the same).  The `.rbf` in
+`build/mister/output_files/` is this build's.
 
 - Resources (`ms0515.fit.summary`): 13 557 of 41 910 ALMs, 32 %
   (13 963, 33 %); 1 643 857 of 5 662 720 block memory bits (29 %), 214

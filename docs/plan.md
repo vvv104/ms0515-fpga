@@ -243,8 +243,8 @@ to any one board.  From stage 6 on there are two projects:
        **Baseline** (2026-11-06, `docs/baseline.md`, step 7): built
        again - on the walk's tree 33 % of the ALMs, the 120 MHz domain
        +0.647 ns; after the controller's fix of step 6, 32 % and +0.239
-       ns; after the USART's first fix, 33 % and +0.633 ns (the build
-       after its second is in `docs/baseline.md`, step 7).  The
+       ns; after the USART's two fixes, 33 % and +0.633, then +0.630
+       ns.  The
        post-fit netlist on the bench was tried and does not work with
        Quartus's own cell models (the baseline's open item 4): the
        owner's to decide.
