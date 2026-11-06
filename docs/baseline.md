@@ -662,6 +662,24 @@ The owner's board first (`docs/plan.md` 8d).
    the same game from Omega's own system diskette on the board
    (`build/games-omega`, begun 2026-11-06 23:09) - which is also the
    command typed at Omega's prompt of item 1.
+10. The processor's pace at max.  At a system's prompt the board at max
+   makes 4.4 % fewer fetches a second than at typ, and at min 0.65 %
+   more (the games diskette's boot, 13.5 to 14.5 s: max 170 645, typ
+   178 451, min 179 609 a half second); the games' stages at max are 4
+   to 5 % of their fetches behind, BIRDS' title a second later.  Through the ROM's start the
+   three make the same fetches (77 135 in the first 0.3 s, `build/pace`)
+   - the difference is in programs that run from the dynamic RAM.
+   Measured at the prompt (`build/pace/p<corner>.log`, 20 ms of every
+   fetch from the snapshot at 14 s): 2.803 us a fetch at typ, 2.929 at
+   max, 2.784 at min; the same instruction takes longer at max by a
+   part of a microsecond - 142606 always 4 us at typ and min, 4 or 5 at
+   max; 110750 1.57 us on the average at typ, 2.00 at max.  The step is
+   of the size of T-11's READY slip (a microcycle, 0.4 us;
+   `docs/t11-model.md`), READY being `ЗАДЕРЖ L` from D98 - the
+   processor waiting for the video's read of the memory.  Not shown:
+   the bench prints a fetch's time to the microsecond and has no count
+   of the slips.  Queued for the owner's word: a count of them in the
+   bench, and with it what at max makes them more.
 
 ## Said from memory before this walk, and wrong
 

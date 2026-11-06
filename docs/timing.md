@@ -151,6 +151,12 @@ What the corners show (Omega booted to its prompt in all three):
   end (`docs/baseline.md`, open list 3; measured with `edges=`).  ТМ H
   is D59's count of the frame sync by 16: the flash turns every 8
   frames.
+- **The processor at max is some 4 % slower from the dynamic RAM** - at
+  a system's prompt 4.4 % fewer fetches a second than at typ (min: 0.65
+  % more), none fewer through the ROM's start.  Instructions there take
+  a part of a microsecond more, of the size of a READY slip; measured
+  to the microsecond only, the slips not counted (`docs/baseline.md`,
+  open list 10).
 
 The test loads of the datasheets differ (LS 2 kOhm 15 pF; LS three-state
 667 Ohm 45 pF, but the LS251's 2 kOhm 15 pF; the open-collector 7416 and
