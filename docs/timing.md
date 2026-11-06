@@ -138,6 +138,19 @@ What the corners show (Omega booted to its prompt in all three):
   each taken there or a sample to the left or right, where the picture
   fits to the sample best (`sim/board/screen_compare.h`, `slack`); the
   typical board to the sample.
+- **A flashing word's inversion outlasts it by 25 ns** (typ).  The
+  colour bits go from the attribute registers D55, D56 to the inputs of
+  the multiplexers D63, D69 (К555КП2); the selection between ink and
+  paper, ВК8 H, comes from D55's БЛНК through D31 (К555ЛА4, with ТМ H
+  and РАЗР L) and D39 (К555ЛП5, the XOR with the point ДПСЛ H), two
+  gates later.  After a flashing word in its
+  inverted half the next word, if it does not flash, shows its ink for 3
+  master ticks before its paper, and the bench's sample at the ТС15 H
+  rise falls there: single samples against the emulator's picture at
+  typ, where the ROM's flashing «Клавиатура не готова» and its cursor
+  end (`docs/baseline.md`, open list 3; measured with `edges=`).  ТМ H
+  is D59's count of the frame sync by 16: the flash turns every 8
+  frames.
 
 The test loads of the datasheets differ (LS 2 kOhm 15 pF; LS three-state
 667 Ohm 45 pF, but the LS251's 2 kOhm 15 pF; the open-collector 7416 and

@@ -128,8 +128,8 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
   self-test from random power-up states at typ (seeds 0-3) and max (1-3)
   with every fetch the emulator's; every frame compared the emulator's
   at max; at typ some frames 8 samples off at one place (400, 192: where
-  the cursor stands - taken for the cursor's blink out of step, not
-  looked into).
+  the cursor stands - taken then for the cursor's blink out of step; it
+  is not that, open list 3).
 - **What a boot run checks.**  Up to the ROM's keyboard request the
   fetches are the emulator's; from there the emulator, given the ROM
   alone, goes another way (`fetch 1914937: the board at 173670, the
@@ -577,7 +577,36 @@ The owner's board first (`docs/plan.md` 8d).
    board: 17 of 17 pass, the two drives' images the same after Omega's
    eight writes.  Closed.
 3. The cursor's 8 samples in the self-test's frames at typ (step 6) -
-   taken for the blink's phase, not shown.
+   looked into on 2026-11-07 (`build/cursor`: the run without a keyboard
+   made again to 5.6 s, a frame's nets tick by tick with `edges=`, half
+   a second with every frame kept).  Not the blink's phase.  The words
+   of «Клавиатура не готова» flash (attribute F2), and so do the two
+   lines of the cursor after it (B8); the six lines above the cursor
+   are plain (38).  In the half of the flash where the message stands
+   inverted, the plain word after it shows its ink for 3 master ticks
+   (25 ns) before its paper: the attribute registers change at tick
+   660813570, the output goes from the message's red to black at 572
+   and to grey at 575.  The colours go from the registers to the
+   inputs of the multiplexers D63, D69; their selection ВК8 H comes from
+   D55's БЛНК through D31 (with ТМ H and РАЗР L) and D39's XOR with the
+   point ДПСЛ H - two gates later.  ТС15 H rises
+   at 574, inside it, and the bench takes its sample there: one black
+   sample at the word's start on six lines, and one after the cursor's
+   bar on its two - the 8; on the earlier screens the 2 after the
+   cursor's bar alone.  The emulator's picture has no such stretch, and
+   the compare lets a flashing word be in either phase, so only the
+   plain words next to one are counted.  On a monitor it is 25 ns of
+   the next word's ink at the edge of an inverted field - a fifth of a
+   320 x 200 point; at the corners the compare's one sample of slack
+   takes it.  It is the board's, at the typical delays of К555ЛА4 and
+   К555ЛП5, of a kind with the attributes coming 17 ns before the
+   points (`docs/timing.md`, "Corners").  Nothing changed.  Closed.
+   Seen on the way: the flash turns every 8 frames, 16 frames a cycle
+   (`build/cursor/f`: frames 336, 344, 352, 360) - ТМ H is D59's count
+   of the frame sync by 16, 3.76 Hz at 60.1 frames a second.  The kept
+   frames, every 30th, showed it as 120 frames a phase.  The emulator
+   turns its flash every 30 frames (its `docs/hardware/video.md`); the
+   compare takes either phase, so no run here depends on it.
 4. The post-fit netlist on the bench (step 7, plan 7d).  Tried on
    2026-11-06 in the build tree (`build/postfit`, nothing of it in the
    repository), and it does not work as tried:
