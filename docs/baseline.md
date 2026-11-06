@@ -226,8 +226,13 @@ The owner's board first (`docs/plan.md` 8d).
 
 ## Open after this walk
 
-1. Omega's startup to its end (step 6) - done, pass.  Left: that
-   `SET SL ON` took effect, which needs a key typed at the prompt.
+1. Omega's startup to its end (step 6) - done, pass.  Left, not begun
+   (queued for the owner's word): a command typed at the prompt
+   (`keys=FILE`, the МС 7004's codes by the key's place) - it would
+   show the keyboard under the system, a program loaded from the disk,
+   and whether `SET SL ON` took effect.  Some four hours of a run; a
+   snapshot at the prompt (`save=FILE@MS`) would make the next ones
+   short.
 2. The core's drive against the bench's (step 6): after 8 blocks
    written the two images differ - a write taken wrongly by one of
    them; and 42 ticks of their lines differ later than 3 ms after a
