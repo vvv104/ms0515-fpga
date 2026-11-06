@@ -21,7 +21,7 @@ the fixed tree.
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
 | 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass.  Then games (BIRDS, Saboteur 2) found the КР580ВВ51А's model wrong twice about TxEN - a character written before TxEN went off was held, and one written with TxEN off never left the buffer - so that both stood still at their first instructions; fixed; the boots on the board so fixed, 17 of 17 pass; the games on it are **running** |
 | 7. The core | pass: built again after each of step 6's fixes, timing met, +0.630 ns at 120 MHz after the last |
-| 8. The printed board | the owner's board placed and checked against the netlist.  Its routing stopped with 8 connections unrouted and **is not the board planned**: Freerouting ran the signals over the two plane layers - open |
+| 8. The printed board | the owner's board placed and checked against the netlist.  Its routing stopped with 8 connections unrouted and **is not the board planned**: Freerouting ran the signals over the two plane layers.  A probe with those layers closed to signals left 140 of 1258 connections after 12 passes - open |
 
 ## 1. The netlist is consistent
 
@@ -461,10 +461,17 @@ The owner's board first (`docs/plan.md` 8d).
   tracked): the same empty design with In1.Cu and In2.Cu named `(type
   power)`, so that no signal may use them, 12 passes.  Its first pass
   left 592 of 1258 unrouted (the four-layer routing's first pass: 528).
-  **Running**; its end goes here.
+  It ended on 2026-11-06 at 21:32, 9.8 hours in all
+  (`build/route-probe2/freerouting.log`): unrouted after each pass 592,
+  431, 326, 264, 221, 194, 176, 156, 177, 162, 140, 140, no violation
+  by Freerouting's count.  So with this placement and these rules the
+  two outer layers did not take the board in 12 passes - **140 of 1258
+  left** (the four-layer routing had 64 left after its twelfth), and
+  the last five passes moved between 177 and 140, the twelfth gaining
+  nothing.  More passes were not tried.
 - Not done, and not to be done on this routing: DRC to no errors, Э3's
   board from this one.  What the board's stack is to be is the owner's
-  to say once the probe has ended (open list, 5).
+  to say, the probe having ended (open list, 5).
 
 ## Open after this walk
 
@@ -511,10 +518,11 @@ The owner's board first (`docs/plan.md` 8d).
    planned - Freerouting was given the plane layers as signal layers
    and ran more than half the track over them; it also left 8
    connections, narrow tracks and the edge's clearance.  First
-   `tools/pcb.py` has to hand the inner layers over as planes; whether
-   the board then routes on its two outer layers is being probed.  If
-   it does not, the stack is the owner's to choose (two more signal
-   layers, or other rules).  After that: DRC, the silkscreen's
+   `tools/pcb.py` has to hand the inner layers over as planes.  The
+   probe of that (step 8) left 140 of 1258 connections on the two outer
+   layers after 12 passes, so the stack is the owner's to choose: two
+   more signal layers, other rules (track and clearance), another
+   placement, or more passes.  After that: DRC, the silkscreen's
    warnings, Э3's board from it.
 6. Э3's board, stage 6b - paused.
 7. The cell 000:000 at max from an unseeded power-up (step 6, the games
