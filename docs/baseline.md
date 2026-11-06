@@ -233,9 +233,13 @@ brackets.
   met.  The 120 MHz domain (`emu|pll ... general[0]`): setup slack
   +0.239 ns, Fmax 123.55 MHz, hold +0.344 ns (+0.647 ns, 130.11 MHz,
   +0.350 ns).  It is now the least setup slack of all (before: +0.469
-  ns, HDMI's PLL).  The change is one state in one chip; the 0.4 ns
-  between the two builds is the fitter's placement, not that state's
-  path - the margin of this design at 120 MHz is a few tenths of a
+  ns, HDMI's PLL).  The change is one state in one chip, and the 0.4 ns
+  between the two builds is not its path: the fifteen worst paths of
+  the second build (`report_timing`, `build/mister/worst.txt`) are the
+  key translator's (`ms7004_keys`: `ev_q` and the 8035's port to
+  `found`, +0.239 and +0.291 ns) and the drive's writer's (`layout_q`
+  to `there`, from +0.407 ns), none in the controller.  The fitter
+  placed the design anew; its margin at 120 MHz is a few tenths of a
   nanosecond either way, as plan 7d's history shows.
 - Not done: the post-fit netlist on the bench (plan 7d).
 
