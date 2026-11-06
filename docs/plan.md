@@ -144,7 +144,8 @@ to any one board.  From stage 6 on there are two projects:
        s) reach their prompts at typ, min and max, every DRAM read as
        written; lost requests 0 or 1 a run at typ and min; at max 178 134
        (ОСА) and some 246 450 (Omega) - some 16 500 a second while Omega
-       waits at its prompt.
+       waits at its prompt.  The same on the board after step 6's fix
+       (17 runs): 178 210 and some 246 400 at max.
    7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
        logic: the МС 5305's MFM stream for the ВГ93 from a disk image
        (MiSTer's SD block interface), the МС 7004's line from MiSTer's
@@ -173,8 +174,9 @@ to any one board.  From stage 6 on there are two projects:
        the bench drive's - and the core's drive was the one that was
        right: the controller's model ended a sector's write a byte early
        (no FF after the CRC) and the bench's drive then lost a write
-       whose CRC ends in a 0.  Both fixed, with tests; the boot runs are
-       made again on the fixed board.
+       whose CRC ends in a 0.  Both fixed, with tests.  On the fixed
+       board Omega's eight writes leave the two drives' images the same,
+       their lines apart only while a track loads.
        The keyboard: the МС 7004 itself, read from its own documents
        (`docs/ms7004.md`) as the board was - its netlist, its 8035
        (`docs/km1816ve48.md`) and the other chips, the keyboard generated
@@ -301,6 +303,13 @@ to any one board.  From stage 6 on there are two projects:
        a routing is never carried onto a board with a part moved.  The
        owner's board's routing began from the empty board on 2026-11-05
        (1258 connections to route).
+       **Baseline** (2026-11-06, `docs/baseline.md`, step 8): it stopped
+       with 8 connections unrouted, and is not this board: the design
+       given to Freerouting named the plane layers signal layers, and
+       more than half the track runs over them, the planes in pieces
+       (so did the routing of 2026-11-04).  Nothing of it is committed.
+       Open: the inner layers handed over as planes, and whether the
+       board then routes on two.
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.

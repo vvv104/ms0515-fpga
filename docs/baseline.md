@@ -19,9 +19,9 @@ the fixed tree.
 | 3. The generated files are current | pass |
 | 4. Chips and board, typical delays | pass, 73 of 73 |
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
-| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes - the boot runs are being made again |
+| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass |
 | 7. The core | pass: built again after step 6's fix, timing met, +0.239 ns at 120 MHz |
-| 8. The printed board | the owner's board placed, checked against the netlist, its routing running |
+| 8. The printed board | the owner's board placed and checked against the netlist.  Its routing stopped with 8 connections unrouted and **is not the board planned**: Freerouting ran the signals over the two plane layers - open |
 
 ## 1. The netlist is consistent
 
@@ -212,9 +212,37 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
   system's later writes of its own disk did not reach the image.  They
   reached their prompts all the same (the blocks were not read again
   within the runs), but the runs are of the board before the fix.
-  **Run again after it** (`build/baseline/after`, begun 2026-11-06
-  08:30): Omega 30 s and ОСА 20 s at typ, min and max on the bench's
-  drive, and each at typ on the core's - **running**.
+- **Run again after it** (`build/baseline/after/<run>`, 2026-11-06
+  08:30 to 12:25, the tree of 26b39da, 17 runs side by side;
+  `build/baseline-after.log`, `baseline-after-seeds.log`) - **pass**,
+  all seventeen:
+  - *ОСА, 20 s*: typ seeds 0, 1, 2, min, max (seed 1), and typ on the
+    core's drive - «ОСА Версия 1.0», `.SET TT QUIET`, the prompt in all
+    six; every DRAM read as written (`0 differ`); lost requests 0 or 1
+    at typ and min, 178 210 at max, the letters spoiled there as before.
+    The typ and min runs end on the very fetch counts of the runs before
+    the fix: ОСА writes nothing in its 20 s (`0 written`).
+  - *Omega, 30 s*: typ seeds 0-3, min 0-2, max 1-3, and typ on the
+    core's drive - the banner, `.SET TT QUIET`, the prompt in all
+    eleven; every DRAM read as written; lost requests 0 or 1 at typ and
+    min; 246 382, 246 462 and 246 417 at max, the letters spoiled there.
+    The fetch counts are a few off the runs' before the fix (min, seed
+    0: 11 658 515, was 11 658 506) - a write a byte longer.
+  - *The core's drive beside the bench's* (`omega-typ-logic-drive`):
+    2740 blocks read, 8 written, **the two images the same**; 0 ticks
+    of their lines apart within four bytes after a write's end, 0 later
+    than 3 ms after a head's move - the lines differ only while a track
+    loads (8368 stretches, none longer than a pulse, 120 ticks).  Neither image differs from the one
+    mounted, and that is what a drive that took all eight writes ends
+    with: the system's later writes put back what its earlier ones
+    changed (the run before the fix that printed every write,
+    `build/baseline/logic3`: after them the logic's blocks 159 and 168
+    as mounted, the bench's 3 and 2 bytes off).  Its kept frames change
+    at the frames the bench drive's run's do, and the last ones are the
+    same sample for sample.  ОСА's (`osa-typ-logic-drive`): 1330 blocks
+    read, none written, the images the same, no tick apart late.
+  - `omega-typ` left a snapshot of the machine at the prompt
+    (`build/baseline/after/omega-typ-24s.snap`, at 24 s).
 
 ## 7. The core
 
@@ -259,10 +287,48 @@ The owner's board first (`docs/plan.md` 8d).
   wires.  So the placement brings no clearance or courtyard fault into
   the routing.
 - `tools/route.py vvv104 start`, `run 2 5`: from the empty board, 1258
-  connections; unrouted after each chunk, about an hour apart: 382, 238,
-  162, 116, 81, 64, 50 (2026-11-06 06:30), 0 violations throughout
-  (`build/route-vvv104/progress.txt`).  **Running.**
-- To do: `finish`, `pcb.py check vvv104`, DRC; then Э3's board from it.
+  connections; unrouted after each chunk: 382, 238, 162, 116, 81, 64, 50
+  (2026-11-06 06:30), 25, 20, 18, 16, 14, 11, 9, 8 (10:08), 0 violations
+  by Freerouting's count throughout (`build/route-vvv104/progress.txt`).
+  It **stopped at 8**: five chunks of 2 passes and then three of 12
+  (`run 12 3`) gained nothing.  The eight: `Д15 H`, `ДЧТ L`, `ТС4 H`,
+  `Д05 H`, `МК02 H`, `МК07 H`, `~VT1.C2`, `Р15 H`, one connection each.
+- **Found when that state was put on the board** (`route.py vvv104
+  finish`; the board kept as
+  `build/route-vvv104/ns4-vvv104-routed8.kicad_pcb`, KiCad's DRC of it
+  `build/drc/vvv104-routed8.json`; the tracked board put back as placed,
+  nothing of the routing committed).  `pcb.py check vvv104`: 0
+  differences from the netlist - the wires join the right pins.  But it
+  is not the board `docs/plan.md` 8 describes (signals outside, ground
+  and +5 V as planes inside):
+  - *The signals run over the plane layers.*  Track on In1.Cu 25.2 m
+    (5396 segments), on In2.Cu 30.3 m (5274), on F.Cu 11.5 m (2506), on
+    B.Cu 12.0 m (3005).  The planes are cut to pieces by it: 242 `GND`
+    and 181 `+5V` items unconnected, 114 thermal reliefs starved.
+    Cause: the design handed to Freerouting (`build/route-vvv104/ns4.dsn`)
+    names all four layers `(type signal)` - `tools/pcb.py` draws the
+    planes as zones and leaves the layers' type as it was; Freerouting
+    logs that it takes the planes' nets as routed by the plane, and
+    routes signals through the same layers.  Its "0 violations" is by
+    that design.
+  - *Tracks narrower than the rule.*  3740 segments 0.1874 mm wide, 50
+    of 0.15 and 33 of 0.125, where the rule given is 0.25 mm and the
+    board's least 0.2 (DRC: 199 `track_width` errors).  Where the widths
+    come from - not looked into.
+  - *The edge.*  40 `copper_edge_clearance` errors, 0.35 to 0.47 mm
+    where 0.5 is set.
+  - *It was so from the first routing*: the board routed on 2026-11-04
+    (f83c375's `kicad/ns4.kicad_pcb`) has 22.7 m of track on In1.Cu and
+    28.0 m on In2.Cu, and the same narrow widths.  No routed board had
+    been through KiCad's DRC in this walk until now; the placed one had.
+- **A probe of the planned stack** (`build/route-probe2`, nothing
+  tracked): the same empty design with In1.Cu and In2.Cu named `(type
+  power)`, so that no signal may use them, 12 passes.  Its first pass
+  left 592 of 1258 unrouted (the four-layer routing's first pass: 528).
+  **Running**; its end goes here.
+- Not done, and not to be done on this routing: DRC to no errors, Э3's
+  board from this one.  What the board's stack is to be is the owner's
+  to say once the probe has ended (open list, 5).
 
 ## Open after this walk
 
@@ -270,14 +336,15 @@ The owner's board first (`docs/plan.md` 8d).
    (queued for the owner's word): a command typed at the prompt
    (`keys=FILE`, the МС 7004's codes by the key's place) - it would
    show the keyboard under the system, a program loaded from the disk,
-   and whether `SET SL ON` took effect.  Some four hours of a run; a
-   snapshot at the prompt (`save=FILE@MS`) would make the next ones
-   short.
+   and whether `SET SL ON` took effect.  The snapshot at the prompt
+   is there (`build/baseline/after/omega-typ-24s.snap`), so the run is
+   of the seconds typed, not of the boot.
 2. The core's drive against the bench's (step 6): found and fixed -
    the controller's model ended a sector's write a byte early and the
    bench's drive then lost the write; the core's drive was right.  The
-   core is built again (step 7).  Left: the boot runs again on the
-   fixed board (going).
+   core is built again (step 7), the boot runs made again on the fixed
+   board: 17 of 17 pass, the two drives' images the same after Omega's
+   eight writes.  Closed.
 3. The cursor's 8 samples in the self-test's frames at typ (step 6) -
    taken for the blink's phase, not shown.
 4. The post-fit netlist on the bench (step 7, plan 7d).  Tried on
@@ -304,8 +371,15 @@ The owner's board first (`docs/plan.md` 8d).
    flip-flop, the look-up table, the RAM block), which Verilator can
    optimise.  The owner's to decide; until then the fit is trusted as
    every MiSTer core trusts it, and 7e - a board - is its check.
-5. The printed board's routing, DRC, the silkscreen's warnings, and
-   Э3's board from it (step 8).
+5. The printed board (step 8): the routing as made is not the board
+   planned - Freerouting was given the plane layers as signal layers
+   and ran more than half the track over them; it also left 8
+   connections, narrow tracks and the edge's clearance.  First
+   `tools/pcb.py` has to hand the inner layers over as planes; whether
+   the board then routes on its two outer layers is being probed.  If
+   it does not, the stack is the owner's to choose (two more signal
+   layers, or other rules).  After that: DRC, the silkscreen's
+   warnings, Э3's board from it.
 6. Э3's board, stage 6b - paused.
 
 ## Said from memory before this walk, and wrong
