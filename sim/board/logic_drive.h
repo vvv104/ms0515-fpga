@@ -9,7 +9,7 @@
 // track is loaded after a step, a side's change or the motor's start (the
 // bench's drive has every track at once): the bench's drive gives its flux
 // pulses there and the logic none yet, so a stretch of difference is a
-// pulse, 120 ticks, some hundreds of them a load.  The report counts apart
+// pulse, 120 ticks, a run of them each load.  The report counts apart
 // the ticks that differ later than kSettle after such a moment - the time
 // test_mc5305 gives the logic, inside the 15 ms the controller waits for
 // the head: by design, none.

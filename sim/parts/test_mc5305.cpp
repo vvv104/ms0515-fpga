@@ -101,21 +101,21 @@ public:
     // the controller writing from tick `start` on: РЗП on, a ДЗП fall for
     // each cell that turns, its clock a little off the drive's (up to 20
     // ticks early or late), РЗП off a cell after the last
-    void write(std::uint64_t start, const std::vector<std::uint8_t>& cells)
+    void write(std::uint64_t start, const std::vector<std::uint8_t>& cells, bool compare = false)
     {
         run(start - t_, false);
         set_gate(false);
         const std::uint64_t from = t_;
         for (std::size_t i = 0; i < cells.size(); ++i) {
             const std::uint64_t at = from + i * drive::Mc5305::kCellTicks + 20 + (i * 37) % 41 - 20;
-            run(at - t_, false);
+            run(at - t_, compare);
             if (cells[i]) {
                 set_data(false);
-                run(8, false);
+                run(8, compare);
                 set_data(true);
             }
         }
-        run(drive::Mc5305::kCellTicks, false);
+        run(drive::Mc5305::kCellTicks, compare);
         set_gate(true);
     }
     // the tick of the next index, and of a byte of the turn after it
@@ -254,6 +254,78 @@ TEST_CASE("mc5305: a sector written where its data field is - into the image, re
     CHECK(std::equal(data.begin(), data.end(), b.image().begin() + 3 * drive::kSectorBytes));
     b.run(kTurn, true);                                 // the new sector under the head
     CHECK(b.differ == 0);
+}
+
+TEST_CASE("mc5305: the lines while a sector is written and after it, as the bench's drive")
+{
+    const drive::Layout layout = drive::vvv();
+    Bench b(image(2), 1);
+    spin_up(b);
+    const std::vector<std::uint8_t> data = sector_of(0x55);
+    drive::Encoder e;
+    drive::field(e, layout.data_sync, 0xFB, data.data(), data.size());
+    e.byte(0xFF);
+    b.write(b.next_index() + static_cast<std::uint64_t>(drive::data_field_at(layout, 3)) * kByte, e.cells, true);
+    b.run(2 * kTurn, true);
+    CHECK(b.differ == 0);
+}
+
+TEST_CASE("mc5305: each sector of a track written by its place - a single-sided image, each layout")
+{
+    for (const int code : {0, 1, 2}) {
+        INFO("layout " << code);
+        const drive::Layout layout = code == 0 ? drive::omega() : code == 1 ? drive::vvv() : drive::fdz();
+        Bench b(image(1), code);
+        spin_up(b);
+        b.step(true);
+        b.step(true);
+        b.step(true);
+        REQUIRE(b.head() == 3);
+        b.run(kSettle, false);
+        for (int k = 0; k < drive::kSectors; ++k) {
+            INFO("sector's place " << k);
+            const std::vector<std::uint8_t> data = sector_of(static_cast<std::uint8_t>(0x21 + k * 29));
+            drive::Encoder e;
+            drive::field(e, layout.data_sync, 0xFB, data.data(), data.size());
+            e.byte(0xFF);
+            // the controller starts a byte and a part of one after the field's place
+            const std::uint64_t at = static_cast<std::uint64_t>(drive::data_field_at(layout, k)) * kByte + kByte + 700;
+            b.write(b.next_index() + at, e.cells, true);
+            b.run(kSettle, true);
+            CHECK(b.writes() == k + 1);
+            REQUIRE(b.image() == b.ref_image());
+            const std::size_t sector = static_cast<std::size_t>(layout.order[static_cast<std::size_t>(k)]) - 1;
+            CHECK(std::equal(data.begin(), data.end(),
+                             b.image().begin() + (3 * drive::kSectors + sector) * drive::kSectorBytes));
+        }
+        b.run(kTurn, true);
+        CHECK(b.differ == 0);
+    }
+}
+
+TEST_CASE("mc5305: four sectors written one after another in a turn, each by its place")
+{
+    for (const int code : {0, 1}) {
+        INFO("layout " << code);
+        const drive::Layout layout = code == 0 ? drive::omega() : drive::vvv();
+        Bench b(image(1), code);
+        spin_up(b);
+        const std::uint64_t index = b.next_index();
+        for (int k = 4; k < 8; ++k) {
+            const std::vector<std::uint8_t> data = sector_of(static_cast<std::uint8_t>(0x37 + k * 31));
+            drive::Encoder e;
+            drive::field(e, layout.data_sync, 0xFB, data.data(), data.size());
+            e.byte(0xFF);
+            b.write(index + static_cast<std::uint64_t>(drive::data_field_at(layout, k)) * kByte + kByte + 700, e.cells,
+                    true);
+        }
+        b.run(kSettle, true);
+        CHECK(b.writes() == 4);
+        CHECK(b.image() == b.ref_image());
+        CHECK(b.image() != image(1));
+        b.run(kTurn, true);
+        CHECK(b.differ == 0);
+    }
 }
 
 TEST_CASE("mc5305: a track written from the index (Write Track) - every sector into the image")

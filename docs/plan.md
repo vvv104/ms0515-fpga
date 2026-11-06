@@ -139,6 +139,12 @@ to any one board.  From stage 6 on there are two projects:
        0 s, in the power-up state; the others' moment is not kept), at max about 5300 a second while the disk is
        read and the screen scrolls (ОСА: 108 013 in 17 s) - the same
        margin, the screens' letters spoiled where it bites.
+       **Baseline** (2026-11-06, `docs/baseline.md`, steps 5 and 6):
+       both corners pass every test, 73 of 73; ОСА (20 s) and Omega (30
+       s) reach their prompts at typ, min and max, every DRAM read as
+       written; lost requests 0 or 1 a run at typ and min; at max 178 134
+       (ОСА) and some 246 450 (Omega) - some 16 500 a second while Omega
+       waits at its prompt.
    7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
        logic: the МС 5305's MFM stream for the ВГ93 from a disk image
        (MiSTer's SD block interface), the МС 7004's line from MiSTer's
@@ -162,6 +168,13 @@ to any one board.  From stage 6 on there are two projects:
        reference): Omega from power-on to its prompt, 2420 blocks read
        and 4 written, the two drives' lines apart only while a track
        loads after a step.
+       **Baseline** (2026-11-06, `docs/baseline.md`, step 6): it boots
+       Omega to its prompt, the two images the same at 20 s (4 blocks
+       written) - but **at 30 s, 8 blocks written, they differ**: a
+       write taken wrongly by the core's drive or by the bench's; and 42
+       ticks of the two drives' lines differ later than 3 ms after a
+       head's move, where the design has none.  **Open**, looked into;
+       until settled the core's writing is not to be trusted.
        The keyboard: the МС 7004 itself, read from its own documents
        (`docs/ms7004.md`) as the board was - its netlist, its 8035
        (`docs/km1816ve48.md`) and the other chips, the keyboard generated
@@ -215,6 +228,11 @@ to any one board.  From stage 6 on there are two projects:
        input an `s_<ref>_<pin>` that takes it back to Э3's net, and the
        menu has one for D70.15 (on GND, or as drawn).  Left for 7d: the
        post-fit netlist on the bench.
+       **Baseline** (2026-11-06, `docs/baseline.md`, step 7): built
+       again, 33 % of the ALMs, the 120 MHz domain +0.647 ns.  The
+       post-fit netlist on the bench was tried and does not work with
+       Quartus's own cell models (the baseline's open item 4): the
+       owner's to decide.
    7e. **On the board** (whoever has one): power-on, the ROM's self-test,
        Omega and ОСА from SD images, the keyboard, the picture on HDMI and
        on the IO board's VGA; then what is too long for the model -

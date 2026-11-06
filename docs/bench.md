@@ -25,9 +25,13 @@ plays, in `sim/board/`, at the board's connectors.
   (`rtl/parts/mc5305.sv`) on XP4 in place of the bench's, the image served
   through MiSTer's block interface (`sim/board/logic_drive.h`), the
   bench's drive beside it on the same lines as the reference: the run
-  ends saying where their outputs differed (by design only while a track
-  is loaded after a step, some thousand ticks each) and whether the two
-  images ended the same.  From power-on only: the logic's state is not in
+  ends saying where their outputs differed and whether the two images
+  ended the same.  By design they differ only while the logic loads a
+  track after a step, a side's change or the motor's start: the bench's
+  drive gives its flux pulses there and the logic none yet, so each
+  stretch of difference is one pulse, 120 ticks.  The ticks that differ
+  later than 3 ms after such a moment are counted apart - by design
+  none.  From power-on only: the logic's state is not in
   a snapshot, and a drive started afresh under a controller that has
   already seen one (its head stepped, its disk turning) does not boot;
 - `seed=N`: a random power-up state; `video`: every frame, for

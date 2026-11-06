@@ -19,7 +19,7 @@ the fixed tree.
 | 3. The generated files are current | pass |
 | 4. Chips and board, typical delays | pass, 73 of 73 |
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
-| 6. The real software on the board | ОСА to its prompt: pass; Omega: its startup file not at its end in 20 s - running to 30 s |
+| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; the core's drive boots Omega but a write leaves its image other than the bench's - **open**, looked into |
 | 7. The core | pass: timing met, +0.647 ns at 120 MHz |
 | 8. The printed board | the owner's board placed, checked against the netlist, its routing running |
 
@@ -145,13 +145,50 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
   «ОМЕГА SJ(S) V05.04» and `.SET TT QUIET` in 20 s, every DRAM read as
   written; lost requests 0 or 1 at typ and min, about 80 800 at max.
   Its startup file's second line (`SET SL ON`) was not through: no
-  prompt yet.  **Running** to 30 s (`build/baseline/boot30`).
+  prompt yet.
+- **Omega to 30 s** (`build/baseline/boot30`, the same ten runs): the
+  banner, `.SET TT QUIET` (at 17.5 s), the prompt (at 23 s) and from
+  there only the cursor's blink - **pass** at typ, min and max.  It is
+  the emulator's screen at its end: `ms0515-cli --no-config --rom
+  ms0515-romb.rom --disk0-side0 IMAGE --frames 1500 --screenshot FILE`
+  shows the same three lines, and the same at 1000 and at 2500 frames
+  (compared by eye: the emulator is not followed past the ROM's keyboard
+  request).  Every DRAM read as written in all ten; lost requests 0 or 1
+  of 28 125 001 at typ and min, some 246 450 at max, the letters spoiled
+  there as ОСА's.  Not shown: that `SET SL ON` took effect - the line is
+  not echoed after `SET TT QUIET`, and only a key typed would tell.
 - **The core's drive** (`drive=logic`, Omega, typ): 2420 blocks read, 4
   written, the two images the same at the end - plan 7c's figures.  The
   two drives' lines differed in 7322 stretches, the longest 120 ticks,
-  the first at 0 s; `docs/bench.md` says "only while a track is loaded
-  after a step, some thousand ticks each".  **Open: the description or
-  the drive - not looked into.**
+  the first at 0 s; `docs/bench.md` said "only while a track is loaded
+  after a step, some thousand ticks each".  The description was wrong,
+  not the count: while the logic loads a track the bench's drive gives
+  its flux pulses and the logic none, so a stretch is one pulse (120
+  ticks) and a load a run of them - `docs/bench.md` and
+  `logic_drive.h` now say so.
+- **The core's drive, later than a load** (`build/baseline/logic`, the
+  same run with the report counting apart what differs later than 3 ms
+  after a step, a side's change, the motor's start or a select): **42
+  ticks, the first at 18.219156 s - by design none.**  Not a plain
+  sector's write: `test_mc5305` now compares the two drives' lines while
+  a sector is written and for two turns after, and they agree.  The run
+  again with each such tick printed: `build/baseline/logic2` -
+  **running**.
+- **The core's drive to 30 s**
+  (`build/baseline/boot30/omega-typ-logic-drive`): Omega reaches its
+  prompt as on the bench's drive (its kept frames change where and when
+  that run's do), 2740 blocks read, 8
+  written - and **the two drives' images differ at the end**, where at
+  20 s, 4 blocks written, they were the same.  One of the two takes a
+  write between 20 and 30 s otherwise than the other: the core's drive
+  or the bench's, not known which.  Not shown by the drives alone:
+  `test_mc5305` now also writes each of a track's ten sectors by its
+  place, in every layout, on a single-sided image as the run's, and
+  four sectors one after another in a turn - the images and the lines
+  agree in all, in the typ, min and max builds
+  (`build/mc5305-corners.log`).  So the cause is in what the board's
+  controller puts on the lines.  The run again with every write and
+  the images' blocks printed: `build/baseline/logic3` - **running**.
 
 ## 7. The core
 
@@ -189,9 +226,14 @@ The owner's board first (`docs/plan.md` 8d).
 
 ## Open after this walk
 
-1. Omega's startup to its end (step 6) - running.
-2. The core's drive against the bench's: 7322 short stretches where the
-   description says a few long ones (step 6).
+1. Omega's startup to its end (step 6) - done, pass.  Left: that
+   `SET SL ON` took effect, which needs a key typed at the prompt.
+2. The core's drive against the bench's (step 6): after 8 blocks
+   written the two images differ - a write taken wrongly by one of
+   them; and 42 ticks of their lines differ later than 3 ms after a
+   head's move, where the design has none.  Two runs with the details
+   printed are going (`build/baseline/logic2`, `logic3`).  Until it is
+   settled the core's writing to a disk image is not to be trusted.
 3. The cursor's 8 samples in the self-test's frames at typ (step 6) -
    taken for the blink's phase, not shown.
 4. The post-fit netlist on the bench (step 7, plan 7d).  Tried on
@@ -239,3 +281,7 @@ Kept as the reason for the rule "a state only from the files":
 - The first boot runs of this walk, launched without `keyboard` from a
   command remembered, not written anywhere: two hours of the ROM's
   self-test.  The command is in `docs/map.md` now.
+- "Omega's screen at its end, per the emulator: the banner and a cursor
+  under it": that picture was the emulator's on ROM-A, its default, where
+  Omega stops after its banner.  The board runs Omega on ROM-B; on ROM-B
+  the emulator ends as the board does (step 6).
