@@ -31,7 +31,9 @@ plays, in `sim/board/`, at the board's connectors.
   drive gives its flux pulses there and the logic none yet, so each
   stretch of difference is one pulse, 120 ticks.  The ticks that differ
   later than 3 ms after such a moment are counted apart - by design
-  none.  From power-on only: the logic's state is not in
+  none.  Where the two images differ the blocks are listed, each with
+  what the logic's drive and the bench's changed in it since the image
+  was mounted.  From power-on only: the logic's state is not in
   a snapshot, and a drive started afresh under a controller that has
   already seen one (its head stepped, its disk turning) does not boot;
 - `seed=N`: a random power-up state; `video`: every frame, for

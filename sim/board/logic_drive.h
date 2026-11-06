@@ -27,11 +27,39 @@
 #include <utility>
 #include <vector>
 
+// A 512-byte block where two images differ: how many of its bytes, and
+// the first of them.
+struct BlockDifference {
+    std::size_t block;
+    int bytes;
+    int first;
+};
+
+// the blocks where the images differ, as far as the shorter goes
+inline std::vector<BlockDifference> differing_blocks(const std::vector<std::uint8_t>& a,
+                                                     const std::vector<std::uint8_t>& b)
+{
+    std::vector<BlockDifference> out;
+    const std::size_t blocks = std::min(a.size(), b.size()) / 512;
+    for (std::size_t block = 0; block < blocks; ++block) {
+        BlockDifference d{block, 0, -1};
+        for (int i = 0; i < 512; ++i) {
+            if (a[block * 512 + static_cast<std::size_t>(i)] == b[block * 512 + static_cast<std::size_t>(i)])
+                continue;
+            if (d.bytes++ == 0)
+                d.first = i;
+        }
+        if (d.bytes)
+            out.push_back(d);
+    }
+    return out;
+}
+
 class LogicDrive {
 public:
     // name: the formatter's, as run_board's layout=; layout: its tracks
     LogicDrive(std::vector<std::uint8_t> image, const std::string& name, drive::Layout layout, bool protect = false)
-        : device_(image), reference_(std::move(image), layout, protect)
+        : mounted_(image), device_(image), reference_(std::move(image), layout, protect)
     {
         m_.layout = name == "omega" ? 0 : name == "fdz" ? 2 : 1;
         m_.img_size = device_.image().size();
@@ -85,6 +113,30 @@ public:
         if (late_)
             std::printf(" (the first at %.6f s)", static_cast<double>(late_first_) / 120e6);
         std::printf("\n");
+        report_blocks();
+    }
+
+    // where the two images differ, and which of them left the image as mounted there
+    void report_blocks() const
+    {
+        const std::vector<BlockDifference> apart = differing_blocks(device_.image(), reference_.image());
+        const std::vector<BlockDifference> logic = differing_blocks(device_.image(), mounted_);
+        const std::vector<BlockDifference> bench = differing_blocks(reference_.image(), mounted_);
+        const auto bytes_of = [](const std::vector<BlockDifference>& in, std::size_t block) {
+            for (const BlockDifference& d : in)
+                if (d.block == block) return d.bytes;
+            return 0;
+        };
+        std::printf("the logic's drive: %zu blocks not as mounted, the bench's %zu; %zu blocks differ between them\n",
+                    logic.size(), bench.size(), apart.size());
+        const std::size_t sides = mounted_.size() >= 819200 ? 2 : 1;
+        for (std::size_t i = 0; i < apart.size() && i < 10; ++i) {
+            const std::size_t block = apart[i].block;
+            std::printf("  block %zu (track %zu, side %zu, sector %zu): %d bytes differ, the first at %d; off the "
+                        "image as mounted: the logic's %d bytes, the bench's %d\n",
+                        block, block / (10 * sides), block / 10 % sides, block % 10 + 1, apart[i].bytes,
+                        apart[i].first, bytes_of(logic, block), bytes_of(bench, block));
+        }
     }
 
     const std::vector<std::uint8_t>& image() const { return device_.image(); }
@@ -115,6 +167,7 @@ private:
 
     std::unique_ptr<Vmc5305> model_ = std::make_unique<Vmc5305>();
     Vmc5305& m_ = *model_;
+    std::vector<std::uint8_t> mounted_;                 // the image as the run began
     BlockDevice<Vmc5305> device_;
     drive::Mc5305 reference_;
     static constexpr std::uint64_t kSettle = 3000 * 120;    // 3 ms, as test_mc5305's

@@ -11,6 +11,7 @@
 #include "Vmc5305.h"
 #include "../board/block_device.h"
 #include "../board/drive.h"
+#include "../board/logic_drive.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -361,4 +362,21 @@ TEST_CASE("mc5305: a protected disk takes nothing")
     b.run(kSettle, false);
     CHECK(b.writes() == 0);
     CHECK(b.image() == image(2));
+}
+
+TEST_CASE("logic_drive: the blocks where two images differ, for the run's report")
+{
+    std::vector<std::uint8_t> a = image(1), b = a;
+    CHECK(differing_blocks(a, b).empty());
+    b[3 * 512 + 7] ^= 0x10;                             // block 3: one byte
+    b[3 * 512 + 500] ^= 0x01;                           // ... and another
+    b[799 * 512] ^= 0x80;                               // the last block's first
+    const std::vector<BlockDifference> d = differing_blocks(a, b);
+    REQUIRE(d.size() == 2);
+    CHECK(d[0].block == 3);
+    CHECK(d[0].bytes == 2);
+    CHECK(d[0].first == 7);
+    CHECK(d[1].block == 799);
+    CHECK(d[1].bytes == 1);
+    CHECK(d[1].first == 0);
 }
