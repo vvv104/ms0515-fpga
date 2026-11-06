@@ -132,8 +132,9 @@ here.  A run boots it to the prompt and leaves a snapshot; the games are
 run from the snapshot with `keys=` (`R BIRDS`, `R SABOT2` and the game's
 keys) and `joy=`, and judged by the frames against the emulator's
 screens, by the DRAM read as written, by `sound.wav` and the tones, and
-for the joystick by the game's byte 041460 (`watch=041460-041461`),
-which follows the lines held.
+for the joystick by the screen cell 041460 (`watch=041460-041461`):
+Saboteur 2 draws its control bytes into a column of cells through the
+video window, and the one that lands there follows the lines held.
 
 ## Times
 

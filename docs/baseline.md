@@ -19,7 +19,7 @@ the fixed tree.
 | 3. The generated files are current | pass |
 | 4. Chips and board, typical delays | pass, 73 of 73 |
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
-| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass.  Then games (BIRDS, Saboteur 2) found the КР580ВВ51А's model wrong twice about TxEN - a character written before TxEN went off was held, and one written with TxEN off never left the buffer - so that both stood still at their first instructions; fixed; the boots on the board so fixed, 17 of 17 pass; the games on it are **running** |
+| 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass.  Then games (BIRDS, Saboteur 2) found the КР580ВВ51А's model wrong twice about TxEN - a character written before TxEN went off was held, and one written with TxEN off never left the buffer - so that both stood still at their first instructions; fixed; the boots on the board so fixed, 17 of 17 pass; on it both games run at typ, min and max - BIRDS to its field with its sound, Saboteur 2 through its menu and briefing to the jump, the landing and its sound, by the keypad and by the joystick.  Saboteur 2 takes 20 s to load there, a block a turn of the diskette - open (9) |
 | 7. The core | pass: built again after each of step 6's fixes, timing met, +0.630 ns at 120 MHz after the last |
 | 8. The printed board | the owner's board placed and checked against the netlist.  Its routing stopped with 8 connections unrouted and **is not the board planned**: Freerouting ran the signals over the two plane layers.  A probe with those layers closed to signals left 140 of 1258 connections after 12 passes - open |
 
@@ -365,8 +365,96 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
     15 s): the prompt in the three corners
     (`build/games3/view/boot840.png`), the five notes at the times
     above within 0.1 ms, every DRAM read as written in all three, lost
-    requests 0, 0 and 126 714.  The games on it - **running**; their
-    end goes here.
+    requests 0, 0 and 126 714.
+  - *BIRDS on it* - **runs**, typ, min and max (`build/games3/birds-<corner>`
+    14 to 23 s, `birds2-` to 30 s, `birds3-` to 35 s, each from the
+    snapshot the one before left).  `R BIRDS` typed from 14.2 s, Return
+    at 14.62 s.  The screen fills with coloured squares by 16.97 s and
+    they thin out (`build/games3/view/first.png`, `birds.png`); the
+    title - «FIREBIRD», «1990 LWOW SOFT», the scores, «PRESS ANY KEY TO
+    START» - stands at 25.46 s at typ and min and by 26.46 s at max
+    (`birds2.png`); Space at 27.5 s brings the curtain of coloured bars,
+    and from 31 s the field: the line of the score, the lives and
+    «WAVE01», a flock that flies and drops, the ship, a hit's white
+    flash, the lives going from three to two (`birds3.png`; the
+    emulator's field: the same line and sprites).  The flocks are not
+    the same in the three corners: the game's chances follow its timing.
+    Sound from 16.6306 s (typ and min; 16.6373 s at max): 43 065, 43 602
+    and 43 605 edges of the speaker's node to 23 s, the commonest gap
+    between them 90 us in all three, none while the title stands, then
+    again from the key (`birds*-<corner>/sound.wav`; the bench's "tones"
+    are stretches of evenly spaced edges, and a noise has few).  Every
+    DRAM read as written in the nine runs; lost requests at max 294 886,
+    272 599 and 57 436, and their marks in max's frames as in the boots.
+  - *Saboteur 2 on it* - **runs**, typ, min and max, and **loads
+    slowly**.  `R SABOT2` typed from 14.2 s, Return at 14.68 s
+    (`build/games3/sabot-load-<corner>` to 25 s, `sabot-load2-` to 40 s).
+    The title picture stands from 16.47 s; the diskette is read until
+    36.83 s (typ and min; 37.23 s at max); the picture of the menu comes
+    at 39.43 s and the menu - K KEYBOARD, P PROTEK, J KEMPSTON, R
+    REDEFINE KEYS, M ALTER MISSION, S START GAME - by 39.93 s (max half
+    a second later; `build/games3/view/sabot-load2.png`).  No sound, and
+    every DRAM read as written.  Then from the snapshot at 40 s, twice:
+    - *the keypad* (`sabot-kbd-<corner>`, to 53.5 s): Space 40.8 s, S
+      41.6 s - the yellow «MISSION BRIEFING ... PRESS ANY KEY TO
+      CONTINUE»; Space 43.2 s - the game: the moon, the hang-glider
+      flying in, the panel (PAY, the strength, TIMER 998, SHURIKEN
+      HELD, NOTHING NEAR); keypad 5 at 46.1 s - the figure lets go and
+      falls from screen to screen, lands crouching on the girder at 50.2 s
+      (50.4 s at max) and stands, the strength shorter; keypad 4 at
+      51.7 s turns it left (`build/games3/view/sabot-kbd.png`,
+      `sabot-kbd-figure.png`).  The game's first sound is the landing's,
+      as the owner said: 200 edges, 50.229 to 50.339 s at typ, 50.212 to
+      50.301 s at min, 50.386 to 50.477 s at max.
+    - *the joystick* (`sabot-joy-<corner>`, to 55 s; J at 41.6 s, S,
+      Space at 44.0 s): fire held from 46.9 s is the jump, the landing's
+      sound from 51.03 s (51.01 s min, 51.18 s max); then right, left,
+      down and up held in turn from 51.5 s, and the figure runs right,
+      runs back left, crouches, leaps (`build/games3/view/sabot-joy.png`,
+      `sabot-joy-figure.png`);
+      260, 260 and 240 edges of sound to 53.4 s.  The cell watched
+      (`watch=041460-041461`) takes 020 at 47.0006 s, 001 eight times
+      from 51.579 s, 002 nine times from 52.535 s, 004 three times from
+      53.573 s and 010 at 54.043 s (typ) - the lines held, each within a
+      tenth of a second of its being set.  It is not a variable of the game's, as
+      `docs/bench.md` had it: the game draws its control bytes into a
+      column of screen cells through the video window (`SABOT2.DAT`
+      004354 on), and 041460 there is where the third lands, 041461 its
+      attribute.  During the fall the same cell takes other values (typ
+      0120, 0370, 0170; max 001, 007, 0100) with no line held - the
+      game's own: what it reads off the port (001464: `MOV @#177542,R0`,
+      `COM`, `BIC #177740`) has five bits.
+    Every DRAM read as written in the twelve runs; lost requests at max
+    67 505 and 194 969 (the loading), 323 934 and 348 383.
+  - *Why it loads for 20 s.*  The loader reads `SABOT2.DAT` (85 blocks)
+    a block a request and works on each for 23 ms (6400 of its 7700
+    fetches between two requests are its own and ROM-B's: 4608 at
+    0021xx, 1792 at 1670xx).  The handler
+    (the diskette's `DZ.SYS`, the DEC kit's; taken apart from the
+    emulator's state at the prompt, 153520 on) begins every request with
+    Read Address (command 300), sets the track and the sector and gives
+    Read Sector (200) - `watch=0177600-0177677`, `build/games3/sabot-fdc`:
+    300 at 17.013447 s, 200 at 17.032040 s, the 512 bytes taken from
+    17.232940 to 17.249294 s, the next 300 at 17.272391 s, the sectors 8,
+    10, 2, 4 of track 19.  The blocks lie two sectors apart (the
+    driver's 2:1 interleave), the next one's ID some 21 ms after the
+    last one's end; by the time Read Address has read an ID and Read Sector
+    is given, it has passed, and the block costs a turn: **240 ms a
+    block**, 85 of them 20.4 s.  Nothing stands still: the processor
+    waits in the handler's loop for DRQ (153574) between them.  Omega's
+    own `DZ.SYS` begins a request the same way (from the emulator's
+    state at Omega's prompt: 153054 `JSR R0,153626` with 300 in line,
+    then 153134 `MOVB @#177644,@#177642`).  The emulator shows the menu
+    7 to 8 s after Return: its controller finds any sector 5 ms after
+    the command (`TYPE2_SEARCH_CYCLES` of its `floppy.c`), with no
+    turning diskette under it.  Which the machine did is not in the
+    files; the same game from Omega's own diskette is being run on the
+    board (open list, 9).
+  - *The bench's line after a snapshot*, "the keyboard heard 220" at the
+    load's time, is the bench's: its count of codes heard starts at zero
+    and the stub's list comes with the snapshot.  The games' own 231s
+    are not heard - the transmitter is off and the game never turns it
+    on (the model's choice; `docs/vv51.md` §13, 13).
 
 ## 7. The core
 
@@ -531,6 +619,20 @@ The owner's board first (`docs/plan.md` 8d).
    at its first tick for a write no chip made; all the reads are the
    processor's in the first 0.207 s, before the cell's first write.
    The watch fixed, with a test.  Closed.
+8. Did the keys click in BIRDS and Saboteur 2 on the machine under
+   Omega?  Asked of the owner (`docs/vv51.md` §13, 13): it tells what
+   КР580ВВ51А does with a character written while TxEN is off - the
+   model keeps it in the shift register, and the games' 231 ("no key
+   click") then never reaches the keyboard.
+9. Saboteur 2's loading on the board: 20 s, a block a turn of the
+   diskette (step 6, the games), where the emulator takes 7 to 8 s from Return to the menu with
+   a controller that knows no turning.  Both handlers begin a request
+   with Read Address, so the board's 240 ms a block is what the code
+   and a diskette at 300 rpm give - if the controller's model is right
+   about a Read Sector given just after its ID has passed.  Being run:
+   the same game from Omega's own system diskette on the board
+   (`build/games-omega`, begun 2026-11-06 23:09) - which is also the
+   command typed at Omega's prompt of item 1.
 
 ## Said from memory before this walk, and wrong
 

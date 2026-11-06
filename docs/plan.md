@@ -152,8 +152,12 @@ to any one board.  From stage 6 on there are two projects:
        and the games wait for TxRDY.  And a character written with TxEN
        off - as ROM-B leaves it, under Omega too - never left the buffer,
        where the machine's own games show TxRDY coming back.  Both
-       fixed, with tests, 76 of 76 in the three corners; the boots and
-       the games on the fixed board are being run.  The cell 000:000 "read not as written" at max
+       fixed, with tests, 76 of 76 in the three corners; on the board so
+       fixed the 17 boots pass again and both games run at typ, min and
+       max - BIRDS to its field and its sound, Saboteur 2 through the
+       menu and the briefing to the jump, the landing and its sound, by
+       the keypad and by the joystick; it loads for 20 s, a block a turn
+       of the diskette (`docs/baseline.md`, open 9).  The cell 000:000 "read not as written" at max
        (above) was the bench's watch, not the board: it took strobes
        standing low at the first tick for a write; fixed, with a test.
    7c. **The bench's parts in RTL.**  What the C++ bench plays becomes
