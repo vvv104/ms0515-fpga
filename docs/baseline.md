@@ -220,8 +220,9 @@ The owner's board first (`docs/plan.md` 8d).
   wires.  So the placement brings no clearance or courtyard fault into
   the routing.
 - `tools/route.py vvv104 start`, `run 2 5`: from the empty board, 1258
-  connections; 382 unrouted after the first chunk, 238 after the second,
-  0 violations (`build/route-vvv104/progress.txt`).  **Running.**
+  connections; unrouted after each chunk, about an hour apart: 382, 238,
+  162, 116, 81, 64, 50 (2026-11-06 06:30), 0 violations throughout
+  (`build/route-vvv104/progress.txt`).  **Running.**
 - To do: `finish`, `pcb.py check vvv104`, DRC; then Э3's board from it.
 
 ## Open after this walk
