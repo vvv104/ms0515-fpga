@@ -589,11 +589,15 @@ The owner's board first (`docs/plan.md` 8d).
    keyboard alive, as it must have.  The emulator decodes the timer at
    177520-526 only, and its ВВ51 has no clock to lose, so it cannot show
    this.  Not the model's error - the board as drawn, with a system
-   diskette made for the machine with the module.  Being run: the same
-   diskette with EX.SYS removed (`build/games-omega2`, begun 2026-11-07
-   02:05, three corners, `R SABOT2` at 24.2 s, to 52 s) - the keyboard
-   under Omega, a program loaded from its disk, and item 9's second
-   handler.
+   diskette made for the machine with the module.  Run again with EX.SYS
+   taken off the diskette (`build/games-omega2`, begun 2026-11-07 02:05,
+   three corners, `R SABOT2` at 24.2 s, to 52 s): **the keyboard lives**
+   - at min the nine keys are echoed as typed and the Enter taken, the
+   cursor on the next line at 26.5 s (`build/games-omega2/min26.png`,
+   the prompt at 24 s beside it), the program loading - item 9 has its
+   second handler.  Whether `SET SL ON` took effect the screen cannot
+   say: `SET TT QUIET` before it stops the command file's echo, and the
+   prompt shows `.SET TT QUIET` alone; a look into a snapshot is left.
 2. The core's drive against the bench's (step 6): found and fixed -
    the controller's model ended a sector's write a byte early and the
    bench's drive then lost the write; the core's drive was right.  The
