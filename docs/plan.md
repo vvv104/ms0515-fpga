@@ -262,8 +262,12 @@ to any one board.  From stage 6 on there are two projects:
    hub and a microSD card are the whole kit; the IO board adds analog
    video for a CRT.
 8. **A printed board to build.**  НС4 again in copper, from the netlist
-   the model runs on: a new layout (four layers: signals, ground, +5 V,
-   signals), not the 1991 one - its inner layers are not on any scan, and
+   the model runs on: a new layout (six copper layers: signals on F.Cu
+   and In1.Cu, the ground plane on In2.Cu, the +5 V plane on In3.Cu,
+   signals on In4.Cu and B.Cu - four were planned, but with the two
+   planes honoured the two outer layers left 140 of 1258 connections
+   after 12 passes, where four signal layers took the board to 8; chosen
+   2026-11-07), not the 1991 one - its inner layers are not on any scan, and
    only the connections have to be the same.  KiCad 10 (`kicad-cli`),
    Freerouting for the routing.  The owner's board first:
    it is routed from the empty board, and Э3's made from it once 6b is
@@ -323,8 +327,18 @@ to any one board.  From stage 6 on there are two projects:
        given to Freerouting named the plane layers signal layers, and
        more than half the track runs over them, the planes in pieces
        (so did the routing of 2026-11-04).  Nothing of it is committed.
-       Open: the inner layers handed over as planes, and whether the
-       board then routes on two.
+       **The stack settled** (2026-11-07): six layers, the plane layers
+       of type power in `tools/pcb.py` (`stack`), which the Specctra
+       export writes as `(type power)` and Freerouting keeps its signals
+       off; `tools/route.py start` refuses a design with a plane on a
+       signal layer.  The narrow tracks were Freerouting's automatic
+       neckdown (3/4, 3/5, 1/2 of the width where a connection would not
+       go in whole) and the edge's errors its own 0.25 mm to the outline:
+       `run` turns the one off and gives it KiCad's 0.5 mm for the other
+       (`route.py`'s docstring).  The build is reproducible now - the
+       placement followed Python's string hashing before, so each
+       `pcb.py` gave another board.  The routing: `route.py vvv104
+       --work DIR run 2 5` from a `start` in that folder.
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.

@@ -26,8 +26,14 @@ differ only in the changed nets' copper.
 
 The board is the netlist's (netlist/parts.csv, nets.csv - Э3 as read, the
 one the board model runs the machine's software on) with the footprints of
-tools/bom.py.  Four layers: signals on the outer ones, ground on In1.Cu
-and +5 V on In2.Cu as planes.  The chips and the resistor packs stand
+tools/bom.py.  Six copper layers: signals on F.Cu, In1.Cu, In4.Cu and B.Cu,
+ground on In2.Cu and +5 V on In3.Cu as planes - the plane layers of type
+power (`PLANES`, `stack`), so that KiCad's Specctra export names them
+`(type power)` and Freerouting routes no signal over them (given as signal
+layers, as the four-layer board of 2026-11-05 was, it ran more than half
+the track through the planes; with the planes honoured the two outer
+layers alone left 140 of 1258 connections after 12 passes, docs/baseline.md
+step 8).  The chips and the resistor packs stand
 where they stood on the 1991 board (netlist/placement.csv: pin 1 of every
 DIP on Mick's layer traces, 2.54 mm a 39.4 pixels), which the plant
 routed; the connectors go along the left edge, where that board had
@@ -101,8 +107,8 @@ def pin_nets(variant=None):
         raise SystemExit("\n".join(p.text for p in errors))
     nets = {}
     for net, pins in kicad.nets_of(parts, conns).items():
-        for ref, pin in pins:
-            nets[(bom.SOCKETS.get(ref, ref), int(pin))] = net
+        for ref, pin in sorted(pins):       # sets follow the process's string hashing: a
+            nets[(bom.SOCKETS.get(ref, ref), int(pin))] = net    # placement must not
     return nets
 
 
@@ -375,10 +381,17 @@ def plane(board, codes, net, layer):
     board.Add(zone)
 
 
-# The design rules: a common fab's four-layer process with room to spare
-# (0.25 mm tracks, 0.2 mm gaps, 0.7/0.35 mm vias); the supplies wider.
+# The design rules: a common fab's multilayer process with room to spare
+# (0.25 mm tracks, 0.2 mm gaps, 0.7/0.35 mm vias, 0.5 mm to the board's
+# edge); the supplies wider.
 SIGNAL = {"track": 0.25, "clearance": 0.2, "via": 0.7, "drill": 0.35}
 POWER = {"track": 0.6, "clearance": 0.25, "via": 0.9, "drill": 0.45}
+EDGE_CLEARANCE = 0.5                      # mm; tools/route.py gives Freerouting the same
+
+# The stack: the planes inside, on layers of type power - what the Specctra
+# export writes as `(type power)`, which keeps Freerouting's signals off them.
+PLANES = {pcbnew.In2_Cu: "GND", pcbnew.In3_Cu: "+5V"}
+COPPER_LAYERS = 6
 
 
 def netclass(nc, rule):
@@ -389,6 +402,7 @@ def netclass(nc, rule):
 
 
 def rules(board):
+    board.GetDesignSettings().m_CopperEdgeClearance = pcbnew.FromMM(EDGE_CLEARANCE)
     settings = board.GetDesignSettings().m_NetSettings
     netclass(settings.GetDefaultNetclass(), SIGNAL)
     power = pcbnew.NETCLASS("Power")
@@ -398,11 +412,18 @@ def rules(board):
         settings.SetNetclassPatternAssignment(net, "Power")
 
 
+def stack(board):
+    """Six copper layers, the plane layers of type power, the rest signal."""
+    board.SetCopperLayerCount(COPPER_LAYERS)
+    for layer in board.GetEnabledLayers().CuStack():
+        board.SetLayerType(layer, pcbnew.LT_POWER if layer in PLANES else pcbnew.LT_SIGNAL)
+
+
 def build(variant=None):
     """The board placed, no wires: the pads on the variant's nets, the
     parts where Э3's nets put them - one placement for every variant."""
     board = pcbnew.BOARD()
-    board.SetCopperLayerCount(4)
+    stack(board)
     rules(board)
     dirs = footprint_dirs()
     nets = pin_nets(variant)
@@ -420,8 +441,8 @@ def build(variant=None):
     place_edge(fps, free)
     failed = place_rest(fps, free, pin_nets() if variant else nets)
     snap(fps)
-    plane(board, codes, "GND", pcbnew.In1_Cu)
-    plane(board, codes, "+5V", pcbnew.In2_Cu)
+    for layer, net in PLANES.items():
+        plane(board, codes, net, layer)
     return board, skipped, missing, failed
 
 

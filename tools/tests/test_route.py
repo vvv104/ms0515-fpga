@@ -9,6 +9,17 @@ import route  # noqa: E402
 DESIGN = """(pcb ns4
   (resolution um 10)
   (unit um)
+  (structure
+    (layer F.Cu (type signal) (property (index 0)))
+    (layer In1.Cu (type signal) (property (index 1)))
+    (layer In2.Cu (type power) (property (index 2)))
+    (layer In3.Cu (type power) (property (index 3)))
+    (layer In4.Cu (type signal) (property (index 4)))
+    (layer B.Cu (type signal) (property (index 5)))
+    (boundary (path pcb 0  290000 -230000  0 -230000  0 0  290000 0  290000 -230000))
+    (plane GND (polygon In2.Cu 0  500 -500  289500 -500  289500 -229500  500 -229500  500 -500))
+    (plane +5V (polygon In3.Cu 0  500 -500  289500 -500  289500 -229500  500 -229500  500 -500))
+  )
   (network (net "ВБ1 H"))
   (wiring
     (wire (path F.Cu 250  1 -2  3 -4)(net "ВБ1 H")(type route))
@@ -28,10 +39,11 @@ SESSION = """(session ns4
             2423379 -976870
           )
         )
-        (via "Via[0-3]_700:350_um" 1695783 -352866)
+        (via "Via[0-5]_700:350_um" 1695783 -352866)
       )
       (net ~D94.1
         (wire (path F.Cu 2500 1603430 -241470 1877730 -253420))
+        (wire (path In4.Cu 2500 1877730 -253420 1877730 -300000))
       )
     )
   )
@@ -55,8 +67,9 @@ class Wiring(unittest.TestCase):
         out = route.session_wiring(SESSION, DESIGN)
         self.assertIn('(wire (path In2.Cu 187.4 246147.9 -101496.9 242337.9 -97687)'
                       '(net "ВБ1 H")(type route))', out)
-        self.assertIn('(via "Via[0-3]_700:350_um" 169578.3 -35286.6 (net "ВБ1 H")(type route))', out)
+        self.assertIn('(via "Via[0-5]_700:350_um" 169578.3 -35286.6 (net "ВБ1 H")(type route))', out)
         self.assertIn('(wire (path F.Cu 250 160343 -24147 187773 -25342)(net "~D94.1")(type route))', out)
+        self.assertIn('(wire (path In4.Cu 250 187773 -25342 187773 -30000)(net "~D94.1")(type route))', out)
         self.assertNotIn("1 -2  3 -4", out)          # the design's own wires are gone
 
     def test_a_variant_drops_the_nets_its_pins_left(self):
@@ -115,6 +128,21 @@ class Wiring(unittest.TestCase):
     def test_a_session_in_other_units_is_refused(self):
         with self.assertRaises(SystemExit):
             route.session_wiring(SESSION.replace("(resolution um 10)", "(resolution mil 10)"), DESIGN)
+
+
+class Layers(unittest.TestCase):
+    def test_the_design_names_its_layers_types(self):
+        self.assertEqual(route.design_layers(DESIGN),
+                         {"F.Cu": "signal", "In1.Cu": "signal", "In2.Cu": "power",
+                          "In3.Cu": "power", "In4.Cu": "signal", "B.Cu": "signal"})
+
+    def test_the_planes_must_come_out_as_power_layers(self):
+        self.assertEqual(route.check_layers(DESIGN), "F.Cu In1.Cu In4.Cu B.Cu signal, In2.Cu In3.Cu power")
+        with self.assertRaises(SystemExit) as refused:       # a plane as a signal layer: the 2026-11-05 routing
+            route.check_layers(DESIGN.replace("(layer In3.Cu (type power)", "(layer In3.Cu (type signal)"))
+        self.assertIn("In3.Cu", str(refused.exception))
+        with self.assertRaises(SystemExit):
+            route.check_layers(DESIGN.replace("(type power)", "(type signal)"))
 
 
 if __name__ == "__main__":

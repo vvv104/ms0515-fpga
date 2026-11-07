@@ -38,6 +38,15 @@ build/route/progress.txt.  `finish` puts state.ses on the board in place
 of the board's wires, fills the planes and saves the board; then
 `tools/pcb.py check` reads the nets back off the pads.
 
+The planes (the routing of 2026-11-05 and KiCad's DRC of it,
+docs/baseline.md step 8): `start` refuses a design whose layers are all
+`(type signal)` - Freerouting then routes signals over the plane layers
+and cuts the planes to pieces (that routing ran 55 m of its 79 m of track
+there).  tools/pcb.py gives the plane layers the type power, which the
+Specctra export writes as `(type power)`; Freerouting makes such a layer
+inactive ("a dedicated power plane and cannot be routed") and takes the
+plane's net as routed by it.
+
 Freerouting's jar: $FREEROUTING_JAR, else
 tools/freerouting/freerouting-2.5.0.jar of $MS0515_DATA (../ms0515_data).
 """
@@ -180,6 +189,32 @@ def design_nets(design_text):
             if isinstance(n, list) and n[0] == "net" and child(n, "pins")}
 
 
+def design_layers(design_text):
+    """{layer: type} of a design's structure section, in the stack's order."""
+    structure = child(sexpr(design_text), "structure") or ["structure"]
+    return {layer[1]: child(layer, "type")[1] for layer in structure[1:]
+            if isinstance(layer, list) and layer[0] == "layer" and child(layer, "type")}
+
+
+def check_layers(design_text):
+    """The design's layers told; refused when a plane layer is a signal
+    layer, or there is no plane at all - the routing then runs over the
+    planes (docs/baseline.md step 8).  A plane is a layer with a (plane ...)
+    polygon on it in the structure section."""
+    layers = design_layers(design_text)
+    structure = child(sexpr(design_text), "structure") or ["structure"]
+    planes = {child(p, "polygon")[1] for p in structure[1:] if isinstance(p, list) and p[0] == "plane"}
+    wrong = sorted(layer for layer in planes if layers.get(layer) != "power")
+    if wrong:
+        raise SystemExit(f"{', '.join(wrong)}: a plane on a signal layer - tools/pcb.py makes the "
+                         "plane layers power layers; make the board again")
+    if "power" not in layers.values():
+        raise SystemExit("no power layer in the design: tools/pcb.py's board has its planes on "
+                         "layers of type power; make the board again")
+    by_type = {kind: [layer for layer, t in layers.items() if t == kind] for kind in ("signal", "power")}
+    return ", ".join(f"{' '.join(names)} {kind}" for kind, names in by_type.items() if names)
+
+
 def design_places(design_text):
     """{ref: (x, y, side, rotation)} of a design's placement section."""
     placement = child(sexpr(design_text), "placement") or ["placement"]
@@ -245,7 +280,8 @@ def start(base=None):
         raise SystemExit("the Specctra export failed")
     with open(exported, encoding="utf-8") as src:
         design = without_wiring(src.read())
-    told = "the placed board, no wires"
+    layers = check_layers(design)
+    told = f"the placed board, no wires; {layers}"
     if base:
         ses_path, old_path = (os.path.join(base, n) for n in ("state.ses", "state.dsn"))
         if not os.path.exists(ses_path):
