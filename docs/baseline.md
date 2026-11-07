@@ -781,15 +781,26 @@ The owner's board first (`docs/plan.md` 8d).
      commit, no source given; its `video.md` says "not 3 Hz" against
      the ТО).
    - *The frame rate.*  A jumper (`netlist/variants.md`): E4 fitted and
-     E3 open on the owner's board and in every build of the sheet-1
-     table gives 60 Hz (260 lines; 72 Hz with E3 alone); 50 Hz needs
-     both, which no build has.  The emulator starts at 50 Hz
-     (`dip_refresh` 0, 150 000 cycles a frame), so its timer interrupt
-     comes every 20 ms where the machine's came every 16.7.
+     E3 open - the owner's board, and the sheet-1 table's base build and
+     `-02` - gives 60 Hz (260 lines); `-01` and `-03` have E3 alone, 72
+     Hz; 50 Hz needs both, which no build has.  (First written here as
+     "every build 60 Hz" - wrong, corrected the same day.)  The
+     emulator started at 50 Hz (`dip_refresh` 0, 150 000 cycles a
+     frame), its timer interrupt every 20 ms where the machine's came
+     every 16.7.
    - *The timer's decoding and the keyboard's clock* (item 1): the
-     emulator has the ВИ53 at 177520-526 for writes and 177500-506 for
-     reads, the board's D80 gives it every 040-byte block of its 0400,
-     and its ВВ51 needs no baud clock - so EX.SYS's write leaves its
+     emulator had the ВИ53 at 177520-526 for writes and 177500-506 for
+     reads.  The board: D80 decodes `АД05`-`АД07`, so a chip's 010
+     registers come again at +010, +020, +030 for *writes* (WR is `ДЗП`
+     straight); but the ВВ51s' and the ВИ53's RD is `ЧТ51 L` = D79.4
+     (К555ЛЛ1) = `ДЧТ L` or `АД04 H`, so they are *read* only with bit
+     4 clear - the T-11 reads before it writes, and a read at the +020
+     half must not pop a receive buffer or step a counter's byte
+     sequence; the ВВ55s and the ВГ93 take `ДЧТ L` itself and answer
+     both halves.  Found on the way: both ROMs program counters 0 and 1
+     (the baud clocks) through 177506/177500/177502 (ROM-B 160070), and
+     the emulator was dropping those writes - its ВВ51 needs no clock,
+     so nothing showed.  So EX.SYS's write leaves the emulator's
      keyboard alive where the board's dies.
    - *The diskette's turning* (item 9): 7 to 8 s for Saboteur 2 where
      the board, a block a turn, takes 20.
@@ -810,6 +821,21 @@ The owner's board first (`docs/plan.md` 8d).
      timer interrupt's entry into the branch (36 against 12).  So the
      emulator's T-11 timing is the board's; what it lacks is the
      memory's holds.
+   **Done in the emulator's branch `board-timings`** (its repository,
+   2026-11-07, five commits off its main 4325511, nothing pushed, the
+   owner's to test from `package/` and to merge): the flash every 8
+   frames in both renderers (the SDL frontend fed the host's frame
+   count to it, now the machine's); the default 60 Hz with every host
+   pacer on the machine's `frameMs()` (old states keep their own rate;
+   the tests that counted seconds in frames rescaled); the register
+   decoding as D80, D79.4 and the wire have it, with six core tests;
+   the keyboard's baud clock and the diskette's turning assessed in its
+   `docs/kb/TODO.md` (75 and 150-200 lines, each with its tests named).
+   A finding of its own: the RT-11 kits are generated for a 50-cycle
+   clock (`CLOCK = 50.` in ms0515-devel's SYCDEC.MAC, no kit reads
+   РВК at 177602), so on the 60 Hz machine `TIME` ran 20 % fast - the
+   emulator at 50 Hz hid it; its clock test now counts the monitor's
+   minute as 3000 ticks.
 
 ## Said from memory before this walk, and wrong
 
