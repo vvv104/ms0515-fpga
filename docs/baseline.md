@@ -594,8 +594,9 @@ The owner's board first (`docs/plan.md` 8d).
    three corners, `R SABOT2` at 24.2 s, to 52 s): **the keyboard lives**
    - at min the nine keys are echoed as typed and the Enter taken, the
    cursor on the next line at 26.5 s (`build/games-omega2/min26.png`,
-   the prompt at 24 s beside it), the program loading - item 9 has its
-   second handler.  Whether `SET SL ON` took effect the screen cannot
+   the prompt at 24 s beside it), and the game's title at 28.5 s on all
+   three corners - a program loaded from Omega's disk, and item 9 has
+   its second handler.  Whether `SET SL ON` took effect the screen cannot
    say: `SET TT QUIET` before it stops the command file's echo, and the
    prompt shows `.SET TT QUIET` alone; a look into a snapshot is left.
 2. The core's drive against the bench's (step 6): found and fixed -
@@ -688,8 +689,16 @@ The owner's board first (`docs/plan.md` 8d).
    and a diskette at 300 rpm give - if the controller's model is right
    about a Read Sector given just after its ID has passed.  The run of
    the same game from Omega's own system diskette (`build/games-omega`,
-   2026-11-06 23:09) typed into a dead keyboard (item 1) and was stopped;
-   its second try, without EX.SYS, is `build/games-omega2`.
+   2026-11-06 23:09) typed into a dead keyboard (item 1); its second
+   try, without EX.SYS (`build/games-omega2`, 2026-11-07), **loads the
+   game in 3.8 s**: Return at 24.68 s, the title's picture at 28.5 s on
+   typ, min and max alike (`build/games-omega2/min42.png`), the disk
+   busy in spans of 300 to 740 ms, not a block a turn.  The 20 s is the
+   dec kit's handler, block by block, not the board: Omega's DZ reads
+   its sectors in one pass of the track.  Still open is whether a real
+   diskette gave the dec handler its 20 s too - the controller's
+   answer to a Read Sector given just after its ID passed; the owner's
+   machine ran Omega, so the question is for the owner.
 10. The processor's pace at max.  At a system's prompt the board at max
    makes 4.4 % fewer fetches a second than at typ, and at min 0.65 %
    more (the games diskette's boot, 13.5 to 14.5 s: max 170 645, typ
