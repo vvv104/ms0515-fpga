@@ -572,8 +572,11 @@ The owner's board first (`docs/plan.md` 8d).
    under the dec kit's diskette it rises 2 ms after the key.  D22's
    receiver stays idle because its clock is gone: D9's counter 0 holds
    1, not the ROM's 26 (seen inside the model, a bench print made for
-   the look and taken out again).  The writer, found in the emulator:
-   the installation check of EX.SYS, the electronic disk's handler on
+   the look and taken out again).  The writer, found in the emulator and
+   then seen on the board at 10.417 s of its boot from power-on
+   (`build/games-omega/boot-d9`, the same print: the fetches at 005214,
+   005222, 005226 and counter 0's reload going from 26 to 1): the
+   installation check of EX.SYS, the electronic disk's handler on
    that diskette, which Omega's bootstrap runs at boot - `MOV #177530,R5;
    MOV #210,6(R5); MOV #1,(R5); CLR 2(R5)`, the module's ВВ55 at
    177530-177536 (ms0515-devel's `handlers/ex/EX.MAC`).  On Э3 as drawn
