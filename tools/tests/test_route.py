@@ -161,6 +161,29 @@ class Options(unittest.TestCase):
                                     "--router.automatic_neckdown=false",
                                     "--router.copper_to_edge_clearance_um=500"])
 
+    def test_the_command_line(self):
+        self.assertEqual(route.parse(["route.py", "run", "2", "5"]), (None, None, "run", ["2", "5"]))
+        self.assertEqual(route.parse(["route.py", "vvv104", "start", "--from", "ns4"]),
+                         ("vvv104", None, "start", ["--from", "ns4"]))
+        self.assertEqual(route.parse(["route.py", "vvv104", "--work", "build/x", "run", "1", "1"]),
+                         ("vvv104", "build/x", "run", ["1", "1"]))
+        self.assertEqual(route.parse(["route.py", "--work", "build/x", "finish", "out.kicad_pcb"]),
+                         (None, "build/x", "finish", ["out.kicad_pcb"]))
+        for bad in (["route.py"], ["route.py", "vvv104"], ["route.py", "--work"], ["route.py", "--work", "x"]):
+            with self.assertRaises(SystemExit):
+                route.parse(bad)
+
+    def test_a_work_folder_of_its_own_leaves_the_boards_alone(self):
+        try:
+            route.configure("vvv104", "build/route-six")
+            self.assertTrue(route.BOARD.endswith(os.path.join("kicad", "ns4-vvv104.kicad_pcb")))
+            self.assertTrue(route.STATE.endswith(os.path.join("build", "route-six", "state.dsn")))
+            self.assertTrue(route.LOG.endswith(os.path.join("build", "route-six", "freerouting.log")))
+            self.assertEqual(route.carry_from(["--keep"]), route.WORK)
+            self.assertTrue(route.carry_from(["--from", "vvv104"]).endswith(os.path.join("build", "route-vvv104")))
+        finally:
+            route.configure()
+
 
 if __name__ == "__main__":
     unittest.main()

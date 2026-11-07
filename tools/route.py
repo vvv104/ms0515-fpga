@@ -3,12 +3,13 @@
 
 Run with KiCad's own Python, which has pcbnew:
 
-    <KiCad>/bin/python tools/route.py [vvv104] start [--from BOARD | --keep]
-    <KiCad>/bin/python tools/route.py [vvv104] run [passes per chunk] [chunks without gain]
-    <KiCad>/bin/python tools/route.py [vvv104] finish
+    <KiCad>/bin/python tools/route.py [vvv104] [--work DIR] start [--from BOARD | --keep]
+    <KiCad>/bin/python tools/route.py [vvv104] [--work DIR] run [passes per chunk] [chunks without gain]
+    <KiCad>/bin/python tools/route.py [vvv104] [--work DIR] finish [OUT.kicad_pcb]
 
 Э3's board (kicad/ns4.kicad_pcb, work files in build/route) or, named, a
-variant's (kicad/ns4-vvv104.kicad_pcb, build/route-vvv104).  `start` is
+variant's (kicad/ns4-vvv104.kicad_pcb, build/route-vvv104); `--work DIR`
+puts the work files elsewhere (a probe beside a routing kept).  `start` is
 from the empty board.  `start --from BOARD` (ns4 for Э3's, or a variant's
 name) takes the other board's routing, so `run` routes only what differs
 - the two boards have one placement; `start --keep` takes the board's own
@@ -35,8 +36,9 @@ in progress and nothing before it; `run` again goes on from the last
 state.  It stops by itself when nothing is left unrouted or when that
 many chunks in a row gained nothing.  Each chunk's line goes to
 build/route/progress.txt.  `finish` puts state.ses on the board in place
-of the board's wires, fills the planes and saves the board; then
-`tools/pcb.py check` reads the nets back off the pads.
+of the board's wires, fills the planes and saves the board (or, with OUT
+given, a copy there, the tracked board left as it is); then `tools/pcb.py
+check` reads the nets back off the pads.
 
 What the design hands over and what Freerouting is told (the routing of
 2026-11-05 and KiCad's DRC of it, docs/baseline.md step 8):
@@ -83,13 +85,16 @@ BASE = os.path.join(ROOT, "build", "route")         # Э3's board's work files
 EDGE_UM = 500               # copper to the board's edge, as KiCad's DRC checks it
 
 
-def configure(variant=None):
+def configure(variant=None, work=None):
     """The board routed and its work files: Э3's in build/route, a
-    variant's (tools/pcb.py derive) in build/route-<variant>."""
+    variant's (tools/pcb.py derive) in build/route-<variant>, or the
+    folder `work` (relative to the repository's root)."""
     global BOARD, WORK, STATE, NEXT, SESSION, NEXT_SES, LOG, PROGRESS
     name = f"ns4-{variant}" if variant else "ns4"
     BOARD = os.path.join(ROOT, "kicad", f"{name}.kicad_pcb")
     WORK = os.path.join(ROOT, "build", f"route-{variant}" if variant else "route")
+    if work:
+        WORK = os.path.normpath(os.path.join(ROOT, work))
     STATE = os.path.join(WORK, "state.dsn")
     NEXT = os.path.join(WORK, "state.next.dsn")
     SESSION = os.path.join(WORK, "state.ses")
@@ -366,7 +371,8 @@ def run(chunk, patience):
     return 0
 
 
-def finish():
+def finish(out=None):
+    """The session on the board, saved as the board or as `out`."""
     import pcbnew
     if not os.path.exists(SESSION):
         raise SystemExit(f"no {SESSION}: `start` and `run` first")
@@ -377,26 +383,43 @@ def finish():
     if not pcbnew.ImportSpecctraSES(board, ses):
         raise SystemExit("the session's import failed")
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
-    board.Save(BOARD)
+    out = os.path.join(ROOT, out) if out else BOARD
+    board.Save(out)
     tracks = sum(1 for t in board.GetTracks() if t.GetClass() == "PCB_TRACK")
     vias = sum(1 for t in board.GetTracks() if t.GetClass() == "PCB_VIA")
-    print(f"routed: {tracks} track segments, {vias} vias -> {BOARD}")
+    print(f"routed: {tracks} track segments, {vias} vias -> {out}")
     return 0
 
 
-def main(argv):
-    if len(argv) > 2 and argv[2] in ("start", "run", "finish"):
-        configure(argv[1])
-        argv = argv[1:]
-    if len(argv) < 2 or argv[1] not in ("start", "run", "finish"):
+COMMANDS = ("start", "run", "finish")
+
+
+def parse(argv):
+    """(variant, work folder, command, its arguments) off the command line:
+    `route.py [variant] [--work DIR] command [args]`."""
+    argv = argv[1:]
+    variant = work = None
+    if argv and argv[0] not in COMMANDS and argv[0] != "--work":
+        variant, argv = argv[0], argv[1:]
+    if argv[:1] == ["--work"]:
+        if len(argv) < 2:
+            raise SystemExit("--work which folder")
+        work, argv = argv[1], argv[2:]
+    if not argv or argv[0] not in COMMANDS:
         raise SystemExit(__doc__)
-    if argv[1] == "start":
-        return start(carry_from(argv[2:]))
-    if argv[1] == "run":
-        chunk = int(argv[2]) if len(argv) > 2 else 2
-        patience = int(argv[3]) if len(argv) > 3 else 5
+    return variant, work, argv[0], argv[1:]
+
+
+def main(argv):
+    variant, work, command, args = parse(argv)
+    configure(variant, work)
+    if command == "start":
+        return start(carry_from(args))
+    if command == "run":
+        chunk = int(args[0]) if args else 2
+        patience = int(args[1]) if len(args) > 1 else 5
         return run(chunk, patience)
-    return finish()
+    return finish(args[0] if args else None)
 
 
 if __name__ == "__main__":
