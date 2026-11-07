@@ -659,8 +659,13 @@ The owner's board first (`docs/plan.md` 8d).
      delays, not a finding about the fit.
    What it would take: models of our own for the three cells (the
    flip-flop, the look-up table, the RAM block), which Verilator can
-   optimise.  The owner's to decide; until then the fit is trusted as
-   every MiSTer core trusts it, and 7e - a board - is its check.
+   optimise.  The owner left the decision here (2026-11-07), and it is
+   **not to make them**: three cell models of our own would test the
+   fitter's netlist against our idea of the fitter's cells, be redone
+   at every change of Quartus, and say nothing the timing analysis
+   (`ms0515.sta.rpt`, the slack at 120 MHz at the slow and fast
+   corners) does not; the fit is trusted as every MiSTer core trusts
+   it, and 7e - a board - is its check.  Closed.
 5. The printed board (step 8): the routing as made is not the board
    planned - Freerouting was given the plane layers as signal layers
    and ran more than half the track over them; it also left 8
@@ -670,7 +675,11 @@ The owner's board first (`docs/plan.md` 8d).
    layers after 12 passes, so the stack is the owner's to choose: two
    more signal layers, other rules (track and clearance), another
    placement, or more passes.  After that: DRC, the silkscreen's
-   warnings, Э3's board from it.
+   warnings, Э3's board from it.  The owner's word (2026-11-07): go on
+   with it when the processor is idle, and so that it is not made
+   twice - the owner's board's netlist is settled (6b is Э3's board's
+   question; item 8 is a chip's model, not a connection), so the
+   routing is of the board as it is.
 6. Э3's board, stage 6b - paused.
 7. The cell 000:000 at max from an unseeded power-up (step 6, the games
    diskette's boot): 900 reads of it not as written, where ОСА's run
@@ -736,8 +745,35 @@ The owner's board first (`docs/plan.md` 8d).
    `docs/t11-model.md`), READY being `ЗАДЕРЖ L` from D98 - the
    processor waiting for the video's read of the memory.  Not shown:
    the bench prints a fetch's time to the microsecond and has no count
-   of the slips.  Queued for the owner's word: a count of them in the
-   bench, and with it what at max makes them more.
+   of the slips.  The owner's word (2026-11-07): make the count.
+11. The emulator against the board (the owner, 2026-11-07: "the honest
+   test of the emulator, since the circuits agree" - to be checked in
+   a branch of its repository under its rules).  What the board shows
+   it differs in, with the Э3 side checked on the scan:
+   - *The flash.*  D59.2 (К555ИЕ19, Э3 sheet 4: C = `КСИ Н` pin 13, R
+     grounded, Q4 pin 9 = `ПКЛ Н`, Q8 pin 8 = `ТМ Н`; both netlists and
+     the scan) turns `ТМ Н` every 8 frames: 3.75 Hz at 60 frames a
+     second, 3.1 at 50 - the ТО's "F = 1: the colour changes with the
+     background at 3 Hz" (`NS4-techdesc.md`, the attribute word).  The
+     emulator toggles every 30 frames (`Screen.cpp`, from its first
+     commit, no source given; its `video.md` says "not 3 Hz" against
+     the ТО).
+   - *The frame rate.*  A jumper (`netlist/variants.md`): E4 fitted and
+     E3 open on the owner's board and in every build of the sheet-1
+     table gives 60 Hz (260 lines; 72 Hz with E3 alone); 50 Hz needs
+     both, which no build has.  The emulator starts at 50 Hz
+     (`dip_refresh` 0, 150 000 cycles a frame), so its timer interrupt
+     comes every 20 ms where the machine's came every 16.7.
+   - *The timer's decoding and the keyboard's clock* (item 1): the
+     emulator has the ВИ53 at 177520-526 for writes and 177500-506 for
+     reads, the board's D80 gives it every 040-byte block of its 0400,
+     and its ВВ51 needs no baud clock - so EX.SYS's write leaves its
+     keyboard alive where the board's dies.
+   - *The diskette's turning* (item 9): 7 to 8 s for Saboteur 2 where
+     the board, a block a turn, takes 20.
+   - *The pace at max* (item 10) is the board's own corner, nothing of
+     the emulator's; the instruction times at typ against the
+     emulator's microcycle table are the test still to make.
 
 ## Said from memory before this walk, and wrong
 
