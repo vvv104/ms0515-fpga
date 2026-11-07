@@ -71,7 +71,7 @@ TEST_CASE("screen_compare: a sample taken a sample early or late differs exactly
     CHECK(exact.differ == 3);
     CHECK(exact.first_x == 4);
     CHECK(exact.first_y == 10);
-    CHECK(compare_screen(f, v.data(), true, kBorder, 232, 35, 16, 1).differ == 0);
+    CHECK(compare_screen(f, v.data(), true, kBorder, 232, 16, 1).differ == 0);
 }
 
 // 320 x 200: every word's points 01010101; the words' attributes by turns
@@ -95,7 +95,7 @@ TEST_CASE("screen_compare: an attribute a sample early is the picture within one
     REQUIRE(compare_screen(f, v.data(), false, 3).differ == 0);
     at(f, 15, 10) = 4;                      // word 0's last point, lit, in word 1's colour
     CHECK(compare_screen(f, v.data(), false, 3).differ == 1);
-    CHECK(compare_screen(f, v.data(), false, 3, 232, 35, 16, 1).differ == 0);
+    CHECK(compare_screen(f, v.data(), false, 3, 232, 16, 1).differ == 0);
 }
 
 TEST_CASE("screen_compare: a sample of no neighbour's value differs within one sample too")
@@ -104,7 +104,7 @@ TEST_CASE("screen_compare: a sample of no neighbour's value differs within one s
     Frame f = frame_of(v);
     at(f, 1, 10) = 1;                       // amid four lit points: neither neighbour is this
     at(f, 5, 20) = at(f, 3, 20);            // lit two samples from the lit ones: 4 and 6 are dark
-    const ScreenCompare c = compare_screen(f, v.data(), true, kBorder, 232, 35, 16, 1);
+    const ScreenCompare c = compare_screen(f, v.data(), true, kBorder, 232, 16, 1);
     CHECK(c.differ == 2);
     CHECK(c.first_x == 1);
     CHECK(c.first_y == 10);

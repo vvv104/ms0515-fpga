@@ -760,8 +760,6 @@ module ns4_machine (
     logic d_D76_p24_oe;
     logic d_D76_p23;
     logic d_D76_p23_oe;
-    logic d_D76_p22;
-    logic d_D76_p22_oe;
     logic d_D76_p10;
     logic d_D76_p10_oe;
     logic d_D76_p11;
@@ -1211,6 +1209,8 @@ module ns4_machine (
     logic unused_r_D70_p12;
     logic unused_r_D70_p12_oe;
     logic unused_r_D73_p11;
+    logic unused_d_D76_p22;
+    logic unused_d_D76_p22_oe;
     logic unused_d_D76_p21;
     logic unused_d_D76_p21_oe;
     logic unused_d_D76_p20;
@@ -1427,7 +1427,6 @@ module ns4_machine (
     logic n_RPRRT_H;
     logic n_RVB0_H;
     logic n_RVB1_H;
-    logic n_RVK1_H;
     logic n_RVU0_H;
     logic n_RVU1_H;
     logic n_RZP_H;
@@ -1957,7 +1956,7 @@ module ns4_machine (
         .p2(n_APK6_H),
         .p1(n_APK7_H),
         .p17(n_APK8_H),
-        .p16(n_RVK1_H),
+        .p16(1'b0),
         .p15(1'b0),
         .p8(1'b0),
         .p10(1'b0),
@@ -3302,7 +3301,7 @@ module ns4_machine (
         .p25_in(n_PRMAG_H),
         .p24_in(n_ZAVERSH_H),
         .p23_in(n_OBSL_H),
-        .p22_in(n_RVK1_H),
+        .p22_in(1'b0),
         .p21_in(1'b0),
         .p20_in(n_GTV_H),
         .p19_in(n_ZOVM_H),
@@ -3313,8 +3312,8 @@ module ns4_machine (
         .p24_oe(d_D76_p24_oe),
         .p23(d_D76_p23),
         .p23_oe(d_D76_p23_oe),
-        .p22(d_D76_p22),
-        .p22_oe(d_D76_p22_oe),
+        .p22(unused_d_D76_p22),
+        .p22_oe(unused_d_D76_p22_oe),
         .p21(unused_d_D76_p21),
         .p21_oe(unused_d_D76_p21_oe),
         .p20(unused_d_D76_p20),
@@ -4284,7 +4283,6 @@ module ns4_machine (
     assign n_RPRRT_H = d_D97_p2;
     assign n_RVB0_H = d_D97_p5;
     assign n_RVB1_H = d_D97_p7;
-    assign n_RVK1_H = d_D76_p22_oe ? d_D76_p22 : 1'b1;
     assign n_RVU0_H = d_D76_p4_oe ? d_D76_p4 : 1'b1;
     assign n_RVU1_H = d_D76_p3_oe ? d_D76_p3 : 1'b1;
     assign n_RZP_H = d_D1_p30;

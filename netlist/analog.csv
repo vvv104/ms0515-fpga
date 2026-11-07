@@ -7,7 +7,7 @@ ref,treatment,pins,reason
 # --- the owner's build: jumpers and SA1 (netlist/variants.md) ---
 E1,short,,fitted (white wire in place of a resistor)
 E2,short,,fitted (С2 circuit 108 to XP5.5)
-E3,open,,not fitted
+E3,short,,fitted (РВК1 Н to ground: with E4 the 50 Hz page - the machines in use ran at 50 Hz)
 E4,short,,fitted (РВК0 Н to ground)
 E5,short,,fitted (the 15 MHz oscillator into ТС15 Н)
 E6,open,,not fitted (speaker to XP6.11)

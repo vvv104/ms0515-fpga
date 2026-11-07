@@ -96,7 +96,7 @@ owner's argument, borne out by the circuit):
 So the bureaus fitted E3 beside E4 for the 50 Hz monitors they shipped
 with, and the owner's board ran at **50 Hz**, 312 lines.  The emulator
 starts at 50 Hz (its `dip_refresh` 0; for a day in 2026-11 it started at
-60 on the strength of the drawing's list).  The generated board still
-has the drawing's E4 alone; giving the owner's variant E3 too (312
-lines, 20 ms, the flash at 3.1 Hz) changes every frame count the
-baseline measured and is a step of its own, with every corner's tests.
+60 on the strength of the drawing's list).  The generated boards have
+E3 fitted too since 2026-11-08 (`netlist/analog.csv`): 312 lines, 20 ms
+a frame, the flash at 3.1 Hz; the frame counts the baseline measured
+before that date are of the 260-line board.

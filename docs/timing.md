@@ -58,11 +58,15 @@ taking time:
   fails on anything longer.
 - **The frame counter.**  D41 (АПК8) is clocked by D36's ripple carry,
   which rises as D36 alone reaches 15: АПК8 sets at line 240, and the sync
-  PROM D13's table counts on it (its reset at 256 + 4 is line 260).
+  PROM D13's table counts on it.  On the 50 Hz page (E3 and E4 both
+  fitted, as the machines in use had them - `netlist/variants.md`) the
+  frame is 312 lines, 19.97 ms; on the 60 Hz page of the drawing's E4
+  alone it was 260 (the reset at 256 + 4).
 - **Power-on.**  D76 (КР580ВВ55) is undefined until СТАРТ resets it; its
-  model starts with port B an output at 0, which holds РВК1 low and gives
-  D13 the 50 Hz page, so the first frames are not 260 lines.  The tests
-  measure the frame after the reset.
+  model starts with port B an output at 0.  With both jumpers the page
+  lines are grounded whatever port B does, so every frame is 312 lines
+  from the first; the tests measure the frame after the reset all the
+  same.
 
 ## Corners
 

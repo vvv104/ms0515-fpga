@@ -203,7 +203,9 @@ std::unique_ptr<ms0515_board_t> emulator_after(const std::string& rom_name)
 // against the emulator's picture of its own video memory, point for point.
 // `drawn`: the board as 3.858.420 Э3 draws it, D70's enable on ~D14.3, not
 // on GND as on the owner's board (netlist/vvv104.csv).  A board at a corner
-// of the delays is held to the picture within one sample (screen_compare.h).
+// of the delays is held to the picture within one sample (screen_compare.h,
+// which also knows the board's 25 ns of ink before paper at a word's edge
+// after a flashing one - docs/baseline.md, open list 3).
 void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool drawn = false)
 {
     Bench b(rom_name);
@@ -218,7 +220,7 @@ void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool dra
     REQUIRE(frames_after >= 2);
     const auto emu = emulator_after(rom_name);
     const ScreenCompare c = compare_screen(taken, board_get_vram(emu.get()), board_is_hires(emu.get()),
-                                           board_get_border_color(emu.get()), 232, 35, 16, kCorner ? 1 : 0);
+                                           board_get_border_color(emu.get()), 232, 16, kCorner ? 1 : 0);
     INFO("area at " << c.dx << ", " << c.dy << "; first at " << c.first_x << ", " << c.first_y << ": " << c.got
                     << ", the emulator's " << c.want);
     CHECK(c.differ == 0);

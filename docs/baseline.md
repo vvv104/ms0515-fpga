@@ -636,10 +636,15 @@ The owner's board first (`docs/plan.md` 8d).
    points (`docs/timing.md`, "Corners").  Nothing changed.  Closed.
    Seen on the way: the flash turns every 8 frames, 16 frames a cycle
    (`build/cursor/f`: frames 336, 344, 352, 360) - ТМ H is D59's count
-   of the frame sync by 16, 3.76 Hz at 60.1 frames a second.  The kept
+   of the frame sync by 16: 3.76 Hz at the 60.1 frames a second the
+   board then ran, 3.1 Hz at the 50 it runs since 2026-11-08.  The kept
    frames, every 30th, showed it as 120 frames a phase.  The emulator
-   turns its flash every 30 frames (its `docs/hardware/video.md`); the
-   compare takes either phase, so no run here depends on it.
+   turned its flash every 30 frames; since its v1.21.0 every 8, as here.
+   The compare takes either phase, so no run here depends on it - and
+   since the 50 Hz page it knows the one sample a plain word shows its
+   ink before its paper after an inverted flashing one
+   (`sim/board/screen_compare.h`): the frame the picture tests take now
+   falls in that half.
 4. The post-fit netlist on the bench (step 7, plan 7d).  Tried on
    2026-11-06 in the build tree (`build/postfit`, nothing of it in the
    repository), and it does not work as tried:
@@ -700,9 +705,23 @@ The owner's board first (`docs/plan.md` 8d).
    signal layers' 592), no track on In2/In3, every width 0.25 or 0.6,
    KiCad's DRC **0 errors** (`build/drc/vvv104-six-probe1.json`; the
    61 warnings are the silkscreen's and one stub).  The full routing
-   runs on from that state (`build/route-six/progress.txt`); then the
-   DRC of the routed board, the silkscreen's warnings, Э3's board from
-   it.
+   ran on from that state (`build/route-six/progress.txt`): 1-pass
+   chunks stall - each Freerouting run begins its ripup escalation
+   anew, 17 chunks took 486 to 335 - and 8-pass chunks (`run 8 2`,
+   from 16:30) gave 335, 318, 309 and 302 inside the next, some five
+   connections an hour and slowing (DRC at 335: 0 errors, the 335
+   spread over the whole board, 239 nets, `build/drc/
+   vvv104-six-r336.json`).  **Stopped 2026-11-08 00:12 at the owner's
+   word**, to think: the state kept is 309 left (`state.dsn`/`state.ses`
+   of 21:35; the chunk in progress is lost by design).  The rate says
+   the rules or the placement, not the passes: 0.25 mm track and 0.2
+   clearance let one track between a DIP's pins.  The choices, the
+   owner's: tracks 0.2 / clearance 0.15 (two between pins, a fab's
+   6/6 mil) and route again; another placement; eight layers; or the
+   rest by hand in KiCad.  The jumpers E3/E4 are pads on the board
+   either way, so the 50 Hz change (item 12) touches no copper.  Then
+   the DRC of the routed board, the silkscreen's warnings, Э3's board
+   from it.
 6. Э3's board, stage 6b - paused.
 7. The cell 000:000 at max from an unseeded power-up (step 6, the games
    diskette's boot): 900 reads of it not as written, where ОСА's run
@@ -830,8 +849,8 @@ The owner's board first (`docs/plan.md` 8d).
    it differs in, with the Э3 side checked on the scan:
    - *The flash.*  D59.2 (К555ИЕ19, Э3 sheet 4: C = `КСИ Н` pin 13, R
      grounded, Q4 pin 9 = `ПКЛ Н`, Q8 pin 8 = `ТМ Н`; both netlists and
-     the scan) turns `ТМ Н` every 8 frames: 3.75 Hz at 60 frames a
-     second, 3.1 at 50 - the ТО's "F = 1: the colour changes with the
+     the scan) turns `ТМ Н` every 8 frames: 3.1 Hz at 50 frames a
+     second (3.75 at 60) - the ТО's "F = 1: the colour changes with the
      background at 3 Hz" (`NS4-techdesc.md`, the attribute word).  The
      emulator toggles every 30 frames (`Screen.cpp`, from its first
      commit, no source given; its `video.md` says "not 3 Hz" against
@@ -847,8 +866,8 @@ The owner's board first (`docs/plan.md` 8d).
      is the frame sync (D60.1 clocked by КСИ), two bureaus' kits count
      50 a second, and the machines kept time in banks, so the machines
      in use had **both jumpers, 50 Hz**.)  The emulator started at 50 Hz
-     and, after a day at 60, starts at 50 again; the generated board
-     still has the drawing's E4 alone - its E3 is a step to come.
+     and, after a day at 60, starts at 50 again (its v1.21.0); the
+     generated boards have E3 fitted since 2026-11-08 (item 12).
    - *The timer's decoding and the keyboard's clock* (item 1): the
      emulator had the ВИ53 at 177520-526 for writes and 177500-506 for
      reads.  The board: D80 decodes `АД05`-`АД07`, so a chip's 010
@@ -901,6 +920,33 @@ The owner's board first (`docs/plan.md` 8d).
    were the measurement: the machines ran at 50 Hz (above).  The
    emulator's default is 50 Hz again (its PR after #127); its clock test
    counts the monitor's minute as 3000 ticks, a minute.
+
+12. **The board at 50 Hz** (2026-11-08, the owner's word "как машина"):
+   E3 fitted beside E4 in `netlist/analog.csv`, so `РВК1 Н` is grounded
+   and the sync PROM D13 counts its 50 Hz page - 312 lines, 19.97 ms a
+   frame, the flash at 3.1 Hz; `rtl/board/ns4.sv` and `ns4_machine.sv`
+   made again (`РВК1 Н` is the GND net now, as `РВК0 Н` was).  What the
+   change touched in the tests: `test_board` expects 312-line frames and
+   СТАРТ held two of them (39.9 ms, was 33.3); `screen_compare.h` finds
+   the 640 x 200 area at any line of the frame (it is at line 59 of 312
+   where it was at 35 of 260) and knows the board's one sample of ink
+   before paper at a word's edge after an inverted flashing word (item
+   3), which the picture tests' frame now falls on - 10 samples at typ
+   in 320 x 200, each the first sample of a word after a flashing one,
+   each the word's ink where its paper is; without the rule the test
+   would need a sample of slack at typ as at the corners.  Nothing else
+   changed at typ: Э3's board still draws 640 x 200 one point to the
+   right (1305 samples, item 6b - the race is in the line's timing from
+   D21, whose page is the same at 50 and 60 Hz, so the frame's page
+   could not have changed it, and did not).  Three corners' tests: 77
+   of 77 at typ, min and max (`build/corners-vv51/ctest*-*.log`; the
+   corners' boards have to be generated again after a netlist change -
+   `tools/board.py corner min|max build/<corner>/board`, which conan's
+   generate step does and a bare cmake build does not: the first min
+   run was of the 260-line board and said so).  The baseline's frame
+   counts before this date (items 1, 3,
+   9, the boots' seconds) are of the 260-line board; a second is a
+   second, the frames in it fewer.
 
 ## Said from memory before this walk, and wrong
 

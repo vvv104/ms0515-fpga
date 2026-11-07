@@ -236,8 +236,9 @@ std::string octal(unsigned v)
 // The first 100 ms after power-on: the sync PROMs' timing, D16's reset pulse
 // and the processor let go, from then on no net with two drivers on, and
 // the processor running the ROM in the sockets as the emulator does (ROM-B
-// as built, or another image put in).  The owner's jumpers (E4 fitted, E3
-// open: РВК0 low, РВК1 high) are the 60 Hz row of the ТО's Table 10.
+// as built, or another image put in).  The jumpers E3 and E4, both fitted
+// as the machines in use had them (РВК1 and РВК0 low), are the 50 Hz row of
+// the ТО's Table 10: 312 lines of 64 us.
 static void power_on(int seed, const std::string& rom_path = kRomB)
 {
     INFO("power-up state seed " << seed << ", ROM " << rom_path);
@@ -272,15 +273,15 @@ static void power_on(int seed, const std::string& rom_path = kRomB)
     REQUIRE(line.at.size() > 100);
     CHECK(line.period_us(1) == doctest::Approx(64.0).epsilon(0.001));
     REQUIRE(frame.at.size() >= 4);
-    // The last frame: until СТАРТ resets D76 (КР580ВВ55), whose state is
-    // undefined before a RESET, its port B may drive РВК1 low and give the
-    // sync PROM D13 the 50 Hz page - the first frames' length is not fixed.
-    CHECK(frame.period_us(frame.at.size() - 2) == doctest::Approx(260 * 64.0).epsilon(0.01));
-    // D16 counts АПК7: the processor is held from its 2nd fall to its 4th
+    // The last frame: 312 lines, the 50 Hz page of the sync PROM D13 (with
+    // E3 fitted РВК1 is low whatever D76's port B does before СТАРТ).
+    CHECK(frame.period_us(frame.at.size() - 2) == doctest::Approx(312 * 64.0).epsilon(0.01));
+    // D16 counts АПК7: the processor is held from its 2nd fall to its 4th -
+    // two frames
     REQUIRE(start_rose > 0);
     REQUIRE(start_fell > start_rose);
     CHECK(static_cast<double>(start_fell - start_rose) / kMasterMhz ==
-          doctest::Approx(2 * 128 * 2 * 64.0).epsilon(0.02));
+          doctest::Approx(2 * 312 * 64.0).epsilon(0.02));
 
     REQUIRE(fetches.size() > 100);
     const std::vector<std::uint16_t> expected = emulator_fetches(fetches.size(), rom_path);
@@ -295,7 +296,7 @@ static void power_on(int seed, const std::string& rom_path = kRomB)
     CHECK(same == fetches.size());
 }
 
-TEST_CASE("power-on: 64 us lines, 60 Hz frames, СТАРТ H, then ROM-B as in the emulator")
+TEST_CASE("power-on: 64 us lines, 50 Hz frames, СТАРТ H, then ROM-B as in the emulator")
 {
     power_on(0);
 }

@@ -67,7 +67,23 @@ inline bool fits(const std::uint8_t* vram, bool hires, int border, int xp, int x
         return (s & 7) == (border & 7);
     int a = 0, b = 0;
     expect(vram, hires, border, xp, xa < 0 ? 0 : xa > 639 ? 639 : xa, y, a, b);
-    return s == a || s == b;
+    if (s == a || s == b)
+        return true;
+    // The first sample of a word after a flashing one, in the flash's
+    // inverted half: the inversion (ВК8 H, from D31 and D39) is let go a
+    // couple of К555 delays after the attributes change, so for 25 ns the
+    // new word shows its ink where its paper is and the other way round -
+    // the board's own (docs/baseline.md, open list 3).
+    if (!hires && xp % 16 == 0 && xp >= 16) {
+        const std::uint8_t* row = vram + y * 80;
+        if (row[(xp / 16 - 1) * 2 + 1] & 0x80) {
+            const std::uint8_t attr = row[xp / 16 * 2 + 1];
+            const int bright = (attr >> 6) & 1;
+            const int ink = norm((attr & 7) | bright << 3), paper = norm(((attr >> 3) & 7) | bright << 3);
+            return s == (a == ink ? paper : ink);
+        }
+    }
+    return false;
 }
 
 inline int count(const std::vector<std::vector<std::uint8_t>>& frame, const std::uint8_t* vram, bool hires,
@@ -100,16 +116,16 @@ inline int count(const std::vector<std::vector<std::uint8_t>>& frame, const std:
 
 }  // namespace screen_detail
 
-// The best fit of the 640 x 200 area within the frame near (x0, y0), and
-// what differs there (within `slack` samples).
+// The best fit of the 640 x 200 area within the frame - at any line of it
+// (the sync PROM's page puts the picture at line 35 of 260 at 60 Hz and
+// lower in the 312 of 50 Hz), near x0 across - and what differs there
+// (within `slack` samples).
 inline ScreenCompare compare_screen(const std::vector<std::vector<std::uint8_t>>& frame,
-                                    const std::uint8_t* vram, bool hires, int border, int x0 = 232, int y0 = 35,
+                                    const std::uint8_t* vram, bool hires, int border, int x0 = 232,
                                     int reach = 16, int slack = 0)
 {
     ScreenCompare best;
-    for (int dy = y0 - reach; dy <= y0 + reach; ++dy) {
-        if (dy < 0 || dy + 200 > static_cast<int>(frame.size()))
-            continue;
+    for (int dy = 0; dy + 200 <= static_cast<int>(frame.size()); ++dy) {
         for (int dx = x0 - reach; dx <= x0 + reach; ++dx) {
             bool fits = dx >= 0;
             for (int y = 0; y < 200 && fits; ++y)
