@@ -270,6 +270,16 @@ plant.  To settle: a sharper look at the lower end (which pin, and
 whether a D80.4/D80.5 trace is cut), and the XS1 C17..C24 contacts on a
 board with the module.
 
+The board shows what the wire spares (2026-11-07, `docs/baseline.md`,
+open list 1): booted from the owner's system diskette, which carries
+EX.SYS, the module's handler, the board's keyboard is dead at the
+prompt.  Omega's bootstrap runs the handler's installation check, and
+that writes the module's ВВ55 at 177530-177536 - a control word, a
+page of 1 to port A, 0 to port B.  With D80 as drawn those are D9's
+registers: counter 0, the keyboard's baud clock, takes the 1 and stops
+clocking D22.  With `АД03` into G2B the board's chips do not see the
+module's half of the register space, and the keyboard lives.  The dec
+kit's diskette has no EX.SYS and types.
 ### The factory wire patches restore Э3 (assembly drawing, 2026-10-20)
 
 The assembly drawing 3.858.420 СБ (page 27, drawn turned half round: a

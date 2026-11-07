@@ -563,13 +563,34 @@ The owner's board first (`docs/plan.md` 8d).
 
 ## Open after this walk
 
-1. Omega's startup to its end (step 6) - done, pass.  Left, not begun
-   (queued for the owner's word): a command typed at the prompt
-   (`keys=FILE`, the МС 7004's codes by the key's place) - it would
-   show the keyboard under the system, a program loaded from the disk,
-   and whether `SET SL ON` took effect.  The snapshot at the prompt
-   is there (`build/baseline/after/omega-typ-24s.snap`), so the run is
-   of the seconds typed, not of the boot.
+1. Omega's startup to its end (step 6) - done, pass.  A command typed
+   at the prompt (`keys=FILE`, the МС 7004's codes by the key's place):
+   tried on 2026-11-07 with `R SABOT2` at 24.2 s on the games diskette
+   made from the owner's system (`build/games-omega`, the min corner to
+   33 s) - **nothing is echoed**, and the `irq` log shows why: the key's
+   bits reach D22's RxD, but the request `ЗАПР КЛ` never rises, where
+   under the dec kit's diskette it rises 2 ms after the key.  D22's
+   receiver stays idle because its clock is gone: D9's counter 0 holds
+   1, not the ROM's 26 (seen inside the model, a bench print made for
+   the look and taken out again).  The writer, found in the emulator:
+   the installation check of EX.SYS, the electronic disk's handler on
+   that diskette, which Omega's bootstrap runs at boot - `MOV #177530,R5;
+   MOV #210,6(R5); MOV #1,(R5); CLR 2(R5)`, the module's ВВ55 at
+   177530-177536 (ms0515-devel's `handlers/ex/EX.MAC`).  On Э3 as drawn
+   D80 decodes `АД05`-`АД07` alone, so these are D9's registers too:
+   counter 2 latched, counter 0 set to 1, counter 1 to 0 - and with N =
+   1 in mode 3 the model's output is low 32 768 clocks of every 32 769, no baud
+   clock for the keyboard.  The owner's machine had the wire from `АД03`
+   to D80.5 (`docs/findings.md`, "The green wire"), which keeps these
+   addresses off the board's own chips: there the same boot left the
+   keyboard alive, as it must have.  The emulator decodes the timer at
+   177520-526 only, and its ВВ51 has no clock to lose, so it cannot show
+   this.  Not the model's error - the board as drawn, with a system
+   diskette made for the machine with the module.  Being run: the same
+   diskette with EX.SYS removed (`build/games-omega2`, begun 2026-11-07
+   02:05, three corners, `R SABOT2` at 24.2 s, to 52 s) - the keyboard
+   under Omega, a program loaded from its disk, and item 9's second
+   handler.
 2. The core's drive against the bench's (step 6): found and fixed -
    the controller's model ended a sector's write a byte early and the
    bench's drive then lost the write; the core's drive was right.  The
@@ -658,10 +679,10 @@ The owner's board first (`docs/plan.md` 8d).
    a controller that knows no turning.  Both handlers begin a request
    with Read Address, so the board's 240 ms a block is what the code
    and a diskette at 300 rpm give - if the controller's model is right
-   about a Read Sector given just after its ID has passed.  Being run:
-   the same game from Omega's own system diskette on the board
-   (`build/games-omega`, begun 2026-11-06 23:09) - which is also the
-   command typed at Omega's prompt of item 1.
+   about a Read Sector given just after its ID has passed.  The run of
+   the same game from Omega's own system diskette (`build/games-omega`,
+   2026-11-06 23:09) typed into a dead keyboard (item 1) and was stopped;
+   its second try, without EX.SYS, is `build/games-omega2`.
 10. The processor's pace at max.  At a system's prompt the board at max
    makes 4.4 % fewer fetches a second than at typ, and at min 0.65 %
    more (the games diskette's boot, 13.5 to 14.5 s: max 170 645, typ
