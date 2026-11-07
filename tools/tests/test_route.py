@@ -143,6 +143,11 @@ class Layers(unittest.TestCase):
         self.assertIn("In3.Cu", str(refused.exception))
         with self.assertRaises(SystemExit):
             route.check_layers(DESIGN.replace("(type power)", "(type signal)"))
+        plane = '(plane +5V (polygon In3.Cu 0  500 -500  289500 -500  289500 -229500  500 -229500  500 -500))'
+        self.assertIn(plane, DESIGN)
+        with self.assertRaises(SystemExit) as bare:          # a power layer with no plane is routed over
+            route.check_layers(DESIGN.replace(plane, ""))
+        self.assertIn("In3.Cu", str(bare.exception))
 
 
 class Options(unittest.TestCase):

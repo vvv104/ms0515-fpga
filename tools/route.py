@@ -49,7 +49,11 @@ What the design hands over and what Freerouting is told (the routing of
   tools/pcb.py gives the plane layers the type power, which the Specctra
   export writes as `(type power)`; Freerouting makes such a layer inactive
   ("a dedicated power plane and cannot be routed") and takes the plane's
-  net as routed by it.
+  net as routed by it - but only when the layer also carries a `(plane
+  ...)`: on a small board (2026-11-07) a bare power layer took the wire,
+  the same board with the planes put it on In4.Cu.  The probe of the
+  six-layer board (`build/route-six`, one pass, 486 of 1258 left) had
+  0 of its 3101 segments on In2.Cu or In3.Cu.
 - The track's width.  That routing had 3740 segments 0.1874 mm wide, 50
   of 0.15 and 33 of 0.125 against the rule's 0.25 (199 `track_width`
   errors): not the DSN's rules (width 250 in the design and the classes)
@@ -61,13 +65,17 @@ What the design hands over and what Freerouting is told (the routing of
   narrower than the track at the pin's width (none here - the least pad is
   1.44 mm).  `run` turns it off (`--router.automatic_neckdown=false`), so a
   connection that does not fit at 0.25 mm stays unrouted for the pass
-  instead of coming back narrower.
+  instead of coming back narrower (the probe's 3101 segments: 3020 of
+  0.25 mm, 81 of the Power class's 0.6, none narrower).
 - The board's edge.  KiCad's DRC keeps copper 0.5 mm from the Edge.Cuts
   line's centre (tools/pcb.py's EDGE_CLEARANCE; the four-layer routing had
   40 `copper_edge_clearance` errors, 0.35 to 0.47 mm).  Freerouting's own
   clearance to the outline is 0.25 mm by default
   (router.copper_to_edge_clearance_um); `run` gives it EDGE_UM, and
-  `start` refuses a board whose setting is another.
+  `start` refuses a board whose setting is another.  Seen to hold on a
+  small board (2026-11-07): two pins with a wall between them down to
+  1 mm from the edge - by default the wire went under the wall, 0.305 mm
+  from the edge; told 500 um it went the long way over the wall.
 
 Freerouting's jar: $FREEROUTING_JAR, else
 tools/freerouting/freerouting-2.5.0.jar of $MS0515_DATA (../ms0515_data).
@@ -225,10 +233,13 @@ def design_layers(design_text):
 
 
 def check_layers(design_text):
-    """The design's layers told; refused when a plane layer is a signal
-    layer, or there is no plane at all - the routing then runs over the
-    planes (docs/baseline.md step 8).  A plane is a layer with a (plane ...)
-    polygon on it in the structure section."""
+    """The design's layers told; refused when a plane (a layer with a
+    (plane ...) polygon on it in the structure section) lies on a signal
+    layer, when a power layer carries no plane, or when there is no plane
+    at all.  Freerouting keeps its wires off a layer only when it is both
+    `(type power)` and has a plane: a bare power layer is routed over, a
+    plane on a signal layer is cut to pieces (the routing of 2026-11-05,
+    docs/baseline.md step 8; both seen on a small board, 2026-11-07)."""
     layers = design_layers(design_text)
     structure = child(sexpr(design_text), "structure") or ["structure"]
     planes = {child(p, "polygon")[1] for p in structure[1:] if isinstance(p, list) and p[0] == "plane"}
@@ -236,6 +247,10 @@ def check_layers(design_text):
     if wrong:
         raise SystemExit(f"{', '.join(wrong)}: a plane on a signal layer - tools/pcb.py makes the "
                          "plane layers power layers; make the board again")
+    bare = sorted(layer for layer, kind in layers.items() if kind == "power" and layer not in planes)
+    if bare:
+        raise SystemExit(f"{', '.join(bare)}: a power layer with no plane on it - Freerouting would "
+                         "route over it; tools/pcb.py puts a plane on every power layer")
     if "power" not in layers.values():
         raise SystemExit("no power layer in the design: tools/pcb.py's board has its planes on "
                          "layers of type power; make the board again")

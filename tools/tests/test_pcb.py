@@ -32,6 +32,11 @@ class Stack(unittest.TestCase):
         pcb.stack(board)
         pcb.rules(board)
         pcb.outline(board)
+        codes = {}
+        for layer, net in pcb.PLANES.items():
+            codes[net] = pcbnew.NETINFO_ITEM(board, net)
+            board.Add(codes[net])
+            pcb.plane(board, codes, net, layer)
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "empty.dsn")
             self.assertTrue(pcbnew.ExportSpecctraDSN(board, path))
