@@ -191,31 +191,32 @@ TEST_CASE("КР580ВВ51: what was written before TxEN went off is still sent")
     CHECK(u.m().p19);                           // marking
 }
 
-// What the datasheet leaves unsaid, taken from the machine's own software:
-// under Omega ROM-B leaves the keyboard USART's command at 006 (TxEN off),
-// and BIRDS and Saboteur 2 begin by waiting for TxRDY, writing the keyboard
-// 231, waiting for TxRDY again and writing 231 once more.  So with TxEN
-// off a character leaves the buffer - for the shift register, where it
-// waits for TxEN - and TxRDY comes back; TxEMPTY stays high (DS p.2-4).
-TEST_CASE("КР580ВВ51: a character written with TxEN off leaves the buffer and waits in the shifter")
+// What the datasheet leaves unsaid, taken from the machine and its software
+// (docs/vv51.md §7): under Omega ROM-B leaves the keyboard USART's command
+// at 006 (TxEN off); Saboteur 2 begins by waiting for TxRDY, writing the
+// keyboard 231 ("no key click"), waiting for TxRDY again and writing 231
+// once more, then the command 064 - TxEN still off, and on until the key
+// that leaves the game.  On the owner's machine the keys clicked at Omega's
+// prompt and not in the game: the character written with TxEN off was
+// sent.  So TxEN does not hold the transmitter; it gates the TxRDY pin.
+TEST_CASE("КР580ВВ51: a character written with TxEN off is sent all the same")
 {
     Usart u;
     init(u, 0x4E, 0x06);                        // ROM-B's: 1 stop bit, 8 bits, x16; DTR, RxE - no TxEN
     u.txd_.clear();
-    CHECK((u.read(true) & 0x01) != 0);
+    CHECK((u.read(true) & 0x01) != 0);          // TxRDY in the status ...
+    CHECK(!u.m().p15);                          // ... and not on the pin, TxEN off
     u.write(false, 0x99);
+    CHECK((u.read(true) & 0x01) != 0);          // TxRDY back: the character left the buffer
     u.run(2 * kFrame);
-    CHECK(sent(u.txd_).empty());                // nothing on the line
-    CHECK((u.read(true) & 0x05) == 0x05);       // TxRDY back, TxEMPTY still high
-    u.write(false, 0x66);                       // the second fills the buffer
+    CHECK(sent(u.txd_) == std::vector<int>{0x99});
+    CHECK((u.read(true) & 0x05) == 0x05);       // TxRDY and TxEMPTY: nothing left
+    u.write(false, 0x99);
+    u.write(true, 0x34);                        // 064: RxE, ER, RTS - TxEN still off
     u.run(2 * kFrame);
-    CHECK((u.read(true) & 0x01) == 0);
-    CHECK(sent(u.txd_).empty());
-    CHECK(u.m().p19);
-    u.write(true, 0x07);                        // TxEN: both leave, in their order
-    u.run(3 * kFrame);
-    CHECK(sent(u.txd_) == std::vector<int>{0x99, 0x66});
-    CHECK((u.read(true) & 0x05) == 0x05);
+    CHECK(sent(u.txd_) == std::vector<int>{0x99, 0x99});
+    CHECK(u.m().p19);                           // marking
+    CHECK(!u.m().p15);
 }
 
 TEST_CASE("КР580ВВ51: what was written before -CTS went off is still sent")

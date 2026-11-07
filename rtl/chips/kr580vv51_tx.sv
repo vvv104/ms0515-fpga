@@ -3,7 +3,7 @@
 // them (docs/vv51.md §7): a start bit, the data LSB first, the parity bit,
 // the stop bits - each bit `factor` TxC periods, 1½ stop bits a half more.
 // A character leaves the buffer for the shifter as soon as the shifter is
-// free, and begins there once the transmitter is on (§7, "TxEN off").
+// free, and begins there once -CTS is low (§7); TxEN does not hold it.
 module kr580vv51_tx (
     input  logic       clk,
     input  logic       reset,           // master or internal reset: idle
@@ -12,7 +12,7 @@ module kr580vv51_tx (
     input  logic [1:0] length,          // L2L1: 5..8 bits
     input  logic       pen, ep,
     input  logic [1:0] stops,           // S2S1: 01 1, 10 1½, 11 2
-    input  logic       enable,          // TxEN and -CTS low, or a character owed
+    input  logic       enable,          // -CTS low, or a character owed
     input  logic       sbrk,
     input  logic       full,            // a character waits in the buffer
     input  logic [7:0] data,
@@ -25,7 +25,7 @@ module kr580vv51_tx (
     logic [6:0]  ticks;                 // TxC falls left in this bit
     logic [6:0]  per_bit;
     logic        out;
-    logic        held;                  // a character in the shifter, not begun: the transmitter is off
+    logic        held;                  // a character in the shifter, not begun: -CTS is off
 
     always_comb
         case (factor)

@@ -448,13 +448,16 @@ runs side by side, `build/baseline/boot/<run>/run.log` and frames.
     7 to 8 s after Return: its controller finds any sector 5 ms after
     the command (`TYPE2_SEARCH_CYCLES` of its `floppy.c`), with no
     turning diskette under it.  Which the machine did is not in the
-    files; the same game from Omega's own diskette is being run on the
-    board (open list, 9).
+    files; the same game from Omega's own diskette, run on the board
+    and its block's cycle taken apart (open list, 9), shows the 20 s to
+    be the game's and the diskette's, not the model's.
   - *The bench's line after a snapshot*, "the keyboard heard 220" at the
     load's time, is the bench's: its count of codes heard starts at zero
     and the stub's list comes with the snapshot.  The games' own 231s
-    are not heard - the transmitter is off and the game never turns it
-    on (the model's choice; `docs/vv51.md` §13, 13).
+    were not heard in these runs - the model then held a character
+    written with TxEN off; since the owner's answer (open list, 8) it
+    sends it, and the stub hears them in `test_kr580vv51`'s terms
+    (`docs/vv51.md` §7); the games' runs were not made again.
 
 ## 7. The core
 
@@ -718,11 +721,22 @@ The owner's board first (`docs/plan.md` 8d).
    the machine the 231 reached the keyboard, where the model holds it
    for a TxEN that the game (its command 064 leaves TxEN off) never
    gives: the model's choice is contradicted, unless the click was
-   already off at Omega's prompt - asked back.  If it clicked at the
-   prompt and not in the game, the real chip sends a character written
-   with TxEN off, and `rtl/chips/kr580vv51*.sv` has to follow (§7's
-   choice turned over) - a model change, the games' writes and the
-   owner's machine its evidence, to be made with a test at the corners.
+   already off at Omega's prompt - asked back.  **The owner's second
+   answer (2026-11-07): the keys clicked before the game and not in it**
+   (the auto-repeat's clicks, he says - the МС 7004's own sound).  The
+   alternatives looked at before the model was turned: Omega's own files
+   write the keyboard's command register nowhere (the kit's 18 .SYS and
+   .SAV scanned; the two hits in DZ.SYS and MZ.SYS are PC-relative
+   offsets), so the prompt's command is ROM-B's 006; ROM-B turns TxEN on
+   only in its bell (166074) and lamp (177042) routines, which a game
+   drawing its own screen does not reach; D22's -DTR, which the game's
+   064 drops, goes through D28 to the С2 port's circuit 108, not to the
+   keyboard; and Saboteur 2 itself (`SABOT2.DAT`, its init at 1000 and
+   its keyboard handler at 1422) writes 065 - TxEN on - only on the key
+   code 3 that leaves the game.  So the 231 was sent with TxEN off, and
+   `rtl/chips/kr580vv51*.sv` now sends what is written whenever -CTS is
+   low, TxEN gating the TxRDY pin alone (`docs/vv51.md` §7, §13 13, §14;
+   `test_kr580vv51` turned over; every corner's tests run).  Closed.
 9. Saboteur 2's loading on the board: 20 s, a block a turn of the
    diskette (step 6, the games), where the emulator takes 7 to 8 s from Return to the menu with
    a controller that knows no turning.  Both handlers begin a request
@@ -749,6 +763,28 @@ The owner's board first (`docs/plan.md` 8d).
    such system ran on a machine, so only Omega's 20 s can be asked
    about).  (A first reading of this run, written and withdrawn the
    same morning, took the title's picture for the whole game loaded.)
+   **The owner (2026-11-07): he does not remember, but 20 s seems too
+   long.  Measured** (`build/disk-turn/typ.log`: 400 ms from the 30 s
+   snapshot of the typ run, every fetch): one block's cycle is the
+   game's own.  At 30.013 s the handler has Read Address's ID (13 ms of
+   waiting for it at 153666), sets the registers and gives Read Sector
+   at 30.0132; it then waits for the first DRQ at 153356-153366 for
+   **181.5 ms**, takes the 512 bytes in 16.35 ms (a byte every 32 us)
+   and returns to the game at 30.2111; the game spends **22.3 ms** in a
+   loop between its 1364 and ROM-B's 167042 - the ROM's byte-by-byte
+   copy through the bank register 177400, 43 us a byte - and gives the
+   next request, whose Read Address is at 153054 at 30.2344.  So between
+   one block's last byte and the next request 23 ms pass; the next
+   block lies two sectors on (the handler's 2:1), its ID passes 21 ms
+   after the last byte - before the request is made - and Read Address
+   then returns the ID after it; Read Sector finds the wanted one a
+   turn later: 200 ms + 2 sectors = 240 ms a block, 85 blocks 20.4 s.
+   A WD1793 with a diskette at 300 rpm, Omega's FORMAT's physical order
+   1..10 (`sim/board/drive.h`, from the disassembled formatter), this
+   handler and this game's per-block copy give no other time; the
+   emulator's 7 to 8 s is its controller's with no angle, and its
+   `docs/kb/TODO.md` says what a turning diskette takes.  Closed: the
+   machine's, not the model's.
 10. The processor's pace at max.  At a system's prompt the board at max
    makes 4.4 % fewer fetches a second than at typ, and at min 0.65 %
    more (the games diskette's boot, 13.5 to 14.5 s: max 170 645, typ
@@ -823,7 +859,9 @@ The owner's board first (`docs/plan.md` 8d).
      so nothing showed.  So EX.SYS's write leaves the emulator's
      keyboard alive where the board's dies.
    - *The diskette's turning* (item 9): 7 to 8 s for Saboteur 2 where
-     the board, a block a turn, takes 20.
+     the board, a block a turn, takes 20 - the game's 23 ms between
+     blocks miss the next sector's ID by 2 ms, so the machine took the
+     20 s too (item 9, closed).
    - *The processor's waits for the memory* (item 10): on the board the
      video's reads hold the processor's clock 7 % of its time at typ in
      code run from the DRAM (and READY slips take 0.6 % more); the

@@ -97,10 +97,13 @@ module kr580vv51 (
         endcase
     endtask
 
-    // The transmitter sends while TxEN is on and -CTS low - and what was
-    // written while it did, even if either goes off before the character
-    // has left the buffer (the 8251A's own, docs/vv51.md §7).
-    assign sending = txen && !p17;
+    // The transmitter sends what is written while -CTS is low, TxEN on or
+    // off: under Omega (ROM-B leaves 006, TxEN off) Saboteur 2's 231 "no key
+    // click" reached the MS 7004 on the owner's machine, and the game turns
+    // TxEN on only as it leaves (docs/vv51.md §7).  TxEN gates the TxRDY pin
+    // alone (§6).  What was written while -CTS was low is still sent if it
+    // goes off before the character has left the buffer (the 8251A's own).
+    assign sending = !p17;
     kr580vv51_tx tx (
         .clk, .reset(p21 || internal_reset), .fall(tx_fall),
         .factor(mode[1:0]), .length(mode[3:2]), .pen(mode[4]), .ep(mode[5]), .stops(mode[7:6]),
@@ -130,7 +133,7 @@ module kr580vv51 (
     assign {p8, p7, p6, p5, p2, p1, p28, p27} = out_byte;
     assign {p8_oe, p7_oe, p6_oe, p5_oe, p2_oe, p1_oe, p28_oe, p27_oe} = {8{driving}};
 
-    assign p15 = !full && sending;          // the pin is gated, the status bit is not
+    assign p15 = !full && txen && sending;  // the pin is gated by TxEN and -CTS, the status bit is not
     assign p18 = !full && !busy;
     assign p14 = rxrdy;
     assign p24 = !dtr;
