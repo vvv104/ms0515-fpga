@@ -679,7 +679,27 @@ The owner's board first (`docs/plan.md` 8d).
    with it when the processor is idle, and so that it is not made
    twice - the owner's board's netlist is settled (6b is Э3's board's
    question; item 8 is a chip's model, not a connection), so the
-   routing is of the board as it is.
+   routing is of the board as it is.  **Begun the same day** (commits
+   794847d to 576353d, `docs/plan.md` 8): the stack is **six layers** -
+   F, In1, In4, B for the signals, In2 the ground plane, In3 the +5 V
+   plane, typed `power` so that KiCad's export says so (Freerouting
+   keeps off a layer only when it is power-typed *and* carries a
+   plane - seen on a 20 x 20 mm test board); two signal layers left
+   140 connections, four took the whole board but 8.  The narrow
+   tracks were Freerouting's automatic neckdown (3/4, 3/5, 1/2 of the
+   width when a connection does not fit - exactly 0.1874, 0.15 and
+   0.125 mm), now off; the edge was Freerouting's own 0.25 mm copper-
+   to-edge default, now given KiCad's 0.5.  Found on the way: the
+   placement was not reproducible - a set of pins iterated in Python's
+   per-process hash order moved 14 to 31 small parts between builds;
+   sorted, two builds are now identical.  The probe (`build/route-six`,
+   one pass): 486 of 1258 left (four layers' first pass 528, two
+   signal layers' 592), no track on In2/In3, every width 0.25 or 0.6,
+   KiCad's DRC **0 errors** (`build/drc/vvv104-six-probe1.json`; the
+   61 warnings are the silkscreen's and one stub).  The full routing
+   runs on from that state (`build/route-six/progress.txt`); then the
+   DRC of the routed board, the silkscreen's warnings, Э3's board from
+   it.
 6. Э3's board, stage 6b - paused.
 7. The cell 000:000 at max from an unseeded power-up (step 6, the games
    diskette's boot): 900 reads of it not as written, where ОСА's run
