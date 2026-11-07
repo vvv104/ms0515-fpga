@@ -798,8 +798,18 @@ The owner's board first (`docs/plan.md` 8d).
      code run from the DRAM (and READY slips take 0.6 % more); the
      emulator runs its processor at the microcycle table's pace with no
      such wait, so its programs in RAM run some 8 % faster than the
-     machine's.  The instruction times at typ against the emulator's
-     microcycle table, hold by hold, are the test still to make.
+     machine's.  **The instruction times themselves agree exactly**:
+     the emulator stepped from its own state at the prompt
+     (`build/pace2/emu/steps.txt`, 4000 instructions with their cycle
+     counts) against the board's 20 ms (`build/pace2/<corner>.log`,
+     each fetch's time to the tick, its slips and held ticks) - at 113
+     of the 114 addresses the loop visits, the board's time between
+     fetches less the holds and 3T a slip is the emulator's count to
+     the T (12 = 12.00, 18 = 18.00, 33 = 33.00, ...), at typ and at max
+     alike; the one left, `BR` at 142430, is the emulator counting the
+     timer interrupt's entry into the branch (36 against 12).  So the
+     emulator's T-11 timing is the board's; what it lacks is the
+     memory's holds.
 
 ## Said from memory before this walk, and wrong
 
