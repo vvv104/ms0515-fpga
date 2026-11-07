@@ -691,8 +691,10 @@ The owner's board first (`docs/plan.md` 8d).
    about a Read Sector given just after its ID has passed.  The run of
    the same game from Omega's own system diskette (`build/games-omega`,
    2026-11-06 23:09) typed into a dead keyboard (item 1); its second
-   try, without EX.SYS (`build/games-omega2`, 2026-11-07, the min
-   corner to its end at 52 s), shows **the same 20 s under Omega's
+   try, without EX.SYS (`build/games-omega2`, 2026-11-07, all three
+   corners to their end at 52 s; max with 355 102 video requests lost
+   as in the boots and its fetches 6 % behind typ's - item 10), shows
+   **the same 20 s under Omega's
    handler**: Return at 24.68 s, the title's picture at 28.5 s on typ,
    min and max alike (`build/games-omega2/min42.png`; the program's
    own load 3.8 s, the dec run's 1.8), then the diskette read a block
