@@ -837,13 +837,18 @@ The owner's board first (`docs/plan.md` 8d).
      commit, no source given; its `video.md` says "not 3 Hz" against
      the ТО).
    - *The frame rate.*  A jumper (`netlist/variants.md`): E4 fitted and
-     E3 open - the owner's board, and the sheet-1 table's base build and
-     `-02` - gives 60 Hz (260 lines); `-01` and `-03` have E3 alone, 72
-     Hz; 50 Hz needs both, which no build has.  (First written here as
-     "every build 60 Hz" - wrong, corrected the same day.)  The
-     emulator started at 50 Hz (`dip_refresh` 0, 150 000 cycles a
-     frame), its timer interrupt every 20 ms where the machine's came
-     every 16.7.
+     E3 open - the sheet-1 table's base build and `-02`, and the
+     assembly drawing's standard list - gives 60 Hz (260 lines); `-01`
+     and `-03` have E3 alone, 72 Hz; 50 Hz needs both, which no build
+     has.  (First written here as "every build 60 Hz" - wrong, corrected
+     the same day; then as "the owner's board, read off its photo" -
+     also wrong: the photo cannot be read for the jumpers, and the
+     owner's argument of the same evening stands - the timer interrupt
+     is the frame sync (D60.1 clocked by КСИ), two bureaus' kits count
+     50 a second, and the machines kept time in banks, so the machines
+     in use had **both jumpers, 50 Hz**.)  The emulator started at 50 Hz
+     and, after a day at 60, starts at 50 again; the generated board
+     still has the drawing's E4 alone - its E3 is a step to come.
    - *The timer's decoding and the keyboard's clock* (item 1): the
      emulator had the ВИ53 at 177520-526 for writes and 177500-506 for
      reads.  The board: D80 decodes `АД05`-`АД07`, so a chip's 010
@@ -889,11 +894,13 @@ The owner's board first (`docs/plan.md` 8d).
    decoding as D80, D79.4 and the wire have it, with six core tests;
    the keyboard's baud clock and the diskette's turning assessed in its
    `docs/kb/TODO.md` (75 and 150-200 lines, each with its tests named).
-   A finding of its own: the RT-11 kits are generated for a 50-cycle
-   clock (`CLOCK = 50.` in ms0515-devel's SYCDEC.MAC, no kit reads
-   РВК at 177602), so on the 60 Hz machine `TIME` ran 20 % fast - the
-   emulator at 50 Hz hid it; its clock test now counts the monitor's
-   minute as 3000 ticks.
+   A finding of its own, read the wrong way round at first: the RT-11
+   kits are generated for a 50-cycle clock (`CLOCK = 50.` in
+   ms0515-devel's SYCDEC.MAC, no kit reads РВК at 177602) - written
+   here as "so TIME ran 20 % fast on the 60 Hz machine", where the kits
+   were the measurement: the machines ran at 50 Hz (above).  The
+   emulator's default is 50 Hz again (its PR after #127); its clock test
+   counts the monitor's minute as 3000 ticks, a minute.
 
 ## Said from memory before this walk, and wrong
 
