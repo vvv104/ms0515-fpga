@@ -145,5 +145,22 @@ class Layers(unittest.TestCase):
             route.check_layers(DESIGN.replace("(type power)", "(type signal)"))
 
 
+class Options(unittest.TestCase):
+    def test_freerouting_keeps_the_rules_width_and_the_boards_edge(self):
+        was = os.environ.get("FREEROUTING_JAR")
+        os.environ["FREEROUTING_JAR"] = __file__                  # any file: the jar is not run here
+        try:
+            args = route.freerouting_args("a.dsn", "b.ses", 3)
+        finally:
+            if was is None:
+                del os.environ["FREEROUTING_JAR"]
+            else:
+                os.environ["FREEROUTING_JAR"] = was
+        self.assertEqual(args[:3], ["java", "-jar", __file__])
+        self.assertEqual(args[3:], ["-de", "a.dsn", "-do", "b.ses", "-mp", "3", "--gui.enabled=false",
+                                    "--router.automatic_neckdown=false",
+                                    "--router.copper_to_edge_clearance_um=500"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -38,14 +38,34 @@ build/route/progress.txt.  `finish` puts state.ses on the board in place
 of the board's wires, fills the planes and saves the board; then
 `tools/pcb.py check` reads the nets back off the pads.
 
-The planes (the routing of 2026-11-05 and KiCad's DRC of it,
-docs/baseline.md step 8): `start` refuses a design whose layers are all
-`(type signal)` - Freerouting then routes signals over the plane layers
-and cuts the planes to pieces (that routing ran 55 m of its 79 m of track
-there).  tools/pcb.py gives the plane layers the type power, which the
-Specctra export writes as `(type power)`; Freerouting makes such a layer
-inactive ("a dedicated power plane and cannot be routed") and takes the
-plane's net as routed by it.
+What the design hands over and what Freerouting is told (the routing of
+2026-11-05 and KiCad's DRC of it, docs/baseline.md step 8):
+
+- The planes.  `start` refuses a design whose layers are all `(type
+  signal)`: Freerouting then routes signals over the plane layers and cuts
+  the planes to pieces (that routing ran 55 m of its 79 m of track there).
+  tools/pcb.py gives the plane layers the type power, which the Specctra
+  export writes as `(type power)`; Freerouting makes such a layer inactive
+  ("a dedicated power plane and cannot be routed") and takes the plane's
+  net as routed by it.
+- The track's width.  That routing had 3740 segments 0.1874 mm wide, 50
+  of 0.15 and 33 of 0.125 against the rule's 0.25 (199 `track_width`
+  errors): not the DSN's rules (width 250 in the design and the classes)
+  nor KiCad's import, but Freerouting's own "automatic neckdown" (on by
+  default, router.automatic_neckdown): when a found connection cannot be
+  inserted at its width it is tried again at 3/4, 3/5 and 1/2 of the
+  half-width (FoundConnectionInserter.insertFanoutMicroNeckdown: 1250 ->
+  937, 750, 625 in 0.1 um, so 0.1874, 0.15, 0.125 mm), and at a pin
+  narrower than the track at the pin's width (none here - the least pad is
+  1.44 mm).  `run` turns it off (`--router.automatic_neckdown=false`), so a
+  connection that does not fit at 0.25 mm stays unrouted for the pass
+  instead of coming back narrower.
+- The board's edge.  KiCad's DRC keeps copper 0.5 mm from the Edge.Cuts
+  line's centre (tools/pcb.py's EDGE_CLEARANCE; the four-layer routing had
+  40 `copper_edge_clearance` errors, 0.35 to 0.47 mm).  Freerouting's own
+  clearance to the outline is 0.25 mm by default
+  (router.copper_to_edge_clearance_um); `run` gives it EDGE_UM, and
+  `start` refuses a board whose setting is another.
 
 Freerouting's jar: $FREEROUTING_JAR, else
 tools/freerouting/freerouting-2.5.0.jar of $MS0515_DATA (../ms0515_data).
@@ -58,6 +78,9 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = os.path.join(ROOT, "build", "route")         # Э3's board's work files
+
+
+EDGE_UM = 500               # copper to the board's edge, as KiCad's DRC checks it
 
 
 def configure(variant=None):
@@ -254,6 +277,14 @@ def carry_from(options):
     return other
 
 
+def freerouting_args(design, output, passes):
+    """Freerouting's command line: the design, the session to write, the
+    passes; no neckdown (the rule's width kept), the edge's clearance."""
+    return ["java", "-jar", jar(), "-de", design, "-do", output, "-mp", str(passes),
+            "--gui.enabled=false", "--router.automatic_neckdown=false",
+            f"--router.copper_to_edge_clearance_um={EDGE_UM}"]
+
+
 def freerouting(design, output, passes):
     """One Freerouting run; its log is appended to LOG, its last count returned."""
     begin = os.path.getsize(LOG) if os.path.exists(LOG) else 0
@@ -261,9 +292,8 @@ def freerouting(design, output, passes):
         out.write(f"\n==== {stamp()} {os.path.basename(design)} -> {os.path.basename(output)}, "
                   f"{passes} passes\n")
         out.flush()
-        subprocess.run(["java", "-jar", jar(), "-de", design, "-do", output, "-mp", str(passes),
-                        "--gui.enabled=false"], cwd=WORK, stdout=out, stderr=subprocess.STDOUT,
-                       check=False)
+        subprocess.run(freerouting_args(design, output, passes), cwd=WORK, stdout=out,
+                       stderr=subprocess.STDOUT, check=False)
     with open(LOG, encoding="utf-8", errors="replace") as log:
         log.seek(begin)
         counts = PASS_DONE.findall(log.read())
@@ -276,7 +306,11 @@ def start(base=None):
     import pcbnew               # KiCad's Python only; the rest is plain
     os.makedirs(WORK, exist_ok=True)
     exported = os.path.join(WORK, "ns4.dsn")
-    if not pcbnew.ExportSpecctraDSN(pcbnew.LoadBoard(BOARD), exported):
+    board = pcbnew.LoadBoard(BOARD)
+    edge = pcbnew.ToMM(board.GetDesignSettings().m_CopperEdgeClearance) * 1000
+    if round(edge) != EDGE_UM:
+        raise SystemExit(f"{BOARD} keeps copper {edge:.0f} um from the edge, Freerouting is told {EDGE_UM}")
+    if not pcbnew.ExportSpecctraDSN(board, exported):
         raise SystemExit("the Specctra export failed")
     with open(exported, encoding="utf-8") as src:
         design = without_wiring(src.read())

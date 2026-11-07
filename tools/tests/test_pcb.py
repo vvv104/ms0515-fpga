@@ -42,6 +42,11 @@ class Stack(unittest.TestCase):
                           "In3.Cu": "power", "In4.Cu": "signal", "B.Cu": "signal"})
         self.assertEqual(route.check_layers(design), "F.Cu In1.Cu In4.Cu B.Cu signal, In2.Cu In3.Cu power")
 
+    def test_the_edge_clearance_is_the_one_the_router_is_given(self):
+        board = pcbnew.BOARD()
+        pcb.rules(board)
+        self.assertEqual(pcbnew.ToMM(board.GetDesignSettings().m_CopperEdgeClearance), route.EDGE_UM / 1000)
+
 
 if __name__ == "__main__":
     unittest.main()
