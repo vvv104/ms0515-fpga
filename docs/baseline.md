@@ -682,7 +682,18 @@ The owner's board first (`docs/plan.md` 8d).
    Omega?  Asked of the owner (`docs/vv51.md` §13, 13): it tells what
    КР580ВВ51А does with a character written while TxEN is off - the
    model keeps it in the shift register, and the games' 231 ("no key
-   click") then never reaches the keyboard.
+   click") then never reaches the keyboard.  **The owner's answer
+   (2026-11-07): in Saboteur 2 the keys did not click** - the game's
+   command turned the click off, as the emulator's keyboard notes have
+   it (`docs/hardware/keyboard.md`, 231); BIRDS he never had.  So on
+   the machine the 231 reached the keyboard, where the model holds it
+   for a TxEN that the game (its command 064 leaves TxEN off) never
+   gives: the model's choice is contradicted, unless the click was
+   already off at Omega's prompt - asked back.  If it clicked at the
+   prompt and not in the game, the real chip sends a character written
+   with TxEN off, and `rtl/chips/kr580vv51*.sv` has to follow (§7's
+   choice turned over) - a model change, the games' writes and the
+   owner's machine its evidence, to be made with a test at the corners.
 9. Saboteur 2's loading on the board: 20 s, a block a turn of the
    diskette (step 6, the games), where the emulator takes 7 to 8 s from Return to the menu with
    a controller that knows no turning.  Both handlers begin a request
@@ -704,9 +715,11 @@ The owner's board first (`docs/plan.md` 8d).
    menu came 2.6 s after its clearing).  So the block a turn is not the
    handler's - both give it - and the question stays with the
    controller's model: a Read Sector given just after its ID passed,
-   and whether a real diskette took as long under either handler.  (A
-   first reading of this run, written and withdrawn the same morning,
-   took the title's picture for the whole game loaded.)
+   and whether a real diskette took as long under Omega's handler (the
+   dec kit is our own build from DEC's sources, the owner reminds - no
+   such system ran on a machine, so only Omega's 20 s can be asked
+   about).  (A first reading of this run, written and withdrawn the
+   same morning, took the title's picture for the whole game loaded.)
 10. The processor's pace at max.  At a system's prompt the board at max
    makes 4.4 % fewer fetches a second than at typ, and at min 0.65 %
    more (the games diskette's boot, 13.5 to 14.5 s: max 170 645, typ
