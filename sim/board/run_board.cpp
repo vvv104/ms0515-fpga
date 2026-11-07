@@ -29,7 +29,9 @@
 // interrupt requests at D89's inputs as they change, with the code D96
 // puts on CP0..CP3, each interrupt acknowledge with the handler's first
 // fetch, and every 20 ms the last fetch (docs/bench.md); fetches=FROM-TO
-// (machine microseconds) adds every fetch in that stretch.  `drawn` builds
+// (machine microseconds) adds every fetch in that stretch, with the READY
+// slips since the fetch before (ready_slips.h; their count by the cycle's
+// kind is in the end's lines, and in the summary).  `drawn` builds
 // the board as Э3 draws it, without the owner's board's changes
 // (netlist/vvv104.csv: D70.15 on ~D14.3, not on GND).  edges=FROM-TO
 // (machine microseconds) prints, master tick by tick, every change of the
@@ -60,6 +62,7 @@
 #include "snapshot_file.h"
 #include "rom_socket.h"
 #include "sound_log.h"
+#include "ready_slips.h"
 #include "joystick.h"
 
 extern "C" {
@@ -326,7 +329,8 @@ class Irqs {
 public:
     Irqs(std::uint64_t from_us, std::uint64_t to_us) : from_(from_us * kMasterMhz), to_(to_us * kMasterMhz) {}
 
-    void see(const Vns4& m, std::uint64_t t)
+    // slips, held: the READY slips and the clock's held ticks counted so far (ready_slips.h)
+    void see(const Vns4& m, std::uint64_t t, std::uint64_t slips, std::uint64_t held)
     {
         const unsigned req = (!m.n_ZAPR_KL_L) << 5 | (!m.n_ZAPR_TAYM_L) << 4 | (!m.n_ZAPR_M_S2_L) << 3 |
                              (!m.n_ZAPR_D_S2_L) << 2 | (!m.n_ZAPR_7007_L) << 1 | (!m.n_ZAPR_MON_L);
@@ -350,7 +354,11 @@ public:
                 handler_ = false;
                 last_ = at;
                 if (t >= from_ && t < to_)
-                    std::printf("%.6f s: fetch %06o\n", seconds(t), at);
+                    std::printf("%.9f s: fetch %06o slips %llu held %llu\n", seconds(t), at,
+                                static_cast<unsigned long long>(slips - slips_at_fetch_),
+                                static_cast<unsigned long long>(held - held_at_fetch_));
+                slips_at_fetch_ = slips;
+                held_at_fetch_ = held;
             }
         }
         ras_was_ = ras;
@@ -370,7 +378,7 @@ private:
         return v;
     }
 
-    std::uint64_t from_, to_;
+    std::uint64_t from_, to_, slips_at_fetch_ = 0, held_at_fetch_ = 0;
     unsigned req_ = 0, last_ = 0;
     bool ras_was_ = true, handler_ = false;
 };
@@ -698,7 +706,8 @@ void progress(std::uint64_t t, const Fetches& fetches, const Camera& camera,
     std::fflush(stdout);
 }
 
-void report(const Options& o, const Fetches& f, const Camera& cam, const Emulator& emu, const DramWatch& dram)
+void report(const Options& o, const Fetches& f, const Camera& cam, const Emulator& emu, const DramWatch& dram,
+            const ReadySlips& slips)
 {
     using ull = unsigned long long;
     std::printf("done: %llu fetches, %llu as the emulator's, %d frames\n", static_cast<ull>(f.fetches),
@@ -719,10 +728,11 @@ void report(const Options& o, const Fetches& f, const Camera& cam, const Emulato
                 static_cast<ull>(s.video_fills), static_cast<ull>(s.video_nonzero));
     dram.print_cells();
     std::printf("summary: ms=%llu seed=%d fetches=%llu matched=%llu diverged=%d waits=%llu waited=%llu frames=%d "
-                "last_differ=%d\n",
+                "last_differ=%d slips=%llu held=%llu\n",
                 static_cast<ull>(o.ms), o.seed, static_cast<ull>(f.fetches), static_cast<ull>(f.matched),
                 f.diverged ? 1 : 0, static_cast<ull>(f.lockstep.waits), static_cast<ull>(f.lockstep.waited),
-                cam.frames, cam.last_differ);
+                cam.frames, cam.last_differ, static_cast<ull>(slips.total()),
+                static_cast<ull>(slips.held()));
 }
 
 }  // namespace
@@ -806,6 +816,7 @@ int main(int argc, char** argv)
     Keys keys(o.keys);
     const Joystick joy = joystick_of(o.joy);
     SoundLog sound;
+    ReadySlips slips;
     std::size_t heard = 0;
     std::unique_ptr<drive::Mc5305> fdd;
     std::unique_ptr<LogicDrive> logic;
@@ -847,6 +858,8 @@ int main(int argc, char** argv)
         m->clk = 1;
         m->eval();
         sound.see(t, m->nx_D93_3);
+        slips.see(!m->n_PVAS_L, !m->n_ZADERZH_L, m->n_REZH0_H != 0, m->n_REZH1_H != 0);
+        slips.see_clock(m->n_PTS_H != 0);
         dram.see(*m, t);
         video.see(*m, dram, t);
         fetches.see(*m, emu, t);
@@ -854,7 +867,7 @@ int main(int argc, char** argv)
         camera.see(*m, t, emu, fetches.started());
         spots.see(dram, camera, t);
         if (o.irq)
-            irqs.see(*m, t);
+            irqs.see(*m, t, slips.total(), slips.held());
         edges.see(*m, t);
         if (t % (10000ull * kMasterMhz) == 0 && t != 0)
             progress(t, fetches, camera, wall);
@@ -863,9 +876,10 @@ int main(int argc, char** argv)
     while (next_save < saves.size() && saves[next_save].first * 1000 * kMasterMhz == ticks)
         save_snapshot(saves[next_save++].second, parts, ticks);
     write_bmp(o.folder + "/last.bmp", camera.grab.lines);
-    report(o, fetches, camera, emu, dram);
     report_sound(o, sound, from, ticks);
     video.report();
+    slips.report();
+    report(o, fetches, camera, emu, dram, slips);
     if (logic)
         logic->report();
     return 0;

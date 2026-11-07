@@ -746,6 +746,28 @@ The owner's board first (`docs/plan.md` 8d).
    processor waiting for the video's read of the memory.  Not shown:
    the bench prints a fetch's time to the microsecond and has no count
    of the slips.  The owner's word (2026-11-07): make the count.
+   **Counted** (`sim/board/ready_slips.h`, the same 20 ms again in
+   `build/pace2/<corner>.log`, fetches to the tick): the READY slips are
+   **not** it - 245 at typ, 245 at min, 231 at max, all in data cycles,
+   none in a fetch, 0.6 % of the time at every corner.  The same
+   instruction with no slip still takes 3T more at max (`TST (SP)+` at
+   147326: 18T at typ, 21T at max, every time), and the bus unit's
+   trace tick by tick showed where: **the processor's clock is held**.
+   `ПТС H` is D24.2's output; D24.1, clocked by `ПВАС H` with `ВУ L` on
+   D and reset by the video's request `ТРВЗУ H` (D98.5), holds D24.2
+   through D23.4 (К555ЛЕ1) until the video has had the memory - the
+   clock's high phase lasts 32 ticks at typ and 47 at max where the
+   clock's own is 8.  In the 20 ms: 6098 holds for 165 752 ticks at typ
+   (6.9 % of the time, 27 ticks a hold), 5774 for 151 248 at min
+   (6.3 %), 6428 for 263 504 at max (11.0 %, 41 ticks a hold).  The
+   difference max - typ, 97 752 ticks, is 4.1 % of the 20 ms - the
+   4.3 % of fetches max is short of.  So the pace at max is the К555
+   delays on the hold's release (D98 to D24.1's reset, D23.4, D24.2's
+   D) at their maximum, each hold let go a 15 MHz edge or two later;
+   the board's own.  And a number for the machine itself: at typ the
+   processor waits for the video's reads 7 % of its time in code run
+   from the DRAM, plus the slips' 0.6 % - which the emulator, with no
+   video in its memory, does not wait (item 11).  Closed.
 11. The emulator against the board (the owner, 2026-11-07: "the honest
    test of the emulator, since the circuits agree" - to be checked in
    a branch of its repository under its rules).  What the board shows
@@ -771,9 +793,13 @@ The owner's board first (`docs/plan.md` 8d).
      keyboard alive where the board's dies.
    - *The diskette's turning* (item 9): 7 to 8 s for Saboteur 2 where
      the board, a block a turn, takes 20.
-   - *The pace at max* (item 10) is the board's own corner, nothing of
-     the emulator's; the instruction times at typ against the
-     emulator's microcycle table are the test still to make.
+   - *The processor's waits for the memory* (item 10): on the board the
+     video's reads hold the processor's clock 7 % of its time at typ in
+     code run from the DRAM (and READY slips take 0.6 % more); the
+     emulator runs its processor at the microcycle table's pace with no
+     such wait, so its programs in RAM run some 8 % faster than the
+     machine's.  The instruction times at typ against the emulator's
+     microcycle table, hold by hold, are the test still to make.
 
 ## Said from memory before this walk, and wrong
 

@@ -77,7 +77,16 @@ plays, in `sim/board/`, at the board's connectors.
   high and SEL0 low) and the handler's first fetch; every 20 ms the last
   fetch.  `fetches=FROM-TO` (machine microseconds) adds every fetch in
   that stretch and implies `irq` (it found how OSA's ^Q sticks,
-  `docs/findings.md`).
+  `docs/findings.md`); each fetch's line has its time to the nanosecond
+  (the master tick) and ends with `slips N`, the READY slips between
+  its row strobe and the one before - the microcycles the processor
+  waited for the memory in that instruction.
+- The READY slips (`sim/board/ready_slips.h`) are counted throughout:
+  one where `ЗАДЕРЖ L` is low as `ПВАС L` falls, one for every falling
+  edge of `ЗАДЕРЖ L` while `ПВАС L` stays low (`docs/t11-model.md`,
+  "READY"), by the cycle's kind on `РЕЖ1`, `РЕЖ0` (a fetch, data, an
+  interrupt acknowledge).  The end's `READY slips:` line gives them,
+  and the summary's `slips=`.
 - `drawn`: the board as Э3 draws it, without the owner's board's changes
   (`netlist/vvv104.csv`: D70.15 on `~D14.3`, not on GND);
 - `edges=FROM-TO` (machine microseconds): every change of the nets at the
