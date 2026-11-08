@@ -27,6 +27,6 @@ lower right.  D90 and VT1/VT2 are not in sight there.
 **Nothing is asked now.**  The passives (the resistors' bands, the
 capacitors, the red parts) are the pass of their own below.
 
-Not asked yet, a pass of their own: the resistors' colour bands, the
-capacitors' markings (the yellow К10-17 read «2F8 .22» where legible),
-the diodes and the two transistor arrays.
+The passives are in 
+etlist/fitted-passives.md, with crops 9 to 13 in
+photos/ask/ for the owner's reading of the bands the camera did not give.
