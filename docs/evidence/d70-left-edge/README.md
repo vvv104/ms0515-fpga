@@ -44,10 +44,12 @@ What the model shows with the board as drawn:
   the 16th lost.  On Omega's text it shows: «ОМ» at the left edge moved,
   the О's left stroke a point wider, the cursor a point longer (picture
   5).
-- The first word of the frame's top line comes from the frame before:
-  through the top border's last line `БОРДК L` keeps D70 off all the
-  line, so nothing is loaded at its right edge.  Logic, not a race -
-  the margin is microseconds.
+- The first word of the frame's top line would come from the frame
+  before if the line's first clock shifted: through the top border's
+  last line `БОРДК L` keeps D70 off all the line, so nothing is loaded
+  at its right edge.  As the first clock loads (above), it takes the
+  word fresh: the stale word and the point's shift are two sides of
+  one edge, never seen together.
 
 The timing checked (the model's traces, 8.33 ns a tick; picture 8 draws
 the same in ns from the data sheets):
@@ -134,6 +136,13 @@ the same in ns from the data sheets):
   takes ~1 mA out of the net - a 1..2 kOhm path to ground nothing on it
   gives.  The model's reading is the board's; the readings that fixed
   the edge are not physical.  The undriven lines are ruled out.
+- The chips as fitted (`netlist/fitted*.csv`, 2026-11-08): every board
+  photographed has КР1533 at D30 and D14 where ПЭ3 says К555, the owner's
+  included - 7.5 ns off the path's ~75 (D30 11.5 + D21 40 + D14 6 + D70's
+  enable 17) against a window of ~46..66.  Not enough by the sheets; on
+  the model it brought D70 on 8 ns before the clock's fall, which the
+  К555ИР16's 20 ns of MODE setup does not accept (the model's register
+  took MODE 8 ns before the edge and shifted; corrected to the sheet).
 - The schematic read again: `ТС45 L` is `ТС15 L` (the hand's 1 looks
   like a 4); E5 is a series link, not a phase choice; the PROM's half-word
   steps exist (used at the line's end), but raising `БОРДС L` earlier

@@ -453,28 +453,34 @@ race, and they did not: something in the model or in the reading of
 the board is still off.  Being looked for; until found, nothing of this
 goes into the tests as a property of the schematic.
 
-**Found, 2026-11-08: the chips are not ПЭ3's.**  The boards the plant
-made carry КР1533 where ПЭ3 says К555 (`netlist/fitted.csv`, the owner's
-1990 board; `fitted-others.csv`, Frolov's and Radon17's of 1991, which
-draw as Э3 is drawn), and on the race's path D30 (ИЕ10) and D14 (ЛА3)
-are КР1533 on every board seen.  The model ran К555's typical delays
-there: ИЕ10 15.5 ns, ЛА3 9.5.  With the fitted types' delays
+**The chips as fitted, 2026-11-08: not the answer.**  The boards the
+plant made carry КР1533 where ПЭ3 says К555 (`netlist/fitted.csv`, the
+owner's 1990 board; `fitted-others.csv`, Frolov's and Radon17's of 1991,
+which draw as Э3 is drawn), and on the race's path D30 (ИЕ10) and D14
+(ЛА3) are КР1533 on every board seen, where the model ran К555's
+typicals (15.5 and 9.5 ns).  With the fitted types' delays
 (`netlist/fitted-1991.csv` through `tools/board.py corner typ DIR
 netlist/fitted-1991.csv`; КР1533ИЕ10 11.5 ns, КР1533ЛА3 6 - the
 midpoints of SN74ALS161B's and SN74ALS00A's min and max, no typical
-being printed) **Э3's board draws 640 x 200 right but for the 7 samples
-of the frame's first line's first word** (`vid640`: 7, was 1305; `vid320`
-1, was 11) - the state the first model had, with the race won by the
-8.3 ns the КР1533ИЕ10 takes off D30's edge on the master clock's grid.
-So the serial boards won the race with the chips they had, the model's
-reading of the schematic stands, and the owner's board - the same КР1533
-at D30 and D14 - was patched for a margin of its own (a slow КП11 or
-РТ12 of 1990, or another fault altogether); on the model's grid the
-К555 delays lose it and the fitted ones win it, the real boards being
-somewhere in between.  Kept as `vvv104` for the owner's board, and Э3
-as drawn with the fitted delays for the machine as made.  The remaining
-7 samples are the frame's first word, a question of its own (the right
-border's hold across the frame's end), not of the line's edge.
+being printed) D70 came on one tick - 8.3 ns - before `ВК2`'s fall, and
+the model's К555ИР16, which took MODE from the tick before the edge, let
+that edge shift: `vid640` fell to 7 samples (the frame's first word) and
+the day's first reading was that the plant's chips won the race.  They
+do not: the sheet wants MODE 20 ns before the edge, and 8.3 is inside
+it.  `rtl/chips/k555ir16.sv` now takes MODE from three ticks before (25
+ns; `sim/chips/test_k555ir16.cpp`: falling two ticks before the clock
+still loads, three ticks before shifts), and with it Э3's board with the
+fitted delays is back at 1305 (640) and 1 (320), the owner's board
+unchanged at every corner.  The window stays what "What 640 turns on"
+gives, ~46..66 ns, against ~75 ns of the path's typicals even with the
+КР1533 (D30 11.5 + D21 40 + D14 6 + D70's enable 17): 7.5 ns of a 28 ns
+deficit.  The lead is closed; the fitted lists and `board.py corner ...
+FITTED` stay as data and tool.  One thing the trace settled on the way:
+the frame's first word is stale only when the line's first clock shifts
+(the registers hold the word past the last line through the top border,
+D70 off, nothing reloading it); when that clock loads, as the sheet has
+it, it takes the first word fresh - the 7 and the 1305 are the two
+sides of the same edge, never both.
 
 **C70 on the boards seen** (2026-11-04).  The owner's board has none:
 two pads where the drawing puts it, by D85 towards D84, with C69 and

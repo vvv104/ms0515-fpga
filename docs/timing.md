@@ -77,9 +77,9 @@ the five ИЕ10, both ЛА3, the ТМ2/ТМ8/ТМ9, ИР22/ИР23, ЛН1, ЛИ1,
 <corner> DIR netlist/fitted-1991.csv` generates the board with each such
 chip's own delay where `delays.csv` has a row for it (КР1533ИЕ10 11.5 ns
 and КР1533ЛА3 6 so far, the midpoints of TI's ALS min and max, which
-print no typical), ПЭ3's type's delay otherwise, with a warning.  That is
-what won the 640 x 200 edge's race for Э3's board (`docs/findings.md`,
-6b).
+print no typical), ПЭ3's type's delay otherwise, with a warning.  On the
+640 x 200 edge's race it took 7.5 ns off a ~28 ns deficit - not the
+answer (`docs/findings.md`, 6b, "The chips as fitted").
 
 ## Corners
 

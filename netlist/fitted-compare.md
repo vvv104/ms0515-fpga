@@ -39,14 +39,16 @@ and the two that draw as Э3 is not in the chips' families on that path
 - it is in the patch alone, or in the spread of delays within a family
 (a slow К555КП11 or a slow РТ12 on one board).  Two things follow:
 
-1. The model runs К555 delays at D30 and D14, where every board seen
-   has КР1533 - faster by 5 to 10 ns a gate.  Modelling the fitted
-   families is the first thing to try on 6b: it moves the race the right
-   way on every board, the owner's included.
-2. If the fitted families alone do not close the race on the model, the
-   patch on the owner's board says a board could lose it - and the
-   question becomes which chip's spread, which only a scope on a real
-   board would answer.
+1. The model ran К555 delays at D30 and D14, where every board seen
+   has КР1533 - faster by 5 to 10 ns a gate.  Tried (2026-11-08,
+   `fitted-1991.csv`, `tools/board.py corner ... FITTED`): 7.5 ns off a
+   path ~28 ns too slow for the window - the race is not closed
+   (`docs/findings.md`, "The chips as fitted, 2026-11-08").
+2. So the patch on the owner's board says a board could lose it, and
+   the serial boards did too, by the sheets - the question is whether
+   the one-point fault in the first 16 columns of 640 x 200 was simply
+   never seen on them, which only a scope or a screen on a real board
+   would answer.
 
 Not to be forgotten: the КП2 colour multiplexers (D61-D69, D87) are К555
 on the owner's board and КР1533 on the 1991 run, and the model's item 3
