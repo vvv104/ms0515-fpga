@@ -15,7 +15,7 @@ D3,КР565РУ5Г,КР565РУ5Г,,part,04,row x~4320: dates 9008 9008 9012 9008 
 D4,К555ТЛ2,К555ТЛ2,8909,read,04,
 D5,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
 D6,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
-D7,КР531ИД14,КР531ИД14,,part,04,under the memory module's edge; type read; date not
+D7,КР531ИД14,КР531ИД14,9010,read,04,under the memory module's edge; the owner reads the date
 D8,К155ЛП9,К155ЛП9,8908,read,04,
 D9,КР580ВИ53,КР580ВИ53,9107,read,04,
 D10,К555ТМ9,КР1533ТМ9,9001,read,04,substitute
@@ -28,7 +28,7 @@ D16,К555ИЕ19,К555ИЕ19,9009,read,04,
 D17,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
 D18,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
 D19,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
-D20,КР1102АП15,,,unread,04,under the module's edge; an 8-pin DIP is there
+D20,КР1102АП15,,,unread,04,under the module's edge; an 8-pin DIP is there, its marking beyond the photograph (the owner too)
 D21,КР556РТ12,КР556РТ12,,part,04,paper label «СТРВ» (ПЭ3's note: D21 СТРВ) - the right of the two
 D22,КР580ВВ51А,КР580ВВ51А,9004,read,04,
 D23,КР531ЛЕ1,КР531ЛЕ1,8803,read,04,ПЭ3's type; the power table said К555ЛЕ1 (docs/findings.md)
@@ -36,7 +36,7 @@ D24,КР531ТМ2,КР531ТМ2,9004,read,04,
 D25,К555ЛР11,КР1533ЛР11,8911,read,04,substitute
 D26,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
 D27,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
-D28,КР1102АП15,,,unread,04,under the module's edge; an 8-pin DIP is there
+D28,КР1102АП15,,,unread,04,see D20
 D29,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute
 D30,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute - in the 640 x 200 edge's path
 D31,К555ЛА4,КР1533ЛА4,8912,read,04,substitute
@@ -113,4 +113,4 @@ DA2,НР1-11А,НР1-11-3-15 10 кОм ±5 %,9011,read,04,
 VT1,КТ677АС,,,unread,04,under the module's edge
 VT2,КТ676АС,,,unread,04,under the module's edge
 BQ1,РК 353БВ-11А4 8 МГц,«8000 / ЕГН (or КГН) / 4184»,4184,read,04,the owner reads the can by D15: 8000 kHz, the type's letters, week 41 of 1984
-BQ2,РК 169МА-6АН 15 МГц,,,unread,04,the can by D91 at the board's right edge; asked
+BQ2,РК 169МА-6АН 15 МГц,«... / 221 or 201 [wire] 0»,,part,04,the can by D91; the owner reads its bottom line alone - «221» or «201», a wire across, a «0» at the end; the upper lines are turned away

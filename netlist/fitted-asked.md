@@ -12,15 +12,13 @@ the close-up, in an order the photographs do not tell); D39 has no date
 (a wiped place, nothing under it); the can by D15 is the 8 MHz crystal
 BQ1, «8000 / ЕГН or КГН / 4184»; D85's date 9006 or 9008.
 
-**Still asked:**
+Answered later the same day: D7 КР531ИД14 dated 9010; the two 8-pin
+DIPs D20/D28 cannot be read by the owner either; BQ2's can shows one line
+to the camera - «221» or «201», a wire across it, a «0» at the end.
 
-1. **`3-top-strip.png`** - the row under the memory module's edge: D7
-   (КР531ИД14, its date), the two 8-pin DIPs D20/D28 (КР1102АП15 by
-   ПЭ3 - their marking), D48 (КР559ИП11 - date), D90 (К554СА3А), VT1/VT2
-   (КТ677АС/КТ676АС) - are they there and what do they read.  The owner
-   cannot make it out yet either.
-2. **`8-crystal-bq2.png`** - the can by D91 at the board's right edge:
-   BQ2, the 15 MHz crystal by the netlist - its marking.
+**Still asked**, only if the photograph allows: in `3-top-strip.png`,
+D48 (КР559ИП11, its date), D90 (К554СА3А - is it there, what it reads)
+and VT1/VT2 (КТ677АС/КТ676АС).
 
 Not asked yet, a pass of their own: the resistors' colour bands, the
 capacitors' markings (the yellow К10-17 read «2F8 .22» where legible),
