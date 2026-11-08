@@ -257,6 +257,39 @@ to any one board.  From stage 6 on there are two projects:
        on the IO board's VGA; then what is too long for the model -
        minutes of work, games, the RAM disk.  An FPGA is reprogrammed at
        will: nothing done here is final, a fix is a rebuild.
+       **The first hour on a DE10-Nano**, in order, each against what the
+       model showed (2026-11-08; the `.rbf` of `build/mister/output_files/`
+       built on the 50 Hz board, `docs/baseline.md` §7):
+       1. The kit: DE10-Nano with MiSTer's `sys/` of the submodule's
+          revision on its SD (Main, the menu), a USB hub with a keyboard,
+          HDMI to a monitor that takes 50 Hz (or `vsync_adjust` in the ini
+          for one that does not); the IO board only for a CRT.  `ms0515.rbf`
+          into `_Computer/`, ROM-B as the core's default, ROM-A by Load ROM.
+       2. Power-on with no diskette: the self-test's words «Электроника ...
+          Тест ОЗУ ... Без дефектов ... Клавиатура готова», the keyboard's
+          beep over HDMI's sound, then «НГМД не готов».  Time it: the
+          board's self-test holds the screen 3.7 s.  A frame is 20 ms -
+          the menu's video info should say 50 Hz, 312 lines.
+       3. The picture: the border, the 640 x 200 text with its first column
+          whole (the owner's board, D70.15 on GND - the menu's switch);
+          flip the switch to «as drawn» and look at the first column of
+          every line - the model draws it one point right and loses the
+          16th (6b); a real board's answer to 6b is a screenshot of this.
+       4. Omega from `test_omega.dsk` on the SD: the prompt in 12 s at
+          the model's pace; `DIR`, `TIME` (a minute of it against a
+          watch - it is the frame's clock), `SET SL ON` and a line edited.
+       5. ОСА from `test_osa.dsk` with ROM-A; Mihin's and Rodionov's
+          systems, the kits' README says which ROM each wants.
+       6. The keyboard: every key by character and by position, РУС/ЛАТ,
+          ВР, СУ, the lamps, auto-repeat (264 from the firmware, the ROM
+          repeats the key), the click on repeats only.
+       7. The diskette: a file written (`COPY`, `INIT` of a scratch image)
+          and the image read back on the host with `ms0515-disk dir`;
+          Saboteur 2's load timed against the 20 s (a block a turn).
+       8. What the model never ran long enough for: an hour at the
+          prompt, the RAM disk (the module is 6a, not in the core yet), a
+          game played through, and anything that looks wrong noted with
+          the frame it happened in - the bench can run the same seconds.
    No SDRAM board is needed while the machine's memory fits the block
    memory (128 KB RAM, 16 KB ROM, the VRAM inside it): DE10-Nano, a USB
    hub and a microSD card are the whole kit; the IO board adds analog
