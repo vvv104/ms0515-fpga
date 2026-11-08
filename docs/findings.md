@@ -453,6 +453,29 @@ race, and they did not: something in the model or in the reading of
 the board is still off.  Being looked for; until found, nothing of this
 goes into the tests as a property of the schematic.
 
+**Found, 2026-11-08: the chips are not ПЭ3's.**  The boards the plant
+made carry КР1533 where ПЭ3 says К555 (`netlist/fitted.csv`, the owner's
+1990 board; `fitted-others.csv`, Frolov's and Radon17's of 1991, which
+draw as Э3 is drawn), and on the race's path D30 (ИЕ10) and D14 (ЛА3)
+are КР1533 on every board seen.  The model ran К555's typical delays
+there: ИЕ10 15.5 ns, ЛА3 9.5.  With the fitted types' delays
+(`netlist/fitted-1991.csv` through `tools/board.py corner typ DIR
+netlist/fitted-1991.csv`; КР1533ИЕ10 11.5 ns, КР1533ЛА3 6 - the
+midpoints of SN74ALS161B's and SN74ALS00A's min and max, no typical
+being printed) **Э3's board draws 640 x 200 right but for the 7 samples
+of the frame's first line's first word** (`vid640`: 7, was 1305; `vid320`
+1, was 11) - the state the first model had, with the race won by the
+8.3 ns the КР1533ИЕ10 takes off D30's edge on the master clock's grid.
+So the serial boards won the race with the chips they had, the model's
+reading of the schematic stands, and the owner's board - the same КР1533
+at D30 and D14 - was patched for a margin of its own (a slow КП11 or
+РТ12 of 1990, or another fault altogether); on the model's grid the
+К555 delays lose it and the fitted ones win it, the real boards being
+somewhere in between.  Kept as `vvv104` for the owner's board, and Э3
+as drawn with the fitted delays for the machine as made.  The remaining
+7 samples are the frame's first word, a question of its own (the right
+border's hold across the frame's end), not of the line's edge.
+
 **C70 on the boards seen** (2026-11-04).  The owner's board has none:
 two pads where the drawing puts it, by D85 towards D84, with C69 and
 C73 fitted beside them - solder on both pads with the leads' stubs in

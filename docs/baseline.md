@@ -728,7 +728,15 @@ The owner's board first (`docs/plan.md` 8d).
    either way, so the 50 Hz change (item 12) touches no copper.  Then
    the DRC of the routed board, the silkscreen's warnings, Э3's board
    from it.
-6. Э3's board, stage 6b - paused.
+6. Э3's board, stage 6b - paused; **the stopper found** (2026-11-08):
+   with the delays of the chips the plant fitted - КР1533 at the ИЕ10
+   and ЛА3 of the edge's path on every board photographed, where the
+   model ran ПЭ3's К555 - Э3's board draws 640 x 200 but for 7 samples,
+   the frame's first word (`docs/findings.md`, "Found, 2026-11-08";
+   `netlist/fitted-1991.csv`, `tools/board.py corner ... FITTED`).  What
+   is left for 6b: the owner's word on making the fitted delays the
+   generated boards' default (every corner's tests again), the other
+   КР1533 substitutes' rows in `delays.csv`, and the first word.
 7. The cell 000:000 at max from an unseeded power-up (step 6, the games
    diskette's boot): 900 reads of it not as written, where ОСА's run
    had 2.  Looked into: the bench's watch took the strobes standing low
