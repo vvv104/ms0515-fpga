@@ -56,7 +56,7 @@ D44,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
 D45,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
 D46,К555ИЕ19,К555ИЕ19,9009,read,04,
 D47,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
-D48,КР559ИП11,КР559ИП11,,part,04,under the module's edge; type read
+D48,КР559ИП11,КР559ИП11,9001,read,04,under the module's edge; the owner reads the date (the chip right of the two 8-pin DIPs and the row of seven resistors)
 D49,К555ИР16,К555ИР16,9010,read,close-up,the four ИР16 all К555 (the owner: as on Radon17's board); 9010 on the close-up; which is which not told apart
 D50,К555ИР16,К555ИР16,9010,read,close-up,see D49
 D51,К555ИР23,КР1533ИР23,9010,read,04,substitute
@@ -98,7 +98,7 @@ D86,К555КП15,КР1533КП15,9003,read,04,substitute
 D87,К555КП2,К555КП2,9008,read,04,
 D88,К555ЛА2,КР1533ЛА2,8909,read,04,substitute
 D89,К555ИР23,КР1533ИР23,9010,read,04,substitute
-D90,К554СА3А,,,unread,04,under the module's edge
+D90,К554СА3А,,,unread,04,not seen in the strip under the module's edge (the owner sees two 8-pin DIPs there, D20 and D28); under the module or elsewhere
 D91,К555ЛН1,КР1533ЛН1,9003,read,04,substitute
 D92,К555ИР22,КР1533ИР22,9010,read,04,substitute
 D93,К555ЛА13,К555ЛА13,9001,part,04,see D81
@@ -110,7 +110,7 @@ D98,КР1533ТМ2,КР1533ТМ2,9002,read,04,
 D99,К555ЛН1,КР1533ЛН1,9003,read,04,substitute
 DA1,НР1-11А,НР1-11-3-15 1 кОм ±5 %,8908,read,04,
 DA2,НР1-11А,НР1-11-3-15 10 кОм ±5 %,9011,read,04,
-VT1,КТ677АС,,,unread,04,under the module's edge
-VT2,КТ676АС,,,unread,04,under the module's edge
+VT1,КТ677АС,,,unread,04,not seen in the strip (see D90)
+VT2,КТ676АС,,,unread,04,not seen in the strip (see D90)
 BQ1,РК 353БВ-11А4 8 МГц,«8000 / ЕГН (or КГН) / 4184»,4184,read,04,the owner reads the can by D15: 8000 kHz, the type's letters, week 41 of 1984
 BQ2,РК 169МА-6АН 15 МГц,«... / 221 or 201 [wire] 0»,,part,04,the can by D91; the owner reads its bottom line alone - «221» or «201», a wire across, a «0» at the end; the upper lines are turned away

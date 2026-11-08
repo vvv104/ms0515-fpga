@@ -16,9 +16,16 @@ Answered later the same day: D7 КР531ИД14 dated 9010; the two 8-pin
 DIPs D20/D28 cannot be read by the owner either; BQ2's can shows one line
 to the camera - «221» or «201», a wire across it, a «0» at the end.
 
-**Still asked**, only if the photograph allows: in `3-top-strip.png`,
-D48 (КР559ИП11, its date), D90 (К554СА3А - is it there, what it reads)
-and VT1/VT2 (КТ677АС/КТ676АС).
+The strip as the owner sees it, left to right: two large capacitors
+above (their «+» up) and two below, the 16-pin D7 (9010), two resistors
+and a wire jumper, two alike 8-pin DIPs (D20, D28), a row of seven
+resistors with a yellow capacitor under it, the chip dated 9001 (D48)
+with a yellow capacitor above and two stacked right of it, two red
+parts (resistors or the diodes by VD1), one more yellow capacitor
+lower right.  D90 and VT1/VT2 are not in sight there.
+
+**Nothing is asked now.**  The passives (the resistors' bands, the
+capacitors, the red parts) are the pass of their own below.
 
 Not asked yet, a pass of their own: the resistors' colour bands, the
 capacitors' markings (the yellow К10-17 read «2F8 .22» where legible),
