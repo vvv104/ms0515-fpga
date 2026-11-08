@@ -1,0 +1,99 @@
+# What is fitted on the other boards photographed, read 2026-11-08: Sergei Frolov's
+# НС4 rev. 3А (leningrad.su, `photos/known-machines/mc0515-6.jpg`, 980 px, read at
+# x3.5 - the board turned half round against the owner's photograph, so a row's
+# order is reversed; the chips of 1991) and Radon17's damaged НС4 rev. 3А (zx-pk.ru
+# thread 15146 post #274, the crop `docs/evidence/d70-oe-gnd/radon17-d70.jpg` -
+# the D70 corner alone).  Positions by the assembly drawing's rows and the
+# types in them (netlist/placement.csv, parts.csv); where a row holds two chips
+# of one type the dates are given to the row, not the position.  Confidence as
+# in fitted.csv.  Neither board has the D70.15 wire or C70 missing.
+board,ref,pe3_type,fitted_type,date,confidence,note
+frolov,D1,КР1818ВГ93,КР1818ВГ93,9008,read,
+frolov,D2..D54 (16),КР565РУ5Г,КР565РУ5Г,9105/9108,part,two rows of eight; dates 9105 and 9108 seen
+frolov,D4,К555ТЛ2,К555ТЛ2,8909,read,
+frolov,D7,КР531ИД14,КР531ИД14,8902,part,under the connector's edge
+frolov,D9,КР580ВИ53,КР580ВИ53,9103,read,
+frolov,D10,К555ТМ9,КР1533ТМ9,9001,read,
+frolov,D13,КР556РТ12,КР556РТ12,,part,paper label «КДРВ» - the plant's practice: the owner's board has the same labels
+frolov,D14,К555ЛА3,КР1533ЛА3,9002,read,the 640 x 200 edge's path - the same КР1533 as the owner's board
+frolov,D15,К555ЛН1,КР1533ЛН1,9106,read,
+frolov,D16,К555ИЕ19,КР1533ИЕ19,9004,part,read as «КР1533ИЕ19 9004» by the PROMs - a КР1533 where the owner's is К555
+frolov,D17,К555ТМ2,КР1533ТМ2,9002,read,
+frolov,D20,КР1102АП15,КР1102АП15,,part,one of the two 8-pin DIPs read as КР1102АП15
+frolov,D21,КР556РТ12,КР556РТ12,,part,paper label «СТРВ»
+frolov,D22,КР580ВВ51А,КР580ВВ51А,9011,read,
+frolov,D23,КР531ЛЕ1,К531ЛЕ1,8903,read,
+frolov,D24,КР531ТМ2,КР531ТМ2,9003,read,
+frolov,D25,К555ЛР11,КР1533ЛР11,9002,read,
+frolov,D29,К555ИЕ10,КР1533ИЕ10,9004,read,the three ИЕ10 by the PROMs 9004
+frolov,D30,К555ИЕ10,КР1533ИЕ10,9004,read,the 640 x 200 edge's path - КР1533 as on the owner's board
+frolov,D31,К555ЛА4,К555ЛА4,8908,read,К555 where the owner's is КР1533
+frolov,D32,К555КП15,КР1533КП15,9011,read,
+frolov,D33,К555ТМ2,КР1533ТМ2,9002,read,
+frolov,D36,К555ИЕ10,КР1533ИЕ10,9004,read,
+frolov,D37,К555ИЕ10,КР1533ИЕ10,9104,read,the two ИЕ10 by the ИР16s 9104
+frolov,D38,КР580ВВ51А,КР580ВВ51А,9011,read,
+frolov,D39,К555ЛП5,К555ЛП5,,part,
+frolov,D40,К555ТМ8,КР1533ТМ8,8912,read,
+frolov,D41,К555ТМ2,КР1533ТМ2,9002,read,
+frolov,D42,К555ИЕ10,КР1533ИЕ10,9104,read,
+frolov,D43,К555ТМ8,КР1533ТМ8,8912,read,
+frolov,D46,К555ИЕ19,К555ИЕ19,9106,read,
+frolov,D48,КР559ИП11,КР559ИП11,9006,part,
+frolov,D49..D56 (4),К555ИР16,К555ИР16,9103,read,all four К555, as on the owner's board and Radon17's
+frolov,D51,К555ИР23,КР1533ИР23,9011,read,
+frolov,D52,К555АП5,КР1533АП5,9101,read,КР1533 where the owner's is К555
+frolov,D57,К555ИР23,КР1533ИР23,9011,read,
+frolov,D58,К555АП5,КР1533АП5,9101,read,
+frolov,D59,К555ИЕ19,К555ИЕ19,9106,read,
+frolov,D60,К555ТМ2,КР1533ТМ2,9002,read,
+frolov,D61,К555КП2,КР1533КП2,9105,read,all six КП2 КР1533 9105 (the owner's: five К555 9008 and one КР1533 9106)
+frolov,D62,К555КП2,КР1533КП2,9105,read,
+frolov,D63,К555КП2,КР1533КП2,9105,read,
+frolov,D64,К555ЛН2,КР1533ЛН2,9104,read,КР1533 where the owner's is К555 (0784)
+frolov,D65,К573РФ4Б,К573РФ4А,,part,tape label «7004Л»
+frolov,D66,К555ЛА3,КР1533ЛА3,9002,read,
+frolov,D67,К555КП2,КР1533КП2,9105,read,
+frolov,D68,К555КП2,КР1533КП2,9105,read,
+frolov,D69,К555КП2,КР1533КП2,9105,read,
+frolov,D70,К555КП11,К555КП11,9102,read,as on the owner's board; no wire on pin 15
+frolov,D71,К555ЛИ6,К555ЛИ6,8912,read,«623» on the package
+frolov,D72,К555ЛЛ1,К555ЛЛ1,9006,read,the three ЛЛ1 read 9006
+frolov,D73,К555ЛИ1,КР1533ЛИ1,8911,read,
+frolov,D74,К555ЛЛ1,К555ЛЛ1,9006,read,
+frolov,D75,К155ЛН5,К155ЛН5,9002,read,
+frolov,D76,КР580ВВ55А,КР580ВВ55А,9012,read,
+frolov,D77,К573РФ4Б,К573РФ4А,,part,tape label «7004Н»
+frolov,D78,К555ИР23,КР1533ИР23,9011,read,
+frolov,D79,К555ЛЛ1,К555ЛЛ1,9006,read,
+frolov,D80,К555ИД7,КР1533ИД7,9002,read,
+frolov,D81,К555ЛА13,К555ЛА13,9005,read,one of D81/D93 9005, the other 9006
+frolov,D82,КР580ВВ55А,КР580ВВ55А,9012,part,
+frolov,D83,КР1807ВМ1,КР1807ВМ1,9109,read,
+frolov,D84,К555ЛЛ1,К555ЛЛ1,9006,read,
+frolov,D85,К555ЛИ3,К555ЛИ3,9005,read,
+frolov,D86,К555КП15,КР1533КП15,9011,read,
+frolov,D87,К555КП2,КР1533КП2,9105,read,
+frolov,D88,К555ЛА2,КР1533ЛА2,8912,read,
+frolov,D89,К555ИР23,КР1533ИР23,9011,read,
+frolov,D91,К555ЛН1,КР1533ЛН1,9106,read,
+frolov,D92,К555ИР22,КР1533ИР22,9011,read,
+frolov,D93,К555ЛА13,К555ЛА13,9006,read,see D81
+frolov,D94,К555ИР22,КР1533ИР22,9011,read,
+frolov,D95,К555АП3,КР1533АП3,9005,read,the «ОМЕГА-3» sticker is on a chip by the resistor row here too
+frolov,D96,К555ИВ3,К555ИВ3,9010,read,
+frolov,D97,К555ТМ9,КР1533ТМ9,8912,read,
+frolov,D98,КР1533ТМ2,КР1533ТМ2,9002,read,
+frolov,D99,К555ЛН1,КР1533ЛН1,9106,read,
+frolov,DA1,НР1-11А,НР1-11-3-15 1 кОм,9103,part,
+frolov,DA2,НР1-11А,НР1-11-3-15 10 кОм,9107,read,
+frolov,BQ2,РК 169МА-6АН 15 МГц,«15000 кГц ...»,,part,the can by D91 reads «15000» and two more lines
+frolov,HL1..HL3,АЛ307БМ,red LEDs,,read,with three 470 Ohm (yellow-violet-brown) above them
+radon17,D49/D55 (2),К555ИР16,К555ИР16,9103,read,the two in the crop
+radon17,D57,К555ИР23,КР1533ИР23,9005,read,
+radon17,D63,К555КП2,КР1533КП2,9101,read,
+radon17,D64,К555ЛН2,КР1533ЛН2,9104,read,
+radon17,D69,К555КП2,КР1533КП2,9101,read,
+radon17,D70,К555КП11,К555КП11,9102,read,the factory's white wire on pin 11; nothing on pin 15
+radon17,D71,К555ЛИ6,К555ЛИ6,8912,read,
+radon17,D75,К155ЛН5,К155ЛН5,8908,read,
