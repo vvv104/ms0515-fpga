@@ -728,17 +728,13 @@ The owner's board first (`docs/plan.md` 8d).
    either way, so the 50 Hz change (item 12) touches no copper.  Then
    the DRC of the routed board, the silkscreen's warnings, Э3's board
    from it.
-6. Э3's board, stage 6b - paused.  The chips as fitted (2026-11-08):
-   КР1533 at the ИЕ10 and ЛА3 of the edge's path on every board
-   photographed, where the model ran ПЭ3's К555; their delays take 7.5
-   ns off a path ~28 ns too slow for the window, and the 7-sample result
-   seen first was the К555ИР16 model's 8 ns of MODE setup against the
-   sheet's 20 - corrected, the board as drawn is back at 1305 / 1
-   (`docs/findings.md`, "The chips as fitted, 2026-11-08";
-   `netlist/fitted-*.csv`, `tools/board.py corner ... FITTED`).  The
-   live explanation stays the evidence note's: a one-point fault in the
-   first 16 columns of 640 x 200, small enough to have gone unseen on
-   the serial boards, repaired on the owner's by D70.15 to ground.
+6. Э3's board, stage 6b - **settled** (2026-11-08): it draws 320 x 200
+   and 640 x 200 as the emulator to the point at every corner, with the
+   chips as fitted (`netlist/fitted-1991.csv`, the generator's default),
+   the К555ИР16's MODE setup by corner (`tools/board.py`, `SETUP_NS`) and
+   the frame's first word the board's own - word 8000, held through the
+   frame's border, which the emulator now draws too (`docs/findings.md`,
+   "Settled, 2026-11-08").
 7. The cell 000:000 at max from an unseeded power-up (step 6, the games
    diskette's boot): 900 reads of it not as written, where ОСА's run
    had 2.  Looked into: the bench's watch took the strobes standing low

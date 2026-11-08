@@ -205,7 +205,9 @@ std::unique_ptr<ms0515_board_t> emulator_after(const std::string& rom_name)
 // on GND as on the owner's board (netlist/vvv104.csv).  A board at a corner
 // of the delays is held to the picture within one sample (screen_compare.h,
 // which also knows the board's 25 ns of ink before paper at a word's edge
-// after a flashing one - docs/baseline.md, open list 3).
+// after a flashing one - docs/baseline.md, open list 3).  Э3's board starts
+// its frame with the word its registers held through the frame's border,
+// word 8000 (screen_compare.h, `held`).
 void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool drawn = false)
 {
     Bench b(rom_name);
@@ -220,7 +222,7 @@ void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool dra
     REQUIRE(frames_after >= 2);
     const auto emu = emulator_after(rom_name);
     const ScreenCompare c = compare_screen(taken, board_get_vram(emu.get()), board_is_hires(emu.get()),
-                                           board_get_border_color(emu.get()), 232, 16, kCorner ? 1 : 0);
+                                           board_get_border_color(emu.get()), 232, 16, kCorner ? 1 : 0, drawn);
     INFO("area at " << c.dx << ", " << c.dy << "; first at " << c.first_x << ", " << c.first_y << ": " << c.got
                     << ", the emulator's " << c.want);
     CHECK(c.differ == 0);
@@ -244,19 +246,17 @@ TEST_CASE("video: 640 x 200 in the border's colour, as the emulator's picture of
 
 // The same two pictures on Э3's board, the serial machines' (D70 off in
 // the border, its clocks stopped): its first clock at a line's left edge
-// must shift the word the registers took at the right border, so D70
-// comes on before that clock falls (docs/findings.md, D70).  Both fail
-// today and are marked so until the open questions there are settled:
-// the frame's first word comes from the frame before on Э3's board (the
-// top border's last line keeps D70 off, logic, not a race), and the
-// model's К555 chips lose 640 x 200's left edge where the boards' КР1533
-// win it - unless C70 is fitted.
-TEST_CASE("video: Э3's board draws 320 x 200 as the emulator" * doctest::may_fail())
+// shifts the word the registers took at the right border, D70 coming on
+// before that clock falls with the chips as fitted (netlist/fitted-1991.csv)
+// and the К555ИР16's setup of the corner (tools/board.py, SETUP_NS); the
+// frame's first word is the one held through the frame's border, word 8000
+// (docs/findings.md, D70).
+TEST_CASE("video: Э3's board draws 320 x 200 as the emulator")
 {
     picture_as_emulator("vid320.rom", 420, true);
 }
 
-TEST_CASE("video: Э3's board draws 640 x 200 as the emulator" * doctest::may_fail())
+TEST_CASE("video: Э3's board draws 640 x 200 as the emulator")
 {
     picture_as_emulator("vid640.rom", 420, true);
 }

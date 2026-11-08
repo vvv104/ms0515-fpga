@@ -699,5 +699,19 @@ class TheBoard(unittest.TestCase):
             self.assertEqual(f.read(), text, "rtl/board/ns4_machine.sv is stale: run tools/board.py")
 
 
+class Setup(unittest.TestCase):
+    # К555ИР16's MODE setup: the sheet's 20 ns is a guaranteed maximum, the
+    # max corner's; the typical and min corners take MIN_SHARE of it, as the
+    # typical delays are not the worst.  At least one tick: MODE from the
+    # tick before the edge at the shortest.
+    def test_the_ir16_mode_setup_follows_the_corner(self):
+        self.assertEqual(board.setup_ticks("К555ИР16", "max"), 2)
+        self.assertEqual(board.setup_ticks("К555ИР16", "typ"), 1)
+        self.assertEqual(board.setup_ticks("К555ИР16", "min"), 1)
+
+    def test_a_chip_without_a_setup_gets_no_parameter(self):
+        self.assertIsNone(board.setup_ticks("К555ЛА3", "typ"))
+
+
 if __name__ == "__main__":
     unittest.main()

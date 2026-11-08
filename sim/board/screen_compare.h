@@ -19,6 +19,18 @@
 // an edge then shows a sample early or late - on a monitor, some tens of
 // nanoseconds.  So a board at a corner is held to the picture within one
 // sample, the typical one to the sample.
+//
+// `held`: the board as Э3 draws it, D70 off in the border.  Its registers
+// keep through the frame's border the word they took at the last line's
+// right edge - word 8000, the first past the 8000 of the screen - and the
+// frame's first line starts with it: in 640 x 200 its first clock shifts
+// that word out, so the first 16 points are word 8000's; in 320 x 200 the
+// first clock loads the line's own word as D70 comes on, the points' gate
+// already open, so only the frame's first sample is word 8000's first
+// point (docs/findings.md, D70).  At a corner (`slack` 1) the 320 x 200
+// line's first clock may shift as in 640 x 200 (the max corner's setup):
+// the frame's first word then has word 8000's points in word 0's
+// attributes, the attribute registers loading on their own clock.
 #pragma once
 
 #include <cstdint>
@@ -86,18 +98,40 @@ inline bool fits(const std::uint8_t* vram, bool hires, int border, int xp, int x
     return false;
 }
 
+// the video memory as the frame's first line shows it with the held word:
+// word 0 replaced by word 8000 (its attributes too, or not)
+inline std::vector<std::uint8_t> with_held_word(const std::uint8_t* vram, bool attributes = true)
+{
+    std::vector<std::uint8_t> v(vram, vram + 16384);
+    v[0] = v[16000];
+    if (attributes)
+        v[1] = v[16001];
+    return v;
+}
+
 inline int count(const std::vector<std::vector<std::uint8_t>>& frame, const std::uint8_t* vram, bool hires,
-                 int border, int dx, int dy, int limit, int slack, ScreenCompare* first)
+                 int border, int dx, int dy, int limit, int slack, ScreenCompare* first,
+                 const std::uint8_t* held = nullptr, const std::uint8_t* held_points = nullptr)
 {
     int n = 0;
     for (int y = 0; y < 200 && n <= limit; ++y) {
         const auto& line = frame[static_cast<std::size_t>(dy + y)];
         for (int x = 0; x < 640 && n <= limit; ++x) {
             const int s = norm(line[static_cast<std::size_t>(dx + x)]);
-            bool right = fits(vram, hires, border, x, x, y, s);
+            // the held word: the first line's first word in 640 x 200, its
+            // first sample in 320 x 200 (either word there)
+            const bool from_held = held && y == 0 && (hires ? x < 16 : x == 0);
+            const std::uint8_t* mem = from_held && hires ? held : vram;
+            bool right = fits(mem, hires, border, x, x, y, s) ||
+                         (from_held && !hires && fits(held, hires, border, x, x, y, s));
             for (int dp = -slack; dp <= slack && !right; ++dp)
                 for (int da = -slack; da <= slack && !right; ++da)
-                    right = fits(vram, hires, border, x + dp, x + da, y, s);
+                    right = fits(mem, hires, border, x + dp, x + da, y, s);
+            // at a corner, 320 x 200's first word with word 8000's points
+            const bool held_word = held_points && slack > 0 && !hires && y == 0 && x < 16;
+            for (int dp = -slack; dp <= slack && !right && held_word; ++dp)
+                for (int da = -slack; da <= slack && !right; ++da)
+                    right = fits(held_points, hires, border, x + dp, x + da, y, s);
             if (!right) {
                 if (n == 0 && first) {
                     int a = 0, b = 0;
@@ -122,8 +156,14 @@ inline int count(const std::vector<std::vector<std::uint8_t>>& frame, const std:
 // (within `slack` samples).
 inline ScreenCompare compare_screen(const std::vector<std::vector<std::uint8_t>>& frame,
                                     const std::uint8_t* vram, bool hires, int border, int x0 = 232,
-                                    int reach = 16, int slack = 0)
+                                    int reach = 16, int slack = 0, bool held = false)
 {
+    const std::vector<std::uint8_t> held_vram = held ? screen_detail::with_held_word(vram)
+                                                     : std::vector<std::uint8_t>();
+    const std::uint8_t* h = held ? held_vram.data() : nullptr;
+    const std::vector<std::uint8_t> points_vram = held ? screen_detail::with_held_word(vram, false)
+                                                       : std::vector<std::uint8_t>();
+    const std::uint8_t* hp = held ? points_vram.data() : nullptr;
     ScreenCompare best;
     for (int dy = 0; dy + 200 <= static_cast<int>(frame.size()); ++dy) {
         for (int dx = x0 - reach; dx <= x0 + reach; ++dx) {
@@ -133,7 +173,7 @@ inline ScreenCompare compare_screen(const std::vector<std::vector<std::uint8_t>>
             if (!fits)
                 continue;
             const int limit = best.differ < 0 ? 1 << 30 : best.differ;
-            const int n = screen_detail::count(frame, vram, hires, border, dx, dy, limit, 0, nullptr);
+            const int n = screen_detail::count(frame, vram, hires, border, dx, dy, limit, 0, nullptr, h);
             if (best.differ < 0 || n < best.differ) {
                 best.differ = n;
                 best.dx = dx;
@@ -144,6 +184,7 @@ inline ScreenCompare compare_screen(const std::vector<std::vector<std::uint8_t>>
     // the area sits where the picture fits to the sample; the slack is
     // given there only, or a sample of it would go to the area's place too
     if (best.differ > 0)
-        best.differ = screen_detail::count(frame, vram, hires, border, best.dx, best.dy, 1 << 30, slack, &best);
+        best.differ = screen_detail::count(frame, vram, hires, border, best.dx, best.dy, 1 << 30, slack, &best, h,
+                                           hp);
     return best;
 }

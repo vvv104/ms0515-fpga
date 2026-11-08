@@ -73,13 +73,23 @@ taking time:
 ПЭ3 allows КР1533 for К555, and the plant used it: the boards
 photographed (`netlist/fitted.csv`, `fitted-others.csv`) carry КР1533 at
 the five ИЕ10, both ЛА3, the ТМ2/ТМ8/ТМ9, ИР22/ИР23, ЛН1, ЛИ1, ИД7, АП3,
-КП15, ЛР11, ЛА2 (and more on the 1991 run).  `tools/board.py corner
-<corner> DIR netlist/fitted-1991.csv` generates the board with each such
-chip's own delay where `delays.csv` has a row for it (КР1533ИЕ10 11.5 ns
-and КР1533ЛА3 6 so far, the midpoints of TI's ALS min and max, which
-print no typical), ПЭ3's type's delay otherwise, with a warning.  On the
-640 x 200 edge's race it took 7.5 ns off a ~28 ns deficit - not the
-answer (`docs/findings.md`, 6b, "The chips as fitted").
+КП15, ЛР11, ЛА2 (and more on the 1991 run).  Every generated board takes
+`netlist/fitted-1991.csv` (`tools/board.py corner <corner> DIR FITTED`
+another list): each such chip's own delay where `delays.csv` has a row
+for it (КР1533ИЕ10 11.5 ns and КР1533ЛА3 6 so far, the midpoints of TI's
+ALS min and max, which print no typical), ПЭ3's type's delay otherwise,
+with a warning.
+
+## Setup times
+
+A chip whose model takes an input as it stood some ticks before the
+clock's edge gets them as a parameter (`SETUP`), from `SETUP_NS` in
+`tools/board.py`: the sheet's figure, a guaranteed maximum, at the max
+corner; MIN_SHARE of it at the typical and min corners, whose delays are
+not the worst either; at least one tick.  So far the К555ИР16's MODE
+(20 ns: 2 ticks at max, 1 at typ and min) - the 640 x 200 edge's race,
+which D70 wins by ~11.5 ns at the typical delays (`docs/findings.md`,
+6b, "Settled").
 
 ## Corners
 

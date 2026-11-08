@@ -1,4 +1,10 @@
-# The left edge of a 640 x 200 line: D70, БОРДС L and C70 - an open question
+# The left edge of a 640 x 200 line: D70, БОРДС L and C70
+
+**Settled 2026-11-08** - the model was wrong: the chips as fitted (КР1533
+at D30 and D14) and the К555ИР16's MODE setup taken by corner, not at the
+sheet's guaranteed maximum against typical delays.  The frame's first
+word is the board's own, word 8000.  `docs/findings.md`, D70,
+"Settled, 2026-11-08".  What follows is the question as it was put.
 
 Gathered for the owners of working MS 0515 machines (zx-pk.ru), so that
 everything the question rests on can be looked at in one place.  The

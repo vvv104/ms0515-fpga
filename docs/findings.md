@@ -453,34 +453,48 @@ race, and they did not: something in the model or in the reading of
 the board is still off.  Being looked for; until found, nothing of this
 goes into the tests as a property of the schematic.
 
-**The chips as fitted, 2026-11-08: not the answer.**  The boards the
-plant made carry КР1533 where ПЭ3 says К555 (`netlist/fitted.csv`, the
-owner's 1990 board; `fitted-others.csv`, Frolov's and Radon17's of 1991,
-which draw as Э3 is drawn), and on the race's path D30 (ИЕ10) and D14
-(ЛА3) are КР1533 on every board seen, where the model ran К555's
-typicals (15.5 and 9.5 ns).  With the fitted types' delays
-(`netlist/fitted-1991.csv` through `tools/board.py corner typ DIR
-netlist/fitted-1991.csv`; КР1533ИЕ10 11.5 ns, КР1533ЛА3 6 - the
-midpoints of SN74ALS161B's and SN74ALS00A's min and max, no typical
-being printed) D70 came on one tick - 8.3 ns - before `ВК2`'s fall, and
-the model's К555ИР16, which took MODE from the tick before the edge, let
-that edge shift: `vid640` fell to 7 samples (the frame's first word) and
-the day's first reading was that the plant's chips won the race.  They
-do not: the sheet wants MODE 20 ns before the edge, and 8.3 is inside
-it.  `rtl/chips/k555ir16.sv` now takes MODE from three ticks before (25
-ns; `sim/chips/test_k555ir16.cpp`: falling two ticks before the clock
-still loads, three ticks before shifts), and with it Э3's board with the
-fitted delays is back at 1305 (640) and 1 (320), the owner's board
-unchanged at every corner.  The window stays what "What 640 turns on"
-gives, ~46..66 ns, against ~75 ns of the path's typicals even with the
-КР1533 (D30 11.5 + D21 40 + D14 6 + D70's enable 17): 7.5 ns of a 28 ns
-deficit.  The lead is closed; the fitted lists and `board.py corner ...
-FITTED` stay as data and tool.  One thing the trace settled on the way:
-the frame's first word is stale only when the line's first clock shifts
-(the registers hold the word past the last line through the top border,
-D70 off, nothing reloading it); when that clock loads, as the sheet has
-it, it takes the first word fresh - the 7 and the 1305 are the two
-sides of the same edge, never both.
+**Settled, 2026-11-08: Э3's board draws the emulator's picture.**  Three
+things were wrong in the model, none in the schematic:
+
+1. **The chips.**  The boards the plant made carry КР1533 where ПЭ3 says
+   К555 (`netlist/fitted.csv`, the owner's 1990 board; `fitted-others.csv`,
+   Frolov's and Radon17's of 1991), and on the edge's path D30 (ИЕ10) and
+   D14 (ЛА3) are КР1533 on every board seen.  The generated boards now
+   take them (`netlist/fitted-1991.csv`, the default of `tools/board.py`;
+   КР1533ИЕ10 11.5 ns, КР1533ЛА3 6 - the midpoints of SN74ALS161B's and
+   SN74ALS00A's min and max, no typical being printed).  D70 then comes
+   on ~11.5 ns before `ВК2`'s fall at the typical delays.
+2. **The К555ИР16's MODE setup.**  The sheet's 20 ns is a guaranteed
+   maximum; the model's other delays are typical, and a typical path
+   with a worst-case setup is a corner no chip has.  `SETUP_NS` in
+   `tools/board.py` gives the register its setup by corner: the sheet's
+   20 ns at max (2 ticks), MIN_SHARE of it at typ and min (1 tick, MODE
+   from the tick before the edge) - the `SETUP` parameter of
+   `rtl/chips/k555ir16.sv`.  With it the line's first clock shifts the
+   word the registers took at the right border, as the design means: the
+   left edge of every 640 x 200 line is the emulator's to the point.
+   (A first attempt that day held all corners to 20 ns and lost the edge
+   again; it took the typical corner for a worst one.)
+3. **The frame's first word**, which was the board's, not an error: the
+   registers load at each line's right edge the word after the line's
+   last - the next line's first - and the last line's is word 8000, the
+   first past the screen (the test ROM's word 8000 is 0B5C0, the `b5`
+   the trace showed held).  Through the frame's border D70 is off and
+   nothing loads, so in 640 x 200 the frame's top line starts with word
+   8000; in 320 x 200 the line's first clock loads its own word as D70
+   comes on, and only the frame's first sample, before that clock, shows
+   word 8000's first point.  At the max corner (the sheet's 20 ns setup)
+   the 320 x 200 line's first clock shifts as well, and the frame's first
+   word has word 8000's points in word 0's attributes, the attribute
+   registers loading on their own clock - a margin case, held to within
+   one sample as the corners are.  `sim/board/screen_compare.h` (`held`) holds
+   Э3's board to that; the emulator draws word 8000 there too (its
+   `docs/hardware/video.md`, "The frame's first word").  Normally word
+   8000 is as the screen's clear left it, and the corner looks like the
+   rest - the serial machines' screens were clean.
+
+The two `video: Э3's board ...` tests pass and are no longer may_fail,
+at every corner.  The owner's board (D70.15 on GND) draws as before.
 
 **C70 on the boards seen** (2026-11-04).  The owner's board has none:
 two pads where the drawing puts it, by D85 towards D84, with C69 and

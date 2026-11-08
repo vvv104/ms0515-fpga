@@ -206,7 +206,8 @@ def ns4_sources():
                    os.path.join(n, "nets.csv"), os.path.join(n, "vvv104.csv"),
                    os.path.join(n, "analog.csv"), os.path.join(REPO, "rtl", "chips"),
                    os.path.join(n, "firmware.csv"), os.path.join(n, "delays.csv"),
-                   os.path.join(n, "deviations.csv"), os.path.join(n, "delays-max.csv"))
+                   os.path.join(n, "deviations.csv"), os.path.join(n, "delays-max.csv"),
+                   fitted=os.path.join(n, "fitted-1991.csv"))
 
 
 TICK_NS = 1000.0 / MASTER_MHZ
@@ -241,6 +242,27 @@ def load_delays(path):
 # The share of the typical delay taken for the min corner where a datasheet
 # prints no minimum - most do not (docs/timing.md, "Corners").
 MIN_SHARE = 0.5
+
+
+# Setup times a chip's model takes as a parameter (SETUP, master ticks the
+# input must stand before the clock's edge to be seen).  The sheets print a
+# guaranteed maximum only - the max corner's; the typical and min corners
+# take MIN_SHARE of it, as their delays are not the worst either (a typical
+# delay with a worst-case setup is a corner no chip has; docs/timing.md).
+SETUP_NS = {
+    "К555ИР16": 20.0,   # MODE to the clock's fall: NTE74LS295A "Setup Time HIGH or LOW, PE to CP 20 ns"
+}
+
+
+def setup_ticks(chip, corner):
+    """The SETUP parameter of a chip at a corner, at least one tick; None
+    for a chip without one."""
+    ns = SETUP_NS.get(chip)
+    if ns is None:
+        return None
+    if corner != "max":
+        ns *= MIN_SHARE
+    return max(1, int(ns / TICK_NS + 0.5))
 
 
 def corner_delays(typ, path, corner):
@@ -401,6 +423,7 @@ class Builder:
         self.modules = load_modules(src.chips)
         self.firmware = load_firmware(src.firmware)
         self.delays = corner_delays(load_delays(src.delays), src.delays_max, src.corner)
+        self.corner = src.corner
         self.fitted = {r["ref"]: r["type"].strip() for r in nl.rows(src.fitted)} if src.fitted else {}
         self.pins = defaultdict(dict)
         for c in conns:
@@ -502,7 +525,11 @@ class Builder:
                     and not self.supply(ref, pin):
                 self.problems.error(f"{ref}.{pin} on '{pins[pin]}': not a pin of {module.name}")
         image = self.firmware.get(ref)
-        self.instances.append((ref, module.name, conns, {"CONTENTS": image} if image else {}))
+        values = {"CONTENTS": image} if image else {}
+        setup = setup_ticks(part.type, self.corner) if self.delays is not None else None
+        if setup is not None:
+            values["SETUP"] = setup
+        self.instances.append((ref, module.name, conns, values))
 
     def ticks_of(self, ref, part, clocked):
         """The master ticks a chip's outputs lag by, and its output enables
@@ -917,8 +944,9 @@ def main(argv):
     """board.py: rtl/board/ns4.sv from the netlist; board.py check: is it
     stale; board.py corner max|min DIR [FITTED.csv]: the board at a corner
     of the chips' delays (docs/timing.md), into DIR - a variant for the
-    margins, never committed; with FITTED.csv (ref,type) the delays of the
-    chips a board carries in place of ПЭ3's types (netlist/fitted-1991.csv)."""
+    margins, never committed.  The chips a board carries in place of ПЭ3's
+    types take their own delays: netlist/fitted-1991.csv, or FITTED.csv
+    (ref,type) in its place."""
     sys.stdout.reconfigure(encoding="utf-8")
     src, out = ns4_sources(), os.path.join(REPO, "rtl", "board")
     if len(argv) > 3 and argv[1] == "corner":

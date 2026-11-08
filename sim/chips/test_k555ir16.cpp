@@ -1,8 +1,10 @@
 // К555ИР16 (74LS295): 4-bit shift register with parallel load, clocked
 // on the falling edge; MODE high loads A..D, low shifts right (SER into
 // QA); three-state outputs driven while OC is high.  MODE counts as it
-// stood 20 ns before the edge - three ticks of 8.33 ns (0 hold): a MODE
-// that falls with the clock, or up to two ticks before it, still loads.
+// stood SETUP ticks before the edge (0 hold); these cases run the default,
+// 3 ticks - the sheet's 20 ns: a MODE that falls with the clock, or up to
+// two ticks before it, still loads.  The board gives each corner its own
+// SETUP (tools/board.py, SETUP_NS).
 #include "chip.h"
 
 #include "Vk555ir16.h"
