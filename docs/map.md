@@ -41,6 +41,7 @@ D70.15 on GND).  Everything below serves both; where they differ is
 | `netlist/deviations.csv` | places where the drawing cannot be right, each argued | `docs/findings.md` |
 | `netlist/vvv104.csv` | the owner's board's change to Э3 (a pin moved), its evidence | his board's photos |
 | `netlist/analog.csv` | each analog part's digital stand-in | `docs/analog.md` |
+| `netlist/fitted.csv`, `fitted-asked.md` | what is fitted on the owner's board, read off its photographs: the КР1533 substitutes for К555, dates; what the photos did not tell | `netlist/variants.md` |
 | `netlist/delays.csv`, `delays-max.csv` | each chip path's typical / maximum delay, with its page | datasheets, `docs/timing.md` |
 | `netlist/firmware.csv` | which ROM/PROM image sits in which chip | `firmware/` |
 | `netlist/placement.csv` | where each part stands on the 1991 board | the assembly drawing СБ |

@@ -1,0 +1,114 @@
+# What is fitted on the owner's board, read off its two photographs (2026-11-08):
+# `MC 0515 04.jpg` (the whole board, 2000 x 1692, read at x3) and the museum's
+# close-up `16337efabef4.jpg` (2560 x 1920, the processor's quarter), both in
+# ms0515_data/photos/known-machines.  The positions are the assembly drawing's
+# rows as netlist/placement.csv has them (a row = one of Mick's x, the parts in
+# it by their y).  ПЭ3 allows КР1533 for К555 (netlist/parts.csv, its note), so
+# a КР1533 where ПЭ3 says К555 is a permitted substitute, not a repair.  The
+# date code is the chip's own (YYWW).  Confidence: read = the marking is
+# legible; part = the series or the type legible, not both; unread = the owner
+# is asked (netlist/fitted-asked.md).
+ref,pe3_type,fitted_type,date,confidence,source,note
+D1,КР1818ВГ93,КР1818ВГ93,9008,read,04,
+D2,КР565РУ5Г,КР565РУ5Г,,part,04,row x~3840: dates 9105 9012 9012 9008 9012 9008 9012 9012 left to right - which is which not told apart
+D3,КР565РУ5Г,КР565РУ5Г,,part,04,row x~4320: dates 9008 9008 9012 9008 9008 9011 9011 9011 left to right
+D4,К555ТЛ2,К555ТЛ2,8909,read,04,
+D5,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
+D6,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
+D7,КР531ИД14,КР531ИД14,,part,04,under the memory module's edge; type read; date not
+D8,К155ЛП9,К155ЛП9,8908,read,04,
+D9,КР580ВИ53,КР580ВИ53,9107,read,04,
+D10,К555ТМ9,КР1533ТМ9,9001,read,04,substitute
+D11,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
+D12,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
+D13,КР556РТ12,,,unread,04,a paper label over the marking; the other PROM's says «СТРВ» - which of the two is this one is asked
+D14,К555ЛА3,КР1533ЛА3,9002,read,04,substitute - in the 640 x 200 edge's path (docs/findings.md 6b)
+D15,К555ЛН1,КР1533ЛН1,8911,read,04,substitute
+D16,К555ИЕ19,К555ИЕ19,9009,read,04,
+D17,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
+D18,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
+D19,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
+D20,КР1102АП15,,,unread,04,under the module's edge; an 8-pin DIP is there
+D21,КР556РТ12,КР556РТ12,,part,04,paper label «СТР В» (СТРВ = D21 by ПЭ3's note) - if the labels are on the right chips
+D22,КР580ВВ51А,КР580ВВ51А,9004,read,04,
+D23,КР531ЛЕ1,КР531ЛЕ1,8803,read,04,ПЭ3's type; the power table said К555ЛЕ1 (docs/findings.md)
+D24,КР531ТМ2,КР531ТМ2,9004,read,04,
+D25,К555ЛР11,КР1533ЛР11,8911,read,04,substitute
+D26,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
+D27,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
+D28,КР1102АП15,,,unread,04,under the module's edge; an 8-pin DIP is there
+D29,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute
+D30,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute - in the 640 x 200 edge's path
+D31,К555ЛА4,КР1533ЛА4,8912,read,04,substitute
+D32,К555КП15,КР1533КП15,9003,read,04,substitute
+D33,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
+D34,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
+D35,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
+D36,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute
+D37,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute
+D38,КР580ВВ51А,КР580ВВ51А,9004,read,04,
+D39,К555ЛП5,К555ЛП5,,part,04,date not read
+D40,К555ТМ8,КР1533ТМ8,9002,read,04,substitute
+D41,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
+D42,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute
+D43,К555ТМ8,КР1533ТМ8,9002,read,04,substitute
+D44,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
+D45,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
+D46,К555ИЕ19,К555ИЕ19,9009,read,04,
+D47,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
+D48,КР559ИП11,КР559ИП11,,part,04,under the module's edge; type read
+D49,К555ИР16,К555ИР16,9010,read,close-up,the four ИР16 all К555 9010; which is which not told apart
+D50,К555ИР16,К555ИР16,9010,read,close-up,see D49
+D51,К555ИР23,КР1533ИР23,9010,read,04,substitute
+D52,К555АП5,К555АП5,8911,read,04,«203» on the package
+D53,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
+D54,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
+D55,К555ИР16,К555ИР16,9010,read,close-up,see D49
+D56,К555ИР16,К555ИР16,9010,read,close-up,see D49
+D57,К555ИР23,КР1533ИР23,9010,read,04,substitute
+D58,К555АП5,К555АП5,8911,read,04,«203» on the package
+D59,К555ИЕ19,К555ИЕ19,9009,read,04,
+D60,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
+D61,К555КП2,К555КП2,9008,read,04,
+D62,К555КП2,К555КП2,9008,read,04,
+D63,К555КП2,,,unread,close-up,one of D63/D69 is К555КП2 9008 and the other КР1533КП2 9106 - which is asked
+D64,К555ЛН2,К555ЛН2,0784,read,04,brown ceramic package «К 555ЛН2 0784»
+D65,К573РФ4Б,К573РФ4А,9004,read,04,РФ4А where ПЭ3 says РФ4Б; paper label (ROM-B, replaced - docs/findings.md)
+D66,К555ЛА3,КР1533ЛА3,9002,read,04,substitute
+D67,К555КП2,К555КП2,9008,read,04,
+D68,К555КП2,К555КП2,9008,read,04,
+D69,К555КП2,,,unread,close-up,see D63
+D70,К555КП11,К555КП11,9006,read,04,pin 15 lifted and on GND (docs/findings.md)
+D71,К555ЛИ6,К555ЛИ6,9008,read,04,«29» on the package
+D72,К555ЛЛ1,К555ЛЛ1,8906,read,04,
+D73,К555ЛИ1,КР1533ЛИ1,8908,read,04,substitute
+D74,К555ЛЛ1,К555ЛЛ1,8906,read,04,
+D75,К155ЛН5,К155ЛН5,8908,read,04,
+D76,КР580ВВ55А,КР580ВВ55А,9010,read,04,
+D77,К573РФ4Б,К573РФ4А,8911,read,04,РФ4А; paper label
+D78,К555ИР23,КР1533ИР23,9010,read,04,substitute
+D79,К555ЛЛ1,К555ЛЛ1,8906,read,04,
+D80,К555ИД7,КР1533ИД7,9002,read,04,substitute - the register decoder
+D81,К555ЛА13,К555ЛА13,9001,part,04,one of D81/D93 read as «555ЛА13 Δ 9001»; the other not read
+D82,КР580ВВ55А,КР580ВВ55А,9010,read,04,
+D83,КР1807ВМ1,КР1807ВМ1,9106,read,04,
+D84,К555ЛЛ1,К555ЛЛ1,8906,read,04,
+D85,К555ЛИ3,,,unread,04,the marking's end hidden; asked
+D86,К555КП15,КР1533КП15,9003,read,04,substitute
+D87,К555КП2,К555КП2,9008,read,04,
+D88,К555ЛА2,КР1533ЛА2,8909,read,04,substitute
+D89,К555ИР23,КР1533ИР23,9010,read,04,substitute
+D90,К554СА3А,,,unread,04,under the module's edge
+D91,К555ЛН1,КР1533ЛН1,9003,read,04,substitute
+D92,К555ИР22,КР1533ИР22,9010,read,04,substitute
+D93,К555ЛА13,К555ЛА13,9001,part,04,see D81
+D94,К555ИР22,КР1533ИР22,9010,read,04,substitute
+D95,К555АП3,КР1533АП3,9003,read,04,substitute; the «ОМЕГА-3» sticker is on it
+D96,К555ИВ3,К555ИВ3,9007,read,04,
+D97,К555ТМ9,КР1533ТМ9,9001,read,04,substitute
+D98,КР1533ТМ2,КР1533ТМ2,9002,read,04,
+D99,К555ЛН1,КР1533ЛН1,9003,read,04,substitute
+DA1,НР1-11А,НР1-11-3-15 1 кОм ±5 %,8908,read,04,
+DA2,НР1-11А,НР1-11-3-15 10 кОм ±5 %,9011,read,04,
+VT1,КТ677АС,,,unread,04,under the module's edge
+VT2,КТ676АС,,,unread,04,under the module's edge

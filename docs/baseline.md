@@ -478,8 +478,14 @@ chip's second change (the character held in the shifter): 13 850 ALMs
 (33 %), 17 760 registers, the memory, RAM and DSP blocks as before;
 every domain met; the 120 MHz domain's setup slack +0.630 ns, Fmax
 129.82 MHz, hold +0.364 ns; the least setup slack of all +0.304 ns
-(HDMI's PLL), the least hold +0.208 ns (the same).  The `.rbf` in
-`build/mister/output_files/` is this build's.
+(HDMI's PLL), the least hold +0.208 ns (the same).  A fifth
+(`build/baseline-core5.log`, 2026-11-08 16:03 to 16:28) on the 50 Hz
+board (item 12) with the ВВ51 sending under TxEN off (item 8): 13 754
+ALMs (33 %), the memory as before; every domain met; the 120 MHz
+domain's setup slack +0.734 ns, hold +0.350 ns; the least setup slack
+of all +0.483 ns (HDMI's PLL), the least hold +0.241 ns (the same).
+The `.rbf` in `build/mister/output_files/` is this build's - the one
+for plan 7e's first hour on a DE10-Nano.
 
 - Resources (`ms0515.fit.summary`): 13 557 of 41 910 ALMs, 32 %
   (13 963, 33 %); 1 643 857 of 5 662 720 block memory bits (29 %), 214
