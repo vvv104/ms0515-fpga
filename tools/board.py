@@ -183,6 +183,8 @@ class Sources:
     deviations: str = None      # ref,pin,from_net,to_net,evidence: where the model leaves Э3
     delays_max: str = None      # the datasheets' maximums and printed minimums
     corner: str = "typ"         # typ, max or min (corner_delays)
+    fitted: str = None          # ref,type: the chips a board carries where ПЭ3's type was
+                                # substituted (netlist/fitted*.csv); their delays are taken
     name: str = "ns4"           # the module, and its files' names
     title: str = "The НС4 board"
 
@@ -399,6 +401,7 @@ class Builder:
         self.modules = load_modules(src.chips)
         self.firmware = load_firmware(src.firmware)
         self.delays = corner_delays(load_delays(src.delays), src.delays_max, src.corner)
+        self.fitted = {r["ref"]: r["type"].strip() for r in nl.rows(src.fitted)} if src.fitted else {}
         self.pins = defaultdict(dict)
         for c in conns:
             self.pins[c.ref][c.pin] = c.net
@@ -508,12 +511,20 @@ class Builder:
         none = ((0, 0), (0, 0))
         if self.delays is None:
             return none
-        if part.type not in self.delays:
-            self.problems.error(f"{ref} ({part.type}): no delay in netlist/delays.csv")
+        chip = part.type
+        fitted = self.fitted.get(ref)
+        if fitted and fitted != chip:
+            if fitted in self.delays:
+                chip = fitted
+            else:
+                self.problems.warn(f"{ref}: fitted {fitted} has no delay in netlist/delays.csv, "
+                                   f"ПЭ3's {chip} kept")
+        if chip not in self.delays:
+            self.problems.error(f"{ref} ({chip}): no delay in netlist/delays.csv")
             return none
-        if self.delays[part.type] is None:
+        if self.delays[chip] is None:
             return none
-        ns, on, off = (delay_ticks(v, clocked) for v in self.delays[part.type])
+        ns, on, off = (delay_ticks(v, clocked) for v in self.delays[chip])
         return (ns, ns), (on, off)
 
     def delayed(self, wire, ticks):
@@ -904,13 +915,16 @@ def machine_live(b, levels, wanted):
 
 def main(argv):
     """board.py: rtl/board/ns4.sv from the netlist; board.py check: is it
-    stale; board.py corner max|min DIR: the board at a corner of the chips'
-    delays (docs/timing.md), into DIR - a variant for the margins, never
-    committed."""
+    stale; board.py corner max|min DIR [FITTED.csv]: the board at a corner
+    of the chips' delays (docs/timing.md), into DIR - a variant for the
+    margins, never committed; with FITTED.csv (ref,type) the delays of the
+    chips a board carries in place of ПЭ3's types (netlist/fitted-1991.csv)."""
     sys.stdout.reconfigure(encoding="utf-8")
     src, out = ns4_sources(), os.path.join(REPO, "rtl", "board")
     if len(argv) > 3 and argv[1] == "corner":
         src.corner, out = argv[2], argv[3]
+        if len(argv) > 4:
+            src.fitted = argv[4]        # the delays of the chips a board carries
     text, problems, inputs = generate_all(src)
     for p in problems:
         print(("error: " if p.error else "warning: ") + p.text)

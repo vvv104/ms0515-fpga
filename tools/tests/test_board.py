@@ -542,6 +542,29 @@ class Delays(unittest.TestCase):
         self.assertIn("delay_bank #(.TICKS(5), .FALL(1), .W(1)) b5_1_0 (.clk(clk), .i({r_D2_p18_oe}), "
                       ".o({d_D2_p18_oe}));", text)
 
+    def test_a_fitted_type_takes_its_own_delay_and_an_unknown_one_falls_back(self):
+        # ПЭ3 says К555ЛН1 at D1; the board carries a КР1533ЛН1, whose delay is
+        # another row.  D2's fitted type has no row: ПЭ3's delay stays, with a
+        # warning that says so.
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nD2,К555АП5,,20,10,20,,,\n",
+                    "A,D1,1,,1,\nB,D1,2,,1,\nE,D2,1,,1,\nB,D2,2,,1,\nY,D2,18,,1,\n",
+                    modules=(INVERTER, BUFFER, DELAY_BANK))
+        f.write("delays.csv", "type,ns,source\nК555ЛН1,20,a datasheet\nКР1533ЛН1,30,a datasheet\n"
+                              "К555АП5,20,a datasheet\n")
+        f.write("fitted.csv", "ref,type\nD1,КР1533ЛН1\nD2,КР1533АП5\n")
+        with f.dir as d:
+            text, problems = board.generate(board.Sources(
+                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+                nets=os.path.join(d, "nets.csv"), changes=None,
+                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"),
+                delays=os.path.join(d, "delays.csv"), fitted=os.path.join(d, "fitted.csv")))
+        self.assertEqual(errors(problems), [])
+        self.assertIn("delay_bank #(.TICKS(4), .W(2)) b4_4_0 (.clk(clk), .i({r_D1_p2, r_D1_p4}), "
+                      ".o({d_D1_p2, d_D1_p4}));", text)
+        self.assertIn("delay_bank #(.TICKS(2), .W(2)) b2_2_0 (.clk(clk), .i({r_D2_p18, r_D2_p18_oe}), "
+                      ".o({d_D2_p18, d_D2_p18_oe}));", text)
+        self.assertTrue(any("D2" in w.text and "КР1533АП5" in w.text for w in problems if not w.error))
+
     def corner(self, name):
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "delays-max.csv")

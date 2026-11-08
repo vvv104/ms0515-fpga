@@ -58,3 +58,5 @@ type,ns,oe_ns,off_ns,path,kind,source
 КР580ВВ55А,model,,,its bus timing (docs/vv55.md),model,docs/vv55.md
 КР580ВВ51А,model,,,its bus timing (docs/vv51.md),model,docs/vv51.md
 КР1818ВГ93,model,,,its bus timing (docs/vg93.md),model,docs/vg93.md
+КР1533ЛА3,6,,,A/B->Y,mid,"TI SN74ALS00A SDAS187A p.3 (min 3/2, max 11/8 at CL 50 pF, RL 500 Ohm, 4.5-5.5 V; no typical printed: the midpoints' mean), https://www.ti.com/lit/ds/symlink/sn74als00a.pdf"
+КР1533ИЕ10,11.5,,,CLK->Q,mid,"TI SN74ALS161B SDAS276A p.8 (CLK->any Q min 4/6, max 15/20; no typical printed: the midpoints' mean), https://www.ti.com/lit/ds/symlink/sn74als161b.pdf"

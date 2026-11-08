@@ -1,0 +1,15 @@
+# The chips the 1991 run of the board carries where ПЭ3's type was substituted
+# (netlist/fitted-others.csv - Frolov's and Radon17's boards, the ones that
+# draw as Э3 is drawn), for tools/board.py's fitted delays: a ref's delay is
+# its fitted type's where delays.csv has it, else ПЭ3's type's with a warning.
+# Only the 640 x 200 edge's path is here so far (docs/findings.md 6b); the
+# other КР1533 substitutes of fitted-others.csv wait for their rows in
+# delays.csv.
+ref,type
+D14,КР1533ЛА3
+D66,КР1533ЛА3
+D29,КР1533ИЕ10
+D30,КР1533ИЕ10
+D36,КР1533ИЕ10
+D37,КР1533ИЕ10
+D42,КР1533ИЕ10
