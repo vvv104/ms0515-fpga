@@ -21,7 +21,7 @@ D9,КР580ВИ53,КР580ВИ53,9107,read,04,
 D10,К555ТМ9,КР1533ТМ9,9001,read,04,substitute
 D11,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
 D12,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
-D13,КР556РТ12,,,unread,04,a paper label over the marking; the other PROM's says «СТРВ» - which of the two is this one is asked
+D13,КР556РТ12,КР556РТ12,,part,04,paper label «КДРВ» over the marking (the owner reads it; ПЭ3's note: D13 КДРВ) - the left of the two
 D14,К555ЛА3,КР1533ЛА3,9002,read,04,substitute - in the 640 x 200 edge's path (docs/findings.md 6b)
 D15,К555ЛН1,КР1533ЛН1,8911,read,04,substitute
 D16,К555ИЕ19,К555ИЕ19,9009,read,04,
@@ -29,7 +29,7 @@ D17,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
 D18,КР565РУ5Г,КР565РУ5Г,,part,04,see D2
 D19,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
 D20,КР1102АП15,,,unread,04,under the module's edge; an 8-pin DIP is there
-D21,КР556РТ12,КР556РТ12,,part,04,paper label «СТР В» (СТРВ = D21 by ПЭ3's note) - if the labels are on the right chips
+D21,КР556РТ12,КР556РТ12,,part,04,paper label «СТРВ» (ПЭ3's note: D21 СТРВ) - the right of the two
 D22,КР580ВВ51А,КР580ВВ51А,9004,read,04,
 D23,КР531ЛЕ1,КР531ЛЕ1,8803,read,04,ПЭ3's type; the power table said К555ЛЕ1 (docs/findings.md)
 D24,КР531ТМ2,КР531ТМ2,9004,read,04,
@@ -47,7 +47,7 @@ D35,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
 D36,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute
 D37,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute
 D38,КР580ВВ51А,КР580ВВ51А,9004,read,04,
-D39,К555ЛП5,К555ЛП5,,part,04,date not read
+D39,К555ЛП5,К555ЛП5,,read,04,no date on the package (the owner: the dark mark is a wiped place with nothing under it)
 D40,К555ТМ8,КР1533ТМ8,9002,read,04,substitute
 D41,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
 D42,К555ИЕ10,КР1533ИЕ10,8910,read,04,substitute
@@ -57,7 +57,7 @@ D45,КР565РУ5Г,КР565РУ5Г,,part,04,see D3
 D46,К555ИЕ19,К555ИЕ19,9009,read,04,
 D47,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
 D48,КР559ИП11,КР559ИП11,,part,04,under the module's edge; type read
-D49,К555ИР16,К555ИР16,9010,read,close-up,the four ИР16 all К555 9010; which is which not told apart
+D49,К555ИР16,К555ИР16,9010,read,close-up,the four ИР16 all К555 (the owner: as on Radon17's board); 9010 on the close-up; which is which not told apart
 D50,К555ИР16,К555ИР16,9010,read,close-up,see D49
 D51,К555ИР23,КР1533ИР23,9010,read,04,substitute
 D52,К555АП5,К555АП5,8911,read,04,«203» on the package
@@ -71,13 +71,13 @@ D59,К555ИЕ19,К555ИЕ19,9009,read,04,
 D60,К555ТМ2,КР1533ТМ2,9002,read,04,substitute
 D61,К555КП2,К555КП2,9008,read,04,
 D62,К555КП2,К555КП2,9008,read,04,
-D63,К555КП2,,,unread,close-up,one of D63/D69 is К555КП2 9008 and the other КР1533КП2 9106 - which is asked
+D63,К555КП2,КП2,,part,close-up,one of D63/D69 is К555КП2 9008 and the other КР1533КП2 9106 (the close-up); which is which the photographs do not tell
 D64,К555ЛН2,К555ЛН2,0784,read,04,brown ceramic package «К 555ЛН2 0784»
 D65,К573РФ4Б,К573РФ4А,9004,read,04,РФ4А where ПЭ3 says РФ4Б; paper label (ROM-B, replaced - docs/findings.md)
 D66,К555ЛА3,КР1533ЛА3,9002,read,04,substitute
 D67,К555КП2,К555КП2,9008,read,04,
 D68,К555КП2,К555КП2,9008,read,04,
-D69,К555КП2,,,unread,close-up,see D63
+D69,К555КП2,КП2,,part,close-up,see D63
 D70,К555КП11,К555КП11,9006,read,04,pin 15 lifted and on GND (docs/findings.md)
 D71,К555ЛИ6,К555ЛИ6,9008,read,04,«29» on the package
 D72,К555ЛЛ1,К555ЛЛ1,8906,read,04,
@@ -93,7 +93,7 @@ D81,К555ЛА13,К555ЛА13,9001,part,04,one of D81/D93 read as «555ЛА13 Δ 9
 D82,КР580ВВ55А,КР580ВВ55А,9010,read,04,
 D83,КР1807ВМ1,КР1807ВМ1,9106,read,04,
 D84,К555ЛЛ1,К555ЛЛ1,8906,read,04,
-D85,К555ЛИ3,,,unread,04,the marking's end hidden; asked
+D85,К555ЛИ3,К555ЛИ3,9006/9008,part,04,the owner reads the date as 9006 or 9008
 D86,К555КП15,КР1533КП15,9003,read,04,substitute
 D87,К555КП2,К555КП2,9008,read,04,
 D88,К555ЛА2,КР1533ЛА2,8909,read,04,substitute
@@ -112,3 +112,5 @@ DA1,НР1-11А,НР1-11-3-15 1 кОм ±5 %,8908,read,04,
 DA2,НР1-11А,НР1-11-3-15 10 кОм ±5 %,9011,read,04,
 VT1,КТ677АС,,,unread,04,under the module's edge
 VT2,КТ676АС,,,unread,04,under the module's edge
+BQ1,РК 353БВ-11А4 8 МГц,«8000 / ЕГН (or КГН) / 4184»,4184,read,04,the owner reads the can by D15: 8000 kHz, the type's letters, week 41 of 1984
+BQ2,РК 169МА-6АН 15 МГц,,,unread,04,the can by D91 at the board's right edge; asked
