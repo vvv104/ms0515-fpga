@@ -515,6 +515,29 @@ the 40 ns typical stands); D70's inputs as drawn (pins 2/3, 5/6,
 (640 x 200 407 samples, 320 x 200 broken). The `video: Э3's board
 draws 640 x 200` test is may_fail again.
 
+**The race by corner, with C70** (2026-11-09; `run_board 401 ...
+rom=firmware/tests/vid640.rom drawn edges=400000-400200`, master ticks
+of 8.33 ns from D14.3's fall, the step being the ТС15 H rise that ends
+`СТРОБ`).  The line's first shift must come on the second ТС15 H rise
+after the step; on the first, D70 is still off.
+
+| corner | D70's outputs on | `ВК2` falls | which rise | picture |
+|---|---|---|---|---|
+| min | +1 (`ВК4` falls alone) | +5 | second: shifts | right |
+| typ | +2 | +2, with `ВК4` | second: loads | first word a point late |
+| max | +4 (`ВК4` falls alone) | +6 | third: shifts | first word a point late |
+
+At max D70 comes on so late that it lands past the clock's low half,
+in its next high half.  The first fall then shifts the held word, one
+rise late.  The test passes there only because a corner compares with
+one sample of slack (`screen_compare.h`, `slack`).  So with C70 Э3's
+640 x 200 is right only when the chain from D30 to D70's enable is
+about 20 ns faster than the typical figures, as the min corner's
+(MIN_SHARE) is.  On Э3, C70 is one of two such capacitors on D21's
+open-collector outputs, beside C35 (68 pF on `СГИ L`).  Most likely
+they filter out the PROM's glitches as its address changes; they are
+not timing parts.
+
 **C70 on the boards seen** (2026-11-04).  The owner's board has none:
 two pads where the drawing puts it, by D85 towards D84, with C69 and
 C73 fitted beside them - solder on both pads with the leads' stubs in
