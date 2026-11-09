@@ -509,8 +509,13 @@ D70's enable at 11.5 (D30, КР1533ИЕ10) + 40 (D21, КР556РТ12) + 23 (the
 RC) + 6 (D14, КР1533ЛА3) + 17 (D70's enable, К555КП11) = 97.5 ns; the
 clock's fall it must precede at 66.7 + 9.5 (D31, К555ЛА4) + 9 (D70) =
 85.2 ns - 12 ns short before any setup.  Looked at and not it: the
-PROM (the Soviet tables give КР556РТ12 60 ns, the 82S136's maximum -
-the 40 ns typical stands); D70's inputs as drawn (pins 2/3, 5/6,
+PROM (the Soviet tables give КР556РТ12 60 ns, the 82S136's maximum;
+AMD's Am27S32, the same 1024 x 4 open-collector part, prints 38 ns
+typical, 55 maximum, with 30 pF and its strong test pull-up, so the
+40 ns typical stands, and the board's 1 kOhm pull-up is slower than the
+test load, not faster); D70 (the К555КП11 sheet, eandc: data to output
+18 ns, off to on 30 ns, both maximum - the model's 9 and 17 are already
+about half); D70's inputs as drawn (pins 2/3, 5/6,
 11/10, SEL, EO checked on Э3 again); the undriven MODE line read low
 (640 x 200 407 samples, 320 x 200 broken). The `video: Э3's board
 draws 640 x 200` test is may_fail again.
