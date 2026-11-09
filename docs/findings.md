@@ -538,7 +538,36 @@ rise late.  The test passes there only because a corner compares with
 one sample of slack (`screen_compare.h`, `slack`).  So with C70 Э3's
 640 x 200 is right only when the chain from D30 to D70's enable is
 about 20 ns faster than the typical figures, as the min corner's
-(MIN_SHARE) is.  On Э3, C70 is one of two such capacitors on D21's
+(MIN_SHARE) is.
+
+**The race in continuous time** (2026-11-09, ngspice from KiCad, a
+one-off deck not kept).  To rule out the 8.33 ns grid, the race's nets
+were simulated as analog nets, the chips' own delays taken as delays:
+- `БОРДС L`: D21's open collector, R39 1 kOhm, C70, 15..35 pF of
+  wiring, the inputs D73, D79 and D85 (LS: a Schottky diode from a 20 k
+  base node clamped near 2 Vbe) and D14.1 (ALS: 50 k, near 3 Vbe).
+- `ВК4`: four LS MODE inputs, floating while D70 is off (1.23 V).
+- `ВК2`: R26 1 kOhm and two LS clock inputs.
+
+Each driver's internal delay was calibrated to its typical figure on
+the datasheet's test load:
+- the PROM: Am27S32, 38 ns to 1.5 V with 300/600 Ohm and 30 pF, which
+  gives 33 ns;
+- the К555КП11: off to low 17 ns with 667 Ohm and 45 pF, giving 14.5;
+  data 9 ns with 2 k and 15 pF, giving 7.6.
+
+Times are from the step; ВК2's data fall is at 85.8 ns.
+
+| C70 | wiring | БОРДС L at 1.4 V | ВК4 below 1.1 V | ВК2 below 1.1 V |
+|---|---|---|---|---|
+| none | 15..35 pF | 54..58 ns | 75..79 | 85.8 (the data's fall: shifts, 6..11 ns of MODE setup) |
+| 100 pF | 15..35 pF | 77..82 | 98..103 | 100..105 (D70's enable itself: loads) |
+
+So the grid is not it: in continuous time C70 adds ~23 ns, as computed,
+and D70 comes on ~13..17 ns after the clock's fall it must precede.
+Without C70 the setup MODE gets is 6..11 ns, under the sheet's 20.
+
+On Э3, C70 is one of two such capacitors on D21's
 open-collector outputs, beside C35 (68 pF on `СГИ L`).  Most likely
 they filter out the PROM's glitches as its address changes; they are
 not timing parts.
