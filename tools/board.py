@@ -265,6 +265,20 @@ def setup_ticks(chip, corner):
     return max(1, int(ns / TICK_NS + 0.5))
 
 
+# Parts the owner's board lacks, with the switch that picks his board
+# (netlist/vvv104.csv): C70 is bitten off there (the leads' stubs in the
+# pads, docs/findings.md "C70 on the boards seen"), D70.15 on GND beside
+# it - one switch, 1 for the board as drawn, carries both.
+OWNER_LACKS = {"C70": ("D70", 15)}
+
+
+def rc_ticks(spec, corner):
+    """The rise of an "rc" net at a corner, in master ticks: spec is the
+    analog.csv row's pins column, the rise in ns as typ/min/max."""
+    typ, low, high = (float(v) for v in spec.split("/"))
+    return delay_ticks({"typ": typ, "min": low, "max": high}[corner], False)
+
+
 def corner_delays(typ, path, corner):
     """The delays of a corner (docs/timing.md): "typ" the table as it is;
     "max" the maximums of delays-max.csv where it gives them; "min" its
@@ -431,6 +445,8 @@ class Builder:
         self.joins = Joins()
         self.nets = {}
         self.instances = []     # (ref, module, [(port, expr)], {parameter: value})
+        self.rc = {}            # net: the ticks its rising edge comes late (an "rc" part)
+        self.rc_assigns = []    # an rc net on the owner's board's switch: its level
         self.ports = []         # brought-out inputs, in order
         self.out = []           # (ref, why) parts brought out
         self.wires = []         # internal driver wires
@@ -565,6 +581,31 @@ class Builder:
         self.lines.append((ticks, raw, wire))
         return raw
 
+    def place_rc(self, ref, t):
+        """A capacitor to ground on an open-collector net with a pull-up:
+        the net rises late by its RC to the inputs' threshold (analog.csv's
+        figure for the corner) and falls at once, the output sinking it.
+        The net's level goes through a delay line of its own."""
+        nets = [n for n in self.pins.get(ref, {}).values() if n not in POWER]
+        if len(nets) != 1:
+            self.problems.error(f"{ref}: an rc part wants one signal net, has {nets}")
+            return
+        net = nets[0]
+        ticks = rc_ticks(t.pins, self.corner)
+        if ticks == 0:
+            return
+        self.rc[net] = ticks
+        raw = "c_" + ident(net)
+        self.wires.append(raw)
+        lacks = OWNER_LACKS.get(ref)
+        if lacks in self.switches:
+            switch, slow = f"s_{lacks[0]}_{lacks[1]}", "cs_" + ident(net)
+            self.wires.append(slow)
+            self.lines.append(((ticks, 0), raw, slow))
+            self.rc_assigns.append(f"    assign {ident(net)} = {switch} ? {slow} : {raw};")
+        else:
+            self.lines.append(((ticks, 0), raw, ident(net)))
+
     def place_crystal(self, ref, part):
         """A crystal and its oscillator: a square wave on pin 1, the one
         facing the gate's input; pin 2 faces the gate's output and is left.
@@ -655,6 +696,8 @@ class Builder:
                 self.place_crystal(ref, part)
             elif t.kind == "detector":
                 self.place_detector(ref, t)
+            elif t.kind == "rc":
+                self.place_rc(ref, t)
             elif t.kind not in ("short", "wire", "open"):
                 self.problems.error(f"{ref}: unknown treatment '{t.kind}'")
         return self
@@ -769,7 +812,8 @@ def emit(b, levels, busy, outputs=None):
             outs = ", ".join(to for _, _, to in chunk)
             lines.append(f"    delay_bank #({params}) {name} (.clk(clk), .i({{{ins}}}), .o({{{outs}}}));")
     lines.append("")
-    lines += [f"    assign {ident(n)} = {levels[n]};" for n in nets]
+    lines += [f"    assign {('c_' if n in b.rc else '') + ident(n)} = {levels[n]};" for n in nets]
+    lines += b.rc_assigns
     lines += [f"    assign contention_at[{i}] = {busy[n]};" for i, n in enumerate(fought)]
     if outputs is None:
         lines.append(f"    assign contention = {'|contention_at' if fought else ZERO};")
@@ -886,6 +930,10 @@ def generate_machine(src, inputs, outputs):
     if any(p.error for p in b.problems):
         return "", b.problems
     nets, insts, wires = machine_live(b, levels, [by_ident[o] for o in outputs if o in by_ident])
+    for n in b.rc:                      # an rc net's level runs through its own delay line
+        if n in nets:
+            wires.update({"c_" + ident(n), "cs_" + ident(n)})
+    b.rc_assigns = [a for a in b.rc_assigns if a.split()[1] in {ident(n) for n in nets}]
     unused = []
     instances = []
     for i, (ref, module, conns, values) in enumerate(b.instances):

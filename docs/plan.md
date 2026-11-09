@@ -77,13 +77,12 @@ to any one board.  From stage 6 on there are two projects:
    none does, the place does not matter to the machine and is marked so.
    The factory wires all match Э3; the bare wire on the owner's board (GND
    to the lifted D70.15) is in `vvv104.csv`.
-   **The stopper, settled** (owner, 2026-11-05; settled 2026-11-08): Э3's
-   board as drawn did not draw the emulator's picture - 640 x 200's left
-   edge, the frame's first word.  The model was wrong (the chips as
-   fitted, the К555ИР16's setup by corner) and the frame's first word is
-   the board's own, word 8000, now drawn by the emulator too
-   (`docs/findings.md`, D70, "Settled"; the two `video: Э3's board ...`
-   tests pass at every corner).
+   **Open, and the stopper** (owner, 2026-11-05): Э3's board as drawn
+   does not draw the emulator's picture - 640 x 200's left edge, with
+   C70 modelled (2026-11-09) one point late again; the frame's first
+   word is the board's own (word 8000), and 320 x 200 is right
+   (`docs/findings.md`, D70; the `video: Э3's board draws 640 x 200`
+   test may_fail).
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.

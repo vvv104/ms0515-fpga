@@ -453,8 +453,9 @@ race, and they did not: something in the model or in the reading of
 the board is still off.  Being looked for; until found, nothing of this
 goes into the tests as a property of the schematic.
 
-**Settled, 2026-11-08: Э3's board draws the emulator's picture.**  Three
-things were wrong in the model, none in the schematic:
+**2026-11-08: three things were wrong in the model** - and the board
+then drew the emulator's picture, but without C70, which the model had
+left out (below, "C70 modelled"):
 
 1. **The chips.**  The boards the plant made carry КР1533 where ПЭ3 says
    К555 (`netlist/fitted.csv`, the owner's 1990 board; `fitted-others.csv`,
@@ -493,8 +494,26 @@ things were wrong in the model, none in the schematic:
    8000 is as the screen's clear left it, and the corner looks like the
    rest - the serial machines' screens were clean.
 
-The two `video: Э3's board ...` tests pass and are no longer may_fail,
-at every corner.  The owner's board (D70.15 on GND) draws as before.
+**C70 modelled, 2026-11-09: 640 x 200 open again.**  C70 (100 pF on
+`БОРДС L`) is on Э3 and fitted on Frolov's board; the model had it
+"open".  It is now an "rc" part (`netlist/analog.csv`; off on the
+owner's board, where it is bitten off): R39 (1 kOhm) charges C70 and
+~25 pF of pins and wiring from the PROM's low (0.35 V) to D14.1's
+threshold (1.4 V), the three LS inputs on the net adding their input
+current - 23 ns later than without it (16 at min, 31 at max).  With it
+320 x 200 stays right and 640 x 200 loses the edge again (`vid640` 1310
+samples): D70 comes on 2 ticks after the clock's fall it has to
+precede, the enable's own edge loads, and the line's first word is one
+point late.  The ledger, from the ТС15 H rise that steps D30 to 0:
+D70's enable at 11.5 (D30, КР1533ИЕ10) + 40 (D21, КР556РТ12) + 23 (the
+RC) + 6 (D14, КР1533ЛА3) + 17 (D70's enable, К555КП11) = 97.5 ns; the
+clock's fall it must precede at 66.7 + 9.5 (D31, К555ЛА4) + 9 (D70) =
+85.2 ns - 12 ns short before any setup.  Looked at and not it: the
+PROM (the Soviet tables give КР556РТ12 60 ns, the 82S136's maximum -
+the 40 ns typical stands); D70's inputs as drawn (pins 2/3, 5/6,
+11/10, SEL, EO checked on Э3 again); the undriven MODE line read low
+(640 x 200 407 samples, 320 x 200 broken). The `video: Э3's board
+draws 640 x 200` test is may_fail again.
 
 **C70 on the boards seen** (2026-11-04).  The owner's board has none:
 two pads where the drawing puts it, by D85 towards D84, with C69 and
@@ -585,8 +604,8 @@ first line's first word alone, i.e. right):
 
 No reading draws both modes right; in 640 x 200 only MODE read low (or
 held) moves the left edge right.  Whether a board can read it so was
-then computed, not guessed
-([evidence/d70-left-edge/float_net.py](evidence/d70-left-edge/float_net.py)).
+then computed, not guessed (a one-off integration of the net, not
+kept; its model and figures follow).
 An LS input is a Schottky diode under R1 (11..20 kOhm from +5 V, the
 data sheets' I_IL 0.2..0.4 mA); left alone it sources current into the
 net until R1's node reaches the two base-emitter drops it feeds, and

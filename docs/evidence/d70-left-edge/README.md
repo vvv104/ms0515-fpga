@@ -1,10 +1,10 @@
 # The left edge of a 640 x 200 line: D70, БОРДС L and C70
 
-**Settled 2026-11-08** - the model was wrong: the chips as fitted (КР1533
-at D30 and D14) and the К555ИР16's MODE setup taken by corner, not at the
-sheet's guaranteed maximum against typical delays.  The frame's first
-word is the board's own, word 8000.  `docs/findings.md`, D70,
-"Settled, 2026-11-08".  What follows is the question as it was put.
+**Still open** (2026-11-09): the chips as fitted and the К555ИР16's MODE
+setup by corner won the edge without C70; with C70 modelled it is 12 ns
+short again.  The frame's first word is the board's own, word 8000.
+`docs/findings.md`, D70, "C70 modelled".  What follows is the question
+as it was put.
 
 Gathered for the owners of working MS 0515 machines (zx-pk.ru), so that
 everything the question rests on can be looked at in one place.  The
@@ -133,8 +133,8 @@ the same in ns from the data sheets):
   | last, last | no | 7 | 707 |
 
   No reading draws both modes right; only MODE read low (or held) turns
-  640 x 200 right.  Whether a real board can read it so is computed in
-  `float_net.py` (this folder): an LS input is a Schottky diode under a
+  640 x 200 right.  Whether a real board can read it so was computed (a
+  one-off integration, not kept): an LS input is a Schottky diode under a
   resistor from +5 V; left alone it sources current into the net until
   the gate sees 1.  Four inputs on 30..80 pF, D70's off-state leakage
   pulling down: released low, the net reads 1 after 15..80 ns and

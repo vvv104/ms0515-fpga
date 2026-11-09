@@ -697,6 +697,8 @@ module ns4 (
 );
     logic d_BQ1_p1;
     logic d_BQ2_p1;
+    logic c_n_BORDS_L;
+    logic cs_n_BORDS_L;
     logic d_D1_p7;
     logic d_D1_p7_oe;
     logic d_D1_p8;
@@ -4749,6 +4751,7 @@ module ns4 (
     );
 
     // the chips' propagation delays (netlist/delays.csv), a bank for the outputs of one delay
+    delay_bank #(.TICKS(3), .FALL(0), .W(1)) b3_0_0 (.clk(clk), .i({c_n_BORDS_L}), .o({cs_n_BORDS_L}));
     delay_bank #(.TICKS(13), .W(16)) b13_13_0 (.clk(clk), .i({r_D2_p14, r_D3_p14, r_D5_p14, r_D6_p14, r_D11_p14, r_D12_p14, r_D18_p14, r_D19_p14, r_D26_p14, r_D27_p14, r_D34_p14, r_D35_p14, r_D44_p14, r_D45_p14, r_D53_p14, r_D54_p14}), .o({d_D2_p14, d_D3_p14, d_D5_p14, d_D6_p14, d_D11_p14, d_D12_p14, d_D18_p14, d_D19_p14, d_D26_p14, d_D27_p14, d_D34_p14, d_D35_p14, d_D44_p14, d_D45_p14, d_D53_p14, d_D54_p14}));
     delay_bank #(.TICKS(13), .FALL(6), .W(16)) b13_6_0 (.clk(clk), .i({r_D2_p14_oe, r_D3_p14_oe, r_D5_p14_oe, r_D6_p14_oe, r_D11_p14_oe, r_D12_p14_oe, r_D18_p14_oe, r_D19_p14_oe, r_D26_p14_oe, r_D27_p14_oe, r_D34_p14_oe, r_D35_p14_oe, r_D44_p14_oe, r_D45_p14_oe, r_D53_p14_oe, r_D54_p14_oe}), .o({d_D2_p14_oe, d_D3_p14_oe, d_D5_p14_oe, d_D6_p14_oe, d_D11_p14_oe, d_D12_p14_oe, d_D18_p14_oe, d_D19_p14_oe, d_D26_p14_oe, d_D27_p14_oe, d_D34_p14_oe, d_D35_p14_oe, d_D44_p14_oe, d_D45_p14_oe, d_D53_p14_oe, d_D54_p14_oe}));
     delay_bank #(.TICKS(2), .W(64)) b2_2_0 (.clk(clk), .i({r_D4_p2, r_D4_p4, r_D4_p6, r_D4_p8, r_D4_p10, r_D4_p12, r_D8_p2, r_D8_p4, r_D8_p6, r_D8_p8, r_D8_p10, r_D8_p12, r_D32_p5, r_D32_p6, r_D39_p3, r_D39_p6, r_D39_p8, r_D39_p11, r_D52_p18_oe, r_D52_p16_oe, r_D52_p14_oe, r_D52_p12_oe, r_D52_p9_oe, r_D52_p7_oe, r_D52_p5_oe, r_D52_p3_oe, r_D58_p18_oe, r_D58_p16_oe, r_D58_p14_oe, r_D58_p12_oe, r_D58_p9_oe, r_D58_p7_oe, r_D58_p5_oe, r_D58_p3_oe, r_D61_p7, r_D61_p9, r_D62_p7, r_D62_p9, r_D63_p7, r_D63_p9, r_D64_p2, r_D64_p4, r_D64_p6, r_D64_p8, r_D64_p10, r_D64_p12, r_D67_p7, r_D67_p9, r_D68_p7, r_D68_p9, r_D69_p7, r_D69_p9, r_D70_p4_oe, r_D70_p7_oe, r_D70_p9_oe, r_D70_p12_oe, r_D72_p3, r_D72_p6, r_D72_p8, r_D72_p11, r_D74_p3, r_D74_p6, r_D74_p8, r_D74_p11}), .o({d_D4_p2, d_D4_p4, d_D4_p6, d_D4_p8, d_D4_p10, d_D4_p12, d_D8_p2, d_D8_p4, d_D8_p6, d_D8_p8, d_D8_p10, d_D8_p12, d_D32_p5, d_D32_p6, d_D39_p3, d_D39_p6, d_D39_p8, d_D39_p11, d_D52_p18_oe, d_D52_p16_oe, d_D52_p14_oe, d_D52_p12_oe, d_D52_p9_oe, d_D52_p7_oe, d_D52_p5_oe, d_D52_p3_oe, d_D58_p18_oe, d_D58_p16_oe, d_D58_p14_oe, d_D58_p12_oe, d_D58_p9_oe, d_D58_p7_oe, d_D58_p5_oe, d_D58_p3_oe, d_D61_p7, d_D61_p9, d_D62_p7, d_D62_p9, d_D63_p7, d_D63_p9, d_D64_p2, d_D64_p4, d_D64_p6, d_D64_p8, d_D64_p10, d_D64_p12, d_D67_p7, d_D67_p9, d_D68_p7, d_D68_p9, d_D69_p7, d_D69_p9, d_D70_p4_oe, d_D70_p7_oe, d_D70_p9_oe, d_D70_p12_oe, d_D72_p3, d_D72_p6, d_D72_p8, d_D72_p11, d_D74_p3, d_D74_p6, d_D74_p8, d_D74_p11}));
@@ -4817,7 +4820,7 @@ module ns4 (
     assign n_BANK7_H = d_D85_p8;
     assign n_BLNK_H = d_D55_p10_oe ? d_D55_p10 : 1'b1;
     assign n_BORDK_L = d_D13_p14;
-    assign n_BORDS_L = d_D21_p14;
+    assign c_n_BORDS_L = d_D21_p14;
     assign n_CHT51_L = d_D79_p11;
     assign n_CHTMAG_H = 1'b0;
     assign n_CHTN_H = q_x_XP4_p30_oe ? q_x_XP4_p30 : 1'b1;
@@ -5256,6 +5259,7 @@ module ns4 (
     assign nx_VD17_1 = 1'b1;
     assign nx_XP5_3 = q_x_XP5_p3_oe ? q_x_XP5_p3 : 1'b0;
     assign nx_XP5_6 = q_x_XP5_p6_oe ? q_x_XP5_p6 : 1'b0;
+    assign n_BORDS_L = s_D70_15 ? cs_n_BORDS_L : c_n_BORDS_L;
     assign contention_at[0] = (d_D92_p2_oe & q_x_XS1_p3_oe);
     assign contention_at[1] = (d_D92_p5_oe & q_x_XS1_p4_oe);
     assign contention_at[2] = (d_D92_p6_oe & q_x_XS1_p5_oe);

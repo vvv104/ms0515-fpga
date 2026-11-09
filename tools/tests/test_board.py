@@ -713,5 +713,24 @@ class Setup(unittest.TestCase):
         self.assertIsNone(board.setup_ticks("К555ЛА3", "typ"))
 
 
+class RcEdge(unittest.TestCase):
+    # A capacitor on an open-collector net with a pull-up ("rc" in
+    # analog.csv, its rise in ns as typ/min/max): the net's rising edge
+    # comes that much later, its falling edge - the output sinking - at once.
+    def test_the_rise_follows_the_corner(self):
+        self.assertEqual(board.rc_ticks("23/16/31", "typ"), 3)
+        self.assertEqual(board.rc_ticks("23/16/31", "min"), 2)
+        self.assertEqual(board.rc_ticks("23/16/31", "max"), 4)
+
+    def test_c70_delays_the_rise_of_bords_on_the_board(self):
+        text, problems, _ = board.generate_all(board.ns4_sources())
+        self.assertEqual(errors(problems), [])
+        self.assertRegex(text, r"delay_bank #\(\.TICKS\(3\), \.FALL\(0\), \.W\(1\)\) \w+ "
+                               r"\(\.clk\(clk\), \.i\(\{c_n_BORDS_L\}\), \.o\(\{cs_n_BORDS_L\}\)\);")
+        self.assertIn("assign c_n_BORDS_L = ", text)
+        # the owner's board has no C70: its switch takes the edge straight
+        self.assertIn("assign n_BORDS_L = s_D70_15 ? cs_n_BORDS_L : c_n_BORDS_L;", text)
+
+
 if __name__ == "__main__":
     unittest.main()

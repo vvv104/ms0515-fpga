@@ -728,13 +728,12 @@ The owner's board first (`docs/plan.md` 8d).
    either way, so the 50 Hz change (item 12) touches no copper.  Then
    the DRC of the routed board, the silkscreen's warnings, Э3's board
    from it.
-6. Э3's board, stage 6b - **settled** (2026-11-08): it draws 320 x 200
-   and 640 x 200 as the emulator to the point at every corner, with the
-   chips as fitted (`netlist/fitted-1991.csv`, the generator's default),
-   the К555ИР16's MODE setup by corner (`tools/board.py`, `SETUP_NS`) and
-   the frame's first word the board's own - word 8000, held through the
-   frame's border, which the emulator now draws too (`docs/findings.md`,
-   "Settled, 2026-11-08").
+6. Э3's board, stage 6b - **open**: with the chips as fitted, the
+   К555ИР16's MODE setup by corner and the frame's first word the
+   board's own (word 8000, drawn by the emulator too) it drew both modes
+   right - without C70.  C70 modelled (2026-11-09), 640 x 200's left
+   edge is one point late again: D70's enable 12 ns after the clock's
+   fall it must precede (`docs/findings.md`, D70, "C70 modelled").
 7. The cell 000:000 at max from an unseeded power-up (step 6, the games
    diskette's boot): 900 reads of it not as written, where ОСА's run
    had 2.  Looked into: the bench's watch took the strobes standing low
