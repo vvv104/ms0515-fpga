@@ -1,10 +1,11 @@
 # The left edge of a 640 x 200 line: D70, БОРДС L and C70
 
-**Still open** (2026-11-09): the chips as fitted and the К555ИР16's MODE
-setup by corner won the edge without C70; with C70 modelled it is 12 ns
-short again.  The frame's first word is the board's own, word 8000.
-`docs/findings.md`, D70, "C70 modelled".  What follows is the question
-as it was put.
+**Closed with a fitted speed** (2026-11-09): with C70 modelled the
+typical chain is ~12 ns short; Э3's board now takes the serial chain's
+speed (D30/D21/D14/D70 at 0.55, fitted, not measured) and draws the
+edge as the emulator.  A measured serial board would prove or replace
+the figure.  `docs/findings.md`, D70, "Э3's board with the serial
+chain's speed".  What follows is the question as it was put.
 
 Gathered for the owners of working MS 0515 machines (zx-pk.ru), so that
 everything the question rests on can be looked at in one place.  The

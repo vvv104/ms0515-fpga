@@ -271,6 +271,16 @@ def setup_ticks(chip, corner):
 # it - one switch, 1 for the board as drawn, carries both.
 OWNER_LACKS = {"C70": ("D70", 15)}
 
+# Э3's board as the serial boards drew it: with C70 on БОРДС L the chain from
+# D30's step to D70's enable loses 640 x 200's left-edge race at the typical
+# figures - in continuous time too (docs/findings.md, D70, "The race in
+# continuous time") - and the serial boards drew the left edge clean.  So
+# their chain was faster: these chips' delays are taken at this share of the
+# corner's on Э3's board, the owner's keeping them (D70.15's switch).  The
+# share is fitted, not measured: the middle of the race's window.
+SERIAL_SPEED = {"D30": 0.55, "D21": 0.55, "D14": 0.55, "D70": 0.55}
+SERIAL_SWITCH = ("D70", 15)
+
 
 def rc_ticks(spec, corner):
     """The rise of an "rc" net at a corner, in master ticks: spec is the
@@ -447,6 +457,7 @@ class Builder:
         self.instances = []     # (ref, module, [(port, expr)], {parameter: value})
         self.rc = {}            # net: the ticks its rising edge comes late (an "rc" part)
         self.rc_assigns = []    # an rc net on the owner's board's switch: its level
+        self.switched = {}      # a chip output on SERIAL_SWITCH: its wire's raw (r_...)
         self.ports = []         # brought-out inputs, in order
         self.out = []           # (ref, why) parts brought out
         self.wires = []         # internal driver wires
@@ -500,6 +511,9 @@ class Builder:
         if "clk" in module.ports:
             conns.append(("clk", "clk"))
         ticks, oe_ticks = self.ticks_of(ref, part, "clk" in module.ports)
+        fast, fast_oe = None, None
+        if ref in SERIAL_SPEED and SERIAL_SWITCH in self.switches:
+            fast, fast_oe = self.ticks_of(ref, part, "clk" in module.ports, SERIAL_SPEED[ref])
         for port, way in module.ports.items():
             if port.startswith("load_") and way == "input":    # a socket: its cells loaded
                 name = f"l_{ref}_{port[5:]}"
@@ -527,10 +541,10 @@ class Builder:
                 conns.append((port, self.read(name, ref, pin)))
                 continue
             wire = f"d_{ref}_{port}"
-            conns.append((port, self.delayed(wire, ticks)))
+            conns.append((port, self.delayed(wire, ticks, fast)))
             net = self.net(name)
             if port + "_oe" in module.ports:
-                conns.append((port + "_oe", self.delayed(wire + "_oe", oe_ticks)))
+                conns.append((port + "_oe", self.delayed(wire + "_oe", oe_ticks, fast_oe)))
                 net.tri.append((wire, wire + "_oe"))
             elif module.open_collector:
                 net.oc.append(wire)
@@ -547,10 +561,11 @@ class Builder:
             values["SETUP"] = setup
         self.instances.append((ref, module.name, conns, values))
 
-    def ticks_of(self, ref, part, clocked):
+    def ticks_of(self, ref, part, clocked, share=1.0):
         """The master ticks a chip's outputs lag by, and its output enables
-        as they turn on and off (delays.csv): (rise, fall) pairs.  None
-        without the file, and none for a chip whose model keeps its own."""
+        as they turn on and off (delays.csv): (rise, fall) pairs, of share
+        of the delays.  None without the file, and none for a chip whose
+        model keeps its own."""
         none = ((0, 0), (0, 0))
         if self.delays is None:
             return none
@@ -567,18 +582,37 @@ class Builder:
             return none
         if self.delays[chip] is None:
             return none
-        ns, on, off = (delay_ticks(v, clocked) for v in self.delays[chip])
+        ns, on, off = (delay_ticks(v * share, clocked) for v in self.delays[chip])
         return (ns, ns), (on, off)
 
-    def delayed(self, wire, ticks):
+    def delayed(self, wire, ticks, fast=None):
         """The wire a chip's output port drives: the net's driver itself, or
-        r_... feeding a delay line into it; ticks is (rise, fall)."""
+        r_... feeding a delay line into it; ticks is (rise, fall).  With
+        fast ticks other than ticks, two lines - g_... and f_... - and the
+        serial switch picks: f_ on Э3's board (SERIAL_SPEED)."""
         self.wires.append(wire)
+        if fast is not None and fast != ticks:
+            return self.switched_lines(wire, ticks, fast)
         if ticks == (0, 0):
             return wire
         raw = "r_" + wire[2:]
         self.wires.append(raw)
         self.lines.append((ticks, raw, wire))
+        return raw
+
+    def switched_lines(self, wire, ticks, fast):
+        """A chip output's two delay lines on the serial switch; the raw."""
+        raw, typical, quick = "r_" + wire[2:], "g_" + wire[2:], "f_" + wire[2:]
+        self.wires.append(raw)
+        for t, to in ((ticks, typical), (fast, quick)):
+            self.wires.append(to)
+            if t == (0, 0):
+                self.rc_assigns.append(f"    assign {to} = {raw};")
+            else:
+                self.lines.append((t, raw, to))
+        switch = f"s_{SERIAL_SWITCH[0]}_{SERIAL_SWITCH[1]}"
+        self.rc_assigns.append(f"    assign {wire} = {switch} ? {quick} : {typical};")
+        self.switched[wire] = raw
         return raw
 
     def place_rc(self, ref, t):
@@ -933,7 +967,10 @@ def generate_machine(src, inputs, outputs):
     for n in b.rc:                      # an rc net's level runs through its own delay line
         if n in nets:
             wires.update({"c_" + ident(n), "cs_" + ident(n)})
-    b.rc_assigns = [a for a in b.rc_assigns if a.split()[1] in {ident(n) for n in nets}]
+    for w in b.switched:                # a serial-switched output's two lines
+        if w in wires:
+            wires.update({"g_" + w[2:], "f_" + w[2:]})
+    b.rc_assigns = [a for a in b.rc_assigns if a.split()[1] in {ident(n) for n in nets} | wires]
     unused = []
     instances = []
     for i, (ref, module, conns, values) in enumerate(b.instances):
@@ -960,6 +997,7 @@ def machine_live(b, levels, wanted):
     the wires, from the nets back through the chips driving them."""
     by_ident = {ident(n): n for n in levels}
     raw_of = {to: raw for _, raw, to in b.lines}
+    raw_of.update(b.switched)
     driver = {}
     for i, (_, module, conns, _) in enumerate(b.instances):
         ports = b.modules[module].ports

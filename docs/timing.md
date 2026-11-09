@@ -87,9 +87,19 @@ clock's edge gets them as a parameter (`SETUP`), from `SETUP_NS` in
 `tools/board.py`: the sheet's figure, a guaranteed maximum, at the max
 corner; MIN_SHARE of it at the typical and min corners, whose delays are
 not the worst either; at least one tick.  So far the К555ИР16's MODE
-(20 ns: 2 ticks at max, 1 at typ and min) - the 640 x 200 edge's race,
-which D70 wins by ~11.5 ns at the typical delays (`docs/findings.md`,
-6b, "Settled").
+(20 ns: 2 ticks at max, 1 at typ and min) - the 640 x 200 edge's race.
+With C70 the typical chain to D70's enable loses it; Э3's board wins it
+with the serial chain's speed (below).
+
+## Serial speed
+
+`SERIAL_SPEED` in `tools/board.py`: on Э3's board (D70.15's switch at
+1) D30, D21, D14 and D70 lag by 0.55 of the corner's delays, so an
+output whose ticks change gets two delay lines, `g_...` and `f_...`, and
+the switch picks.  The owner's board keeps the corner's delays.  The
+share is fitted to the middle of the left-edge race's window, not
+measured (`docs/findings.md`, D70, "Э3's board with the serial chain's
+speed").
 
 ## Corners
 

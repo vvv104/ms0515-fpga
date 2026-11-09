@@ -572,6 +572,22 @@ open-collector outputs, beside C35 (68 pF on `СГИ L`).  Most likely
 they filter out the PROM's glitches as its address changes; they are
 not timing parts.
 
+**Э3's board with the serial chain's speed** (2026-11-09, the owner's
+choice).  Serial boards were made to Э3 with C70, and their screens
+were clean, so their chain from D30's step to D70's enable was faster
+than the typical figures: no part or wire found makes up the ~13 ns
+otherwise.  `SERIAL_SPEED` in `tools/board.py` takes D30, D21, D14 and
+D70 at 0.55 of the corner's delays on Э3's board (D70.15's switch); the
+owner's board keeps them.  The share is **fitted, not measured**: the
+middle of the race's window in continuous time (k ≤ 0.70 wins; at 0.55
+MODE gets ~14 ns of setup; the sheet's 20 ns would need k ≤ 0.45).  With
+it Э3's board draws 640 x 200 as the emulator at the typical corner (no
+point different), and at min and max too (77/77 at each corner; the
+comparison grants the corners one sample of slack).  The window, ~33 ns,
+is narrower than the corners' spread, so the test stays may_fail at
+them.  What would prove it: a serial board's D21-to-D70 delays measured,
+or a photo of a serial board's left edge at 640 x 200.
+
 **C70 on the boards seen** (2026-11-04).  The owner's board has none:
 two pads where the drawing puts it, by D85 towards D84, with C69 and
 C73 fitted beside them - solder on both pads with the leads' stubs in

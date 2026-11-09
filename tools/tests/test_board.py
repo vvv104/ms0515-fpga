@@ -1,6 +1,7 @@
 """The board generator, on small boards made up for each case."""
 import dataclasses
 import os
+import re
 import sys
 import tempfile
 import unittest
@@ -730,6 +731,42 @@ class RcEdge(unittest.TestCase):
         self.assertIn("assign c_n_BORDS_L = ", text)
         # the owner's board has no C70: its switch takes the edge straight
         self.assertIn("assign n_BORDS_L = s_D70_15 ? cs_n_BORDS_L : c_n_BORDS_L;", text)
+
+
+def bank_with(text, ticks, raw, to):
+    """Is RAW delayed into TO by a delay bank of TICKS (rise = fall), at the same place in its lists?"""
+    for m in re.finditer(r"delay_bank #\(\.TICKS\((\d+)\)(, \.FALL\(\d+\))?, \.W\(\d+\)\) \w+ "
+                         r"\(\.clk\(clk\), \.i\(\{([^}]*)\}\), \.o\(\{([^}]*)\}\)\);", text):
+        if int(m.group(1)) != ticks or m.group(2):
+            continue
+        ins, outs = m.group(3).split(", "), m.group(4).split(", ")
+        if raw in ins and outs[ins.index(raw)] == to:
+            return True
+    return False
+
+
+class SerialSpeed(unittest.TestCase):
+    # Э3's board as the serial boards drew it: the chain from D30's step to
+    # D70's enable (D30, D21, D14, D70) faster than the typical figures, so
+    # that 640 x 200's left edge wins its race (docs/findings.md, D70); the
+    # owner's board keeps the typical delays.  The switch is D70.15's.
+    def test_the_prom_has_both_lines_and_the_switch_picks(self):
+        text, problems, _ = board.generate_all(board.ns4_sources())
+        self.assertEqual(errors(problems), [])
+        self.assertTrue(bank_with(text, 5, "r_D21_p14", "g_D21_p14"))     # 40 ns, typical
+        self.assertTrue(bank_with(text, 3, "r_D21_p14", "f_D21_p14"))     # 22 ns, serial
+        self.assertIn("assign d_D21_p14 = s_D70_15 ? f_D21_p14 : g_D21_p14;", text)
+
+    def test_d70_comes_on_faster_on_e3s_board(self):
+        text, _, _ = board.generate_all(board.ns4_sources())
+        self.assertTrue(bank_with(text, 2, "r_D70_p4_oe", "g_D70_p4_oe"))
+        self.assertTrue(bank_with(text, 1, "r_D70_p4_oe", "f_D70_p4_oe"))
+        self.assertIn("assign d_D70_p4_oe = s_D70_15 ? f_D70_p4_oe : g_D70_p4_oe;", text)
+
+    def test_a_chip_whose_ticks_do_not_change_keeps_one_line(self):
+        text, _, _ = board.generate_all(board.ns4_sources())
+        self.assertNotIn("f_D70_p4 ", text)       # data 9 ns and 5 ns: one tick either way
+        self.assertNotIn("assign d_D70_p4 =", text)
 
 
 if __name__ == "__main__":

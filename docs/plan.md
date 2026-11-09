@@ -77,12 +77,13 @@ to any one board.  From stage 6 on there are two projects:
    none does, the place does not matter to the machine and is marked so.
    The factory wires all match Э3; the bare wire on the owner's board (GND
    to the lifted D70.15) is in `vvv104.csv`.
-   **Open, and the stopper** (owner, 2026-11-05): Э3's board as drawn
-   does not draw the emulator's picture - 640 x 200's left edge, with
-   C70 modelled (2026-11-09) one point late again; the frame's first
-   word is the board's own (word 8000), and 320 x 200 is right
+   **Closed with a fitted speed** (owner, 2026-11-09): with C70 modelled
+   Э3's board as drawn lost 640 x 200's left edge at the typical delays;
+   with the serial chain's speed (`SERIAL_SPEED`, D30/D21/D14/D70 at
+   0.55, fitted, not measured) it draws both modes as the emulator at
+   every corner; the frame's first word is the board's own (word 8000)
    (`docs/findings.md`, D70; the `video: Э3's board draws 640 x 200`
-   test may_fail).
+   test may_fail at the corners).
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
