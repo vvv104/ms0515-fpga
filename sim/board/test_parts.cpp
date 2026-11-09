@@ -207,7 +207,10 @@ std::unique_ptr<ms0515_board_t> emulator_after(const std::string& rom_name)
 // which also knows the board's 25 ns of ink before paper at a word's edge
 // after a flashing one - docs/baseline.md, open list 3).  Э3's board starts
 // its frame with the word its registers held through the frame's border,
-// word 8000 (screen_compare.h, `held`).
+// word 8000 (screen_compare.h, `held`).  The slack passes a line's first
+// word a point off edge by edge, so no line's first word may lie at another
+// phase than the rest of it (640 x 200's left-edge race, docs/findings.md,
+// D70).
 void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool drawn = false)
 {
     Bench b(rom_name);
@@ -224,8 +227,9 @@ void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool dra
     const ScreenCompare c = compare_screen(taken, board_get_vram(emu.get()), board_is_hires(emu.get()),
                                            board_get_border_color(emu.get()), 232, 16, kCorner ? 1 : 0, drawn);
     INFO("area at " << c.dx << ", " << c.dy << "; first at " << c.first_x << ", " << c.first_y << ": " << c.got
-                    << ", the emulator's " << c.want);
+                    << ", the emulator's " << c.want << "; " << c.phase_breaks << " phase breaks");
     CHECK(c.differ == 0);
+    CHECK(c.phase_breaks == 0);
 }
 
 }  // namespace

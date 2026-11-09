@@ -582,11 +582,27 @@ owner's board keeps them.  The share is **fitted, not measured**: the
 middle of the race's window in continuous time (k ≤ 0.70 wins; at 0.55
 MODE gets ~14 ns of setup; the sheet's 20 ns would need k ≤ 0.45).  With
 it Э3's board draws 640 x 200 as the emulator at the typical corner (no
-point different), and at min and max too (77/77 at each corner; the
-comparison grants the corners one sample of slack).  The window, ~33 ns,
-is narrower than the corners' spread, so the test stays may_fail at
-them.  What would prove it: a serial board's D21-to-D70 delays measured,
+point different) and at min.  At max it does not: 0.55 of the max
+figures is about the typical chain, which loses, and every line's first
+word is a point off the rest (199 phase breaks, below) - first passed
+there only by the corners' one sample of slack.  The window, ~33 ns, is
+narrower than the corners' spread, so the test stays may_fail at them,
+and fails at max.  What would prove it: a serial board's D21-to-D70 delays measured,
 or a photo of a serial board's left edge at 640 x 200.
+
+**The slack no longer hides the race** (2026-11-09).  One sample of
+slack passes a first word a point late edge by edge: with the serial
+speed off, the typical board's 1310 differing samples all passed within
+one sample.  So `compare_screen` also tells the lines whose first word
+lies at another shift than the rest of the line (`phase_breaks`, 640 x
+200 only), and the picture tests want none, at every corner.  With the
+serial speed off it finds 199 - every line but the frame's first, which
+has the held word's rule; with it on, none at typ and min, and 199 at
+max (so the Э3 640 test, may_fail, fails there).  At max, with the serial speed off, the
+picture differed in 100 samples, each a line's first sample lit where
+the border stands, and no phase break: one edge a sample early, of the
+kind the owner's board shows at its right edge at max (100 samples at
+639), not the first word's shift.
 
 **C70 on the boards seen** (2026-11-04).  The owner's board has none:
 two pads where the drawing puts it, by D85 towards D84, with C69 and

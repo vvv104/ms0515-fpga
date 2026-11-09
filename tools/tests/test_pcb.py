@@ -1,4 +1,4 @@
-"""The board's stack: six copper layers, the planes handed to the router as planes."""
+"""The board's stack: eight copper layers as the 1991 board's, the planes handed to the router as planes."""
 import os
 import sys
 import tempfile
@@ -16,13 +16,13 @@ import route  # noqa: E402
 
 @unittest.skipUnless(pcbnew, "no pcbnew (run with KiCad's Python)")
 class Stack(unittest.TestCase):
-    def test_six_layers_the_planes_inside_as_power_layers(self):
+    def test_eight_layers_the_planes_inside_as_power_layers(self):
         board = pcbnew.BOARD()
         pcb.stack(board)
-        self.assertEqual(board.GetCopperLayerCount(), 6)
+        self.assertEqual(board.GetCopperLayerCount(), 8)
         self.assertEqual({board.GetLayerName(layer): kind for layer, kind in pcb.PLANES.items()},
-                         {"In2.Cu": "GND", "In3.Cu": "+5V"})
-        for layer in (pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In4_Cu, pcbnew.B_Cu):
+                         {"In2.Cu": "GND", "In5.Cu": "+5V"})
+        for layer in (pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.In6_Cu, pcbnew.B_Cu):
             self.assertEqual(board.GetLayerType(layer), pcbnew.LT_SIGNAL)
         for layer in pcb.PLANES:
             self.assertEqual(board.GetLayerType(layer), pcbnew.LT_POWER)
@@ -43,9 +43,10 @@ class Stack(unittest.TestCase):
             with open(path, encoding="utf-8") as f:
                 design = f.read()
         self.assertEqual(route.design_layers(design),
-                         {"F.Cu": "signal", "In1.Cu": "signal", "In2.Cu": "power",
-                          "In3.Cu": "power", "In4.Cu": "signal", "B.Cu": "signal"})
-        self.assertEqual(route.check_layers(design), "F.Cu In1.Cu In4.Cu B.Cu signal, In2.Cu In3.Cu power")
+                         {"F.Cu": "signal", "In1.Cu": "signal", "In2.Cu": "power", "In3.Cu": "signal",
+                          "In4.Cu": "signal", "In5.Cu": "power", "In6.Cu": "signal", "B.Cu": "signal"})
+        self.assertEqual(route.check_layers(design),
+                         "F.Cu In1.Cu In3.Cu In4.Cu In6.Cu B.Cu signal, In2.Cu In5.Cu power")
 
     def test_the_edge_clearance_is_the_one_the_router_is_given(self):
         board = pcbnew.BOARD()

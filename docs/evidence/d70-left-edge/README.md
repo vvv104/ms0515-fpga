@@ -3,7 +3,8 @@
 **Closed with a fitted speed** (2026-11-09): with C70 modelled the
 typical chain is ~12 ns short; Э3's board now takes the serial chain's
 speed (D30/D21/D14/D70 at 0.55, fitted, not measured) and draws the
-edge as the emulator.  A measured serial board would prove or replace
+edge as the emulator at the typical and min delays, not at max.  A
+measured serial board would prove or replace
 the figure.  `docs/findings.md`, D70, "Э3's board with the serial
 chain's speed".  What follows is the question as it was put.
 

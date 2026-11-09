@@ -165,13 +165,13 @@ proves is said with it.
 7. **The core**: `quartus_sh -t boards/de10nano/core.tcl` -
    `build/mister/output_files/ms0515.fit.summary` (resources),
    `ms0515.sta.rpt` (Setup Summary: the 120 MHz domain's slack).
-8. **The printed board**, the owner's first: `<KiCad>/bin/python
-   tools/pcb.py vvv104` (placement), `tools/route.py vvv104 start`, `run
-   2 5`, `finish` (routing from the empty board, a day; `run` again goes
-   on after a stop; progress in `build/route-vvv104/progress.txt`),
-   `pcb.py check vvv104` (pads against the netlist), `kicad-cli pcb drc`
-   (clearances, shorts).  Then Э3's from it: `pcb.py derive ns4 vvv104`,
-   `route.py start --from vvv104`, `run`, `finish`.
+8. **The printed board**, Э3's first, eight layers: `<KiCad>/bin/python
+   tools/pcb.py` (placement), `tools/route.py start`, `run 8 3`,
+   `finish` (routing from the empty board, a day and more; `run` again
+   goes on after a stop; progress in `build/route/progress.txt`),
+   `pcb.py check` (pads against the netlist), `kicad-cli pcb drc`
+   (clearances, shorts).  Then the owner's from it: `pcb.py derive
+   vvv104`, `route.py vvv104 start --from ns4`, `run`, `finish`.
 
 Steps 1-5 take about half an hour; step 6 about two hours (side by
 side); step 7 about half an hour; step 8 a day.

@@ -34,9 +34,10 @@ to any one board.  From stage 6 on there are two projects:
   but the model changed under it (К555ИР16's MODE, DA2 as logic), so it
   is taken again in one baseline run on one commit, `docs/baseline.md`,
   and only what passes there counts;
-- **Э3's board, `ns4`** - **paused at 6b**, its picture not the
-  emulator's.  When 6b is settled it goes on from the owner's board's
-  stages, done again where the two differ.
+- **Э3's board, `ns4`** - 6b closed with a fitted speed of the chain to
+  D70 (2026-11-09); it goes on from the owner's board's stages, done
+  again where the two differ, and its printed board is routed first
+  (stage 8).
 
 1. **Netlist of НС4.**  Read the four Э3 sheets and the ПЭ3 element list
    into `netlist/` (parts, pins, nets, with sheet and zone), starting from
@@ -81,9 +82,11 @@ to any one board.  From stage 6 on there are two projects:
    Э3's board as drawn lost 640 x 200's left edge at the typical delays;
    with the serial chain's speed (`SERIAL_SPEED`, D30/D21/D14/D70 at
    0.55, fitted, not measured) it draws both modes as the emulator at
-   every corner; the frame's first word is the board's own (word 8000)
-   (`docs/findings.md`, D70; the `video: Э3's board draws 640 x 200`
-   test may_fail at the corners).
+   typ and min; at max 640 x 200's first word is a point off (the race's
+   window is narrower than the corners' spread); the frame's first word
+   is the board's own (word 8000) (`docs/findings.md`, D70; the `video:
+   Э3's board draws 640 x 200` test may_fail at the corners, failing at
+   max).
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
@@ -296,18 +299,20 @@ to any one board.  From stage 6 on there are two projects:
    hub and a microSD card are the whole kit; the IO board adds analog
    video for a CRT.
 8. **A printed board to build.**  НС4 again in copper, from the netlist
-   the model runs on: a new layout (six copper layers: signals on F.Cu
-   and In1.Cu, the ground plane on In2.Cu, the +5 V plane on In3.Cu,
-   signals on In4.Cu and B.Cu - four were planned, but with the two
-   planes honoured the two outer layers left 140 of 1258 connections
-   after 12 passes, where four signal layers took the board to 8; chosen
-   2026-11-07), not the 1991 one - its inner layers are not on any scan, and
-   only the connections have to be the same.  KiCad 10 (`kicad-cli`),
-   Freerouting for the routing.  The owner's board first:
-   it is routed from the empty board, and Э3's made from it once 6b is
-   settled.  The routing begun before was stopped (carried onto a board
-   placed again it kept 12 clearance violations): no routing is carried
-   across a change of placement.
+   the model runs on: a new layout with the 1991 board's eight copper
+   layers (owner, 2026-11-09: signals on F.Cu and In1.Cu, the ground
+   plane on In2.Cu, signals on In3.Cu and In4.Cu, the +5 V plane on
+   In5.Cu, signals on In6.Cu and B.Cu; the chips where the 1991 board
+   had them).  Four layers left 140 of 1258 connections after 12 passes,
+   six (chosen 2026-11-07) 309 after two days.  Not the 1991 copper -
+   its inner layers are not on any scan, and only the connections have
+   to be the same - though with its placement and its layers the
+   routing may come out near it.  KiCad 10 (`kicad-cli`), Freerouting
+   for the routing.  Э3's board first, as the paper schematic draws it
+   (owner, 2026-11-09, with 6b closed): it is routed from the empty
+   board, and the owner's made from it.  The routings begun before
+   (the owner's board, four and six layers) were stopped: no routing is
+   carried across a change of placement or of the stack.
    8a. **The copper's questions closed.**  Groundwork: every join of the traces
        against Э3 is two outputs on a wire, Э3 right (`docs/findings.md`).
    8b. **What the software so far never touched**, run on the model with
@@ -336,8 +341,9 @@ to any one board.  From stage 6 on there are two projects:
        МС 7004 on XS2, ROM-B, as the owner's machine).
    8d. **Layout.**  Placement by blocks, the decoupling of ПЭ3, routed by
        Freerouting, DRC to a common fab's rules.  Two boards, one
-       placement (owner, 2026-11-05): `ns4` is Э3 as drawn - the one that
-       still needs work, its 640 x 200 left edge open (`docs/findings.md`)
+       placement (owner, 2026-11-05): `ns4` is Э3 as drawn - its 640 x 200
+       left edge closed with a fitted speed of the chain to D70
+       (`docs/findings.md`; on copper the chips as fitted decide it)
        - and `ns4-vvv104` the owner's board as it worked, with
        `netlist/vvv104.csv`'s change (D70.15 on GND), the conditionally
        working one.  No jumper chooses between them: on Э3 a jumper is a
@@ -346,12 +352,13 @@ to any one board.  From stage 6 on there are two projects:
        (`netlist/pcb_parts.csv`, `pcb_nets.csv`, `pcb.csv`: D80.5 on its
        middle contact, 1-2 Э3's `ВБРЕГ L` as delivered, 2-3 `АД03 H`);
        the board's own additions are placed after Э3's parts, so those
-       stand where they would without them.  The owner's board is routed
-       first, from the empty board; the other is made from it, as placed
-       and routed, and only the nets its pins left are routed again
-       (`tools/pcb.py vvv104` places it - every part where Э3's nets put
-       it, so the two boards have one placement; `tools/pcb.py derive ns4
-       vvv104` and `tools/route.py start --from vvv104` then make Э3's).
+       stand where they would without them.  Э3's board is routed first,
+       from the empty board (owner, 2026-11-09; before, the owner's was);
+       the other is made from it, as placed and routed, and only the nets
+       its pins left are routed again (`tools/pcb.py` places Э3's -
+       every part where Э3's nets put it, so the two boards have one
+       placement; `tools/pcb.py derive vvv104` and `tools/route.py vvv104
+       start --from ns4` then make the owner's).
        The routing runs in chunks that survive a stop (`tools/route.py`);
        a routing is never carried onto a board with a part moved.  The
        owner's board's routing began from the empty board on 2026-11-05
@@ -371,8 +378,11 @@ to any one board.  From stage 6 on there are two projects:
        `run` turns the one off and gives it KiCad's 0.5 mm for the other
        (`route.py`'s docstring).  The build is reproducible now - the
        placement followed Python's string hashing before, so each
-       `pcb.py` gave another board.  The routing: `route.py vvv104
-       --work DIR run 2 5` from a `start` in that folder.
+       `pcb.py` gave another board.  Six layers stopped at 309 of 1258
+       left (2026-11-08, ~5 connections an hour at the end).
+       **Eight layers** (owner, 2026-11-09), as the 1991 board: six of
+       signals, the planes on In2.Cu and In5.Cu.  Э3's board routed from
+       the empty board: `route.py start`, `run 8 3` (build/route).
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.

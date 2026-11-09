@@ -26,14 +26,18 @@ differ only in the changed nets' copper.
 
 The board is the netlist's (netlist/parts.csv, nets.csv - Э3 as read, the
 one the board model runs the machine's software on) with the footprints of
-tools/bom.py.  Six copper layers: signals on F.Cu, In1.Cu, In4.Cu and B.Cu,
-ground on In2.Cu and +5 V on In3.Cu as planes - the plane layers of type
-power (`PLANES`, `stack`), so that KiCad's Specctra export names them
-`(type power)` and Freerouting routes no signal over them (given as signal
-layers, as the four-layer board of 2026-11-05 was, it ran more than half
-the track through the planes; with the planes honoured the two outer
-layers alone left 140 of 1258 connections after 12 passes, docs/baseline.md
-step 8).  The chips and the resistor packs stand
+tools/bom.py.  Eight copper layers, as the 1991 board had (owner,
+2026-11-09): signals on F.Cu and In1.Cu (its layers 1 and 2, on Mick's
+traces), In3.Cu and In4.Cu, In6.Cu and B.Cu (its 7 and 8); ground on
+In2.Cu and +5 V on In5.Cu as planes.  The 1991 board's layers 3 to 6 are
+on no scan; some of its pins join only there (netlist/copper.json), so it
+had signals inside too.  The plane layers are of type power (`PLANES`,
+`stack`), so that KiCad's Specctra export names them `(type power)` and
+Freerouting routes no signal over them (given as signal layers, as the
+four-layer board of 2026-11-05 was, it ran more than half the track
+through the planes).  Six layers - four of signals - left 309 of 1258
+connections after two days (docs/baseline.md step 8).  The chips and the
+resistor packs stand
 where they stood on the 1991 board (netlist/placement.csv: pin 1 of every
 DIP on Mick's layer traces, 2.54 mm a 39.4 pixels), which the plant
 routed; the connectors go along the left edge, where that board had
@@ -390,8 +394,8 @@ EDGE_CLEARANCE = 0.5                      # mm; tools/route.py gives Freerouting
 
 # The stack: the planes inside, on layers of type power - what the Specctra
 # export writes as `(type power)`, which keeps Freerouting's signals off them.
-PLANES = {pcbnew.In2_Cu: "GND", pcbnew.In3_Cu: "+5V"}
-COPPER_LAYERS = 6
+PLANES = {pcbnew.In2_Cu: "GND", pcbnew.In5_Cu: "+5V"}
+COPPER_LAYERS = 8
 
 
 def netclass(nc, rule):
@@ -413,7 +417,7 @@ def rules(board):
 
 
 def stack(board):
-    """Six copper layers, the plane layers of type power, the rest signal."""
+    """Eight copper layers, the plane layers of type power, the rest signal."""
     board.SetCopperLayerCount(COPPER_LAYERS)
     for layer in board.GetEnabledLayers().CuStack():
         board.SetLayerType(layer, pcbnew.LT_POWER if layer in PLANES else pcbnew.LT_SIGNAL)

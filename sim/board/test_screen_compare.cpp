@@ -193,3 +193,31 @@ TEST_CASE("screen_compare: at a corner Э3's 320 x 200 frame may show word 8000'
     CHECK(compare_screen(f, v.data(), false, kBorder, kLeft, 16, 0, true).differ > 0);
     CHECK(compare_screen(f, v.data(), false, kBorder, kLeft, 16, 1, false).differ > 0);
 }
+
+// 640 x 200's left-edge race lost (docs/findings.md, D70): each line's first
+// word a point late, the rest of the line in place.  Within one sample every
+// such point passes, edge by edge; the line's phase does not: its first word
+// lies a sample off the rest of the line.
+TEST_CASE("screen_compare: a first word a point off the rest of its line is a phase break, within one sample too")
+{
+    const Vram v = stripes();
+    const Frame ok = frame_of(v);
+    Frame f = ok;
+    for (int y = 0; y < 200; ++y)
+        for (int x = 0; x < 16; ++x)
+            at(f, x, y) = x == 0 ? static_cast<std::uint8_t>(kBorder | 8) : ok[static_cast<std::size_t>(kTop + y)][static_cast<std::size_t>(kLeft + x - 1)];
+    const ScreenCompare loose = compare_screen(f, v.data(), true, kBorder, kLeft, 16, 1);
+    CHECK(loose.differ == 0);
+    CHECK(loose.phase_breaks == 199);       // the frame's first line has the held word's own rule
+    CHECK(compare_screen(ok, v.data(), true, kBorder, kLeft, 16, 1).phase_breaks == 0);
+}
+
+TEST_CASE("screen_compare: single edges a sample off are no phase break")
+{
+    const Vram v = stripes();
+    Frame f = frame_of(v);
+    at(f, 4, 10) = at(f, 3, 10);
+    at(f, 7, 20) = at(f, 8, 20);
+    at(f, 0, 40) = static_cast<std::uint8_t>(kBorder | 8);
+    CHECK(compare_screen(f, v.data(), true, kBorder, kLeft, 16, 1).phase_breaks == 0);
+}

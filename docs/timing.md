@@ -174,7 +174,11 @@ What the corners show (Omega booted to its prompt in all three):
   the emulator's picture within one sample - its point and its attribute
   each taken there or a sample to the left or right, where the picture
   fits to the sample best (`sim/board/screen_compare.h`, `slack`); the
-  typical board to the sample.
+  typical board to the sample.  The slack is for edges, not for a word:
+  in 640 x 200 no line's first word may lie at another shift than the
+  rest of its line (`phase_breaks`), or a first word a point late - the
+  left-edge race lost - would pass edge by edge (`docs/findings.md`,
+  D70, "The slack no longer hides the race").
 - **A flashing word's inversion outlasts it by 25 ns** (typ).  The
   colour bits go from the attribute registers D55, D56 to the inputs of
   the multiplexers D63, D69 (К555КП2); the selection between ink and

@@ -41,6 +41,7 @@ struct ScreenCompare {
     int differ = -1;                // samples that differ there (-1: no fit)
     int first_x = -1, first_y = -1; // the first of them, in 640 x 200
     int want = 0, got = 0;          // its expected and taken samples
+    int phase_breaks = -1;          // lines whose first word lies off the rest's phase
 };
 
 namespace screen_detail {
@@ -148,6 +149,46 @@ inline int count(const std::vector<std::vector<std::uint8_t>>& frame, const std:
     return n;
 }
 
+// the shift of the points (-1, 0 or 1 sample) at which samples x0..x1-1 of
+// line y fit the picture best, to the sample; 2 when no one shift is best
+inline int phase(const std::vector<std::uint8_t>& line, const std::uint8_t* vram, bool hires, int border, int dx,
+                 int y, int x0, int x1)
+{
+    int miss[3] = {0, 0, 0};
+    for (int x = x0; x < x1; ++x) {
+        const int s = norm(line[static_cast<std::size_t>(dx + x)]);
+        for (int d = -1; d <= 1; ++d)
+            miss[d + 1] += fits(vram, hires, border, x - d, x, y, s) ? 0 : 1;
+    }
+    int best = 0;
+    for (int d = -1; d <= 1; ++d)
+        if (miss[d + 1] < miss[best + 1])
+            best = d;
+    for (int d = -1; d <= 1; ++d)
+        if (d != best && miss[d + 1] == miss[best + 1])
+            return 2;
+    return best;
+}
+
+// The lines whose first word lies at another shift than the rest of the
+// line: 640 x 200's left-edge race lost (docs/findings.md, D70), which
+// `slack` passes edge by edge.  The frame's first line, with the held
+// word, is left out; so is a line whose phase is not clear.  640 x 200
+// only: in 320 x 200 a point is two samples, a shift of one is no phase,
+// and the line's first clock has its own rule there (`held`).
+inline int phase_breaks(const std::vector<std::vector<std::uint8_t>>& frame, const std::uint8_t* vram, bool hires,
+                        int border, int dx, int dy)
+{
+    int n = 0;
+    for (int y = 1; y < 200; ++y) {
+        const auto& line = frame[static_cast<std::size_t>(dy + y)];
+        const int first = phase(line, vram, hires, border, dx, y, 0, 16);
+        const int rest = phase(line, vram, hires, border, dx, y, 16, 640);
+        n += first != 2 && rest != 2 && first != rest ? 1 : 0;
+    }
+    return n;
+}
+
 }  // namespace screen_detail
 
 // The best fit of the 640 x 200 area within the frame - at any line of it
@@ -186,5 +227,7 @@ inline ScreenCompare compare_screen(const std::vector<std::vector<std::uint8_t>>
     if (best.differ > 0)
         best.differ = screen_detail::count(frame, vram, hires, border, best.dx, best.dy, 1 << 30, slack, &best, h,
                                            hp);
+    if (best.differ >= 0)
+        best.phase_breaks = hires ? screen_detail::phase_breaks(frame, vram, hires, border, best.dx, best.dy) : 0;
     return best;
 }
