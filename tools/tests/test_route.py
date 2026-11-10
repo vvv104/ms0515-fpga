@@ -58,6 +58,14 @@ class Wiring(unittest.TestCase):
         self.assertIn('(network (net "ВБ1 H"))', out)
         self.assertTrue(out.rstrip().endswith(")"))
 
+    def test_a_sessions_wiring_keeps_the_designs_fixed_copper(self):
+        fixed = '    (wire (path F.Cu 190  5 -6  7 -8)(net "ВБ1 H")(type fix))'
+        design = DESIGN.replace("(wiring\n", "(wiring\n" + fixed + "\n")
+        out = route.session_wiring(SESSION, design)
+        self.assertIn(fixed.strip(), out)
+        self.assertIn('(net "~D94.1")(type route))', out)
+        self.assertEqual(out.count("(type fix)"), 1)
+
     def test_the_fixed_copper_stays_the_routed_goes(self):
         fixed = '    (wire (path F.Cu 190  5 -6  7 -8)(net "ВБ1 H")(type fix))\n'
         via = '    (via "Via[0-7]_1000:500_um"  9 -10 (net "ВБ1 H")(type fix))\n'

@@ -189,7 +189,8 @@ def quoted(name):
 
 def session_wiring(ses_text, design_text, drop=()):
     """The design with the session's wires and vias as its wiring, but
-    those of the nets in `drop`.
+    those of the nets in `drop`; the design's fixed copper kept (a session
+    has only what Freerouting routed: the fixed wires are not in it).
 
     A session counts in its resolution's steps (0.1 um here), the design
     in its unit (um); the session's routes are scaled across."""
@@ -205,7 +206,7 @@ def session_wiring(ses_text, design_text, drop=()):
     def num(value):            # exact: a wire's end must stay on its pin
         text = f"{int(value) / scale:.{places}f}"
         return text.rstrip("0").rstrip(".") if places else text
-    lines = ["(wiring"]
+    lines = []
     for net in child(routes, "network_out")[1:]:
         if net[1] in drop:
             continue
@@ -217,10 +218,9 @@ def session_wiring(ses_text, design_text, drop=()):
                 lines.append(f"    (wire (path {path[1]} {num(path[2])} {coords})(net {name})(type route))")
             elif item[0] == "via":
                 lines.append(f"    (via {quoted(item[1])} {num(item[2])} {num(item[3])} (net {name})(type route))")
-    lines.append("  )")
-    empty = without_wiring(design_text)
-    at = empty.find("(wiring\n  )")
-    return empty[:at] + "\n".join(lines) + empty[at + len("(wiring\n  )"):]
+    kept = without_wiring(design_text, keep_fixed=True)
+    at = kept.find("(wiring\n") + len("(wiring\n")
+    return kept[:at] + "".join(line + "\n" for line in lines) + kept[at:]
 
 
 def design_nets(design_text):
@@ -392,14 +392,16 @@ def run(chunk, patience):
 
 
 def finish(out=None):
-    """The session on the board, saved as the board or as `out`."""
+    """The session on the board, saved as the board or as `out`: the routed
+    tracks replaced, the locked ones (the 1991 copper) left."""
     import pcbnew
     if not os.path.exists(SESSION):
         raise SystemExit(f"no {SESSION}: `start` and `run` first")
     ses = SESSION
     board = pcbnew.LoadBoard(BOARD)
     for track in list(board.GetTracks()):
-        board.Delete(track)     # Remove leaves pcbnew's object to Python, which crashed
+        if not track.IsLocked():    # the 1991 copper stays; a session has only what was routed
+            board.Delete(track)     # Remove leaves pcbnew's object to Python, which crashed
     if not pcbnew.ImportSpecctraSES(board, ses):
         raise SystemExit("the session's import failed")
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
