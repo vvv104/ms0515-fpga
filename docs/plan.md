@@ -425,6 +425,10 @@ to any one board.  From stage 6 on there are two projects:
        (`build/pathfind/ns4-pathfind.kicad_pcb`; the warnings are the
        silkscreen's, the ends of Mick's runs that go inside, and 11 of
        his vias no net needed).
+       **Power, a first check** (2026-11-10, `docs/pcb/power.md`): the
+       planes drop 3.7 mV at 2 A; the DRAM bank's edges move them 30..40
+       mV; ВГ93's +12 V dips 37 mV with C4 on it and 447 mV without -
+       C4 on +12 V, as the copper has it, is the right one.
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.
