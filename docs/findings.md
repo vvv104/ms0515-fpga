@@ -579,6 +579,32 @@ open-collector outputs, beside C35 (68 pF on `СГИ L`).  Most likely
 they filter out the PROM's glitches as its address changes; they are
 not timing parts.
 
+**The race's runs on the 1991 copper** (2026-11-10, Mick's outer
+layers as laid on the board, `docs/plan.md` 8d; the inner layers 3..6
+unseen, so these are the least lengths):
+
+| Net | Outer copper | Vias | Pins |
+|---|---|---|---|
+| `БОРДС L` (D21.14 to D14.1, R39, C70, D73, D79, D85) | 82 mm | 2 | 7 |
+| `~D14.3` (D14.3 to D70.15, D74.1) | 274 mm | 2 | 3 |
+| `ТС15 L` | 200 mm | 3 | 6 |
+| `ВК2 H` | 96 mm | 1 | 4 |
+| `ВК4 H` | 17 mm | 0 | 5 |
+
+At 0.7..1.2 pF a cm `БОРДС L`'s 82 mm are 6..10 pF, with the inner
+part unseen inside the 15..35 pF of wiring the continuous-time race
+above took.  `~D14.3`, D70's enable, is long: 19..45 pF with the two LS
+inputs, as much as 100 mm more inside.  Into it D14.3 (ALS, its sink
+calibrated to the board model's 6.0 ns on the ALS sheets' test load,
+500 Ohm and 50 pF) falls through 1.3 V at 5.6..6.2 ns (ngspice, a
+one-off deck not kept): the sheets' 50 pF is the run's own, and the
+model's 6 ns already stands for it, to 0.4 ns.  What the lumped model
+leaves out is the flight along the run, at most ~1.7 ns over the whole
+274 mm (where D70.15 lies on it the outer copper does not tell) - the
+race no easier, by under a tick.  So the copper does not make up the
+race either: the serial boards' chain was faster in its chips, as the
+fitted speed has it.
+
 **Э3's board with the serial chain's speed** (2026-11-09, the owner's
 choice).  Serial boards were made to Э3 with C70, and their screens
 were clean, so their chain from D30's step to D70's enable was faster
