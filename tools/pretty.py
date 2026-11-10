@@ -105,10 +105,26 @@ def hole(drill):
     return name, "\n".join(lines) + "\n"
 
 
+def lug():
+    """A ground lug XT1..XT3 (лепесток 7.750.008): the 1991 board's 3.2 mm
+    hole with a ring small enough for the via 3.5 mm from XT3."""
+    lines = ['(footprint "Lug_3.2mm"', "\t(version 20241229)", '\t(generator "pretty.py")', '\t(layer "F.Cu")',
+             '\t(descr "ground lug 7.750.008 on a 3.2 mm hole, as on the 1991 board (XT1..XT3 of НС4)")',
+             '\t(property "Reference" "REF**" (at 0 -3.5 0) (layer "F.SilkS")'
+             ' (effects (font (size 1 1) (thickness 0.15))))',
+             '\t(property "Value" "Lug_3.2mm" (at 0 3.5 0) (layer "F.Fab") (effects (font (size 1 1) (thickness 0.15))))',
+             "\t(attr through_hole)",
+             '\t(fp_circle (center 0 0) (end 2.45 0) (stroke (width 0.05) (type solid)) (fill no) (layer "F.CrtYd"))',
+             '\t(pad "1" thru_hole circle (at 0.000 0.000) (size 4.4 4.4) (drill 3.2) (layers "*.Cu" "*.Mask"))',
+             ")"]
+    return "\n".join(lines) + "\n"
+
+
 def footprints():
     """{name: text} of every footprint this writes."""
     made = {name: two_pin(name) for name in TWO_PIN}
     made["Trimmer_SP5-16VA"] = trimmer()
+    made["Lug_3.2mm"] = lug()
     made.update({name: dsub(name, ref) for name, ref in DSUBS.items()})
     made.update(dict(hole(d) for d in (4.8, 3.2)))
     return made

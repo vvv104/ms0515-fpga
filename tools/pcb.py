@@ -386,9 +386,10 @@ def plane(board, codes, net, layer):
 
 # The design rules: a common fab's multilayer process with room to spare
 # (0.25 mm tracks, 0.2 mm gaps, 0.7/0.35 mm vias, 0.5 mm to the board's
-# edge); the supplies wider.
+# edge); the supplies wider, at the same gap - the 1991 copper runs 0.2 mm
+# from the supply pins (Mick's traces).
 SIGNAL = {"track": 0.25, "clearance": 0.2, "via": 0.7, "drill": 0.35}
-POWER = {"track": 0.6, "clearance": 0.25, "via": 0.9, "drill": 0.45}
+POWER = {"track": 0.6, "clearance": 0.2, "via": 0.9, "drill": 0.45}
 EDGE_CLEARANCE = 0.5                      # mm; tools/route.py gives Freerouting the same
 
 # The stack: the planes inside, on layers of type power - what the Specctra

@@ -35,6 +35,6 @@ type,footprint,equivalent,note
 ОНЦ-КГ-4-5/16-Р,ns4:DIN-5_Socket_Horizontal,"DIN 41524 5-pin socket, 180 degrees, PCB mount","XS2, may be left off: the МС 7004 goes through the monitor on XP6 (the owner's machine's photos show none); its odd SA1 build repeats the keyboard's line here, the even one the cassette"
 РС-28-7,Package_DIP:DIP-28_W15.24mm_Socket,28-pin DIP socket,"XS3, XS4: the ROMs D65, D77 (the chip takes the socket's place)"
 РС-40-7,Package_DIP:DIP-40_W15.24mm_Socket,40-pin DIP socket,"XS5, XS6: D1, D83 (the chip takes the socket's place)"
-лепесток 7.750.008,MountingHole:MountingHole_3.2mm_M3_Pad,M3 hole with a ground pad,the ground lugs XT1..XT3
+лепесток 7.750.008,ns4:Lug_3.2mm,a ground lug on a 3.2 mm hole,"the ground lugs XT1..XT3, a small ring as the 1991 board has room for"
 перемычка,ns4:Wire_Link_P12.70mm,a wire link,"E1..E8, fitted as netlist/analog.csv says"
 перемычка на 3,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,3-pin header and a jumper,"E9 (netlist/pcb_parts.csv), a jumper on 1-2 as delivered"

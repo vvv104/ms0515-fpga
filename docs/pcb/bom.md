@@ -112,4 +112,4 @@ XS2, SA1's odd switches closed; ROM-B in the sockets XS3, XS4.
 | ОНЦ-КГ-4-5/16-Р | socket, 5 | 1 | XS2 | DIN 41524 5-pin socket, 180 degrees, PCB mount | `ns4:DIN-5_Socket_Horizontal` | XS2, may be left off: the МС 7004 goes through the monitor on XP6 (the owner's machine's photos show none); its odd SA1 build repeats the keyboard's line here, the even one the cassette |
 | РС-28-7 | DIP socket for D65, D77 | 2 | XS3, XS4 | 28-pin DIP socket | `Package_DIP:DIP-28_W15.24mm_Socket` | XS3, XS4: the ROMs D65, D77 (the chip takes the socket's place) |
 | РС-40-7 | DIP socket for D1, D83 | 2 | XS5, XS6 | 40-pin DIP socket | `Package_DIP:DIP-40_W15.24mm_Socket` | XS5, XS6: D1, D83 (the chip takes the socket's place) |
-| лепесток 7.750.008 | ground lug (ОБЩИЙ) | 3 | XT1, XT2, XT3 | M3 hole with a ground pad | `MountingHole:MountingHole_3.2mm_M3_Pad` | the ground lugs XT1..XT3 |
+| лепесток 7.750.008 | ground lug (ОБЩИЙ) | 3 | XT1, XT2, XT3 | a ground lug on a 3.2 mm hole | `ns4:Lug_3.2mm` | the ground lugs XT1..XT3, a small ring as the 1991 board has room for |
