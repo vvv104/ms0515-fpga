@@ -450,4 +450,12 @@ to any one board.  From stage 6 on there are two projects:
        nothing unconnected); `tools/fab.py` writes the gerbers, the drill
        files and the assembly drawing; what to order, what to hold against
        the real parts, the options and the first power-on in `fab.md`.
-       The owner's board (`ns4-vvv104`) is placed, not routed.
+       **The owner's board routed** the same way (2026-11-10,
+       `pathfind.py vvv104 ...`, E9 kept): its routing's vias cut R75.2 off
+       the GND plane on a piece of fill - KiCad's DRC told it, and so does
+       `readback.py` now, which takes each piece of a plane's fill on its
+       own; `pathfind.py vvv104 planes` hands such pins to the next
+       routing, which joins them by a run.  Then: pcb.py check, readback
+       (against the variant's netlist; against Э3's exactly D70.15) and
+       DRC no difference, no error, nothing unconnected.  Э3's board had
+       no such pin.

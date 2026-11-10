@@ -41,6 +41,14 @@ class Model(unittest.TestCase):
         b["pads"][1].append(0.8)
         self.assertEqual(len(pathfind.Model(b, LAYERS).islands["A"]), 2)
 
+    def test_a_plane_s_pad_on_a_piece_cut_off_the_plane_is_an_island_to_join(self):
+        b = board([(2.54, 2.54, "GND", "D1.7"), (12.7, 2.54, "GND", "D2.7"), (12.7, 12.7, "GND", "R1.2")])
+        self.assertNotIn("GND", pathfind.Model(b, LAYERS).islands)          # the plane joins them
+        b["plane_splits"] = {"GND": [["R1.2"]]}
+        islands = pathfind.Model(b, LAYERS).islands["GND"]
+        self.assertEqual(len(islands), 2)
+        self.assertEqual([(it[1], it[2]) for it in islands[1][1]], [(12.7, 12.7)])
+
     def test_a_cell_between_two_nets_pads_closer_than_the_clearance_is_shut(self):
         # pads 1.2 mm round, 2.54 apart: the cell between them is too near both
         m = pathfind.Model(board([(2.54, 2.54, "A", "D1.1", 1.2), (5.08, 2.54, "B", "D1.2", 1.2)]), LAYERS)
@@ -117,6 +125,18 @@ class Route(unittest.TestCase):
             for a, b in zip(path, path[1:]):
                 if m.layer_of(a) != m.layer_of(b):
                     self.assertIn(a % m.per_layer, holes)
+
+
+@unittest.skipIf(pathfind is None, "no scipy")
+class Variant(unittest.TestCase):
+    def test_a_variant_has_its_own_board_and_work_folder(self):
+        board, work, rest = pathfind.where(["pathfind.py", "vvv104", "route", "300"])
+        self.assertTrue(board.endswith(os.path.join("kicad", "ns4-vvv104.kicad_pcb")))
+        self.assertTrue(work.endswith(os.path.join("build", "pathfind-vvv104")))
+        self.assertEqual(rest, ["route", "300"])
+        board, work, rest = pathfind.where(["pathfind.py", "export"])
+        self.assertTrue(board.endswith(os.path.join("kicad", "ns4.kicad_pcb")))
+        self.assertTrue(work.endswith(os.path.join("build", "pathfind")))
 
 
 if __name__ == "__main__":

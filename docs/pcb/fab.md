@@ -13,7 +13,8 @@ Not built yet: nothing here has been on a bench.
 ## The files
 
 `python tools/fab.py` (KiCad's command line as `$KICAD_CLI` or on the PATH)
-writes `build/fab/ns4/`:
+writes `build/fab/ns4/` (`python tools/fab.py kicad/ns4-vvv104.kicad_pcb`:
+the owner's board, D70.15 on GND, into `build/fab/ns4-vvv104/`):
 
 - `ns4-gerbers.zip` - what a fab takes: the eight copper layers, both masks,
   both silkscreens, the outline, the drill files (plated and not, apart) and

@@ -39,6 +39,24 @@ class Groups(unittest.TestCase):
         self.assertEqual(readback.pin_groups(pads, [], [], planes), [{"D1.7", "D2.7"}, {"D3.1"}])
 
 
+class Pieces(unittest.TestCase):
+    def test_each_piece_of_a_fill_joins_only_the_pads_on_it(self):
+        import numpy as np
+        labels = np.zeros((40, 100), dtype=np.int32)
+        labels[:, :60] = 1                       # the plane
+        labels[10:30, 75:95] = 2                 # an island cut off from it
+        pads = [pad("A.1", 1.0, 1.0, 0.3), pad("B.1", 4.0, 1.0, 0.3), pad("C.1", 4.25, 1.0, 0.3)]
+        planes = readback.pieces(labels, pads, (0.0, 0.0), 0.05)
+        self.assertEqual(sorted(sorted(p["pins"]) for p in planes), [["A.1"], ["B.1", "C.1"]])
+
+
+class PlaneSplits(unittest.TestCase):
+    def test_the_pins_of_a_plane_s_net_off_its_largest_piece_are_told_by_piece(self):
+        want = {"D1.7": "GND", "D2.7": "GND", "D3.7": "GND", "R1.2": "GND", "D4.1": "A", "D5.1": "A"}
+        groups = [{"D1.7", "D2.7", "D3.7"}, {"R1.2"}, {"D4.1"}, {"D5.1"}]
+        self.assertEqual(readback.plane_splits(groups, want), {"GND": [["R1.2"]]})
+
+
 class Compare(unittest.TestCase):
     def test_equal_partitions_have_no_difference(self):
         want = {"D1.1": "A", "D2.1": "A", "D3.1": "B"}

@@ -2,9 +2,14 @@
 """PathFinder on the 1991 board's hidden layers: Э3's nets joined inside, between the
 holes the board already has.
 
-    <KiCad>/bin/python tools/pathfind.py export [BOARD]     - build/pathfind/board.json
-    python tools/pathfind.py route [ITERATIONS] [LAYER...]   - build/pathfind/routes.json
-    <KiCad>/bin/python tools/pathfind.py apply OUT [BOARD]   - the routes on a copy of the board
+    <KiCad>/bin/python tools/pathfind.py [variant] export [BOARD]     - build/pathfind/board.json
+    python tools/pathfind.py [variant] route [ITERATIONS] [LAYER...]   - build/pathfind/routes.json
+    <KiCad>/bin/python tools/pathfind.py [variant] apply OUT [BOARD]   - the routes on a copy of the board
+    <KiCad>/bin/python tools/pathfind.py [variant] planes [ROUTED]     - the plane pins the routing's
+                                       vias cut off the planes into board.json; `route`, `apply` again
+
+With a variant (vvv104) the board is kicad/ns4-<variant>.kicad_pcb and the work folder
+build/pathfind-<variant>.
 
 `export` takes the placed board with Mick's outer copper laid (kicad/ns4.kicad_pcb) and the
 1991 holes (netlist/copper.json); `route` runs on numpy and scipy, which KiCad's Python
@@ -197,6 +202,8 @@ class Model:
         out = {}
         for net, items in self.items.items():
             if net in PLANES:
+                if net in self.board.get("plane_splits", {}):
+                    out[net] = self._plane_islands(net, items)
                 continue
             parent = list(range(len(items)))
 
@@ -214,6 +221,17 @@ class Model:
             if len(holed) > 1:
                 out[net] = holed
         return out
+
+    def _plane_islands(self, net, items):
+        """[[item]]: the plane's net as the plane holds it, and each piece of its fill cut off
+        the plane (board["plane_splits"]: {net: [[pin]]}, tools/readback.py) with its pads."""
+        at = {p[4]: (p[0], p[1]) for p in self.board["pads"]}
+        cut = []
+        for pins in self.board["plane_splits"][net]:
+            where = {at[name] for name in pins if name in at}
+            cut.append([it for it in items if it[0] is None and (it[1], it[2]) in where])
+        taken = {id(it) for group in cut for it in group}
+        return [[it for it in items if id(it) not in taken]] + [g for g in cut if g]
 
     def _island_cells(self, net, islands):
         """[(set of nodes, items)]: per island the cells a route may end in."""
@@ -544,8 +562,41 @@ def apply(out, board_path):
     return 0
 
 
+COMMANDS = ("export", "route", "apply", "planes")
+
+
+def planes(routed, variant):
+    """The routed board read back (tools/readback.py): the plane pins cut off the planes
+    go into board.json, so that `route` again joins them by a run."""
+    sys.path.insert(0, HERE)
+    import readback
+    groups = readback.pin_groups(*readback.read_board(routed))
+    splits = readback.plane_splits(groups, readback.wanted(variant))
+    path = os.path.join(WORK, "board.json")
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    data["plane_splits"] = splits
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False)
+    told = "; ".join(f"{net}: {', '.join(' '.join(g) for g in gs)}" for net, gs in splits.items())
+    print(f"plane pins cut off: {told or 'none'} -> {path}")
+    return 0
+
+
+def where(argv):
+    """(board, work folder, the rest of argv): Э3's board, or a variant's when argv names one."""
+    rest = argv[1:]
+    variant = rest.pop(0) if rest and rest[0] not in COMMANDS else None
+    name = f"ns4-{variant}" if variant else "ns4"
+    work = os.path.join(ROOT, "build", f"pathfind-{variant}" if variant else "pathfind")
+    return os.path.join(ROOT, "kicad", f"{name}.kicad_pcb"), work, rest
+
+
 def main(argv):
-    board = os.path.join(ROOT, "kicad", "ns4.kicad_pcb")
+    global WORK
+    board, WORK, rest = where(argv)
+    variant = argv[1] if len(argv) > 1 and argv[1] not in COMMANDS else None
+    argv = [argv[0]] + rest
     if len(argv) > 1 and argv[1] == "export":
         export(argv[2] if len(argv) > 2 else board, os.path.join(WORK, "board.json"))
         return 0
@@ -553,6 +604,8 @@ def main(argv):
         return route(int(argv[2]) if len(argv) > 2 else 100, argv[3:] or LAYERS)
     if len(argv) > 2 and argv[1] == "apply":
         return apply(os.path.join(ROOT, argv[2]), argv[3] if len(argv) > 3 else board)
+    if len(argv) > 1 and argv[1] == "planes":
+        return planes(os.path.join(ROOT, argv[2]) if len(argv) > 2 else board, variant)
     print(__doc__)
     return 2
 

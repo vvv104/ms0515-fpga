@@ -108,6 +108,21 @@ def pin_groups(pads, tracks, vias, planes):
     return sorted(groups.values(), key=lambda g: sorted(g))
 
 
+PLANES = ("GND", "+5V")
+
+
+def plane_splits(groups, want):
+    """{net: [[pin]]}: a plane's net in more than one group - the pins of every group but
+    the largest (pieces of the fill cut off the plane), for tools/pathfind.py to join."""
+    out = {}
+    for net in PLANES:
+        parts = sorted((sorted(p for p in g if want.get(p) == net) for g in groups
+                        if any(want.get(p) == net for p in g)), key=len, reverse=True)
+        if len(parts) > 1:
+            out[net] = parts[1:]
+    return out
+
+
 def compare(groups, want):
     """The differences between the board's groups of pins and the netlist ({pin: net})."""
     out = []
@@ -128,8 +143,23 @@ def compare(groups, want):
 STEP = 0.05                     # mm a pixel of a plane's fill
 
 
+def pieces(labels, pads, origin, step):
+    """[{"pins"}]: per piece of fill (labels: 0 none, k the k-th piece) the pads it overlaps."""
+    import numpy as np
+    h, w = labels.shape
+    on = defaultdict(set)
+    for p in pads:
+        cx, cy, r = (p["x"] - origin[0]) / step, (p["y"] - origin[1]) / step, p["r"] / step
+        ys, xs = np.mgrid[int(cy - r):int(cy + r) + 2, int(cx - r):int(cx + r) + 2]
+        inside = np.hypot(xs - cx, ys - cy) < r * 0.95
+        for k in set(labels[ys.clip(0, h - 1), xs.clip(0, w - 1)][inside].tolist()) - {0}:
+            on[k].add(p["pin"])
+    return [{"pins": on[k]} for k in sorted(on)]
+
+
 def plane_pins(board, pads):
-    """[{"pins"}]: per zone the pads its fill overlaps (rasterised at STEP)."""
+    """[{"pins"}]: per piece of each zone's fill (an outline of it: the fill may fall in
+    islands) the pads it overlaps, rasterised at STEP."""
     import numpy as np
     import pcbnew
     from PIL import Image, ImageDraw
@@ -137,30 +167,24 @@ def plane_pins(board, pads):
     box = board.GetBoardEdgesBoundingBox()
     x0, y0 = mm(box.GetLeft()), mm(box.GetTop())
     w, h = int(mm(box.GetWidth()) / STEP) + 2, int(mm(box.GetHeight()) / STEP) + 2
+
+    def px(p):
+        return ((mm(p.x) - x0) / STEP, (mm(p.y) - y0) / STEP)
     out = []
     for zone in board.Zones():
         for layer in zone.GetLayerSet().Seq():
             polys = zone.GetFilledPolysList(layer)
-            img = Image.new("1", (w, h), 0)
+            img = Image.new("I", (w, h), 0)
             draw = ImageDraw.Draw(img)
-
-            def px(p):
-                return ((mm(p.x) - x0) / STEP, (mm(p.y) - y0) / STEP)
-            for k in range(polys.OutlineCount()):
+            # the largest first: an island stands in a hole of a larger piece, drawn after it
+            order = sorted(range(polys.OutlineCount()), key=lambda k: -abs(polys.Outline(k).Area()))
+            for label, k in enumerate(order, 1):
                 o = polys.Outline(k)
-                draw.polygon([px(o.CPoint(i)) for i in range(o.PointCount())], fill=1)
+                draw.polygon([px(o.CPoint(i)) for i in range(o.PointCount())], fill=label)
                 for q in range(polys.HoleCount(k)):
                     hole = polys.Hole(k, q)
                     draw.polygon([px(hole.CPoint(i)) for i in range(hole.PointCount())], fill=0)
-            fill = np.array(img)
-            pins = set()
-            for p in pads:
-                cx, cy, r = (p["x"] - x0) / STEP, (p["y"] - y0) / STEP, p["r"] / STEP
-                ys, xs = np.mgrid[int(cy - r):int(cy + r) + 2, int(cx - r):int(cx + r) + 2]
-                inside = np.hypot(xs - cx, ys - cy) < r * 0.95
-                if fill[ys.clip(0, h - 1), xs.clip(0, w - 1)][inside].any():
-                    pins.add(p["pin"])
-            out.append({"pins": pins})
+            out += pieces(np.array(img), pads, (x0, y0), STEP)
     return out
 
 
