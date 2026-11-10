@@ -1011,11 +1011,20 @@ next to its label at its own pitch.  What it showed:
   R69, R71, R73 (all unpolarised).  What is left with two nets is the
   copper read's merges, the factory patches' pins (D40.9, D98.3), E9's
   D80.5 - and XS2 and SA1, below.
-- **Open: XS2's numbering.**  The copper joins XS2's hole "1" with SA1.15
-  and SA1.16 (`~XS2.3` on Э3), hole "3" with SA1.19/20 (`~XS2.1`), hole
-  "5" with SA1.13/14 (`~XS2.4`): XS2's pins 1 and 3, 4 and 5 the other
-  way round from `kicad/ns4.pretty/DIN-5_Socket_Horizontal`, which is
-  drawn by hand.  Laid, those runs are cut where the nets meet; which is
-  right - the footprint, or the copper - is the owner's to say.
-  Likewise SA1.8 (`ВЫХКЛ L`) on one copper group with SA1.2 and C84.1
-  (`ЗАП МАГ H`).
+- **XS2's numbering was the footprint's, SA1.8 a misread** (2026-11-10).
+  The copper joins XS2's hole "1" of our hand-drawn footprint with
+  SA1.15/16 (Э3's `~XS2.3`), hole "3" with SA1.19/20 (`~XS2.1`), hole
+  "5" with SA1.13/14 (`~XS2.4`): Э3 and the copper agree, the footprint
+  had pins 1 and 3, 4 and 5 the other way round along the row (the
+  assembly drawing read from the wrong side).
+  `kicad/ns4.pretty/DIN-5_Socket_Horizontal` renumbered so.  And SA1.8
+  is `ЗАП МАГ H`, not `ВЫХКЛ L`: Э3 sheet 1 draws it from ЗАП МАГ Н's
+  dot, a crooked 8 (the owner) - which the copper says too (SA1.8 with
+  SA1.2 and C84.1), and the build variants want: switch 8 joins pins 8
+  and 13, so the cassette build sends ЗАП МАГ out on XS2:4.  The model's
+  RTL does not change (the sheet: `mc0515-ed` page 18, SA1's block).
+- **What the copper still joins against Э3** is the eight places of
+  `netlist/compare.txt` ("joined by copper"): the trace read's merges and
+  the factory patches' pins - with E9's D80.5 and one more seen by the
+  centre lines alone, D79.7 (`GND`) with D12.2 (`МК09 H`), a merge of the
+  same kind.  Laid, each is cut where its nets meet.

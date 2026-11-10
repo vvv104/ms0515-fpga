@@ -1906,7 +1906,7 @@ GND,SA1,4,,1,
 ~SA1.6,E7,2,,1,
 ~SA1.6,SA1,6,,1,
 GND,SA1,7,,1,
-ВЫХКЛ L,SA1,8,,1,
+ЗАП МАГ H,SA1,8,,1,read again (owner 2026-11-10): Э3 sheet 1 draws it from ЗАП МАГ Н's dot - a crooked 8; the copper joins it with SA1.2
 СТЫК С2 108,SA1,9,,1,
 ЧТМАГ H,E8,1,,1,
 ~SA1.10,E8,2,,1,

@@ -3414,7 +3414,7 @@
     (instances (project "ns4" (path "/235655e8-ee98-54dd-951a-292abaf0c6be/74fc6609-4738-59c4-aa58-d1a02ea57461" (reference "#PWR0141") (unit 1))))
   )
   (wire (pts (xy 464.82 170.18) (xy 469.90 170.18)) (stroke (width 0) (type default)) (uuid "c46f957c-8bd8-527a-b066-460f570e8074"))
-  (global_label "ВЫХКЛ L" (shape passive) (at 464.82 170.18 180) (fields_autoplaced yes) (effects (font (size 1.0 1.0)) (justify right)) (uuid "e22fa040-a779-5dd7-977d-a9c617221552"))
+  (global_label "ЗАП МАГ H" (shape passive) (at 464.82 170.18 180) (fields_autoplaced yes) (effects (font (size 1.0 1.0)) (justify right)) (uuid "e22fa040-a779-5dd7-977d-a9c617221552"))
   (wire (pts (xy 464.82 172.72) (xy 469.90 172.72)) (stroke (width 0) (type default)) (uuid "1b130365-94c0-52a9-b817-421eb1c70d9e"))
   (global_label "СТЫК С2 108" (shape passive) (at 464.82 172.72 180) (fields_autoplaced yes) (effects (font (size 1.0 1.0)) (justify right)) (uuid "51ebf944-d14c-561a-85c0-7f4307337874"))
   (wire (pts (xy 464.82 175.26) (xy 469.90 175.26)) (stroke (width 0) (type default)) (uuid "9a377601-0daf-575b-ac57-e941353605cf"))
