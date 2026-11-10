@@ -399,6 +399,23 @@ to any one board.  From stage 6 on there are two projects:
        What it leaves to route goes inside, `route.py start` keeping the
        locked copper (`(type fix)`).  Twelve two-pin parts turned round
        on the way, where the copper said so (`docs/findings.md`).
+       **The inside routed by PathFinder** (2026-11-10, `tools/pathfind.py`):
+       Freerouting over the locked copper went slowly (1584 items, 724
+       left after two passes, each pass an hour and more).  The routing
+       left is the hidden layers' own work - DRC's 499 unconnected
+       against the 487 pairs of `docs/pcb/inner-layers.md` - and every
+       hole of the 1991 board shows outside, so its inner layers changed
+       layer only in holes Mick's scans show.  PathFinder (the FPGA
+       router: every net alone, sharing allowed, a shared cell dearer
+       round by round) on a 1.27 mm grid, one track between two pins
+       (the board's photos: 0.25..0.3 mm), layer changes only in the
+       pins, the 1991 vias and the 248 holes no outer copper takes.
+       On In3/In4 with the free room of In1/In6: every join made, none
+       shared, in 199 rounds (a few minutes); KiCad's DRC of the board
+       **no error**, one unconnected - a 0.2 mm scrap of Mick's copper at
+       VT1.1 that reaches no hole (`build/pathfind/`).  149 of the free
+       holes became vias.  On In3/In4 alone, as the 1991 board may have
+       been: 16 cells still shared after 400 rounds.
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.
