@@ -76,6 +76,8 @@ again in memory and fails if the committed one differs.
 | `kicad/ns4-vvv104.kicad_pcb`, `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py vvv104`, `... pcb.py` | `netlist/` (+ `vvv104.csv`) + `placement.csv` + `placement-1991.csv` + footprints; every part where the 1991 board had it, on both | `... pcb.py check [vvv104]`: every pad's net against the netlist |
 | the same files (routing) | `tools/route.py [vvv104] start / run / finish` (Freerouting), state in `build/route[-vvv104]` | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
 | the same files (the inside over the 1991 copper) | `<KiCad>/bin/python tools/pathfind.py export`, `python tools/pathfind.py route`, `<KiCad>/bin/python tools/pathfind.py apply OUT` (PathFinder), state in `build/pathfind` | the board with Mick's outer layers laid | `tools/tests/test_pathfind.py`; the routed board by `pcb.py check` and KiCad's DRC |
+| `kicad/ns4.kicad_pcb` (routed) | `tools/pcb.py` (placed, the 1991 outer copper: the routing gone), then `pathfind.py export`, `route`, `apply kicad/ns4.kicad_pcb` | as above | `pcb.py check`, `readback.py`, KiCad's DRC |
+| `build/fab/ns4/` (gerbers, drill, assembly drawing; not kept) | `python tools/fab.py` | the routed board | `tools/tests/test_fab.py`; `docs/pcb/fab.md` says what they are |
 | (a check) the routed board's nets off its copper | `<KiCad>/bin/python tools/readback.py [BOARD] [variant]` | the routed board, `netlist/` (pcb.py's pin_nets) | `tools/tests/test_readback.py`; exit 1 on a difference |
 | the second board | `tools/pcb.py derive TO FROM` + `route.py ... start --from` | the first board as routed; only the nets its pins left are routed again | `pcb.py check` |
 

@@ -444,3 +444,10 @@ to any one board.  From stage 6 on there are two projects:
        joined.
    8f. **For the fab and the bench.**  Gerbers, drill files, the parts
        list, the assembly drawing, the options and the first power-on.
+       **Done for Э3's board** (2026-11-10, `docs/pcb/fab.md`): the routed
+       board is `kicad/ns4.kicad_pcb` (`tools/pathfind.py apply`), checked
+       again there (pcb.py check, readback, DRC: no difference, no error,
+       nothing unconnected); `tools/fab.py` writes the gerbers, the drill
+       files and the assembly drawing; what to order, what to hold against
+       the real parts, the options and the first power-on in `fab.md`.
+       The owner's board (`ns4-vvv104`) is placed, not routed.
