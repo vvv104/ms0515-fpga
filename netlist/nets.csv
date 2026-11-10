@@ -1954,7 +1954,7 @@ GND,C1,2,,1,
 GND,C2,2,,1,
 +5V,C3,1,,1,
 GND,C3,2,,1,
--12V,C4,1,,1,
++12V,C4,1,,1,Э3 sheet 1 draws -12V; the copper (Mick) has it on D1.40 and XP2.38: +12V - taken from the copper (owner 2026-11-10; docs/findings.md "The 1991 placement")
 GND,C4,2,,1,
 +5V,C7,1,,1,
 GND,C7,2,,1,

@@ -973,10 +973,19 @@ next to its label at its own pitch.  What it showed:
   says.  VD3, VD4, VD12, VD15 and C2, C10, C11 are turned by it.
 - **Two labels misread**, the nets saying which: "R81" is R58 (in series
   with VD11), "R82" R62 (on D92.1) - there is no R81 nor R82.
-- **Against Э3: C4.**  Э3 draws C4 (0.22 uF) from `-12V` to `GND`; on
-  Mick's traces one of its holes is joined to XS5.40 (`+12V`).  A filter
-  on a supply rail: the model does not run the supplies, so no test will
-  tell; Э3 is kept.  Open, for a board: C4's pads against the rails.
+- **Against Э3: C4 - taken from the copper** (the owner, 2026-11-10).
+  Э3 sheet 1 draws C4 (0.22 uF) with C10 and C9 from `-12V` to `GND`
+  ([evidence/c4-rail](evidence/c4-rail/)).  On Mick's traces the
+  `-12V` run joins exactly Э3's `-12V` pins - XS1 a31..c32, R15, R22,
+  R23, VD1, VD2, C9, C10, XP2.39/40 - but not C4; C4's pad 1 is on a run
+  of its own on layer 1 with D1.40 (the КР1818ВГ93's +12 V, the power
+  table) and XP2.38 (`+12V`), its pad 2 on a plane.  So the copper has it
+  as D1's +12 V decoupling, beside the chip as C23 and C31 are beside D20
+  and D28, the board's two other +12 V chips; by Э3 D1 alone would have
+  none.  The owner's board has a К10-17 in that place (photo `MC 0515
+  04.jpg`; its tracks are not to be seen).  The model does not run the
+  supplies, so no test tells; `nets.csv` has C4.1 on `+12V`, its note
+  saying so.
 - **Against Э3: XS1 c10.**  Э3 has `РЕЖ1 H` on XS1 pin 74 (c10); Mick's
   traces draw no hole there (the other 95 are drawn).  The pad is placed
   where the connector's geometry puts it.  Open, for a board.
