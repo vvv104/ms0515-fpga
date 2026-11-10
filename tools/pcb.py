@@ -458,7 +458,8 @@ def build(variant=None):
 # The 1991 board's outer layers (Mick's 1, 2, 7, 8) as fixed copper: tools/lay1991.py.
 COPPER_LAYERS_1991 = {"NS4-1": pcbnew.F_Cu, "NS4-2": pcbnew.In1_Cu, "NS4-7": pcbnew.In6_Cu, "NS4-8": pcbnew.B_Cu}
 TRACK_1991_MM = 0.25                      # the 1991 signal runs: 0.25..0.3 mm on the photos (Mick's pen: 0.19)
-WIDE_1991_PX = 8.0                        # wider than this: a supply run, laid at its width
+WIDE_1991_PX = 8.0                        # wider than this, on a supply: a supply run, laid at its width
+SUPPLIES_1991 = ("+5V", "GND", "+12V", "-12V")
 STUB_MM, PAD_R_MM, VIA_R_MM = 2.0, 0.75, 0.5
 VIA_1991 = {"via": 1.0, "drill": 0.5}
 
@@ -537,7 +538,8 @@ def lay_copper(board):
     signal, wide = [], []
     for name, runs in tracks.items():
         for net, w, pts in runs:
-            width = None if w <= WIDE_1991_PX else round(min(w * MM_PER_PX, 2.0) / 0.05) * 0.05
+            supply = w > WIDE_1991_PX and net in SUPPLIES_1991   # a signal drawn wide is a misread blob
+            width = round(min(w * MM_PER_PX, 2.0) / 0.05) * 0.05 if supply else None
             for a, b in zip(pts, pts[1:]):
                 if a != b:
                     seg = (name, *mm(a), *mm(b))

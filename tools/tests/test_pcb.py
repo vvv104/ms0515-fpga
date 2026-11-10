@@ -76,6 +76,12 @@ class Placement1991(unittest.TestCase):
                          if t.GetClass() == "PCB_TRACK")
         self.assertEqual(widths.most_common(1)[0][0], 0.25)
 
+    def test_only_the_supplies_are_laid_wide(self):
+        wide = {t.GetNetname() for t in self.board.GetTracks()
+                if t.GetClass() == "PCB_TRACK" and t.GetWidth() > pcbnew.FromMM(0.25)}
+        self.assertTrue(wide)
+        self.assertLessEqual(wide, {"+5V", "GND", "+12V", "-12V"})
+
     def test_every_part_but_the_dips_stands_on_its_1991_holes(self):
         board = self.board
         want = pcb.holes_1991()
