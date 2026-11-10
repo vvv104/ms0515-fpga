@@ -104,7 +104,88 @@ def board_pins():
         if name is None or name.split(".")[0] in own:      # the board's own parts: not the 1991 board's
             continue
         pins.append((back.get(name, net), name, h))          # a pin the board moved: on Э3's net
-    return pins, len(holes)
+    parts = []
+    for fp in board.GetFootprints():
+        if fp.GetReference() in own or not [p for p in fp.Pads() if p.GetNumber()]:
+            continue
+        box = fp.GetBoundingBox(False)
+        px = [pcbnew.ToMM(v) / pcb.MM_PER_PX for v in (box.GetLeft(), box.GetTop(), box.GetRight(), box.GetBottom())]
+        one = fp.FindPadByNumber("1")
+        pin1 = (pcbnew.ToMM(one.GetPosition().x) / pcb.MM_PER_PX,
+                pcbnew.ToMM(one.GetPosition().y) / pcb.MM_PER_PX) if one else None
+        parts.append((fp.GetReference(), px, pin1))
+    return pins, holes, parts
+
+
+def layers_image():
+    """Mick's four layers together (NS4-all.gif), from $MS0515_DATA."""
+    from PIL import Image
+    data = os.environ.get("MS0515_DATA", os.path.join(ROOT, "..", "ms0515_data"))
+    return Image.open(os.path.join(data, "scans", "boards", "radon17-layers", "NS4-all.gif")).convert("RGB")
+
+
+def _font(size):
+    from PIL import ImageFont
+    try:
+        return ImageFont.truetype("arialbd.ttf", size)
+    except OSError:
+        return ImageFont.load_default()
+
+
+def draw_map(parts, path):
+    """The board as Mick's layers show it, dimmed, every part boxed and
+    named, pin 1 a red dot: to find the pins of the list on a board."""
+    from PIL import Image, ImageDraw
+    im = Image.blend(layers_image(), Image.new("RGB", (4488, 3543), (0, 0, 0)), 0.55)
+    d = ImageDraw.Draw(im)
+    small, big = _font(22), _font(34)
+    for ref, (x0, y0, x1, y1), pin1 in parts:
+        d.rectangle([x0, y0, x1, y1], outline=(230, 230, 230), width=2)
+        f = big if (x1 - x0) * (y1 - y0) > 40000 else small
+        w = d.textlength(ref, font=f)
+        d.text(((x0 + x1 - w) / 2, (y0 + y1) / 2 - f.size / 2), ref, fill=(255, 255, 0), font=f)
+        if pin1:
+            d.ellipse([pin1[0] - 7, pin1[1] - 7, pin1[0] + 7, pin1[1] + 7], fill=(255, 40, 40))
+    im.resize((3366, 2657)).save(path, quality=80)       # three quarters: the names still read
+
+
+def _panel(image, box, size, marks):
+    """A crop of image (box in its pixels) scaled to fit size, the pins of
+    marks ({name: (x, y)}) ringed and named inside the frame."""
+    from PIL import Image, ImageDraw
+    x0, y0, x1, y1 = box
+    s = min(size[0] / (x1 - x0), size[1] / (y1 - y0), 4.0)
+    t = image.crop(box).resize((int((x1 - x0) * s), int((y1 - y0) * s)), Image.NEAREST)
+    d = ImageDraw.Draw(t)
+    f = _font(20)
+    for name, (x, y) in marks.items():
+        X, Y = (x - x0) * s, (y - y0) * s
+        if not (0 <= X < t.size[0] and 0 <= Y < t.size[1]):
+            continue
+        d.ellipse([X - 16, Y - 16, X + 16, Y + 16], outline=(255, 255, 255), width=3)
+        w = d.textlength(name, font=f)
+        tx = X + 19 if X + 25 + w < t.size[0] else X - 22 - w
+        d.rectangle([tx - 3, Y - 28, tx + w + 3, Y - 4], fill=(0, 0, 0))
+        d.text((tx, Y - 28), name, fill=(255, 255, 0), font=f)
+    return t
+
+
+def draw_pair(a, b, where, path):
+    """Two pins of the list on Mick's layers, ringed and named: one frame
+    when they are near, a frame round each when they are not."""
+    from PIL import Image
+    image = layers_image()
+    (ax, ay), (bx, by) = where[a], where[b]
+    if max(abs(ax - bx), abs(ay - by)) < 500:
+        box = (int(min(ax, bx)) - 140, int(min(ay, by)) - 140, int(max(ax, bx)) + 140, int(max(ay, by)) + 140)
+        _panel(image, box, (900, 700), {a: where[a], b: where[b]}).save(path)
+        return
+    frames = [_panel(image, (int(x) - 160, int(y) - 120, int(x) + 160, int(y) + 120), (480, 360), {n: (x, y)})
+              for n, (x, y) in ((a, where[a]), (b, where[b]))]
+    sheet = Image.new("RGB", (frames[0].size[0] + frames[1].size[0] + 10, max(f.size[1] for f in frames)), (30, 30, 30))
+    sheet.paste(frames[0], (0, 0))
+    sheet.paste(frames[1], (frames[0].size[0] + 10, 0))
+    sheet.save(path)
 
 
 def write(joins, shorts, planes):
@@ -117,7 +198,11 @@ def write(joins, shorts, planes):
             "chips' inputs and outputs two pins read hundreds of ohms or more, which is not a ring.  A",
             "pair that does not ring is a place where the board differs from Э3 - or where our reading",
             "of Mick's traces does; either way it is worth a photo and a post.", "",
-            f"`GND` and `+5V` are planes: every pin of theirs rings to every other ({planes}).", ""]
+            f"`GND` and `+5V` are planes: every pin of theirs rings to every other ({planes}).", "",
+            "Where the pins are: the board as Mick's layers show it, seen from the parts' side, the",
+            "edge connectors (XS1, XP3, XP5, XP6) on the left; each part boxed and named, pin 1 a red",
+            "dot.  A chip's pins run from pin 1 along its row and back along the other row.", "",
+            "![The board, every part named](inner-layers/board-map.jpg)", ""]
     text += ["## Pairs that must ring", "", "| Net | Pin | Rings to |", "|---|---|---|"]
     for net in sorted(joins):
         for a, b in joins[net]:
@@ -128,18 +213,28 @@ def write(joins, shorts, planes):
              "| Net | Pin | Net | Pin |", "|---|---|---|---|"]
     for a, pa, b, pb in shorts:
         text.append(f"| `{a}` | {pa} | `{b}` | {pb} |")
+    text += ["", "Each of them on Mick's layers (1 green, 2 orange, 7 brown, 8 blue):", ""]
+    for k, (a, pa, b, pb) in enumerate(shorts, 1):
+        text += [f"{k}. {pa} (`{a}`) and {pb} (`{b}`)", "",
+                 f"   ![{pa} and {pb}](inner-layers/apart-{k}.png)", ""]
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(text) + "\n")
 
 
 def main():
-    pins, n = board_pins()
+    pins, holes, parts = board_pins()
     lines = json.load(open(os.path.join(ROOT, "netlist", "lines-1991.json"), encoding="utf-8"))
-    group = outer_groups(lines, n)
+    group = outer_groups(lines, len(holes))
     signal = [p for p in pins if p[0] not in PLANES]
     planes = ", ".join(f"{sum(1 for p in pins if p[0] == pl)} `{pl}` pins" for pl in PLANES)
     joins, shorts = inner_joins(signal, group), outer_shorts(pins, group)
     write(joins, shorts, planes)
+    pictures = os.path.join(os.path.dirname(OUT), "inner-layers")
+    os.makedirs(pictures, exist_ok=True)
+    draw_map(parts, os.path.join(pictures, "board-map.jpg"))
+    where = {name: holes[h] for _, name, h in pins}
+    for k, (_, pa, _, pb) in enumerate(shorts, 1):
+        draw_pair(pa, pb, where, os.path.join(pictures, f"apart-{k}.png"))
     print(f"{len(joins)} nets joined inside, {sum(len(v) for v in joins.values())} pairs; "
           f"{len(shorts)} outer joins of two nets -> {OUT}")
     return 0

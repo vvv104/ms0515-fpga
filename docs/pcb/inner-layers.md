@@ -12,6 +12,12 @@ of Mick's traces does; either way it is worth a photo and a post.
 
 `GND` and `+5V` are planes: every pin of theirs rings to every other (315 `GND` pins, 225 `+5V` pins).
 
+Where the pins are: the board as Mick's layers show it, seen from the parts' side, the
+edge connectors (XS1, XP3, XP5, XP6) on the left; each part boxed and named, pin 1 a red
+dot.  A chip's pins run from pin 1 along its row and back along the other row.
+
+![The board, every part named](inner-layers/board-map.jpg)
+
 ## Pairs that must ring
 
 | Net | Pin | Rings to |
@@ -524,3 +530,42 @@ patch (a cut and a wire), or the board's own.  On a board built to Э3 they are 
 | `МК02 H` | D9.6 | `А13 H` | D86.11 |
 | `МК09 H` | D12.2 | `GND` | D79.7 |
 | `Р3 H` | D30.1 | `АД13 H` | D74.4 |
+
+Each of them on Mick's layers (1 green, 2 orange, 7 brown, 8 blue):
+
+1. D30.15 (`~D30.15`) and D98.3 (`СТРОБ H`)
+
+   ![D30.15 and D98.3](inner-layers/apart-1.png)
+
+2. D16.1 (`~E1.2`) and D40.9 (`ТС8М L`)
+
+   ![D16.1 and D40.9](inner-layers/apart-2.png)
+
+3. D62.5 (`А13 H`) and D78.6 (`~D78.6`)
+
+   ![D62.5 and D78.6](inner-layers/apart-3.png)
+
+4. D9.20 (`АД02 H`) and D9.19 (`АД01 H`)
+
+   ![D9.20 and D9.19](inner-layers/apart-4.png)
+
+5. D9.20 (`АД02 H`) and XS1.b18 (`МК15 H`)
+
+   ![D9.20 and XS1.b18](inner-layers/apart-5.png)
+
+6. D62.10 (`АД06 H`) and C70.1 (`БОРДС L`)
+
+   ![D62.10 and C70.1](inner-layers/apart-6.png)
+
+7. D9.6 (`МК02 H`) and D86.11 (`А13 H`)
+
+   ![D9.6 and D86.11](inner-layers/apart-7.png)
+
+8. D12.2 (`МК09 H`) and D79.7 (`GND`)
+
+   ![D12.2 and D79.7](inner-layers/apart-8.png)
+
+9. D30.1 (`Р3 H`) and D74.4 (`АД13 H`)
+
+   ![D30.1 and D74.4](inner-layers/apart-9.png)
+
