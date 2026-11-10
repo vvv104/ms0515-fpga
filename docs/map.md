@@ -90,6 +90,7 @@ difference found there is settled by hand in `nets.csv` (or
 |---|---|---|---|
 | `netlist/copper.json` | `python tools/copper.py` | Mick's / Radon17's layer traces (`$MS0515_DATA`) | for comparison only |
 | `netlist/lines-1991.json` | `python tools/copper1991.py` | Mick's layers 1, 2, 7, 8 (`$MS0515_DATA`) as centre lines; `tools/lay1991.py` nets them and `pcb.py` lays them as both boards' outer copper, locked | `tools/tests/test_copper1991.py`, `test_lay1991.py`; DRC of the board |
+| `docs/pcb/inner-layers.md` | `<KiCad>/bin/python tools/inner1991.py` | `lines-1991.json` + Э3's board: the pin pairs the hidden layers 3..6 must join, and the outer copper's joins of two nets - a list to ring out a real board | `tools/tests/test_inner1991.py` |
 | `netlist/registration.json`, `verify.json`, `verify-*.png` | `tools/register.py`, `tools/verify_traces.py` | the bare-board scans | for comparison only |
 | `netlist/footprints.json` | `tools/footprints.py` | `copper.json` | for comparison only |
 | `netlist/mick.csv` | `tools/mick_pdf.py` | Mick's PDF of Э3 | for comparison only |
