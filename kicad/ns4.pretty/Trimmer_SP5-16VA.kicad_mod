@@ -1,0 +1,13 @@
+(footprint "Trimmer_SP5-16VA"
+	(version 20241229)
+	(generator "pretty.py")
+	(layer "F.Cu")
+	(descr "СП5-16ВА trimmer as on the 1991 board: pin 3 (the wiper) 2.54 mm beside pin 1, pin 2 3.175 mm from pin 3")
+	(property "Reference" "REF**" (at -4.500 -7.000 0) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))
+	(property "Value" "Trimmer_SP5-16VA" (at -4.500 3.000 0) (layer "F.Fab") (effects (font (size 1 1) (thickness 0.15))))
+	(attr through_hole)
+	(fp_rect (start -4.500 -5.500) (end 2.000 1.500) (stroke (width 0.12) (type solid)) (fill no) (layer "F.SilkS"))
+	(pad "1" thru_hole circle (at -2.540 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+	(pad "2" thru_hole circle (at 0.000 -3.175) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+	(pad "3" thru_hole circle (at 0.000 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+)

@@ -1,0 +1,12 @@
+(footprint "R_Axial_P12.70mm"
+	(version 20241229)
+	(generator "pretty.py")
+	(layer "F.Cu")
+	(descr "С1-4 / С2-23 resistor, 12.7 mm, as on the 1991 board")
+	(property "Reference" "REF**" (at 3.100 -2.750 0) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))
+	(property "Value" "R_Axial_P12.70mm" (at 3.100 2.750 0) (layer "F.Fab") (effects (font (size 1 1) (thickness 0.15))))
+	(attr through_hole)
+	(fp_rect (start 3.100 -1.250) (end 9.600 1.250) (stroke (width 0.12) (type solid)) (fill no) (layer "F.SilkS"))
+	(pad "1" thru_hole circle (at 0.000 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+	(pad "2" thru_hole circle (at 12.700 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+)

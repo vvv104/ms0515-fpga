@@ -739,7 +739,12 @@ The owner's board first (`docs/plan.md` 8d).
    `pcb.py check` 0 differences, KiCad's DRC **0 errors** (60 warnings,
    the silkscreen's; `build/drc/ns4-eight-r15.json`) and 15 unconnected
    in 9 nets: АД12 H (3), А0 H (4), РАЗР ОЗУ L (3), Р2 H, ДЧТ L, ПМЛБ L,
-   СИНХР3 L, РВУ1 H.  Open: those 15.
+   СИНХР3 L, РВУ1 H.  Left at that (2026-11-10, the owner): the board
+   takes the 1991 copper instead - every part placed where the 1991 board
+   had it (`netlist/placement-1991.csv`, both boards, `pcb.py check` 0
+   differences, KiCad's DRC no error on the placed board), Mick's outer
+   layers to be laid as they are and the inner ones routed.  That routing
+   was of the old placement and is not carried over.
 6. Э3's board, stage 6b - **draws both modes as the emulator, with a
    fitted speed** (2026-11-09): with C70 modelled the typical chain to
    D70's enable lost 640 x 200's left edge by ~12 ns, in continuous time

@@ -1,0 +1,12 @@
+(footprint "Crystal_RK169_P5.08mm"
+	(version 20241229)
+	(generator "pretty.py")
+	(layer "F.Cu")
+	(descr "РК 169МА crystal, 5.08 mm, as on the 1991 board")
+	(property "Reference" "REF**" (at -3.210 -3.850 0) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))
+	(property "Value" "Crystal_RK169_P5.08mm" (at -3.210 3.850 0) (layer "F.Fab") (effects (font (size 1 1) (thickness 0.15))))
+	(attr through_hole)
+	(fp_rect (start -3.210 -2.350) (end 8.290 2.350) (stroke (width 0.12) (type solid)) (fill no) (layer "F.SilkS"))
+	(pad "1" thru_hole circle (at 0.000 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+	(pad "2" thru_hole circle (at 5.080 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+)

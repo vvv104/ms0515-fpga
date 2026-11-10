@@ -44,7 +44,8 @@ D70.15 on GND).  Everything below serves both; where they differ is
 | `netlist/fitted.csv`, `fitted-others.csv`, `fitted-compare.md`, `fitted-asked.md`, `fitted-passives.md`, `fitted-1991.csv` | what is fitted on the owner's board and on Frolov's and Radon17's, read off the photographs: the КР1533 substitutes for К555 by position and production run, dates; the three compared, and what it says for the 640 x 200 edge; what the photos did not tell; `fitted-1991.csv` is read by `tools/board.py` for every generated board | `netlist/variants.md` |
 | `netlist/delays.csv`, `delays-max.csv` | each chip path's typical / maximum delay, with its page | datasheets, `docs/timing.md` |
 | `netlist/firmware.csv` | which ROM/PROM image sits in which chip | `firmware/` |
-| `netlist/placement.csv` | where each part stands on the 1991 board | the assembly drawing СБ |
+| `netlist/placement.csv` | where each DIP stands on the 1991 board (pin 1) | the assembly drawing СБ |
+| `netlist/placement-1991.csv` | every other part's pads on the 1991 board's holes | `sb-labels.csv` (the assembly drawing's labels, read by eye) on `copper.json`'s holes, checked by the nets; `tools/tests/test_placement_1991.py` |
 | `netlist/variants.md` | the board's build variants (jumpers, sockets) | Э3, ТО |
 | `netlist/packages.csv` | each non-chip part type's footprint and equivalent | for stage 8 |
 | `netlist/pcb_parts.csv`, `pcb_nets.csv`, `pcb.csv` | what the new printed board adds (jumper E9) | owner's decision, stage 8d |
@@ -71,7 +72,8 @@ again in memory and fails if the committed one differs.
 | `firmware/tests/*.rom` | `python tools/test_roms.py` | `firmware/tests/*.mac`, assembled by DEC's MACRO/LINK run in the emulator's `ms0515-run` | `... check` |
 | `kicad/ns4*.kicad_sch` | `python tools/kicad.py` | `netlist/` | `... check`; with kicad-cli a tool test reads the nets back |
 | `docs/pcb/bom.md` | `python tools/bom.py` | `parts.csv`, `pcb_parts.csv`, `packages.csv`, `docs/chips.md`, `firmware.csv` | `... check` |
-| `kicad/ns4-vvv104.kicad_pcb`, `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py vvv104`, `... pcb.py` | `netlist/` (+ `vvv104.csv`) + `placement.csv` + footprints; the parts stand where Э3's nets put them on both | `... pcb.py check [vvv104]`: every pad's net against the netlist |
+| `kicad/ns4.pretty` (all but DIN-5) | `python tools/pretty.py` | `placement-1991.csv` (the D-subs' holes) | `... check` |
+| `kicad/ns4-vvv104.kicad_pcb`, `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py vvv104`, `... pcb.py` | `netlist/` (+ `vvv104.csv`) + `placement.csv` + `placement-1991.csv` + footprints; every part where the 1991 board had it, on both | `... pcb.py check [vvv104]`: every pad's net against the netlist |
 | the same files (routing) | `tools/route.py [vvv104] start / run / finish` (Freerouting), state in `build/route[-vvv104]` | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
 | the second board | `tools/pcb.py derive TO FROM` + `route.py ... start --from` | the first board as routed; only the nets its pins left are routed again | `pcb.py check` |
 
@@ -183,7 +185,7 @@ A change to                                  | runs
 `netlist/`, `rtl/chips/`, `tools/board.py`, `firmware/` | 1, 3, 4, **5** (all three corners), and 6 if the board's behaviour can change
 a test of the board                           | 4 and 5: a new test is run at every corner on its first day
 `rtl/parts/`, `rtl/ms0515.sv`, `boards/`      | 4, 7
-the PCB tools, `placement.csv`, `pcb*.csv`    | 8 (`pcb.py check`, DRC)
+the PCB tools, `placement*.csv`, `pcb*.csv`   | 8 (`pcb.py check`, DRC)
 
 ## Where things stand, and how it is said
 

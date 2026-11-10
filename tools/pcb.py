@@ -36,13 +36,14 @@ had signals inside too.  The plane layers are of type power (`PLANES`,
 Freerouting routes no signal over them (given as signal layers, as the
 four-layer board of 2026-11-05 was, it ran more than half the track
 through the planes).  Six layers - four of signals - left 309 of 1258
-connections after two days (docs/baseline.md step 8).  The chips and the
-resistor packs stand
-where they stood on the 1991 board (netlist/placement.csv: pin 1 of every
-DIP on Mick's layer traces, 2.54 mm a 39.4 pixels), which the plant
-routed; the connectors go along the left edge, where that board had
-them; every other part goes into the free place nearest the chip it
-works for.  Routing is Freerouting's (tools/route.py).
+connections after two days (docs/baseline.md step 8).  Every part stands
+where it stood on the 1991 board (owner, 2026-11-10): the chips and the
+resistor packs by pin 1 (netlist/placement.csv, on Mick's layer traces,
+2.54 mm a 39.4 pixels), every other part by its pads on the 1991 holes
+(netlist/placement-1991.csv, read off the assembly drawing; their own
+footprints from tools/pretty.py where the 1991 holes are not a library
+footprint's).  Only the board's own addition, E9, goes into the free place
+nearest the chip it works for.  Routing is Freerouting's (tools/route.py).
 """
 import math
 import os
@@ -227,17 +228,12 @@ def ring(r):
     return sorted(pts, key=lambda p: abs(p[0]) + abs(p[1]))
 
 
-# The connectors to the outside along the left edge, top to bottom - the
-# module slot, the monitor, С2 (the keyboard's socket XS2 when it has a
-# footprint) - and the printer's at the left of the bottom edge, each D-sub
-# facing out, its nearer row of pins the footprint's 9.40 mm from the edge;
-# the ones inside the case (supply, drive, МС 7007, the speaker, SA1) in
-# the margin beside them.
-EDGE = ["XS1", "XP6", "XP5", "XS2"]
-BOTTOM = ["XP3"]
-INSIDE = ["XP2", "XP4", "XP8", "XP1", "XP7"]
-DSUB_EDGE_MM = 9.40
 POWER_NETS = ("GND", "+5V", "+12V", "-12V")
+# A pad farther than this from its 1991 hole is an error: the holes stand
+# +-1 px (0.06 mm) as Mick's traces draw them.  XS2 keeps the real DIN
+# socket's 2.5 mm grid on a board laid out at 2.54 mm a 1991 grid step.
+MISS_MM = 0.15
+MISS_OWN_GRID_MM = {"XS2": 0.25}
 
 
 def place_dips(fps, free):
@@ -253,63 +249,48 @@ def place_dips(fps, free):
         fp.SetLocked(True)
 
 
-def to_edge(fp, y):
-    """A D-sub facing the left edge: turned so its shell points left (at 0
-    degrees it points down), its nearer row of pins DSUB_EDGE_MM from the
-    edge, its top at y."""
-    fp.SetOrientationDegrees(270)
-    fp.SetPosition(pcbnew.VECTOR2I(0, 0))
-    left = min(pad.GetPosition().x for pad in fp.Pads() if pad.GetNumber())
-    top = pcbnew.FromMM(y) - fp.GetBoundingBox(False).GetTop()
-    fp.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(DSUB_EDGE_MM) - left, top))
+def holes_1991():
+    """{ref: {pad: (x, y) mm}}: every pad of every part but the DIPs where
+    the 1991 board had it (netlist/placement-1991.csv)."""
+    out = defaultdict(dict)
+    for r in nl.rows(os.path.join(NET, "placement-1991.csv")):
+        out[r["ref"]][r["pad"]] = (float(r["x"]) * MM_PER_PX, float(r["y"]) * MM_PER_PX)
+    return out
 
 
-def to_bottom(fp, x):
-    """A D-sub facing the bottom edge, its left end at x."""
-    fp.SetOrientationDegrees(0)
-    fp.SetPosition(pcbnew.VECTOR2I(0, 0))
-    low = max(pad.GetPosition().y for pad in fp.Pads() if pad.GetNumber())
-    left = pcbnew.FromMM(x) - fp.GetBoundingBox(False).GetLeft()
-    fp.SetPosition(pcbnew.VECTOR2I(left, pcbnew.FromMM(BOARD_H - DSUB_EDGE_MM) - low))
+def put(fp, want):
+    """Turn (by quarters) and move fp so that its pads stand on want
+    ({pad: (x, y) mm}); the worst pad's miss, mm."""
+    best = None
+    for rotation in (0, 90, 180, 270):
+        fp.SetOrientationDegrees(rotation)
+        fp.SetPosition(pcbnew.VECTOR2I(0, 0))
+        have = {p.GetNumber(): (pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y))
+                for p in fp.Pads() if p.GetNumber() in want}
+        if not have:
+            continue
+        dx = sum(want[n][0] - x for n, (x, _) in have.items()) / len(have)
+        dy = sum(want[n][1] - y for n, (_, y) in have.items()) / len(have)
+        miss = max(math.hypot(x + dx - want[n][0], y + dy - want[n][1]) for n, (x, y) in have.items())
+        if best is None or miss < best[0]:
+            best = (miss, rotation, dx, dy)
+    miss, rotation, dx, dy = best
+    fp.SetOrientationDegrees(rotation)
+    fp.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(dx), pcbnew.FromMM(dy)))
+    return miss
 
 
-def place_edge(fps, free):
-    """The outside connectors down the left edge, the inside ones beside."""
-    y = 8.0
-    for ref in EDGE:
+def place_1991(fps, free):
+    """Every part but the DIPs on its 1991 holes, locked."""
+    for ref, want in holes_1991().items():
         fp = fps.get(ref)
         if fp is None:
             continue
-        if ref == "XS2":                    # its mounting legs 2 mm in, as on the rev. 3А board
-            fp.SetOrientationDegrees(0)
-            fp.SetPosition(pcbnew.VECTOR2I(0, 0))
-            legs = min(pad.GetPosition().x for pad in fp.Pads())
-            top = pcbnew.FromMM(y) - fp.GetBoundingBox(False).GetTop()
-            fp.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(2.0) - legs, top))
-        elif ref == "XS1":
-            fp.SetOrientationDegrees(0)
-            fp.SetPosition(pcbnew.VECTOR2I(0, 0))
-            box = fp.GetBoundingBox(False)
-            fp.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(3.0) - box.GetLeft(), pcbnew.FromMM(y) - box.GetTop()))
-        else:
-            to_edge(fp, y)
-        box = free.box(fp)
-        free.take(box)
+        miss = put(fp, want)
+        if miss > MISS_OWN_GRID_MM.get(ref, MISS_MM):
+            raise SystemExit(f"{ref}: its footprint misses the 1991 holes by {miss:.2f} mm")
+        free.take(free.box(fp))
         fp.SetLocked(True)
-        y = box[3] + 3.0
-    for ref in BOTTOM:
-        fp = fps.get(ref)
-        if fp is not None:
-            to_bottom(fp, 30.0)
-            free.take(free.box(fp))
-            fp.SetLocked(True)
-    y = 8.0
-    for ref in INSIDE + ["SA1"]:
-        fp = fps.get(ref)
-        if fp is not None and not free.near(fp, 38.0, y):
-            raise SystemExit(f"{ref}: no place on the left")
-        if fp is not None:
-            y = free.box(fp)[3] + 3.0
 
 
 def anchor(ref, nets, chips):
@@ -326,7 +307,7 @@ def anchor(ref, nets, chips):
 def place_rest(fps, free, nets):
     """Every other part next to its chip; the decoupling capacitors (on
     power alone) one to a chip, in the chips' order on the board."""
-    placed = {ref for ref, fp in fps.items() if fp.IsLocked() or ref in EDGE + BOTTOM + INSIDE + ["SA1"]}
+    placed = {ref for ref, fp in fps.items() if fp.IsLocked()}
     chips = defaultdict(set)
     for (ref, _), net in nets.items():
         if bom.is_chip(ref) or ref in bom.SOCKETS.values():
@@ -442,7 +423,7 @@ def build(variant=None):
     free = Free(board)
     outline(board)
     place_dips(fps, free)
-    place_edge(fps, free)
+    place_1991(fps, free)
     failed = place_rest(fps, free, pin_nets() if variant else nets)
     snap(fps)
     for layer, net in PLANES.items():

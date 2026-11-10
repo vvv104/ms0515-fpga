@@ -1,0 +1,12 @@
+(footprint "CP_Axial_P25.40mm"
+	(version 20241229)
+	(generator "pretty.py")
+	(layer "F.Cu")
+	(descr "К53-14 tantalum, axial, 25.4 mm, pin 1 the +")
+	(property "Reference" "REF**" (at 4.700 -5.000 0) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))
+	(property "Value" "CP_Axial_P25.40mm" (at 4.700 5.000 0) (layer "F.Fab") (effects (font (size 1 1) (thickness 0.15))))
+	(attr through_hole)
+	(fp_rect (start 4.700 -3.500) (end 20.700 3.500) (stroke (width 0.12) (type solid)) (fill no) (layer "F.SilkS"))
+	(pad "1" thru_hole rect (at 0.000 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+	(pad "2" thru_hole circle (at 25.400 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+)

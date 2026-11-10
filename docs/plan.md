@@ -382,7 +382,15 @@ to any one board.  From stage 6 on there are two projects:
        left (2026-11-08, ~5 connections an hour at the end).
        **Eight layers** (owner, 2026-11-09), as the 1991 board: six of
        signals, the planes on In2.Cu and In5.Cu.  Э3's board routed from
-       the empty board: `route.py start`, `run 8 3` (build/route).
+       the empty board: `route.py start`, `run 8 3` (build/route) - 15
+       left, stopped: the owner's word (2026-11-10) is the 1991 board's
+       copper, so first every part where the 1991 board had it.
+       **The 1991 placement** (2026-11-10): every part on its 1991 holes
+       (`netlist/placement-1991.csv`, read off the assembly drawing;
+       `docs/findings.md`, "The 1991 placement off the assembly drawing"),
+       the footprints of the 1991 holes (`tools/pretty.py`).  Next: the
+       outer layers 1, 2, 7, 8 from Mick's traces as fixed copper, the
+       inner ones routed.
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.

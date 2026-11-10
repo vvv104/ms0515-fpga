@@ -1,39 +1,40 @@
 # The footprint of every part type of НС4 other than the chips, for a board
-# made anew from the netlist (docs/plan.md stage 8): a KiCad library
+# made anew from the netlist (docs/plan.md stage 8), the 1991 board's holes
+# (netlist/placement-1991.csv): a KiCad library
 # footprint (library:name), or ns4: for one of kicad/ns4.pretty, and what
 # can stand in for the Soviet part where it is not to be had.  The chips
 # take a DIP by their pin count (15.24 mm wide from 24 pins) and their
 # analogue from docs/chips.md; tools/bom.py puts the two together.
 type,footprint,equivalent,note
-К10-17-2б-Н90,Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm,ceramic X7R,"decoupling, as ПЭ3 gives the value"
-К10-17-1б-Н90,Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm,ceramic X7R,
-К10-17-1б-М47,Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm,ceramic C0G,
-К10-17-1б-М1500,Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm,ceramic C0G,"the RS-232 lines' filters (C46, C47) and the like"
-КМ-6Б-Н90,Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm,ceramic X7R,
-К53-14,Capacitor_THT:CP_Radial_Tantal_D5.0mm_P5.00mm,"tantalum, the same capacitance and voltage",the supply's bulk capacitors
-С1-4,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,"0.25 W carbon or metal film, 5 %",
-С2-23,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,"0.25 W metal film, 1 %","the RS-232 receivers' 23.7 kOhm and the like"
-СП5-16ВА,Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical,Bourns 3296W (multi-turn trimmer),the video DAC's levels; the pins' order to be checked against СП5-16ВА's
+К10-17-2б-Н90,ns4:C_Disc_P5.08mm,ceramic X7R,"decoupling, as ПЭ3 gives the value"
+К10-17-1б-Н90,ns4:C_Disc_P5.08mm,ceramic X7R,
+К10-17-1б-М47,ns4:C_Disc_P5.08mm,ceramic C0G,
+К10-17-1б-М1500,ns4:C_Disc_P5.08mm,ceramic C0G,"the RS-232 lines' filters (C46, C47) and the like"
+КМ-6Б-Н90,ns4:C_Rect_P10.16mm,ceramic X7R,
+К53-14,ns4:CP_Axial_P25.40mm,"tantalum, axial, the same capacitance and voltage",the supply's bulk capacitors
+С1-4,ns4:R_Axial_P12.70mm,"0.25 W carbon or metal film, 5 %",
+С2-23,ns4:R_Axial_P12.70mm,"0.25 W metal film, 1 %",the RS-232 receivers' 23.7 kOhm and the like
+СП5-16ВА,ns4:Trimmer_SP5-16VA,a trimmer with СП5-16ВА's pins (Bourns 3296W does not fit: its pins are in a row),the video DAC's levels; the pins' order to be checked against СП5-16ВА's
 НР1-11А,Package_DIP:DIP-16_W7.62mm,"Bourns 4116R-1 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103)",
-ВДМ1-10,Button_Switch_THT:SW_DIP_SPSTx10_Slide_6.7x26.96mm_W7.62mm_P2.54mm_LowProfile,10-position DIP switch,"SA1: switch k joins pins k and 21-k; odd ones closed for the МС 7004 on XS2 (netlist/variants.md)"
-КД522Б,Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal,1N4148,
-КС133А,Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal,BZX55C3V3 (3.3 V zener),the supply monitor VD11
+ВДМ1-10,Button_Switch_THT:SW_DIP_SPSTx10_Slide_6.7x26.96mm_W7.62mm_P2.54mm_LowProfile,10-position DIP switch,SA1: switch k joins pins k and 21-k; odd ones closed for the МС 7004 on XS2 (netlist/variants.md)
+КД522Б,Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal,1N4148,
+КС133А,Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal,BZX55C3V3 (3.3 V zener),the supply monitor VD11
 АЛ307БМ,LED_THT:LED_D5.0mm,"red LED, 5 mm",
 КТ677АС,Package_DIP:DIP-14_W7.62mm,none checked: four transistors in DIP-14,the video DAC; an imported quad (MPQ2222 kind) only after its pins are checked against ПЭ3's
 КТ676АС,Package_DIP:DIP-14_W7.62mm,none checked: four transistors in DIP-14,the video DAC; as КТ677АС
-РК 353БВ-11А4,Crystal:Crystal_HC49-U_Vertical,"8 MHz crystal, HC-49/U",
-РК 169МА-6АН,Crystal:Crystal_HC49-U_Vertical,"15 MHz crystal, HC-49/U",
+РК 353БВ-11А4,ns4:Crystal_RK353_P12.70mm,"8 MHz crystal, HC-49/U",
+РК 169МА-6АН,ns4:Crystal_RK169_P5.08mm,"15 MHz crystal, HC-49/U",
 ОНП-ВС-39-4,Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,"4-pin header, 2.54 mm",XP1: +12 V and +5 V
 ОНП-ВС-39-2,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,"2-pin header, 2.54 mm",XP7: the speaker
 ОНП-КГ-56-40,Connector_IDC:IDC-Header_2x20_P2.54mm_Vertical,"IDC box header 2x20, 2.54 mm","XP2 the supply, XP4 the drive: the original's pitch is 2.5 mm, the cables are made new"
 ОНП-КГ-77-34,Connector_IDC:IDC-Header_2x17_P2.54mm_Vertical,"IDC box header 2x17, 2.54 mm",XP8: the МС 7007's matrix
-ОНП-ЖГ-79-9,Connector_Dsub:DSUB-9_Pins_Horizontal_P2.77x2.84mm_EdgePinOffset9.40mm,"D-sub 9, pins, right angle",XP5: С2 (RS-232)
-ОНП-ЖГ-79-15,Connector_Dsub:DSUB-15_Pins_Horizontal_P2.77x2.84mm_EdgePinOffset9.40mm,"D-sub 15, pins, right angle","XP6: the monitor (RGB, mono) and the keyboard's line"
-ОНП-ЖГ-79-25,Connector_Dsub:DSUB-25_Pins_Horizontal_P2.77x2.84mm_EdgePinOffset9.40mm,"D-sub 25, pins, right angle",XP3: port A of the МС 7007's ВВ55 and its strobes
+ОНП-ЖГ-79-9,ns4:DSUB-9_ONP-ZhG-79,"D-sub 9, pins, right angle","XP5: С2 (RS-232); its holes are the 1991 board's, not an imported D-sub's"
+ОНП-ЖГ-79-15,ns4:DSUB-15_ONP-ZhG-79,"D-sub 15, pins, right angle","XP6: the monitor (RGB, mono) and the keyboard's line; the 1991 board's holes"
+ОНП-ЖГ-79-25,ns4:DSUB-25_ONP-ZhG-79,"D-sub 25, pins, right angle",XP3: port A of the МС 7007's ВВ55 and its strobes; the 1991 board's holes
 СНП-59-96,Connector_DIN:DIN41612_C_3x32_Female_Vertical_THT,"DIN 41612 C, 96 pins, female","XS1, the module slot: the original's pitch is 2.5 mm, so a module made for СНП-59 does not mate; the RAM disk is made new with DIN 41612 too"
 ОНЦ-КГ-4-5/16-Р,ns4:DIN-5_Socket_Horizontal,"DIN 41524 5-pin socket, 180 degrees, PCB mount","XS2, may be left off: the МС 7004 goes through the monitor on XP6 (the owner's machine's photos show none); its odd SA1 build repeats the keyboard's line here, the even one the cassette"
 РС-28-7,Package_DIP:DIP-28_W15.24mm_Socket,28-pin DIP socket,"XS3, XS4: the ROMs D65, D77 (the chip takes the socket's place)"
 РС-40-7,Package_DIP:DIP-40_W15.24mm_Socket,40-pin DIP socket,"XS5, XS6: D1, D83 (the chip takes the socket's place)"
 лепесток 7.750.008,MountingHole:MountingHole_3.2mm_M3_Pad,M3 hole with a ground pad,the ground lugs XT1..XT3
-перемычка,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,2-pin header and a jumper,"E1..E8, fitted as netlist/analog.csv says"
+перемычка,ns4:Wire_Link_P12.70mm,a wire link,"E1..E8, fitted as netlist/analog.csv says"
 перемычка на 3,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,3-pin header and a jumper,"E9 (netlist/pcb_parts.csv), a jumper on 1-2 as delivered"

@@ -1,4 +1,5 @@
 """The board's stack: eight copper layers as the 1991 board's, the planes handed to the router as planes."""
+import math
 import os
 import sys
 import tempfile
@@ -52,6 +53,24 @@ class Stack(unittest.TestCase):
         board = pcbnew.BOARD()
         pcb.rules(board)
         self.assertEqual(pcbnew.ToMM(board.GetDesignSettings().m_CopperEdgeClearance), route.EDGE_UM / 1000)
+
+
+@unittest.skipUnless(pcbnew, "no pcbnew (run with KiCad's Python)")
+class Placement1991(unittest.TestCase):
+    def test_every_part_but_the_dips_stands_on_its_1991_holes(self):
+        board = pcb.build()[0]
+        want = pcb.holes_1991()
+        worst = {}
+        for fp in board.GetFootprints():
+            ref = fp.GetReference()
+            for pad in fp.Pads():
+                if pad.GetNumber() in want.get(ref, {}):
+                    x, y = want[ref][pad.GetNumber()]
+                    miss = math.hypot(pcbnew.ToMM(pad.GetPosition().x) - x, pcbnew.ToMM(pad.GetPosition().y) - y)
+                    worst[ref] = max(worst.get(ref, 0), miss)
+        self.assertEqual(sorted(worst), sorted(want))
+        late = {r: round(m, 2) for r, m in worst.items() if m > pcb.MISS_OWN_GRID_MM.get(r, pcb.MISS_MM)}
+        self.assertEqual(late, {})
 
 
 if __name__ == "__main__":

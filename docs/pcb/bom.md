@@ -7,19 +7,19 @@ XS2, SA1's odd switches closed; ROM-B in the sockets XS3, XS4.
 
 | Type | Value | Qty | References | Equivalent | Footprint | Note |
 |---|---|---|---|---|---|---|
-| РК 353БВ-11А4 | 8 МГц | 1 | BQ1 | 8 MHz crystal, HC-49/U | `Crystal:Crystal_HC49-U_Vertical` |  |
-| РК 169МА-6АН | 15 МГц | 1 | BQ2 | 15 MHz crystal, HC-49/U | `Crystal:Crystal_HC49-U_Vertical` |  |
-| К53-14 | 16В 33 мкФ ±20% | 4 | C1, C2, C10, C11 | tantalum, the same capacitance and voltage | `Capacitor_THT:CP_Radial_Tantal_D5.0mm_P5.00mm` | the supply's bulk capacitors |
-| К10-17-2б-Н90 | 0,22 мкФ +80-20% | 65 | C3, C4, C7, C8, C9, C12, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24, C25, C26, C27, C28, C29, C30, C31, C32, C33, C34, C36, C37, C38, C39, C41, C42, C43, C44, C48, C49, C50, C51, C52, C53, C55, C56, C57, C58, C59, C60, C61, C62, C63, C65, C66, C67, C68, C69, C71, C73, C75, C76, C77, C80, C81, C85, C87 | ceramic X7R | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` | decoupling, as ПЭ3 gives the value |
-| К10-17-1б-М47 | 100 пФ ±10% | 3 | C5, C6, C70 | ceramic C0G | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` |  |
-| К10-17-1б-М47 | 68 пФ ±10% | 1 | C35 | ceramic C0G | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` |  |
-| К10-17-1б-М47 | 27 пФ ±10% | 1 | C40 | ceramic C0G | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` |  |
-| К10-17-1б-М1500 | 2200 пФ ±10% | 4 | C45, C46, C47, C74 | ceramic C0G | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` | the RS-232 lines' filters (C46, C47) and the like |
-| К10-17-1б-М1500 | 4700 пФ ±10% | 1 | C54 | ceramic C0G | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` | the RS-232 lines' filters (C46, C47) and the like |
-| К10-17-1б-М47 | 120 пФ ±10% | 1 | C64 | ceramic C0G | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` |  |
-| КМ-6Б-Н90 | 2,2 мкФ +80-20% | 1 | C72 | ceramic X7R | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` |  |
-| К10-17-1б-М47 | 51 пФ ±10% | 3 | C78, C79, C82 | ceramic C0G | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` |  |
-| К10-17-1б-Н90 | 0,1 мкФ +80-20% | 3 | C83, C84, C86 | ceramic X7R | `Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm` |  |
+| РК 353БВ-11А4 | 8 МГц | 1 | BQ1 | 8 MHz crystal, HC-49/U | `ns4:Crystal_RK353_P12.70mm` |  |
+| РК 169МА-6АН | 15 МГц | 1 | BQ2 | 15 MHz crystal, HC-49/U | `ns4:Crystal_RK169_P5.08mm` |  |
+| К53-14 | 16В 33 мкФ ±20% | 4 | C1, C2, C10, C11 | tantalum, axial, the same capacitance and voltage | `ns4:CP_Axial_P25.40mm` | the supply's bulk capacitors |
+| К10-17-2б-Н90 | 0,22 мкФ +80-20% | 65 | C3, C4, C7, C8, C9, C12, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24, C25, C26, C27, C28, C29, C30, C31, C32, C33, C34, C36, C37, C38, C39, C41, C42, C43, C44, C48, C49, C50, C51, C52, C53, C55, C56, C57, C58, C59, C60, C61, C62, C63, C65, C66, C67, C68, C69, C71, C73, C75, C76, C77, C80, C81, C85, C87 | ceramic X7R | `ns4:C_Disc_P5.08mm` | decoupling, as ПЭ3 gives the value |
+| К10-17-1б-М47 | 100 пФ ±10% | 3 | C5, C6, C70 | ceramic C0G | `ns4:C_Disc_P5.08mm` |  |
+| К10-17-1б-М47 | 68 пФ ±10% | 1 | C35 | ceramic C0G | `ns4:C_Disc_P5.08mm` |  |
+| К10-17-1б-М47 | 27 пФ ±10% | 1 | C40 | ceramic C0G | `ns4:C_Disc_P5.08mm` |  |
+| К10-17-1б-М1500 | 2200 пФ ±10% | 4 | C45, C46, C47, C74 | ceramic C0G | `ns4:C_Disc_P5.08mm` | the RS-232 lines' filters (C46, C47) and the like |
+| К10-17-1б-М1500 | 4700 пФ ±10% | 1 | C54 | ceramic C0G | `ns4:C_Disc_P5.08mm` | the RS-232 lines' filters (C46, C47) and the like |
+| К10-17-1б-М47 | 120 пФ ±10% | 1 | C64 | ceramic C0G | `ns4:C_Disc_P5.08mm` |  |
+| КМ-6Б-Н90 | 2,2 мкФ +80-20% | 1 | C72 | ceramic X7R | `ns4:C_Rect_P10.16mm` |  |
+| К10-17-1б-М47 | 51 пФ ±10% | 3 | C78, C79, C82 | ceramic C0G | `ns4:C_Disc_P5.08mm` |  |
+| К10-17-1б-Н90 | 0,1 мкФ +80-20% | 3 | C83, C84, C86 | ceramic X7R | `ns4:C_Disc_P5.08mm` |  |
 | КР1818ВГ93 |  | 1 | D1 | WD FD1793 |  | in the socket XS5 |
 | КР565РУ5Г |  | 16 | D2, D3, D5, D6, D11, D12, D18, D19, D26, D27, D34, D35, D44, D45, D53, D54 | 4164 | `Package_DIP:DIP-16_W7.62mm` |  |
 | К555ТЛ2 |  | 1 | D4 | 74LS14 | `Package_DIP:DIP-14_W7.62mm` |  |
@@ -69,43 +69,43 @@ XS2, SA1's odd switches closed; ROM-B in the sockets XS3, XS4.
 | КР1533ТМ2 |  | 1 | D98 | 74ALS74 | `Package_DIP:DIP-14_W7.62mm` |  |
 | НР1-11А | 3-15-1 кОм ±10% | 1 | DA1 | Bourns 4116R-1 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103) | `Package_DIP:DIP-16_W7.62mm` |  |
 | НР1-11А | 3-15-10 кОм ±10% | 1 | DA2 | Bourns 4116R-1 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103) | `Package_DIP:DIP-16_W7.62mm` |  |
-| перемычка | jumper (two contacts on Э3) | 8 | E1, E2, E3, E4, E5, E6, E7, E8 | 2-pin header and a jumper | `Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical` | E1..E8, fitted as netlist/analog.csv says |
+| перемычка | jumper (two contacts on Э3) | 8 | E1, E2, E3, E4, E5, E6, E7, E8 | a wire link | `ns4:Wire_Link_P12.70mm` | E1..E8, fitted as netlist/analog.csv says |
 | перемычка на 3 | jumper (three contacts) | 1 | E9 | 3-pin header and a jumper | `Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical` | E9 (netlist/pcb_parts.csv), a jumper on 1-2 as delivered |
-| С1-4 | 560 Ом | 4 | R1, R3, R77, R79 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 10 кОм | 3 | R2, R6, R12 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 1 кОм | 17 | R4, R5, R7, R8, R21, R26, R28, R39, R41, R48, R55, R58, R71, R72, R74, R76, R80 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 150 Ом | 5 | R9, R10, R11, R14, R17 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 33 Ом | 2 | R13, R16 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С2-23 | 23,7 кОм ±1% | 3 | R15, R22, R23 | 0.25 W metal film, 1 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` | the RS-232 receivers' 23.7 kOhm and the like |
-| С1-4 | 4,7 кОм | 4 | R18, R20, R64, R70 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 1,2 кОм | 1 | R19 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 20 Ом | 7 | R24, R25, R43, R45, R60, R62, R75 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| СП5-16ВА | 330 Ом (trimmer) | 4 | R27, R31, R40, R50 | Bourns 3296W (multi-turn trimmer) | `Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical` | the video DAC's levels; the pins' order to be checked against СП5-16ВА's |
-| С1-4 | 180 Ом | 1 | R29 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 24 Ом | 3 | R30, R33, R35 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 75 Ом | 5 | R32, R34, R36, R37, R38 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 510 Ом | 4 | R42, R47, R52, R56 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 390 Ом | 3 | R44, R49, R53 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 220 Ом | 4 | R46, R51, R54, R59 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 270 Ом | 1 | R57 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 43 Ом | 1 | R61 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 470 Ом | 3 | R63, R68, R73 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 470 кОм | 1 | R65 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 24 кОм | 1 | R66 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 2,2 кОм | 1 | R67 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 12 кОм | 1 | R69 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
-| С1-4 | 620 Ом | 1 | R78 | 0.25 W carbon or metal film, 5 % | `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` |  |
+| С1-4 | 560 Ом | 4 | R1, R3, R77, R79 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 10 кОм | 3 | R2, R6, R12 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 1 кОм | 17 | R4, R5, R7, R8, R21, R26, R28, R39, R41, R48, R55, R58, R71, R72, R74, R76, R80 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 150 Ом | 5 | R9, R10, R11, R14, R17 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 33 Ом | 2 | R13, R16 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С2-23 | 23,7 кОм ±1% | 3 | R15, R22, R23 | 0.25 W metal film, 1 % | `ns4:R_Axial_P12.70mm` | the RS-232 receivers' 23.7 kOhm and the like |
+| С1-4 | 4,7 кОм | 4 | R18, R20, R64, R70 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 1,2 кОм | 1 | R19 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 20 Ом | 7 | R24, R25, R43, R45, R60, R62, R75 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| СП5-16ВА | 330 Ом (trimmer) | 4 | R27, R31, R40, R50 | a trimmer with СП5-16ВА's pins (Bourns 3296W does not fit: its pins are in a row) | `ns4:Trimmer_SP5-16VA` | the video DAC's levels; the pins' order to be checked against СП5-16ВА's |
+| С1-4 | 180 Ом | 1 | R29 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 24 Ом | 3 | R30, R33, R35 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 75 Ом | 5 | R32, R34, R36, R37, R38 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 510 Ом | 4 | R42, R47, R52, R56 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 390 Ом | 3 | R44, R49, R53 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 220 Ом | 4 | R46, R51, R54, R59 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 270 Ом | 1 | R57 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 43 Ом | 1 | R61 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 470 Ом | 3 | R63, R68, R73 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 470 кОм | 1 | R65 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 24 кОм | 1 | R66 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 2,2 кОм | 1 | R67 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 12 кОм | 1 | R69 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
+| С1-4 | 620 Ом | 1 | R78 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
 | ВДМ1-10 | switch, 10 pairs | 1 | SA1 | 10-position DIP switch | `Button_Switch_THT:SW_DIP_SPSTx10_Slide_6.7x26.96mm_W7.62mm_P2.54mm_LowProfile` | SA1: switch k joins pins k and 21-k; odd ones closed for the МС 7004 on XS2 (netlist/variants.md) |
-| КД522Б | diode | 13 | VD1, VD2, VD3, VD4, VD5, VD6, VD7, VD8, VD10, VD12, VD13, VD14, VD15 | 1N4148 | `Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal` |  |
+| КД522Б | diode | 13 | VD1, VD2, VD3, VD4, VD5, VD6, VD7, VD8, VD10, VD12, VD13, VD14, VD15 | 1N4148 | `Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal` |  |
 | АЛ307БМ | LED | 3 | VD9, VD16, VD17 | red LED, 5 mm | `LED_THT:LED_D5.0mm` |  |
-| КС133А | zener 3,3 В | 1 | VD11 | BZX55C3V3 (3.3 V zener) | `Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal` | the supply monitor VD11 |
+| КС133А | zener 3,3 В | 1 | VD11 | BZX55C3V3 (3.3 V zener) | `Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal` | the supply monitor VD11 |
 | КТ677АС | transistor assembly | 1 | VT1 | none checked: four transistors in DIP-14 | `Package_DIP:DIP-14_W7.62mm` | the video DAC; an imported quad (MPQ2222 kind) only after its pins are checked against ПЭ3's |
 | КТ676АС | transistor assembly | 1 | VT2 | none checked: four transistors in DIP-14 | `Package_DIP:DIP-14_W7.62mm` | the video DAC; as КТ677АС |
 | ОНП-ВС-39-4 | plug, 4 | 1 | XP1 | 4-pin header, 2.54 mm | `Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical` | XP1: +12 V and +5 V |
 | ОНП-КГ-56-40 | plug, 40 | 2 | XP2, XP4 | IDC box header 2x20, 2.54 mm | `Connector_IDC:IDC-Header_2x20_P2.54mm_Vertical` | XP2 the supply, XP4 the drive: the original's pitch is 2.5 mm, the cables are made new |
-| ОНП-ЖГ-79-25 | plug, 25 | 1 | XP3 | D-sub 25, pins, right angle | `Connector_Dsub:DSUB-25_Pins_Horizontal_P2.77x2.84mm_EdgePinOffset9.40mm` | XP3: port A of the МС 7007's ВВ55 and its strobes |
-| ОНП-ЖГ-79-9 | plug, 9 | 1 | XP5 | D-sub 9, pins, right angle | `Connector_Dsub:DSUB-9_Pins_Horizontal_P2.77x2.84mm_EdgePinOffset9.40mm` | XP5: С2 (RS-232) |
-| ОНП-ЖГ-79-15 | plug, 15 | 1 | XP6 | D-sub 15, pins, right angle | `Connector_Dsub:DSUB-15_Pins_Horizontal_P2.77x2.84mm_EdgePinOffset9.40mm` | XP6: the monitor (RGB, mono) and the keyboard's line |
+| ОНП-ЖГ-79-25 | plug, 25 | 1 | XP3 | D-sub 25, pins, right angle | `ns4:DSUB-25_ONP-ZhG-79` | XP3: port A of the МС 7007's ВВ55 and its strobes; the 1991 board's holes |
+| ОНП-ЖГ-79-9 | plug, 9 | 1 | XP5 | D-sub 9, pins, right angle | `ns4:DSUB-9_ONP-ZhG-79` | XP5: С2 (RS-232); its holes are the 1991 board's, not an imported D-sub's |
+| ОНП-ЖГ-79-15 | plug, 15 | 1 | XP6 | D-sub 15, pins, right angle | `ns4:DSUB-15_ONP-ZhG-79` | XP6: the monitor (RGB, mono) and the keyboard's line; the 1991 board's holes |
 | ОНП-ВС-39-2 | plug, 2 | 1 | XP7 | 2-pin header, 2.54 mm | `Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical` | XP7: the speaker |
 | ОНП-КГ-77-34 | plug, 34 | 1 | XP8 | IDC box header 2x17, 2.54 mm | `Connector_IDC:IDC-Header_2x17_P2.54mm_Vertical` | XP8: the МС 7007's matrix |
 | СНП-59-96 | socket, 96 (rows A, B, C of 32) | 1 | XS1 | DIN 41612 C, 96 pins, female | `Connector_DIN:DIN41612_C_3x32_Female_Vertical_THT` | XS1, the module slot: the original's pitch is 2.5 mm, so a module made for СНП-59 does not mate; the RAM disk is made new with DIN 41612 too |

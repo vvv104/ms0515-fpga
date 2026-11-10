@@ -950,3 +950,37 @@ The rest of the 20 lines, read on Э3 at full resolution on 2026-11-05
 - `ЗЦ H` at D81.10: the other input of the gate whose pin 9 is settled
   above (D81.9 on the D69.9 wire, by the copper); Mick has the two
   inputs of that one gate the other way round, which is the same gate.
+
+## The 1991 placement off the assembly drawing (2026-11-10)
+
+Every part but the DIPs now stands where the 1991 board had it
+(`netlist/placement-1991.csv`): each label of the assembly drawing
+3.858.420 СБ (page 27) read by eye (`netlist/sb-labels.csv`), the drawing
+registered on Mick's holes, each part taken onto the pair of free holes
+next to its label at its own pitch.  What it showed:
+
+- **The pitches** are the grid's: the К10-17s 5.08 mm (2 steps), the
+  С1-4 resistors, the diodes and the wire links 12.7 mm (5), the К53-14s
+  25.4 mm, the КМ-6Б C72 10.16 mm, the LEDs 2.54 mm - 0.03 mm at most off
+  across 190 parts.  Mick's traces draw the 1991 board on a 1.27 mm grid at
+  2.54 mm a 39.4 pixels, as the board is laid out here; the plant's grid
+  was 2.5 mm, so the board here is 1.6 % larger than the 1991 one, as it
+  was before (`tools/pcb.py`, MM_PER_PX).  The real DIN socket XS2 keeps
+  its 2.5 mm grid, 0.16 mm off its holes at most.
+- **The drawing's "+"** on a diode is its pin 2 (the anode, KiCad's pad
+  2): so on every diode whose copper reaches its net (VD1, VD2, VD5..VD8,
+  VD10, VD11, VD13, VD14, VD17); on a tantalum it is pin 1, as C1's copper
+  says.  VD3, VD4, VD12, VD15 and C2, C10, C11 are turned by it.
+- **Two labels misread**, the nets saying which: "R81" is R58 (in series
+  with VD11), "R82" R62 (on D92.1) - there is no R81 nor R82.
+- **Against Э3: C4.**  Э3 draws C4 (0.22 uF) from `-12V` to `GND`; on
+  Mick's traces one of its holes is joined to XS5.40 (`+12V`).  A filter
+  on a supply rail: the model does not run the supplies, so no test will
+  tell; Э3 is kept.  Open, for a board: C4's pads against the rails.
+- **Against Э3: XS1 c10.**  Э3 has `РЕЖ1 H` on XS1 pin 74 (c10); Mick's
+  traces draw no hole there (the other 95 are drawn).  The pad is placed
+  where the connector's geometry puts it.  Open, for a board.
+- **Copper groups that merge two nets** (copper.json's reading, ten of
+  them) gave two false alarms, set right by the other nets: C70's pad 1
+  is on `БОРДС L` (its group also reaches `АД06 H`), XS1 b18 on `МК15 H`
+  (its group reaches `АД01 H` and `АД02 H`).

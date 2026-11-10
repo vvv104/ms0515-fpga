@@ -1,0 +1,12 @@
+(footprint "C_Disc_P5.08mm"
+	(version 20241229)
+	(generator "pretty.py")
+	(layer "F.Cu")
+	(descr "К10-17 capacitor, 5.08 mm, as on the 1991 board")
+	(property "Reference" "REF**" (at 0.040 -2.750 0) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))
+	(property "Value" "C_Disc_P5.08mm" (at 0.040 2.750 0) (layer "F.Fab") (effects (font (size 1 1) (thickness 0.15))))
+	(attr through_hole)
+	(fp_rect (start 0.040 -1.250) (end 5.040 1.250) (stroke (width 0.12) (type solid)) (fill no) (layer "F.SilkS"))
+	(pad "1" thru_hole circle (at 0.000 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+	(pad "2" thru_hole circle (at 5.080 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+)
