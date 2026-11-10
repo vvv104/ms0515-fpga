@@ -48,8 +48,29 @@ MODELS = {
 }
 
 
+SHAPES = os.path.join(ROOT, "kicad", "ns4.3dshapes")
+WIRE_ABOVE, WIRE_R = 1.0, 0.3              # mm: a wire link's span above the board, its wire's radius
+
+
+def wire_link_wrl(pitch):
+    """A wire link as VRML (KiCad's unit 2.54 mm, z up): a tinned wire bent as a staple."""
+    u = 2.54
+    span, above, r = pitch / u, WIRE_ABOVE / u, WIRE_R / u
+    tin = ("appearance Appearance { material Material { diffuseColor 0.75 0.75 0.78 "
+           "specularColor 0.9 0.9 0.9 shininess 0.6 } }")
+
+    def piece(x, z, sx, sz):                # KiCad's VRML reader takes boxes, not cylinders
+        return (f"Transform {{ translation {x:.3f} 0 {z:.3f} children [ "
+                f"Shape {{ {tin} geometry Box {{ size {sx:.3f} {2 * r:.3f} {sz:.3f} }} }} ] }}\n")
+    return ("#VRML V2.0 utf8\n" + piece(span / 2, above, span + 2 * r, 2 * r)
+            + piece(0.0, above / 2, 2 * r, above) + piece(span, above / 2, 2 * r, above))
+
+
 def model(name):
     """The footprint's 3D model line, or none."""
+    if name == "Wire_Link_P12.70mm":
+        return ['\t(model "${KIPRJMOD}/ns4.3dshapes/Wire_Link_P12.70mm.wrl"'
+                ' (offset (xyz 0 0 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))']
     if name not in MODELS:
         return []
     lib, step, dx = MODELS[name]
@@ -161,6 +182,12 @@ def stale():
         with open(path, encoding="utf-8") as f:
             if f.read() != text:
                 out.append(name)
+    wrl = os.path.join(SHAPES, "Wire_Link_P12.70mm.wrl")
+    if not os.path.exists(wrl):
+        return out + ["Wire_Link_P12.70mm.wrl"]
+    with open(wrl, encoding="utf-8") as f:
+        if f.read() != wire_link_wrl(12.7):
+            out.append("Wire_Link_P12.70mm.wrl")
     return out
 
 
@@ -173,6 +200,9 @@ def main(argv):
     for name, text in footprints().items():
         with open(os.path.join(PRETTY, name + ".kicad_mod"), "w", encoding="utf-8", newline="\n") as f:
             f.write(text)
+    os.makedirs(SHAPES, exist_ok=True)
+    with open(os.path.join(SHAPES, "Wire_Link_P12.70mm.wrl"), "w", encoding="utf-8", newline="\n") as f:
+        f.write(wire_link_wrl(12.7))
     return 0
 
 

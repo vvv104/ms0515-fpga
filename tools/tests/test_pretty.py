@@ -47,8 +47,15 @@ class Footprints(unittest.TestCase):
         made = pretty.footprints()
         for name in ("R_Axial_P12.70mm", "C_Disc_P5.08mm", "CP_Axial_P25.40mm", "Crystal_RK169_P5.08mm"):
             self.assertIn("(model \"${KICAD10_3DMODEL_DIR}/", made[name])
-        for name in ("DSUB-9_ONP-ZhG-79", "Lug_3.2mm", "Wire_Link_P12.70mm"):
+        for name in ("DSUB-9_ONP-ZhG-79", "Lug_3.2mm"):
             self.assertNotIn("(model", made[name])
+
+    def test_a_wire_link_shows_its_own_bent_wire_from_beside_the_library(self):
+        self.assertIn('(model "${KIPRJMOD}/ns4.3dshapes/Wire_Link_P12.70mm.wrl"', pretty.footprints()["Wire_Link_P12.70mm"])
+        wrl = pretty.wire_link_wrl(12.7)
+        self.assertTrue(wrl.startswith("#VRML V2.0 utf8"))
+        self.assertEqual(wrl.count("Box"), 3)               # the span and two legs
+        self.assertIn("size 5.236 ", wrl)                    # 12.7 mm and the wire, in 2.54 mm units
 
     def test_the_library_is_what_it_writes(self):
         self.assertEqual(pretty.stale(), [])
