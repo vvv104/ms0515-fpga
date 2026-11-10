@@ -430,7 +430,17 @@ to any one board.  From stage 6 on there are two projects:
        mV; ВГ93's +12 V dips 37 mV with C4 on it and 447 mV without -
        C4 on +12 V, as the copper has it, is the right one.
    8e. **The layout against the netlist.**  The netlist read back from
-       the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
-       test, so that the board made is the board simulated.
+       the routed board equal to `netlist/`, pin for pin - a test, so that
+       the board made is the board simulated.  **Done** (2026-11-10,
+       `tools/readback.py`): the net names on the copper are ours, so it
+       does not read them - pads, tracks, vias and the planes' fill joined
+       where their copper touches (a plane where its fill overlaps a pad:
+       a spoke), each group of pins a net of the board as it would be made.
+       The routed board (`build/pathfind/ns4-pathfind.kicad_pcb`): 2436
+       pins, 16065 track pieces, 819 vias, 2 planes - 635 groups, **no
+       difference** from the netlist.  A copy spoiled on purpose (one
+       inner run taken off, a run from D14.1 to D14.2 named as D14.1's
+       net) is told both: `МК02 H` in 2 pieces, `БОРДС L` and `БОРДК L`
+       joined.
    8f. **For the fab and the bench.**  Gerbers, drill files, the parts
        list, the assembly drawing, the options and the first power-on.
