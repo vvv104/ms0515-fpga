@@ -280,10 +280,28 @@ def put(fp, want):
     return miss
 
 
-def place_1991(fps, free):
-    """Every part but the DIPs on its 1991 holes, locked."""
+def board_holes():
+    """{ref: drill mm} of the 1991 board's own holes H1..H10 (placement-1991.csv: "circle D mm")."""
+    return {r["ref"]: r["source"].split()[1] for r in nl.rows(os.path.join(NET, "placement-1991.csv"))
+            if r["ref"].startswith("H") and r["ref"][1:].isdigit()}
+
+
+def mounting_hole(board, dirs, ref, drill):
+    """One of the 1991 board's holes, a footprint of no part (tools/pretty.py)."""
+    fp = pcbnew.FootprintLoad(dirs["ns4"], f"Hole_{drill}mm_NPTH")
+    fp.SetReference(ref)
+    board.Add(fp)
+    return fp
+
+
+def place_1991(board, dirs, fps, free):
+    """Every part but the DIPs on its 1991 holes, locked; the board's own
+    holes where the 1991 board has them."""
+    holes = board_holes()
     for ref, want in holes_1991().items():
         fp = fps.get(ref)
+        if fp is None and ref in holes:
+            fp = fps[ref] = mounting_hole(board, dirs, ref, holes[ref])
         if fp is None:
             continue
         miss = put(fp, want)
@@ -423,7 +441,7 @@ def build(variant=None):
     free = Free(board)
     outline(board)
     place_dips(fps, free)
-    place_1991(fps, free)
+    place_1991(board, dirs, fps, free)
     failed = place_rest(fps, free, pin_nets() if variant else nets)
     snap(fps)
     for layer, net in PLANES.items():

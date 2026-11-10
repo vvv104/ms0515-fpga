@@ -46,6 +46,13 @@ class Footprints(unittest.TestCase):
     def test_the_library_is_what_it_writes(self):
         self.assertEqual(pretty.stale(), [])
 
+    def test_the_board_holes_are_bare_holes_of_their_size(self):
+        for name, drill in (("Hole_4.8mm_NPTH", 4.8), ("Hole_3.2mm_NPTH", 3.2)):
+            text = self.made[name]
+            self.assertIn("np_thru_hole", text, name)
+            self.assertIn(f"(drill {drill})", text, name)
+            self.assertNotIn("F.CrtYd", text, name)
+
 
 if __name__ == "__main__":
     unittest.main()

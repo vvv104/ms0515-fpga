@@ -36,9 +36,11 @@ class Placement(unittest.TestCase):
                 for p in fp["pads"]}
         self.assertEqual(sorted(h for h in used if int(h.split()[1]) in dips), [])
 
-    def test_only_the_lugs_and_xs1_c10_stand_off_the_holes(self):
+    def test_only_the_lugs_the_mounting_holes_and_xs1_c10_stand_off_the_holes(self):
         off = sorted(f"{r['ref']}.{r['pad']} {r['source']}" for r in self.rows if not r["source"].startswith("hole "))
-        self.assertEqual(off, ["XS1.c10 geometry", "XT1.1 drawing", "XT2.1 drawing", "XT3.1 drawing"])
+        want = ([f"H{i}. circle 4.8 mm" for i in range(1, 7)] + [f"H{i}. circle 3.2 mm" for i in range(7, 11)]
+                + ["XS1.c10 geometry"] + [f"XT{i}.1 circle" for i in (1, 2, 3)])
+        self.assertEqual(off, sorted(want))
 
     def test_every_part_but_the_chips_and_the_boards_own_is_placed(self):
         placed = {r["ref"] for r in self.rows}

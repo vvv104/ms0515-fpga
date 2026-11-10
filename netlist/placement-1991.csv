@@ -1,7 +1,9 @@
 # Every pad of every part but the DIPs, where the 1991 board had it: x, y in the pixels of
 # Mick's layer traces (4488x3543, as netlist/placement.csv), the hole of netlist/copper.json it
 # stands on ("hole N"), or where the part's own geometry puts it when the trace draws no hole
-# ("geometry": XS1 c10) or none was found ("drawing": the ground lugs, from the assembly drawing).
+# ("geometry": XS1 c10), or on a circle of the traces ("circle": the ground lugs XT1..XT3, 3.2 mm,
+# and the board's holes H1..H10: H1..H6 its 4.8 mm mounting holes, H7..H10 3.2 mm ones; no copper,
+# no part of Э3's.  The other 3.2 mm circles are XS1's own fixing holes and the 1991 XP8's screws).
 # How (2026-11-10): each part's label read by eye off the assembly drawing 3.858.420 СБ (page 27,
 # netlist/sb-labels.csv), the drawing registered on the board by the parts whose two holes' copper
 # reaches both of their nets (0.16 mm median), each label taken onto the pair of free holes nearest
@@ -693,6 +695,16 @@ XS2,2,196.4,511.4,hole 284
 XS2,3,196.4,629.4,hole 428
 XS2,4,235.5,432.5,hole 239
 XS2,5,235.8,590.0,hole 377
-XT1,1,81.8,3270.2,drawing
-XT2,1,86.3,1615.4,drawing
-XT3,1,101.4,260.2,drawing
+XT1,1,75.0,3268.0,circle
+XT2,1,79.0,1618.0,circle
+XT3,1,84.0,275.0,circle
+H1,,239.0,113.0,circle 4.8 mm
+H2,,2201.0,110.0,circle 4.8 mm
+H3,,4171.0,100.0,circle 4.8 mm
+H4,,230.0,3421.0,circle 4.8 mm
+H5,,2201.0,3433.0,circle 4.8 mm
+H6,,4172.0,3418.0,circle 4.8 mm
+H7,,85.0,116.0,circle 3.2 mm
+H8,,4337.0,100.0,circle 3.2 mm
+H9,,74.0,3365.0,circle 3.2 mm
+H10,,4328.0,3421.0,circle 3.2 mm

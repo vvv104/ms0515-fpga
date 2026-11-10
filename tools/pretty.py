@@ -87,11 +87,30 @@ def dsub(name, ref):
                      (min(xs) - 2, min(ys) - 2, max(xs) + 2, max(ys) + 2))
 
 
+def hole(drill):
+    """A bare hole of the 1991 board (its mounting holes): no copper, no
+    courtyard - a lug's pad may come near it, as on the 1991 board."""
+    name = f"Hole_{drill}mm_NPTH"
+    r = drill / 2
+    lines = [f'(footprint "{name}"', "\t(version 20241229)", '\t(generator "pretty.py")', '\t(layer "F.Cu")',
+             f'\t(descr "a {drill} mm hole of the 1991 board, no copper")',
+             f'\t(property "Reference" "REF**" (at 0 {-r - 1.5:.3f} 0) (layer "F.SilkS") (hide yes)'
+             ' (effects (font (size 1 1) (thickness 0.15))))',
+             f'\t(property "Value" "{name}" (at 0 {r + 1.5:.3f} 0) (layer "F.Fab")'
+             ' (effects (font (size 1 1) (thickness 0.15))))',
+             '\t(attr exclude_from_pos_files exclude_from_bom)',
+             f'\t(fp_circle (center 0 0) (end {r:.3f} 0) (stroke (width 0.1) (type solid)) (fill no) (layer "F.Fab"))',
+             f'\t(pad "" np_thru_hole circle (at 0 0) (size {drill} {drill}) (drill {drill}) (layers "*.Cu" "*.Mask"))',
+             ")"]
+    return name, "\n".join(lines) + "\n"
+
+
 def footprints():
     """{name: text} of every footprint this writes."""
     made = {name: two_pin(name) for name in TWO_PIN}
     made["Trimmer_SP5-16VA"] = trimmer()
     made.update({name: dsub(name, ref) for name, ref in DSUBS.items()})
+    made.update(dict(hole(d) for d in (4.8, 3.2)))
     return made
 
 
