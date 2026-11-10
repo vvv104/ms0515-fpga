@@ -210,7 +210,6 @@ dot.  A chip's pins run from pin 1 along its row and back along the other row.
 | `АД14 H` | D94.16 | D74.9 |
 | `АД15 H` | XS1.a18 | D74.12 |
 | `АПК6 H` | D36.12 | D13.2 |
-| `АПК7 H` | D84.4 | D13.1 |
 | `АПК8 H` | D41.5 | D13.17 |
 | `АРБ H` | D73.3 | D43.4 |
 | `БАНК7 H` | D74.13 | D74.5 |
@@ -345,9 +344,8 @@ dot.  A chip's pins run from pin 1 along its row and back along the other row.
 | `ЗЦ H` | D81.10 | D69.7 |
 | `ЗЦ H` | D81.12 | D69.7 |
 | `ЗЦ H` | D81.13 | D69.7 |
-| `ИМП ЧТ H` | D47.5 | D17.3 |
-| `ИМП ЧТ H` | D93.12 | D17.3 |
-| `ИМП ЧТ H` | D93.13 | D17.3 |
+| `ИМП ЧТ H` | D93.12 | D47.5 |
+| `ИМП ЧТ H` | D93.13 | D47.5 |
 | `ИМП ЧТ L` | XS5.27 | D47.6 |
 | `ИНД H` | XP4.8 | R9.2 |
 | `ИНД H` | XS5.35 | R9.2 |
@@ -485,7 +483,6 @@ dot.  A chip's pins run from pin 1 along its row and back along the other row.
 | `СИНХР3 H` | D23.8 | D9.17 |
 | `ССИ L` | D36.2 | C64.1 |
 | `СТАРТ H` | D22.21 | D16.10 |
-| `СТРОБ H` | D98.3 | D70.11 |
 | `СТРОБ ЧТ L` | D58.1 | D52.1 |
 | `СТРОБ ЧТ L` | D72.11 | D52.1 |
 | `СТЫК С2 103` | XP5.2 | D20.7 |
@@ -504,7 +501,6 @@ dot.  A chip's pins run from pin 1 along its row and back along the other row.
 | `ТС4 H` | D71.13 | D21.5 |
 | `ТС5 H` | D42.11 | D21.3 |
 | `ТС8М L` | D15.9 | BQ1.2 |
-| `ТС8М L` | D40.9 | BQ1.2 |
 | `ТС8М L` | R3.2 | BQ1.2 |
 | `УСТ L` | D33.1 | D10.1 |
 | `ФАЗА H` | D10.3 | D4.4 |
@@ -513,6 +509,25 @@ dot.  A chip's pins run from pin 1 along its row and back along the other row.
 | `ЧТ ВЗУ H` | D95.15 | D23.1 |
 | `ЧТ51 L` | D79.11 | D9.22 |
 | `ЧТМАГ H` | E7.1 | C72.1 |
+
+## Pairs that ring through the factory's wires
+
+The board as made carries white wire patches, drawn on the assembly drawing 3.858.420 СБ
+(page 27) and seen on every board photographed; they make the copper what Э3 draws, and
+Mick's traces, the copper alone, do not have them.  These pins ring through a wire you can
+see, not through the hidden layers, so they say nothing about layers 3..6:
+
+| Net | Pins joined by the wire |
+|---|---|
+| `АПК7 H` | D13.1 - D84.4 |
+| `ИМП ЧТ H` | D17.3 - D33.3 - D47.5 |
+| `ТС8М L` | D15.9 - D40.9 |
+| `СТРОБ H` | D98.3 - D70.11 |
+
+Note 11 of the drawing lifts D84.4, D17.3, D33.3 off their pads: the leg goes to
+the wire only.  Ring those from the leg for the list above.  Their pads, under the bent
+legs, keep the copper as it was made before the patch: what a pad rings to (from the pad,
+not the leg) is the hidden copper the patch replaced - worth a post too.
 
 ## Pairs that must not ring
 

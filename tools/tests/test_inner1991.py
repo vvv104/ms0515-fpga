@@ -19,9 +19,29 @@ class Inner(unittest.TestCase):
         pins = [("A", "D1.1", 0), ("A", "D2.3", 1), ("A", "D3.5", 4), ("B", "D4.2", 2), ("B", "D5.7", 3)]
         self.assertEqual(inner1991.inner_joins(pins, self.group), {"A": [("D3.5", "D1.1")]})
 
+    def test_a_lifted_leg_is_not_the_pin_to_ring_to(self):
+        pins = [("A", "D1.1", 0), ("A", "D2.3", 1), ("A", "D3.5", 4)]
+        self.assertEqual(inner1991.inner_joins(pins, self.group, avoid=("D1.1",)), {"A": [("D3.5", "D2.3")]})
+
     def test_two_nets_on_one_outer_piece_must_not_ring(self):
         pins = [("A", "D1.1", 0), ("A", "D2.3", 4), ("B", "D4.2", 1)]
         self.assertEqual(inner1991.outer_shorts(pins, self.group), [("A", "D1.1", "B", "D4.2")])
+
+    def test_a_factory_wire_joins_two_pieces_so_they_ring_through_it_not_inside(self):
+        pins = [("A", "D1.1", 0), ("A", "D3.5", 4)]
+        pins, group = inner1991.patched(pins, self.group, [("D1.1", "D3.5")], ())
+        self.assertEqual(inner1991.inner_joins(pins, group), {})
+
+    def test_a_lifted_leg_leaves_its_pad_s_copper_for_the_wire(self):
+        # D2.3 lifted off hole 1 (on D1.1's copper) and wired to D3.5 (hole 4); D1.1 stays alone
+        pins = [("A", "D1.1", 0), ("B", "D2.3", 1), ("B", "D3.5", 4)]
+        pins, group = inner1991.patched(pins, self.group, [("D2.3", "D3.5")], ("D2.3",))
+        self.assertEqual(inner1991.inner_joins(pins, group), {})
+        self.assertEqual(inner1991.outer_shorts(pins, group), [])
+
+    def test_a_wire_to_a_pin_not_on_the_board_is_an_error(self):
+        with self.assertRaises(KeyError):
+            inner1991.patched([("A", "D1.1", 0)], self.group, [("D1.1", "D9.9")], ())
 
 
 if __name__ == "__main__":

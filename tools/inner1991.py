@@ -21,6 +21,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 OUT = os.path.join(ROOT, "docs", "pcb", "inner-layers.md")
 PLANES = ("GND", "+5V")
+# The factory's wire patches, the assembly drawing 3.858.420 СБ page 27 (docs/findings.md,
+# "The factory wire patches restore Э3"); its note 11 lifts D84.4, D17.3 and D33.3 off
+# their pads, the other two ends are soldered on with the leg in its hole.
+WIRES = [("D13.1", "D84.4"), ("D17.3", "D33.3", "D47.5"), ("D15.9", "D40.9"), ("D98.3", "D70.11")]
+LIFTED = ("D84.4", "D17.3", "D33.3")
 
 
 def outer_groups(lines, n_holes):
@@ -43,9 +48,10 @@ def pin_name(ref, pad):
     return f"{ref}.{pad}"
 
 
-def inner_joins(pins, group):
+def inner_joins(pins, group, avoid=()):
     """{net: [(pin, to pin)]}: per net, one pin of each outer group past the
-    first and the first group's pin it must ring to.  pins: [(net, name, hole)]."""
+    first and the first group's pin it must ring to.  pins: [(net, name, hole)];
+    the pins in avoid (lifted legs) are named only when a group has no other."""
     by_net = defaultdict(lambda: defaultdict(list))
     for net, name, hole in pins:
         by_net[net][group[hole]].append(name)
@@ -53,10 +59,27 @@ def inner_joins(pins, group):
     for net, groups in by_net.items():
         if len(groups) < 2:
             continue
-        heads = sorted(sorted(g, key=_natural)[0] for g in groups.values())
+        heads = sorted(sorted(g, key=lambda n: (n in avoid, _natural(n)))[0] for g in groups.values())
         heads.sort(key=_natural)
         out[net] = [(h, heads[0]) for h in heads[1:]]
     return out
+
+
+def patched(pins, group, wires, lifted):
+    """(pins, group) with the factory wires in: a lifted leg leaves its hole (its pad keeps
+    the copper as made) for a place of its own, and each wire joins its pins' pieces as
+    copper would.  wires: [(pin, pin, ...)]; lifted: pin names."""
+    group = dict(group)
+    fresh = max(group) + 1
+    hole = {name: h for _, name, h in pins}
+    for name in lifted:
+        hole[name], group[fresh] = fresh, fresh
+        fresh += 1
+    for wire in wires:
+        ids = {group[hole[name]] for name in wire}
+        to = min(ids)
+        group = {h: to if g in ids else g for h, g in group.items()}
+    return [(net, name, hole[name]) for net, name, _ in pins], group
 
 
 def outer_shorts(pins, group):
@@ -188,7 +211,23 @@ def draw_pair(a, b, where, path):
     sheet.save(path)
 
 
-def write(joins, shorts, planes):
+def _wires_text(wires):
+    text = ["## Pairs that ring through the factory's wires", "",
+            "The board as made carries white wire patches, drawn on the assembly drawing 3.858.420 СБ",
+            "(page 27) and seen on every board photographed; they make the copper what Э3 draws, and",
+            "Mick's traces, the copper alone, do not have them.  These pins ring through a wire you can",
+            "see, not through the hidden layers, so they say nothing about layers 3..6:", "",
+            "| Net | Pins joined by the wire |", "|---|---|"]
+    for net, pins in wires:
+        text.append(f"| `{net}` | {' - '.join(pins)} |")
+    text += ["", f"Note 11 of the drawing lifts {', '.join(LIFTED)} off their pads: the leg goes to",
+             "the wire only.  Ring those from the leg for the list above.  Their pads, under the bent",
+             "legs, keep the copper as it was made before the patch: what a pad rings to (from the pad,",
+             "not the leg) is the hidden copper the patch replaced - worth a post too.", ""]
+    return text
+
+
+def write(joins, shorts, planes, wires):
     text = ["# What the hidden layers join: a list to ring out", "",
             "Written by `tools/inner1991.py`; how and why: its docstring and `docs/plan.md` 8d.", "",
             "НС4 rev. 3А has eight copper layers; Mick's traces (zx-pk.ru 15146 #271) show 1, 2, 7 and 8.",
@@ -207,7 +246,8 @@ def write(joins, shorts, planes):
     for net in sorted(joins):
         for a, b in joins[net]:
             text.append(f"| `{net}` | {a} | {b} |")
-    text += ["", "## Pairs that must not ring", "",
+    text += [""] + _wires_text(wires)
+    text += ["## Pairs that must not ring", "",
              "The outer copper as traced joins these pins of two nets of Э3: a trace error, a factory",
              "patch (a cut and a wire), or the board's own.  On a board built to Э3 they are apart.", "",
              "| Net | Pin | Net | Pin |", "|---|---|---|---|"]
@@ -225,10 +265,13 @@ def main():
     pins, holes, parts = board_pins()
     lines = json.load(open(os.path.join(ROOT, "netlist", "lines-1991.json"), encoding="utf-8"))
     group = outer_groups(lines, len(holes))
-    signal = [p for p in pins if p[0] not in PLANES]
     planes = ", ".join(f"{sum(1 for p in pins if p[0] == pl)} `{pl}` pins" for pl in PLANES)
-    joins, shorts = inner_joins(signal, group), outer_shorts(pins, group)
-    write(joins, shorts, planes)
+    legs, by_legs = patched(pins, group, [], LIFTED)
+    wired, by_wires = patched(pins, group, WIRES, LIFTED)
+    signal = [p for p in wired if p[0] not in PLANES]
+    joins, shorts = inner_joins(signal, by_wires, LIFTED),outer_shorts(legs, by_legs)
+    net_of = {name: net for net, name, _ in pins}
+    write(joins, shorts, planes, [(net_of[w[0]], w) for w in WIRES])
     pictures = os.path.join(os.path.dirname(OUT), "inner-layers")
     os.makedirs(pictures, exist_ok=True)
     draw_map(parts, os.path.join(pictures, "board-map.jpg"))
