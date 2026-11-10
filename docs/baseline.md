@@ -21,7 +21,7 @@ the fixed tree.
 | 5. The corners | pass, 73 of 73 at min and at max, after the tests were made to know a corner |
 | 6. The real software on the board | ОСА and Omega to their prompts at typ, min and max: pass; on the core's drive too.  Found on the way and fixed: the controller's model ended a write a byte early and the bench's drive lost such writes; the boot runs made again on the fixed board, 17 of 17 pass.  Then games (BIRDS, Saboteur 2) found the КР580ВВ51А's model wrong twice about TxEN - a character written before TxEN went off was held, and one written with TxEN off never left the buffer - so that both stood still at their first instructions; fixed; the boots on the board so fixed, 17 of 17 pass; on it both games run at typ, min and max - BIRDS to its field with its sound, Saboteur 2 through its menu and briefing to the jump, the landing and its sound, by the keypad and by the joystick.  Saboteur 2 takes 20 s to load there, a block a turn of the diskette - open (9) |
 | 7. The core | pass: built again after each of step 6's fixes, timing met, +0.630 ns at 120 MHz after the last |
-| 8. The printed board | both boards placed on eight layers, as the 1991 board (owner, 2026-11-09), and checked against the netlist.  Four layers left 140 of 1258 connections, six 309; Э3's eight-layer routing from the empty board under way - open (item 5) |
+| 8. The printed board | both boards placed on eight layers, as the 1991 board (owner, 2026-11-09), and checked against the netlist.  Four layers left 140 of 1258 connections, six 309; Э3's eight-layer routing from the empty board: 15 connections left, DRC 0 errors - open (item 5) |
 
 ## 1. The netlist is consistent
 
@@ -732,7 +732,14 @@ The owner's board first (`docs/plan.md` 8d).
    plane on In2, +5 V on In5 - and Э3's board first, as the paper
    schematic draws it (6b closed); the owner's board made from it.
    Э3's routing from the empty board began the same day (`build/route`,
-   `run 8 3`).
+   `run 8 3`): unrouted after each pass 331, 199, then by chunk 34, 17,
+   15, and 15 for three chunks more - stopped by itself 2026-11-10
+   05:10 (six layers had 309 after two days).  Put on a copy
+   (`build/route/ns4-routed15.kicad_pcb`: 11433 segments, 513 vias),
+   `pcb.py check` 0 differences, KiCad's DRC **0 errors** (60 warnings,
+   the silkscreen's; `build/drc/ns4-eight-r15.json`) and 15 unconnected
+   in 9 nets: АД12 H (3), А0 H (4), РАЗР ОЗУ L (3), Р2 H, ДЧТ L, ПМЛБ L,
+   СИНХР3 L, РВУ1 H.  Open: those 15.
 6. Э3's board, stage 6b - **draws both modes as the emulator, with a
    fitted speed** (2026-11-09): with C70 modelled the typical chain to
    D70's enable lost 640 x 200's left edge by ~12 ns, in continuous time
