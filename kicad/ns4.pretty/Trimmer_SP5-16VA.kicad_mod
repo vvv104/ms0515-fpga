@@ -10,4 +10,5 @@
 	(pad "1" thru_hole circle (at -2.540 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
 	(pad "2" thru_hole circle (at 0.000 -3.175) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
 	(pad "3" thru_hole circle (at 0.000 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+	(model "${KICAD10_3DMODEL_DIR}/Potentiometer_THT.3dshapes/Potentiometer_Bourns_3296W_Vertical.step" (offset (xyz 0.0 0 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
 )

@@ -9,4 +9,5 @@
 	(fp_rect (start 4.700 -3.500) (end 20.700 3.500) (stroke (width 0.12) (type solid)) (fill no) (layer "F.SilkS"))
 	(pad "1" thru_hole rect (at 0.000 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
 	(pad "2" thru_hole circle (at 25.400 0.000) (size 1.5 1.5) (drill 0.8) (layers "*.Cu" "*.Mask"))
+	(model "${KICAD10_3DMODEL_DIR}/Capacitor_THT.3dshapes/CP_Axial_L18.0mm_D6.5mm_P25.00mm_Horizontal.step" (offset (xyz 0.2 0 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
 )

@@ -34,6 +34,27 @@ TWO_PIN = {
     "Crystal_RK353_P12.70mm": (12.7, (20.0, 8.0), False, "РК 353БВ crystal, 12.7 mm, as on the 1991 board"),
 }
 DSUBS = {"DSUB-9_ONP-ZhG-79": "XP5", "DSUB-15_ONP-ZhG-79": "XP6", "DSUB-25_ONP-ZhG-79": "XP3"}
+# For the 3D view only: a stock KiCad model nearest the part (pin 1 at its origin, as ours), shifted
+# along x by `dx` mm to sit between the 1991 holes.  The ОНП-ЖГ-79s (2.9 mm a pin, no stock model
+# with that pitch), the wire links and the lugs have none.
+MODELS = {
+    "R_Axial_P12.70mm": ("Resistor_THT", "R_Axial_DIN0309_L9.0mm_D3.2mm_P12.70mm_Horizontal", 0.0),
+    "C_Disc_P5.08mm": ("Capacitor_THT", "C_Disc_D5.0mm_W2.5mm_P5.00mm", 0.04),
+    "CP_Axial_P25.40mm": ("Capacitor_THT", "CP_Axial_L18.0mm_D6.5mm_P25.00mm_Horizontal", 0.2),
+    "C_Rect_P10.16mm": ("Capacitor_THT", "C_Rect_L13.0mm_W4.0mm_P10.00mm_FKS3_FKP3_MKS4", 0.08),
+    "Crystal_RK169_P5.08mm": ("Crystal", "Crystal_HC49-U_Vertical", 0.1),
+    "Crystal_RK353_P12.70mm": ("Crystal", "Crystal_HC18-U_Vertical", 3.91),
+    "Trimmer_SP5-16VA": ("Potentiometer_THT", "Potentiometer_Bourns_3296W_Vertical", 0.0),
+}
+
+
+def model(name):
+    """The footprint's 3D model line, or none."""
+    if name not in MODELS:
+        return []
+    lib, step, dx = MODELS[name]
+    return [f'\t(model "${{KICAD10_3DMODEL_DIR}}/{lib}.3dshapes/{step}.step"'
+            f' (offset (xyz {dx} 0 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))']
 
 
 def pad(name, x, y, square=False, drill=DRILL):
@@ -54,7 +75,7 @@ def footprint(name, descr, pads, box):
              "\t(attr through_hole)",
              f'\t(fp_rect (start {x0:.3f} {y0:.3f}) (end {x1:.3f} {y1:.3f})'
              ' (stroke (width 0.12) (type solid)) (fill no) (layer "F.SilkS"))']
-    lines += pads
+    lines += pads + model(name)
     lines.append(")")
     return "\n".join(lines) + "\n"
 
@@ -134,8 +155,12 @@ def stale():
     out = []
     for name, text in footprints().items():
         path = os.path.join(PRETTY, name + ".kicad_mod")
-        if not os.path.exists(path) or open(path, encoding="utf-8").read() != text:
+        if not os.path.exists(path):
             out.append(name)
+            continue
+        with open(path, encoding="utf-8") as f:
+            if f.read() != text:
+                out.append(name)
     return out
 
 

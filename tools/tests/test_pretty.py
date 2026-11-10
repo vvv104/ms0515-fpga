@@ -43,6 +43,13 @@ class Footprints(unittest.TestCase):
             self.assertEqual(sorted(p, key=int), [str(i) for i in range(1, n + 1)], name)
             self.assertEqual(p["1"], (0.0, 0.0), name)
 
+    def test_the_passives_show_a_stock_3d_model_the_connectors_none(self):
+        made = pretty.footprints()
+        for name in ("R_Axial_P12.70mm", "C_Disc_P5.08mm", "CP_Axial_P25.40mm", "Crystal_RK169_P5.08mm"):
+            self.assertIn("(model \"${KICAD10_3DMODEL_DIR}/", made[name])
+        for name in ("DSUB-9_ONP-ZhG-79", "Lug_3.2mm", "Wire_Link_P12.70mm"):
+            self.assertNotIn("(model", made[name])
+
     def test_the_library_is_what_it_writes(self):
         self.assertEqual(pretty.stale(), [])
 
