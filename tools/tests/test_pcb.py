@@ -4,6 +4,7 @@ import os
 import sys
 import tempfile
 import unittest
+from collections import Counter
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 try:
@@ -69,6 +70,11 @@ class Placement1991(unittest.TestCase):
         layers = {self.board.GetLayerName(t.GetLayer()) for t in tracks}
         self.assertEqual(layers, {"F.Cu", "In1.Cu", "In6.Cu", "B.Cu"})
         self.assertTrue(all(t.IsLocked() and t.GetNetname() for t in tracks + vias))
+
+    def test_the_1991_signal_runs_are_a_quarter_millimetre_as_the_photos_show(self):
+        widths = Counter(round(pcbnew.ToMM(t.GetWidth()), 3) for t in self.board.GetTracks()
+                         if t.GetClass() == "PCB_TRACK")
+        self.assertEqual(widths.most_common(1)[0][0], 0.25)
 
     def test_every_part_but_the_dips_stands_on_its_1991_holes(self):
         board = self.board

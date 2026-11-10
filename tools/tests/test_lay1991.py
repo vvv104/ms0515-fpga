@@ -92,5 +92,61 @@ class Vias(unittest.TestCase):
         self.assertEqual(lay1991.vias(tracks, HOLES, {0, 1}), {2: "A"})
 
 
+class Scraps(unittest.TestCase):
+    def test_runs_that_reach_no_hole_through_each_other_go_the_rest_stay(self):
+        tracks = {"L": [["A", 6.0, [[0, 0], [60, 0]]], ["A", 6.0, [[60, 0], [60, 50]]],    # on hole 0
+                        ["B", 6.0, [[150, 40], [160, 40]]]]}                                # nowhere
+        kept, gone = lay1991.drop_scraps(tracks, HOLES, 8.0)
+        self.assertEqual(gone, 1)
+        self.assertEqual([t[0] for t in kept["L"]], ["A", "A"])
+
+    def test_a_run_whose_end_lies_on_a_holes_copper_stays(self):
+        tracks = {"L": [["A", 6.0, [[125, 3], [125, 60]]]]}          # 6 px off hole 1's centre
+        self.assertEqual(lay1991.drop_scraps(tracks, HOLES, 8.0)[1], 0)
+
+
+class Widths(unittest.TestCase):
+    # segments (layer, x0, y0, x1, y1, net) and pads (x, y, r, net), in mm
+    def test_a_run_with_room_keeps_its_width(self):
+        segs = [("L", 0, 0, 10, 0, "A")]
+        self.assertEqual(lay1991.fit_widths(segs, [(5, 3, 0.8, "B")], 0.25, 0.15, 0.2), [0.25])
+
+    def test_a_run_too_near_a_pad_narrows_just_enough(self):
+        # 1.1 from the centre of a 0.8 pad: 0.3 - 0.2 leaves 0.1 a side, 0.2 wide
+        segs = [("L", 0, 0, 10, 0, "A")]
+        self.assertAlmostEqual(lay1991.fit_widths(segs, [(5, 1.1, 0.8, "B")], 0.25, 0.15, 0.2)[0], 0.2)
+
+    def test_two_runs_too_near_share_the_narrowing_and_stop_at_the_floor(self):
+        segs = [("L", 0, 0, 10, 0, "A"), ("L", 0, 0.42, 10, 0.42, "B"), ("M", 0, 0.1, 10, 0.1, "C")]
+        self.assertEqual([round(w, 3) for w in lay1991.fit_widths(segs, [], 0.25, 0.15, 0.2)], [0.22, 0.22, 0.25])
+        segs[1] = ("L", 0, 0.3, 10, 0.3, "B")
+        self.assertEqual(lay1991.fit_widths(segs, [], 0.25, 0.15, 0.2)[:2], [0.15, 0.15])
+
+    def test_a_wide_run_of_another_net_is_kept_off_by_its_half_width(self):
+        segs = [("L", 0, 0, 10, 0, "A")]
+        wide = [("L", 0, 0.8, 10, 0.8, 0.5, "GND")]          # 1 mm wide, 0.8 away: 0.1 a side left
+        self.assertAlmostEqual(lay1991.fit_widths(segs, [], 0.25, 0.15, 0.2, fixed=wide)[0], 0.2)
+
+    def test_a_square_pad_keeps_off_by_its_sides_not_its_corners(self):
+        # a 1.6 mm square pad, its side 1.2 from the run: 0.4 - 0.2 a side leaves the full width
+        segs = [("L", 0, 0, 10, 0, "A")]
+        pad = (5, 2.0, 1.13, "B", 0.8, 0.8)
+        self.assertEqual(lay1991.fit_widths(segs, [pad], 0.25, 0.15, 0.2), [0.25])
+        pad = (5, 1.15, 1.13, "B", 0.8, 0.8)                 # side 0.35 off: 0.3 wide
+        self.assertAlmostEqual(lay1991.fit_widths(segs, [pad], 0.25, 0.15, 0.2)[0], 0.25)
+        pad = (5, 1.1, 1.13, "B", 0.8, 0.8)                  # side 0.3 off: 0.2 wide
+        self.assertAlmostEqual(lay1991.fit_widths(segs, [pad], 0.25, 0.15, 0.2)[0], 0.2)
+
+    def test_a_long_run_narrows_only_by_the_tight_spot(self):
+        # 20 mm long, a pad 1.1 mm off its far end: the narrowing a piece long, the rest whole
+        runs = lay1991.fit_runs([("L", 0, 0, 20, 0, "A")], [(19.5, 1.1, 0.8, "B")], 0.25, 0.15, 0.2, piece=2.5)
+        self.assertEqual([(round(s[1], 2), round(s[3], 2), round(w, 2)) for s, w in runs],
+                         [(0, 17.5, 0.25), (17.5, 20.0, 0.2)])
+
+    def test_its_own_nets_copper_is_no_obstacle(self):
+        segs = [("L", 0, 0, 10, 0, "A")]
+        self.assertEqual(lay1991.fit_widths(segs, [(5, 0.5, 0.8, "A")], 0.25, 0.15, 0.2), [0.25])
+
+
 if __name__ == "__main__":
     unittest.main()

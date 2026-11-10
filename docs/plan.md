@@ -411,11 +411,20 @@ to any one board.  From stage 6 on there are two projects:
        (the board's photos: 0.25..0.3 mm), layer changes only in the
        pins, the 1991 vias and the 248 holes no outer copper takes.
        On In3/In4 with the free room of In1/In6: every join made, none
-       shared, in 199 rounds (a few minutes); KiCad's DRC of the board
-       **no error**, one unconnected - a 0.2 mm scrap of Mick's copper at
-       VT1.1 that reaches no hole (`build/pathfind/`).  149 of the free
+       shared, in some forty rounds (a few minutes); 149 of the free
        holes became vias.  On In3/In4 alone, as the 1991 board may have
        been: 16 cells still shared after 400 rounds.
+       **The 1991 runs 0.25 mm wide** (2026-11-10): 0.19 mm was the line
+       Mick drew, three pixels; the owner's board photo shows its runs
+       0.25..0.3 mm (`docs/findings.md`).  Laid 0.25 mm, narrower only
+       where the traces' half-pixel error leaves less than the clearance
+       (`lay1991.fit_runs`, a run cut in 2.54 mm pieces, a square pad by
+       its sides): 99.8 % of the length at 0.25.  Pieces of copper that
+       reach no hole are taken off (`lay1991.drop_scraps`).  Routed inside
+       again: KiCad's DRC **no error, nothing unconnected**
+       (`build/pathfind/ns4-pathfind.kicad_pcb`; the warnings are the
+       silkscreen's, the ends of Mick's runs that go inside, and 11 of
+       his vias no net needed).
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.

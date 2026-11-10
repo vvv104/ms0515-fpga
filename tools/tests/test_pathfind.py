@@ -33,6 +33,14 @@ class Model(unittest.TestCase):
                   tracks=[("F.Cu", 2.54, 2.54, 12.7, 2.54, 0.25, "A")])
         self.assertNotIn("A", pathfind.Model(b, LAYERS).islands)
 
+    def test_a_run_past_a_square_pad_s_corner_reach_does_not_join_it(self):
+        # a 1.6 mm square pad (corners 1.13 out, sides 0.8) and a run 1.2 mm past its centre
+        b = board([(2.54, 2.54, "A", "D1.1", 1.13), (12.7, 2.54, "A", "D2.1")],
+                  tracks=[("B.Cu", 3.74, 0.0, 3.74, 10.0, 0.25, "A")])
+        b["pads"][0].append(0.8)
+        b["pads"][1].append(0.8)
+        self.assertEqual(len(pathfind.Model(b, LAYERS).islands["A"]), 2)
+
     def test_a_cell_between_two_nets_pads_closer_than_the_clearance_is_shut(self):
         # pads 1.2 mm round, 2.54 apart: the cell between them is too near both
         m = pathfind.Model(board([(2.54, 2.54, "A", "D1.1", 1.2), (5.08, 2.54, "B", "D1.2", 1.2)]), LAYERS)

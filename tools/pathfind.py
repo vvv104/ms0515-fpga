@@ -136,7 +136,7 @@ class Model:
 
     def _claim_all(self):
         everywhere = range(len(self.layers))
-        for x, y, r, net, _ in self.board["pads"]:
+        for x, y, r, net, *_ in self.board["pads"]:
             who, gap = (self.net_id[net], CLEAR) if net else (SHUT, HOLE_CLEAR)
             self._claim(everywhere, x, y, x, y, r + gap + WIDTH / 2, who)
         for x, y, r, net in self.board["vias"]:
@@ -170,7 +170,7 @@ class Model:
     def _holes(self):
         """The cells a route may change layer in, each with its hole: (x, y, free hole or None)."""
         hole = {}
-        spots = [(x, y, r, None) for x, y, r, net, _ in self.board["pads"] if net]
+        spots = [(x, y, r, None) for x, y, r, net, *_ in self.board["pads"] if net]
         spots += [(x, y, r, None) for x, y, r, _ in self.board["vias"]]
         spots += [(x, y, FREE_R, k) for k, (x, y) in enumerate(self.board["free"])]
         for x, y, r, free in spots:
@@ -179,11 +179,12 @@ class Model:
         return sorted(hole), hole
 
     def _items(self):
-        """{net: [(layer or None, x0, y0, x1, y1, r)]}: the copper of each net."""
+        """{net: [(layer or None, x0, y0, x1, y1, r)]}: the copper of each net; a pad by
+        the circle inside it (a square one's sides), so copper past its corners is not on it."""
         items = {}
-        for x, y, r, net, _ in self.board["pads"]:
+        for x, y, r, net, *inner in self.board["pads"]:
             if net:
-                items.setdefault(net, []).append((None, x, y, x, y, r))
+                items.setdefault(net, []).append((None, x, y, x, y, inner[1] if len(inner) > 1 else r))
         for x, y, r, net in self.board["vias"]:
             items.setdefault(net, []).append((None, x, y, x, y, r))
         for layer, x0, y0, x1, y1, w, net in self.board["tracks"]:
@@ -401,8 +402,9 @@ def export(board_path, out):
         s = p.GetSize(pcbnew.F_Cu)
         square = p.GetShape(pcbnew.F_Cu) not in (pcbnew.PAD_SHAPE_CIRCLE, pcbnew.PAD_SHAPE_OVAL)
         r = pad_radius(square, mm(s.x), mm(s.y), mm(p.GetDrillSize().x))
+        inside = min(mm(s.x), mm(s.y)) / 2
         pads.append([mm(p.GetPosition().x), mm(p.GetPosition().y), r, p.GetNetname(),
-                     f"{p.GetParentFootprint().GetReference()}.{p.GetNumber()}"])
+                     f"{p.GetParentFootprint().GetReference()}.{p.GetNumber()}", inside])
     for t in board.GetTracks():
         if t.GetClass() == "PCB_VIA":
             vias.append([mm(t.GetPosition().x), mm(t.GetPosition().y), mm(t.GetWidth(pcbnew.F_Cu)) / 2, t.GetNetname()])

@@ -984,6 +984,16 @@ The rest of the 20 lines, read on Э3 at full resolution on 2026-11-05
   above (D81.9 on the D69.9 wire, by the copper); Mick has the two
   inputs of that one gate the other way round, which is the same gate.
 
+## The 1991 runs' width (2026-11-10)
+
+Mick's traces draw every signal run three pixels wide, 0.19 mm at the
+images' 39.4 px to 2.54 mm - his pen, not the copper.  On the owner's
+board photo (`photos/known-machines/16337efabef4.jpg`, 2560 x 1920, under
+the К555АП5 right of the ROMs) the chips' pins stand 47.4 px apart
+(2.5 mm, 0.053 mm a pixel) and the runs between them are 6..7 px at half
+height: 0.3..0.37 mm, the blur of the photo and its JPEG widening them;
+0.25..0.3 mm, one run between two pins.  The boards take 0.25 mm.
+
 ## The 1991 placement off the assembly drawing (2026-11-10)
 
 Every part but the DIPs now stands where the 1991 board had it

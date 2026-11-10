@@ -393,7 +393,7 @@ def plane(board, codes, net, layer):
 SIGNAL = {"track": 0.25, "clearance": 0.2, "via": 0.7, "drill": 0.35}
 POWER = {"track": 0.6, "clearance": 0.2, "via": 0.9, "drill": 0.45}
 EDGE_CLEARANCE = 0.5                      # mm; tools/route.py gives Freerouting the same
-MIN_TRACK_MM = 0.15                       # the 1991 runs are 0.19 mm (TRACK_1991_MM), a fab's 6 mil
+MIN_TRACK_MM = 0.15                       # a fab's 6 mil: the narrowest a 1991 run is laid (lay1991.fit_widths)
 
 # The stack: the planes inside, on layers of type power - what the Specctra
 # export writes as `(type power)`, which keeps Freerouting's signals off them.
@@ -457,7 +457,7 @@ def build(variant=None):
 
 # The 1991 board's outer layers (Mick's 1, 2, 7, 8) as fixed copper: tools/lay1991.py.
 COPPER_LAYERS_1991 = {"NS4-1": pcbnew.F_Cu, "NS4-2": pcbnew.In1_Cu, "NS4-7": pcbnew.In6_Cu, "NS4-8": pcbnew.B_Cu}
-TRACK_1991_MM = 0.19                      # the 1991 signal runs (Mick's traces: 0.193 mm)
+TRACK_1991_MM = 0.25                      # the 1991 signal runs: 0.25..0.3 mm on the photos (Mick's pen: 0.19)
 WIDE_1991_PX = 8.0                        # wider than this: a supply run, laid at its width
 STUB_MM, PAD_R_MM, VIA_R_MM = 2.0, 0.75, 0.5
 VIA_1991 = {"via": 1.0, "drill": 0.5}
@@ -505,26 +505,54 @@ def copper_1991(board):
         radius = {i: (PAD_R_MM if i in pads else VIA_R_MM) / MM_PER_PX for i in set(pads) | set(vias)}
         tracks, gone = lay1991.drop_stubs(tracks, holes, {**vias, **pads}, STUB_MM / MM_PER_PX,
                                           SIGNAL["clearance"] / MM_PER_PX, radius)
+    tracks, _ = lay1991.drop_scraps(tracks, holes, PAD_R_MM / MM_PER_PX)   # pieces the cuts left
     return holes, tracks, lay1991.vias(tracks, holes, set(pads))
+
+
+def copper_obstacles(board, holes, vias):
+    """[(x, y, r, net)] in mm: the pads (a square one to its corners; a bare hole kept
+    the hole clearance, as a pad the signal clearance less) and the 1991 vias."""
+    out = []
+    for p in board.GetPads():
+        s = p.GetSize(pcbnew.F_Cu)
+        square = p.GetShape(pcbnew.F_Cu) not in (pcbnew.PAD_SHAPE_CIRCLE, pcbnew.PAD_SHAPE_OVAL)
+        r = max(math.hypot(s.x, s.y) if square else max(s.x, s.y), p.GetDrillSize().x) / 2
+        r = pcbnew.ToMM(r)
+        more = 0.0 if p.GetNetname() else pcbnew.ToMM(board.GetDesignSettings().m_HoleClearance) - SIGNAL["clearance"]
+        at = (pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y), r + more, p.GetNetname())
+        if square and p.GetDrillSize().x <= min(s.x, s.y):
+            hw, hh = pcbnew.ToMM(s.x) / 2 + more, pcbnew.ToMM(s.y) / 2 + more
+            turned = round(p.GetOrientation().AsDegrees()) % 180 == 90
+            at += (hh, hw) if turned else (hw, hh)
+        out.append(at)
+    out += [(holes[i][0] * MM_PER_PX, holes[i][1] * MM_PER_PX, VIA_1991["via"] / 2, net) for i, net in vias.items()]
+    return out
 
 
 def lay_copper(board):
     """Mick's outer layers on the board, locked; Freerouting routes the rest."""
     holes, tracks, vias = copper_1991(board)
     at = lambda p: pcbnew.VECTOR2I(pcbnew.FromMM(p[0] * MM_PER_PX), pcbnew.FromMM(p[1] * MM_PER_PX))
+    mm = lambda p: (p[0] * MM_PER_PX, p[1] * MM_PER_PX)
+    signal, wide = [], []
     for name, runs in tracks.items():
         for net, w, pts in runs:
-            width = TRACK_1991_MM if w <= WIDE_1991_PX else round(min(w * MM_PER_PX, 2.0) / 0.05) * 0.05
+            width = None if w <= WIDE_1991_PX else round(min(w * MM_PER_PX, 2.0) / 0.05) * 0.05
             for a, b in zip(pts, pts[1:]):
                 if a != b:
-                    t = pcbnew.PCB_TRACK(board)
-                    t.SetStart(at(a))
-                    t.SetEnd(at(b))
-                    t.SetWidth(pcbnew.FromMM(width))
-                    t.SetLayer(COPPER_LAYERS_1991[name])
-                    t.SetNet(board.FindNet(net))
-                    t.SetLocked(True)
-                    board.Add(t)
+                    seg = (name, *mm(a), *mm(b))
+                    (signal.append(seg + (net,)) if width is None else wide.append(seg + (width / 2, net)))
+    runs = lay1991.fit_runs(signal, copper_obstacles(board, holes, vias), TRACK_1991_MM, MIN_TRACK_MM,
+                            SIGNAL["clearance"], fixed=wide)
+    for (name, x0, y0, x1, y1, net), width in runs + [(w[:5] + (w[6],), w[5] * 2) for w in wide]:
+        t = pcbnew.PCB_TRACK(board)
+        t.SetStart(at((x0 / MM_PER_PX, y0 / MM_PER_PX)))
+        t.SetEnd(at((x1 / MM_PER_PX, y1 / MM_PER_PX)))
+        t.SetWidth(pcbnew.FromMM(width))
+        t.SetLayer(COPPER_LAYERS_1991[name])
+        t.SetNet(board.FindNet(net))
+        t.SetLocked(True)
+        board.Add(t)
     for i, net in sorted(vias.items()):
         v = pcbnew.PCB_VIA(board)
         v.SetPosition(at(holes[i]))
