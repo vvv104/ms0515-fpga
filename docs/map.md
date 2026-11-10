@@ -89,6 +89,7 @@ difference found there is settled by hand in `nets.csv` (or
 | File | Made by | From | Use |
 |---|---|---|---|
 | `netlist/copper.json` | `python tools/copper.py` | Mick's / Radon17's layer traces (`$MS0515_DATA`) | for comparison only |
+| `netlist/lines-1991.json` | `python tools/copper1991.py` | Mick's layers 1, 2, 7, 8 (`$MS0515_DATA`) as centre lines; `tools/lay1991.py` nets them and `pcb.py` lays them as both boards' outer copper, locked | `tools/tests/test_copper1991.py`, `test_lay1991.py`; DRC of the board |
 | `netlist/registration.json`, `verify.json`, `verify-*.png` | `tools/register.py`, `tools/verify_traces.py` | the bare-board scans | for comparison only |
 | `netlist/footprints.json` | `tools/footprints.py` | `copper.json` | for comparison only |
 | `netlist/mick.csv` | `tools/mick_pdf.py` | Mick's PDF of Э3 | for comparison only |

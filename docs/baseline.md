@@ -744,7 +744,13 @@ The owner's board first (`docs/plan.md` 8d).
    had it (`netlist/placement-1991.csv`, both boards, `pcb.py check` 0
    differences, KiCad's DRC no error on the placed board), Mick's outer
    layers to be laid as they are and the inner ones routed.  That routing
-   was of the old placement and is not carried over.
+   was of the old placement and is not carried over.  **Mick's outer
+   layers laid** the same day (`docs/plan.md` 8d): ~47 m of track on
+   F, In1, In6, B, 685 vias, locked; both boards `pcb.py check` 0
+   differences and KiCad's DRC no error (the warnings: silkscreen, and
+   the tracks and vias that end where the 1991 copper goes inside).  A
+   first routing of what is left over that copper is under way
+   (`build/route1991`).
 6. Э3's board, stage 6b - **draws both modes as the emulator, with a
    fitted speed** (2026-11-09): with C70 modelled the typical chain to
    D70's enable lost 640 x 200's left edge by ~12 ns, in continuous time

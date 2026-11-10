@@ -138,8 +138,11 @@ def put_aside(path):
         os.replace(path, f"{base}.{when}{ext}")
 
 
-def without_wiring(text):
-    """The design with its (wiring ...) section emptied."""
+def without_wiring(text, keep_fixed=False):
+    """The design with its (wiring ...) section emptied - but, with
+    keep_fixed, its fixed wires and vias (the 1991 board's outer copper,
+    locked on the board: KiCad writes it `(type fix)`, which Freerouting
+    leaves where it is)."""
     start = text.find("(wiring")
     if start < 0:
         return text
@@ -147,7 +150,9 @@ def without_wiring(text):
     for end in range(start, len(text)):
         depth += {"(": 1, ")": -1}.get(text[end], 0)
         if depth == 0:
-            return text[:start] + "(wiring\n  )" + text[end + 1:]
+            body = text[start + len("(wiring"):end]
+            kept = [line for line in body.splitlines() if keep_fixed and "(type fix)" in line]
+            return text[:start] + "(wiring\n" + "".join(k + "\n" for k in kept) + "  )" + text[end + 1:]
     raise SystemExit("the design's wiring section does not close")
 
 
@@ -333,7 +338,7 @@ def start(base=None):
     if not pcbnew.ExportSpecctraDSN(board, exported):
         raise SystemExit("the Specctra export failed")
     with open(exported, encoding="utf-8") as src:
-        design = without_wiring(src.read())
+        design = without_wiring(src.read(), keep_fixed=True)
     layers = check_layers(design)
     told = f"the placed board, no wires; {layers}"
     if base:

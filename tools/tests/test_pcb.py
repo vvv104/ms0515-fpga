@@ -57,8 +57,21 @@ class Stack(unittest.TestCase):
 
 @unittest.skipUnless(pcbnew, "no pcbnew (run with KiCad's Python)")
 class Placement1991(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.board = pcb.build()[0]
+
+    def test_the_1991_outer_copper_is_laid_locked_on_its_four_layers(self):
+        tracks = [t for t in self.board.GetTracks() if t.GetClass() == "PCB_TRACK"]
+        vias = [t for t in self.board.GetTracks() if t.GetClass() == "PCB_VIA"]
+        self.assertGreater(sum(pcbnew.ToMM(t.GetLength()) for t in tracks), 40000)   # mm: Mick's ~47 m
+        self.assertGreater(len(vias), 600)
+        layers = {self.board.GetLayerName(t.GetLayer()) for t in tracks}
+        self.assertEqual(layers, {"F.Cu", "In1.Cu", "In6.Cu", "B.Cu"})
+        self.assertTrue(all(t.IsLocked() and t.GetNetname() for t in tracks + vias))
+
     def test_every_part_but_the_dips_stands_on_its_1991_holes(self):
-        board = pcb.build()[0]
+        board = self.board
         want = pcb.holes_1991()
         worst = {}
         for fp in board.GetFootprints():

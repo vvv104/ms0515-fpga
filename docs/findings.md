@@ -1000,3 +1000,22 @@ next to its label at its own pitch.  What it showed:
   them) gave two false alarms, set right by the other nets: C70's pad 1
   is on `БОРДС L` (its group also reaches `АД06 H`), XS1 b18 on `МК15 H`
   (its group reaches `АД01 H` and `АД02 H`).
+- **Twelve parts turned round by the copper** (2026-11-10, laying Mick's
+  outer layers).  The two-pin parts whose pins no copper net fixed took
+  their order from the snapping; joined through the vias (the centre
+  lines of `netlist/lines-1991.json`, which see vias `copper.json`
+  misses), the copper put such a pin on its neighbour's net - E7's
+  `~SA1.6` end through a via to R69's `GND` pin, where turning E7 and R69
+  round makes it `ЧТМАГ H` both ends.  Turned round, as fewest copper
+  groups with two nets want: C9, C72, C84, E7, E8, R22, R23, R66, R68,
+  R69, R71, R73 (all unpolarised).  What is left with two nets is the
+  copper read's merges, the factory patches' pins (D40.9, D98.3), E9's
+  D80.5 - and XS2 and SA1, below.
+- **Open: XS2's numbering.**  The copper joins XS2's hole "1" with SA1.15
+  and SA1.16 (`~XS2.3` on Э3), hole "3" with SA1.19/20 (`~XS2.1`), hole
+  "5" with SA1.13/14 (`~XS2.4`): XS2's pins 1 and 3, 4 and 5 the other
+  way round from `kicad/ns4.pretty/DIN-5_Socket_Horizontal`, which is
+  drawn by hand.  Laid, those runs are cut where the nets meet; which is
+  right - the footprint, or the copper - is the owner's to say.
+  Likewise SA1.8 (`ВЫХКЛ L`) on one copper group with SA1.2 and C84.1
+  (`ЗАП МАГ H`).

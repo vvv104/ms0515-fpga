@@ -45,6 +45,7 @@ footprints from tools/pretty.py where the 1991 holes are not a library
 footprint's).  Only the board's own addition, E9, goes into the free place
 nearest the chip it works for.  Routing is Freerouting's (tools/route.py).
 """
+import json
 import math
 import os
 import sys
@@ -56,6 +57,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import bom  # noqa: E402
 import kicad  # noqa: E402
+import lay1991  # noqa: E402
 import netlist as nl  # noqa: E402
 
 ROOT = os.path.dirname(HERE)
@@ -391,6 +393,7 @@ def plane(board, codes, net, layer):
 SIGNAL = {"track": 0.25, "clearance": 0.2, "via": 0.7, "drill": 0.35}
 POWER = {"track": 0.6, "clearance": 0.2, "via": 0.9, "drill": 0.45}
 EDGE_CLEARANCE = 0.5                      # mm; tools/route.py gives Freerouting the same
+MIN_TRACK_MM = 0.15                       # the 1991 runs are 0.19 mm (TRACK_1991_MM), a fab's 6 mil
 
 # The stack: the planes inside, on layers of type power - what the Specctra
 # export writes as `(type power)`, which keeps Freerouting's signals off them.
@@ -407,6 +410,7 @@ def netclass(nc, rule):
 
 def rules(board):
     board.GetDesignSettings().m_CopperEdgeClearance = pcbnew.FromMM(EDGE_CLEARANCE)
+    board.GetDesignSettings().m_TrackMinWidth = pcbnew.FromMM(MIN_TRACK_MM)
     settings = board.GetDesignSettings().m_NetSettings
     netclass(settings.GetDefaultNetclass(), SIGNAL)
     power = pcbnew.NETCLASS("Power")
@@ -445,9 +449,91 @@ def build(variant=None):
     place_1991(board, dirs, fps, free)
     failed = place_rest(fps, free, pin_nets() if variant else nets)
     snap(fps)
+    lay_copper(board)
     for layer, net in PLANES.items():
         plane(board, codes, net, layer)
     return board, skipped, missing, failed
+
+
+# The 1991 board's outer layers (Mick's 1, 2, 7, 8) as fixed copper: tools/lay1991.py.
+COPPER_LAYERS_1991 = {"NS4-1": pcbnew.F_Cu, "NS4-2": pcbnew.In1_Cu, "NS4-7": pcbnew.In6_Cu, "NS4-8": pcbnew.B_Cu}
+TRACK_1991_MM = 0.19                      # the 1991 signal runs (Mick's traces: 0.193 mm)
+WIDE_1991_PX = 8.0                        # wider than this: a supply run, laid at its width
+STUB_MM, PAD_R_MM, VIA_R_MM = 2.0, 0.75, 0.5
+VIA_1991 = {"via": 1.0, "drill": 0.5}
+
+
+def hole_nets(board, holes):
+    """{hole: net} of the 1991 holes our parts' pads stand on."""
+    where = defaultdict(list)
+    for i, (x, y) in enumerate(holes):
+        where[(int(x // 40), int(y // 40))].append(i)
+    out = {}
+    for fp in board.GetFootprints():
+        for pad in fp.Pads():
+            if not pad.GetNetname():
+                continue
+            x, y = pcbnew.ToMM(pad.GetPosition().x) / MM_PER_PX, pcbnew.ToMM(pad.GetPosition().y) / MM_PER_PX
+            near = [i for gx in (-1, 0, 1) for gy in (-1, 0, 1) for i in where[(int(x // 40) + gx, int(y // 40) + gy)]]
+            best = min(near, key=lambda i: math.dist((x, y), holes[i]), default=None)
+            if best is not None and math.dist((x, y), holes[best]) * MM_PER_PX < 0.3:
+                out[best] = pad.GetNetname()
+    return out
+
+
+def group_nets(copper, pad_nets):
+    """{hole: net} of the holes no pad takes whose copper group reaches one net."""
+    out = {}
+    for group in copper["nets"]:
+        found = {pad_nets[i] for i in group if i in pad_nets}
+        if len(found) == 1:
+            out.update({i: next(iter(found)) for i in group if i not in pad_nets})
+    return out
+
+
+def copper_1991(board):
+    """The 1991 outer copper as {layer: [[net, width px, pts]]} and its vias {hole: net}."""
+    copper = json.load(open(os.path.join(NET, "copper.json"), encoding="utf-8"))
+    lines = json.load(open(os.path.join(NET, "lines-1991.json"), encoding="utf-8"))
+    holes = copper["pads"]
+    pads = hole_nets(board, holes)
+    groups = group_nets(copper, pads)
+    tracks = lay1991.label_layers({name: lines[name] for name in COPPER_LAYERS_1991}, holes, pads, groups)
+    gone = 1
+    while gone:                           # a via's net can change as its stubs go
+        vias = lay1991.vias(tracks, holes, set(pads))
+        radius = {i: (PAD_R_MM if i in pads else VIA_R_MM) / MM_PER_PX for i in set(pads) | set(vias)}
+        tracks, gone = lay1991.drop_stubs(tracks, holes, {**vias, **pads}, STUB_MM / MM_PER_PX,
+                                          SIGNAL["clearance"] / MM_PER_PX, radius)
+    return holes, tracks, lay1991.vias(tracks, holes, set(pads))
+
+
+def lay_copper(board):
+    """Mick's outer layers on the board, locked; Freerouting routes the rest."""
+    holes, tracks, vias = copper_1991(board)
+    at = lambda p: pcbnew.VECTOR2I(pcbnew.FromMM(p[0] * MM_PER_PX), pcbnew.FromMM(p[1] * MM_PER_PX))
+    for name, runs in tracks.items():
+        for net, w, pts in runs:
+            width = TRACK_1991_MM if w <= WIDE_1991_PX else round(min(w * MM_PER_PX, 2.0) / 0.05) * 0.05
+            for a, b in zip(pts, pts[1:]):
+                if a != b:
+                    t = pcbnew.PCB_TRACK(board)
+                    t.SetStart(at(a))
+                    t.SetEnd(at(b))
+                    t.SetWidth(pcbnew.FromMM(width))
+                    t.SetLayer(COPPER_LAYERS_1991[name])
+                    t.SetNet(board.FindNet(net))
+                    t.SetLocked(True)
+                    board.Add(t)
+    for i, net in sorted(vias.items()):
+        v = pcbnew.PCB_VIA(board)
+        v.SetPosition(at(holes[i]))
+        v.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu)
+        v.SetWidth(pcbnew.FromMM(VIA_1991["via"]))
+        v.SetDrill(pcbnew.FromMM(VIA_1991["drill"]))
+        v.SetNet(board.FindNet(net))
+        v.SetLocked(True)
+        board.Add(v)
 
 
 def board_nets(board):

@@ -388,9 +388,17 @@ to any one board.  From stage 6 on there are two projects:
        **The 1991 placement** (2026-11-10): every part on its 1991 holes
        (`netlist/placement-1991.csv`, read off the assembly drawing;
        `docs/findings.md`, "The 1991 placement off the assembly drawing"),
-       the footprints of the 1991 holes (`tools/pretty.py`).  Next: the
-       outer layers 1, 2, 7, 8 from Mick's traces as fixed copper, the
-       inner ones routed.
+       the footprints of the 1991 holes (`tools/pretty.py`).
+       **The 1991 outer copper** (2026-11-10): Mick's layers 1, 2, 7, 8
+       laid on F.Cu, In1.Cu, In6.Cu, B.Cu, locked, with the 1991 vias
+       (`tools/copper1991.py` into `netlist/lines-1991.json`,
+       `tools/lay1991.py`, `pcb.py`): each run takes the net of the hole
+       nearest along the copper, the runs where two nets meet (the trace
+       read's merges, the factory patches' and E9's pins) are cut, stubs
+       on a neighbour's copper taken off.  Both boards: DRC no error.
+       What it leaves to route goes inside, `route.py start` keeping the
+       locked copper (`(type fix)`).  Twelve two-pin parts turned round
+       on the way, where the copper said so (`docs/findings.md`).
    8e. **The layout against the netlist.**  The netlist read back from
        the routed board (`kicad-cli`) equal to `netlist/`, pin for pin - a
        test, so that the board made is the board simulated.
