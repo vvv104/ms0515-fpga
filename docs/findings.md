@@ -93,13 +93,20 @@ repository, and for software that draws 640 x 200 with bit 4 clear.
   resolution for a sign under the letters before reading a net.
 - **Pictures**: [evidence/r45-d86-oe](evidence/r45-d86-oe/).
 
-## XP5 pin 13 (Э3 sheet 2 vs. ПЭ3)
+## XP5 pin 13 (Э3 sheet 2 vs. ПЭ3): XP3 pin 13
 
 - **Э3 sheet 2**: D97 Q4 (pin 12) `НАЧ Н` goes out as `ХР5:13` (read
   so by the user too).
 - **ПЭ3**: XP5 is `ОНП-ЖГ-79-9` - nine contacts.
-- **Open**: the board scans decide where pin 12 of D97 really goes; until
-  then the connection is kept out of `netlist/nets.csv`.
+- **The copper** (Mick's traces, 2026-11-10): D97.12 runs on layers 2
+  and 7 up to the board's edge, along it and down to **XP3 pin 13**, the
+  last of the 25-pin connector's long row (XP3's other pins as Э3 has
+  them: 1 `СТРБ H` - "ХР3:1" on the line above - 2..9 `ДКЛ00..07 L`, 11
+  `ЗАВЕРШ H`, 12 `ОБСЛ H`).  So "ХР5:13" is ХР3:13, its 3 written as a 5.
+- **Taken from the copper** (the owner, 2026-11-10): `НАЧ H` on XP3.13 in
+  `nets.csv`.  The model's RTL does not change (nothing on the bench
+  takes XP3.13); the printed boards have the pin on the net.  Pictures:
+  [evidence/xp3-13](evidence/xp3-13/).
 
 ## D23 type (ПЭ3 vs. the power table of Э3 sheet 1)
 

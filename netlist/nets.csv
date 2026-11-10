@@ -130,6 +130,7 @@ GND,R45,2,,2,a ground sign at the end of R45's wire - drawn over the label РП�
 РВБ1 H,D97,7,Q2,2,
 СТРБ H,D97,10,Q3,2,
 НАЧ H,D97,12,Q4,2,
+НАЧ H,XP3,13,,2,Э3 sheet 2 writes ХР5:13 (XP5 has 9 pins); the copper (Mick) runs D97.12 to XP3.13 - taken from the copper (owner 2026-11-10)
 ЗАПР МОН H,D97,15,Q5,2,
 # --- sheet 2: D83 clock, reset, power-up ---
 GND,D83,23,G1,2,the wire from pin 23 runs down to a ground symbol
