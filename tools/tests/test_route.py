@@ -75,6 +75,12 @@ class Wiring(unittest.TestCase):
         self.assertIn(via.strip(), out)
         self.assertNotIn("(type route)", out)
 
+    def test_a_fixed_wire_over_several_lines_stays_whole(self):
+        fixed = '    (wire (path F.Cu 190  5 -6  7 -8\n            9 -10  11 -12)(net "ВБ1 H")(type fix))\n'
+        out = route.without_wiring(DESIGN.replace("(wiring\n", "(wiring\n" + fixed), keep_fixed=True)
+        self.assertIn("9 -10  11 -12)(net", out)
+        self.assertEqual(out.count("("), out.count(")"))
+
     def test_a_session_parses_with_quoted_names(self):
         tree = route.sexpr(SESSION)
         nets = route.child(route.child(tree, "routes"), "network_out")[1:]

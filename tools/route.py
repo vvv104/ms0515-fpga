@@ -151,9 +151,25 @@ def without_wiring(text, keep_fixed=False):
         depth += {"(": 1, ")": -1}.get(text[end], 0)
         if depth == 0:
             body = text[start + len("(wiring"):end]
-            kept = [line for line in body.splitlines() if keep_fixed and "(type fix)" in line]
-            return text[:start] + "(wiring\n" + "".join(k + "\n" for k in kept) + "  )" + text[end + 1:]
+            kept = [item for item in items(body) if keep_fixed and "(type fix)" in item]
+            return text[:start] + "(wiring\n" + "".join(f"    {k}\n" for k in kept) + "  )" + text[end + 1:]
     raise SystemExit("the design's wiring section does not close")
+
+
+def items(body):
+    """The top-level s-expressions of a section's body, whole - a wire
+    KiCad writes runs over several lines."""
+    out, depth, begin = [], 0, None
+    for k, c in enumerate(body):
+        if c == "(":
+            if depth == 0:
+                begin = k
+            depth += 1
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                out.append(body[begin:k + 1])
+    return out
 
 
 TOKEN = re.compile(r'\s*(?:(\()|(\))|"((?:[^"\\]|\\.)*)"|([^\s()"]+))')
@@ -340,7 +356,7 @@ def start(base=None):
     with open(exported, encoding="utf-8") as src:
         design = without_wiring(src.read(), keep_fixed=True)
     layers = check_layers(design)
-    told = f"the placed board, no wires; {layers}"
+    told = f"the placed board, {design.count('(type fix)')} fixed wires and vias kept; {layers}"
     if base:
         ses_path, old_path = (os.path.join(base, n) for n in ("state.ses", "state.dsn"))
         if not os.path.exists(ses_path):
