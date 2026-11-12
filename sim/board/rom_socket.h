@@ -9,12 +9,7 @@
 
 #include "Vns4.h"
 #include "Vns4___024root.h"
-
-#include <cstddef>
-#include <cstdint>
-#include <vector>
-
-constexpr std::size_t kRomBytes = 16384;
+#include "rom_image.h"
 
 // false, and nothing written, when the image is not a 16 KB ROM
 inline bool plug_rom(Vns4& m, const std::vector<std::uint8_t>& image)
@@ -22,9 +17,6 @@ inline bool plug_rom(Vns4& m, const std::vector<std::uint8_t>& image)
     if (image.size() != kRomBytes)
         return false;
     m.eval();
-    for (std::size_t i = 0; i < kRomBytes / 2; ++i) {
-        m.rootp->ns4__DOT__D65__DOT__cells[i] = image[2 * i];
-        m.rootp->ns4__DOT__D77__DOT__cells[i] = image[2 * i + 1];
-    }
+    fill_rom(m.rootp->ns4__DOT__D65__DOT__cells, m.rootp->ns4__DOT__D77__DOT__cells, image);
     return true;
 }

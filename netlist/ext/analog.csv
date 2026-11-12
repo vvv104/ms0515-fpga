@@ -1,0 +1,40 @@
+# What each part of the memory expansion module that is not a chip becomes
+# on the generated board (tools/board.py; the same rules as netlist/analog.csv:
+# decoupling and a resistor to +5V need no row).  The refs are the module's
+# own; the board names them with its prefix.
+ref,treatment,pins,reason
+R1,short,,33 Ohm in series with RAS: a damping resistor
+R2,short,,33 Ohm in series with WE
+R3,short,,33 Ohm in series with CAS0
+R4,short,,33 Ohm in series with CAS1
+R6,short,,33 Ohm in series with RA0
+R7,short,,33 Ohm in series with RA2
+R8,short,,33 Ohm in series with RA1
+R9,short,,33 Ohm in series with RA3
+R10,short,,33 Ohm in series with RA4
+R11,short,,33 Ohm in series with RA5
+R12,short,,33 Ohm in series with RA6
+R13,short,,33 Ohm in series with RA7
+R14,short,,33 Ohm in series with RA8
+R15,open,,the RS-232 receivers' input to -12 V: no effect on the logic
+R16,open,,as R15
+R17,open,,as R15
+R18,open,,as R15
+R19,open,,as R15
+R20,open,,as R15
+R21,open,,as R15
+R22,open,,КР1102АП15's slew-rate resistor to ground
+R23,open,,as R22
+C2,open,,an RS-232 line's filter to ground
+C3,open,,as C2
+C4,open,,as C2
+C5,open,,as C2
+C6,open,,as C2
+C7,open,,as C2
+C8,open,,as C2
+VD1,open,,КР1102АП15's supply diode from -12 V
+VD2,open,,as VD1
+XS1,port,,the ROM board's connector: its signal pins brought out
+XS2,open,,D1's socket: the chip takes its place
+XS3,open,,D2's socket: the chip takes its place
+XS4,open,,D3's socket: the chip takes its place

@@ -1,0 +1,81 @@
+	.TITLE	RAMDSK
+; The memory expansion module's RAM disk (plan 6a), the way EX.SYS works
+; it.  Run from reset in place of the machine's ROM (tools/test_roms.py).
+;
+; The module's PPI (VV55) (written at 177530-536, read at 177510-516) holds the
+; address above the byte: port A MA08-MA15, port B bits 0-1 MA16-MA17, bit
+; 2 the bank, bit 5 the byte counter's reset, bit 7 the RAM's normal cycle
+; (low: refresh).  The byte counter (D14) steps after each read of the data
+; port 177550 - only reads strobe it, and the processor reads a byte before
+; it writes it, so a byte written at 177550 lands one on; the page's first
+; byte goes to 177570, the same port without the read's strobe (AD04).
+;
+; Eight pages of 256 bytes, each at another address - every page and
+; bank bit on its own - are written with a running pattern from a seed of
+; their own, then all read back from 177550.
+;   1006        bytes read back wrong, as a count
+;   1010        bytes checked, as a count (8 x 256 = 2048)
+;   1012        052525 - the program came to its end
+
+PPA	= 177530		; the module's PPI (VV55): port A (MA08-MA15)
+PPB	= 177532		; port B
+PCTL	= 177536		; its control word
+DATA	= 177550		; the RAM's data, the counter stepping on reads
+DATAW	= 177570		; the same without the step
+
+	.ASECT
+	. = 172000
+START:	MOVB	#210,@#PCTL	; mode 0: A and B out, C upper in, C lower out
+	CLR	R4		; bytes checked
+	CLR	R5		; bytes wrong
+	MOV	#PAGES,R2
+WPAGE:	MOVB	(R2),@#PPA	; the page
+	MOVB	1(R2),R3
+	BISB	#240,R3		; normal cycle, the counter held at 0
+	MOVB	R3,@#PPB
+	BICB	#40,R3		; the counter let go
+	MOVB	R3,@#PPB
+	MOVB	2(R2),R0	; the seed: byte 0
+	MOVB	R0,@#DATAW
+	MOV	#255.,R1
+1$:	ADD	#3,R0		; bytes 1..255, each one on
+	MOVB	R0,@#DATA
+	SOB	R1,1$
+	ADD	#4,R2
+	CMP	R2,#PEND
+	BLO	WPAGE
+	MOV	#PAGES,R2
+RPAGE:	MOVB	(R2),@#PPA
+	MOVB	1(R2),R3
+	BISB	#240,R3
+	MOVB	R3,@#PPB
+	BICB	#40,R3
+	MOVB	R3,@#PPB
+	MOVB	2(R2),R0
+	MOV	#256.,R1
+2$:	MOVB	@#DATA,R3	; a byte, and the counter steps
+	INC	R4
+	CMPB	R3,R0
+	BEQ	3$
+	INC	R5
+3$:	ADD	#3,R0
+	SOB	R1,2$
+	ADD	#4,R2
+	CMP	R2,#PEND
+	BLO	RPAGE
+	MOV	R5,@#1006
+	MOV	R4,@#1010
+	MOV	#52525,@#1012
+	BR	.
+
+; each page: port A, port B's address bits, the seed, a pad byte
+PAGES:	.BYTE	0,0,1,0
+	.BYTE	1,0,22,0
+	.BYTE	200,0,43,0
+	.BYTE	377,0,64,0
+	.BYTE	0,1,105,0
+	.BYTE	0,2,126,0
+	.BYTE	0,4,147,0
+	.BYTE	125,7,170,0
+PEND:
+	.END

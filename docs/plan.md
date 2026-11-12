@@ -144,6 +144,14 @@ to any one board.  From stage 6 on there are two projects:
       simulation: Omega's EX.SYS finds the RAM disk, a file copied to it
       and read back, against the emulator's RAM disk; doubts in the
       tables settled the 6b way, by the software.
+      **The hardware done** (2026-11-12): `tools/board.py` writes
+      `rtl/board/ns4_ext.sv` (`ns4_ext_sources`: the module's parts
+      prefixed M, its XP1 nets joined by `joins.csv`, the chips
+      `fitted.csv` lacks left out, `ext/changes.csv`'s green wire a
+      switch); `sim/board/test_exdisk.cpp` runs `firmware/tests/exdisk.mac`
+      on it: eight pages at every address bit come back as written, and
+      without the green wire they do not (`docs/findings.md`, the module
+      on the model).  Next: Omega with EX.SYS on it.
    4. The core: the module on the same FPGA, a switch in the menu.
    5. The printed board: two layers, on XP1 (DIN 41612 C, as НС4's XS1
       is made anew), the RS-232 half fitted or not.

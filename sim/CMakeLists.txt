@@ -95,6 +95,14 @@ ms0515_model(Vns4 "${MS0515_BOARD_SV}" ns4
 ms0515_test(test_board board/test_board.cpp Vns4 ms0515_core)
 target_compile_definitions(test_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
 
+# НС4 with the memory expansion module (plan 6a): rtl/board/ns4_ext.sv, from
+# the same folder as the board above (a corner's, when it is one)
+get_filename_component(MS0515_BOARD_DIR "${MS0515_BOARD_SV}" DIRECTORY)
+ms0515_model(Vns4_ext "${MS0515_BOARD_DIR}/ns4_ext.sv" ns4_ext
+             PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv")
+ms0515_test(test_exdisk board/test_exdisk.cpp Vns4_ext)
+target_compile_definitions(test_exdisk PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
+
 # the parts the software leaves alone, worked by test ROMs (firmware/tests)
 ms0515_test(test_parts board/test_parts.cpp Vns4 ms0515_core)
 target_compile_definitions(test_parts PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")

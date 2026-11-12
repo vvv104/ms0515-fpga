@@ -1,0 +1,7 @@
+# What НС4 changes for the module (docs/findings.md, the green wire): applied
+# over Э3 with the module, as netlist/vvv104.csv's are - a switch each.
+# vvv104.csv takes only what a photo shows beyond doubt; the green wire's
+# lower end is the owner's reading, so it stands here, with the module it
+# belongs to, until a sharper photo settles it.
+ref,pin,from_net,to_net,evidence
+D80,5,ВБРЕГ L,АД03 H,"the green wire on the owner's board (photo MC 0515 04): АД03 to D80 pin 5 (G2B), by the chip's turn as the owner reads it (docs/findings.md); with it НС4's registers answer at АД03 low only and the module's at АД03 high"

@@ -1064,3 +1064,31 @@ next to its label at its own pitch.  What it showed:
   the factory patches' pins - with E9's D80.5 and one more seen by the
   centre lines alone, D79.7 (`GND`) with D12.2 (`МК09 H`), a merge of the
   same kind.  Laid, each is cut where its nets meet.
+
+## The memory expansion module on the model (plan 6a, 2026-11-12)
+
+The module's netlist is the plant's connection tables (`netlist/ext/`);
+put beside НС4 (`rtl/board/ns4_ext.sv`, its RAM-disk half as the owner's
+module carries it) and worked by a test ROM the way EX.SYS works it
+(`firmware/tests/exdisk.mac`, `sim/board/test_exdisk.cpp`), eight pages
+of 256 bytes at every address bit come back as written.  What that
+settles:
+
+- **The four НС4 nets the module takes on XS1** (`netlist/ext/joins.csv`,
+  C21-C24 free on Э3): `ТС15 H`, `ЧТ51 L`, `ВБРЕГ L`, `СТАРТ H` - read off
+  the module's logic, and with them the RAM disk works.
+- **НС4's green wire is needed**: with D80.5 back on `ВБРЕГ L` (Э3) the
+  same program reads the pages back wrong - НС4's own registers answer at
+  the module's addresses too.  With the wire (`АД03` to D80.5) НС4's
+  registers are at `АД03` low and the module's at `АД03` high: what the
+  owner's board, the one that had the module, shows.
+- **The byte counter steps on reads alone, and writes still go in
+  order.**  D14 (the address of the byte in the page) is clocked by
+  `ТАКТ`, `ДЧТ51` gated with the RAM's select (D12, D10) - НС4's `ЧТ51 L`
+  is `ДЧТ L` or'ed with `АД04 H` (D79), a read strobe for addresses with
+  АД04 low.  The processor reads a byte before it writes it, so a write
+  to 177550 steps the counter on its read and puts the byte one on; a
+  write to 177570 (АД04 high: no strobe) puts it where the counter
+  stands.  Hence EX.SYS's way (as the emulator's ramdisk.h describes
+  it): a page's first byte to 177570, the other 255 to 177550 - the
+  hardware asks for exactly that.

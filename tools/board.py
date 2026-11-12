@@ -187,6 +187,36 @@ class Sources:
                                 # substituted (netlist/fitted*.csv); their delays are taken
     name: str = "ns4"           # the module, and its files' names
     title: str = "The НС4 board"
+    module: str = None          # a board plugged into XS1 (netlist/ext/): merge_module
+
+
+MODULE_PREFIX = "M"             # the module's refs on the board: MD2, MR1
+
+
+def merge_module(folder, prefix=MODULE_PREFIX):
+    """A module's netlist (netlist/<module>/) as parts beside НС4's:
+    (parts, pinouts, conns, analog, changes path).  Its refs take the prefix;
+    its nets on XP1 become НС4's where joins.csv says (same or wire), the
+    others its own ("M <net>"); the power nets are the board's; XP1 itself
+    goes (its contacts are the joined nets); the chips fitted.csv marks as
+    not fitted are left out, with their pins."""
+    parts, pinouts, conns, _ = nl.load_module(folder)
+    gone = {r["ref"] for r in nl.rows(os.path.join(folder, "fitted.csv")) if r["fitted"] == "no"}
+    plug = {c.pin: c.net for c in conns if c.ref == "XP1"}
+    joined = {j.module_net: j.ns4_net for j in nl.load_joins(os.path.join(folder, "joins.csv"))
+              if j.kind in ("same", "wire") and plug.get(j.contact) == j.module_net}
+
+    def net(name):
+        return name if name in POWER else joined.get(name, f"{prefix} {name}")
+    out = {}
+    for ref, part in parts.items():
+        if ref not in gone and ref != "XP1":
+            out[prefix + ref] = nl.Part(prefix + ref, part.type, part.value, part.pins, part.power)
+    moved = [nl.Conn(net(c.net), prefix + c.ref, c.pin, c.pin_name, c.sheet, c.note)
+             for c in conns if prefix + c.ref in out]
+    analog = {prefix + ref: Treatment(prefix + ref, t.kind, t.pins, t.reason)
+              for ref, t in load_analog(os.path.join(folder, "analog.csv")).items() if prefix + ref in out}
+    return out, pinouts, moved, analog, os.path.join(folder, "changes.csv")
 
 
 def ms7004_sources():
@@ -208,6 +238,15 @@ def ns4_sources():
                    os.path.join(n, "firmware.csv"), os.path.join(n, "delays.csv"),
                    os.path.join(n, "deviations.csv"), os.path.join(n, "delays-max.csv"),
                    fitted=os.path.join(n, "fitted-1991.csv"))
+
+
+def ns4_ext_sources():
+    """НС4 with the memory expansion module (plan 6a) as the owner's machine
+    had it: the module's RAM-disk half in XS1, НС4's green wire."""
+    src = ns4_sources()
+    src.module = os.path.join(REPO, "netlist", "ext")
+    src.name, src.title = "ns4_ext", "The НС4 board with the memory expansion module"
+    return src
 
 
 TICK_NS = 1000.0 / MASTER_MHZ
@@ -433,17 +472,24 @@ class Builder:
         self.name, self.title = src.name, src.title
         self.problems = Problems()
         self.parts, self.pinouts, conns = nl.load(src.parts, src.pinouts, src.nets)
+        self.analog = load_analog(src.analog)
+        module_changes, module_conns = None, []
+        if src.module:
+            parts, pinouts, module_conns, analog, module_changes = merge_module(src.module)
+            self.parts.update(parts)
+            self.pinouts.update(pinouts)
+            self.analog.update(analog)
         # the board's changes are switches: a moved input reads Э3's net instead
         # while s_<ref>_<pin> is 1 (place_chip); the deviations are not
         self.switches = {}
-        for changes in (src.deviations, src.changes):
+        for changes in (src.deviations, src.changes, module_changes):
             if changes:
                 rows = nl.load_changes(changes)
                 conns, errors = nl.apply_changes(conns, rows)
                 self.problems.extend(errors)
-                if changes is src.changes:
+                if changes is not src.deviations:
                     self.switches.update({(c.ref, c.pin): c.from_net for c in rows})
-        self.analog = load_analog(src.analog)
+        conns = conns + module_conns
         self.modules = load_modules(src.chips)
         self.firmware = load_firmware(src.firmware)
         self.delays = corner_delays(load_delays(src.delays), src.delays_max, src.corner)
@@ -511,6 +557,11 @@ class Builder:
         if "clk" in module.ports:
             conns.append(("clk", "clk"))
         ticks, oe_ticks = self.ticks_of(ref, part, "clk" in module.ports)
+        if self.delays is not None and "clk" not in module.ports and \
+                any(p.endswith("_in") for p in module.ports):
+            # a pass-through between two buses (К555АП6): under a tick its two
+            # nets would be one combinational loop, so a tick at least
+            ticks = tuple(max(t, 1) for t in ticks)
         fast, fast_oe = None, None
         if ref in SERIAL_SPEED and SERIAL_SWITCH in self.switches:
             fast, fast_oe = self.ticks_of(ref, part, "clk" in module.ports, SERIAL_SPEED[ref])
@@ -1043,6 +1094,15 @@ def main(argv):
     for p in problems:
         print(("error: " if p.error else "warning: ") + p.text)
     files = {os.path.join(out, "ns4.sv"): text, os.path.join(out, "ns4_inputs.inc"): inputs}
+    ext = ns4_ext_sources()
+    ext.corner, ext.fitted = src.corner, src.fitted
+    text, more, inputs = generate_all(ext)
+    problems.extend(p for p in more if p.error and p not in problems)
+    for p in more:
+        if p.error:
+            print("error: ns4_ext: " + p.text)
+    files[os.path.join(out, "ns4_ext.sv")] = text
+    files[os.path.join(out, "ns4_ext_inputs.inc")] = inputs
     if src.corner == "typ":
         machine, more = generate_machine(src, MACHINE_INPUTS, MACHINE_OUTPUTS)
         problems.extend(p for p in more if p.error and p not in problems)

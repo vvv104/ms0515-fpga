@@ -6,15 +6,14 @@
 // them in the DRAM.
 #pragma once
 
-#include "Vns4.h"
-
 #include <cstdint>
 #include <map>
 #include <optional>
 
 class CpuWrites {
 public:
-    void see(const Vns4& m)
+    template <class V>
+    void see(const V& m)
     {
         const bool ras = m.n_PVAS_L != 0;
         if (!ras && ras_was_) {

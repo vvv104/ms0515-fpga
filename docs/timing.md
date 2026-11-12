@@ -15,6 +15,10 @@ the chip's propagation delay, as on the board.
   maximum is used and the row says so.
 - A **clocked** chip's model already shows its new state a tick after the
   edge, so its line is a tick shorter.
+- A **bus transceiver** (a chip with no clock whose pins are both driven
+  and read, К555АП6 of the memory expansion module) lags a tick at least:
+  under a tick its two buses' nets would be one combinational loop (the
+  min corner's half of 8 ns rounds to none).
 - A **three-state output's enable** has its own delays: turn-on (tPZH/tPZL,
   an EPROM's tOE, a DRAM's tCAC) and turn-off (tPHZ/tPLZ, an EPROM's tDF, a
   DRAM's turn-off), columns `oe_ns` and `off_ns`.

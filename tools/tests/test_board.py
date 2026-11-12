@@ -524,6 +524,23 @@ class Delays(unittest.TestCase):
         self.assertIn(".p18(d_D2_p18)", text)
         self.assertNotIn("r_D2_p18", text)
 
+    def test_a_transceiver_between_two_buses_lags_a_tick_at_least(self):
+        """A pass-through with pins both driven and read and no clock joins
+        its two buses' nets combinationally: under a tick it would make a
+        loop of them, so its outputs take one tick at least."""
+        f = Fixture("D1,К555АП6,,20,10,20,,,\n", "E,D1,1,,1,\nA,D1,2,,1,\nB,D1,3,,1,\n",
+                    modules=(TRANSCEIVER, DELAY_BANK))
+        f.write("delays.csv", "type,ns,source\nК555АП6,3,a datasheet\n")
+        with f.dir as d:
+            text, problems = board.generate(board.Sources(
+                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+                nets=os.path.join(d, "nets.csv"), changes=None,
+                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"),
+                delays=os.path.join(d, "delays.csv")))
+        self.assertEqual(errors(problems), [])
+        self.assertIn("r_D1_p3", text)
+        self.assertIn("r_D1_p2", text)
+
     def test_a_bank_is_a_machine_word_wide_at_most(self):
         self.assertEqual([len(c) for c in board.banks([((1, 1), f"r{i}", f"d{i}") for i in range(130)])],
                          [64, 64, 2])
@@ -767,6 +784,46 @@ class SerialSpeed(unittest.TestCase):
         text, _, _ = board.generate_all(board.ns4_sources())
         self.assertNotIn("f_D70_p4 ", text)       # data 9 ns and 5 ns: one tick either way
         self.assertNotIn("assign d_D70_p4 =", text)
+
+
+class TheBoardWithTheModule(unittest.TestCase):
+    """НС4 with the memory expansion module (plan 6a): its chips beside the
+    board's, prefixed M, its XP1 nets joined to НС4's by joins.csv, the chips
+    the owner's module does not carry left out, НС4's green wire a switch."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.b, _, _ = board.built(board.ns4_ext_sources())
+
+    def placed(self):
+        return {ref for ref, *_ in self.b.instances}
+
+    def test_generates_without_errors_and_matches_the_committed_file(self):
+        text, problems, inputs = board.generate_all(board.ns4_ext_sources())
+        self.assertEqual(errors(problems), [])
+        with open(os.path.join(ROOT, "rtl", "board", "ns4_ext.sv"), encoding="utf-8") as f:
+            self.assertEqual(f.read(), text, "rtl/board/ns4_ext.sv is stale: run tools/board.py")
+        with open(os.path.join(ROOT, "rtl", "board", "ns4_ext_inputs.inc"), encoding="utf-8") as f:
+            self.assertEqual(f.read(), inputs, "rtl/board/ns4_ext_inputs.inc is stale: run tools/board.py")
+
+    def test_the_module_s_chips_beside_the_board_s(self):
+        self.assertTrue({"D2", "MD2", "MD19", "MD34", "MD35", "MD6"} <= self.placed())
+
+    def test_the_chips_the_owner_s_module_lacks_are_left_out(self):
+        self.assertFalse({"MD1", "MD3", "MD4", "MD5", "MD7", "MD8", "MD9", "MD11"} & set(self.b.parts))
+
+    def test_a_joined_net_is_ns4_s(self):
+        self.assertEqual(self.b.pins["MD35"][9], "ТС15 H")       # C21: the wire to ТС15
+        self.assertEqual(self.b.pins["MD2"][5], "ЧТ51 L")        # C22: ДЧТ51
+        self.assertEqual(self.b.pins["MD6"][9], "МК00 H")        # B3: the same contact on Э3
+
+    def test_the_module_s_own_nets_are_its_own(self):
+        self.assertEqual(self.b.pins["MD13"][1], "M ОБМЕН")
+        self.assertNotIn("MXP1", self.b.parts)
+
+    def test_the_green_wire_is_a_switch(self):
+        self.assertEqual(self.b.pins["D80"][5], "АД03 H")
+        self.assertIn(("D80", 5), self.b.switches)
 
 
 if __name__ == "__main__":
