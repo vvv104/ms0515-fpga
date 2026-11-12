@@ -90,6 +90,42 @@ to any one board.  From stage 6 on there are two projects:
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
+   **Started 2026-11-12** (owner: the same result as НС4's - the module in
+   the FPGA beside the board on the one chip, and a printed board to make).
+   What there is:
+   - the plant's documents in `docs/ext`: the parts list (35 chips: D1
+     КМ1818ВГ01, D2 КР580ВВ55А, D3 КР580ВИ53, D4/D5 КР1102АП15, D6 К555АП6,
+     D7/D15-D17 К555КП11, D8 К555ТМ2, D9/D11 КР559ИП11, D10 К555ЛН1, D12
+     К555ЛЛ1, D13 КР531ИД14, D14 К555ИЕ19, D18 К555КП2, D19-D34 КР565РУ7Г,
+     D35 К555ИР16, G1 5.0688 MHz), the connection tables pin by pin and a
+     description (512 KB, 1024 blocks, two RS-232C);
+   - the owner's module, two photos (`photos/known-machines/0_d497*`,
+     1280 px, two layers): it carries the RAM disk's 27 chips only - D2,
+     D6, D10, D12-D18, D35, D19-D34 by type - and none of the RS-232
+     half (D1, D3-D5, D7-D9, D11, G1).  Its board is not the tables' 245 x
+     55 mm one as drawn; the photos are too coarse to trace its copper, so
+     the tables are the netlist and the photos check the parts.
+   How it joins НС4 (XP1 A n = XS1 n, B n = 32 + n, C n = 64 + n): the
+   module decodes its registers with `АД03` high and `выбор устр` low
+   (ВВ55 at 177530-536, the RAM's data at 177550 - what EX.SYS uses), and
+   takes four signals Э3 does not bring to XS1: C21 ТС15 (XS1.85), C22
+   ДЧТ51 (86), C23 выбор устр (87), C24 СТАРТ (88).  On НС4 they are,
+   by logic, `ТС15 H`, `ЧТ51 L`, `ВБРЕГ L` (D80's enable) and `СТАРТ H`;
+   with them the green wire (`АД03` to D80.5) is what keeps НС4's own
+   registers off the module's half.  To be proven on the model.
+   The steps:
+   1. The module's netlist from the tables (`netlist/ext/`), checked
+      against the parts list and the photos; the four XS1 joins in
+      `vvv104.csv`.
+   2. The missing chip models: К555АП6, КР565РУ7Г (from КР565РУ5's);
+      КМ1818ВГ01 and G1 for the RS-232 half, after ВГ01 is identified.
+   3. The module generated beside the board (`tools/board.py`), in
+      simulation: Omega's EX.SYS finds the RAM disk, a file copied to it
+      and read back, against the emulator's RAM disk; doubts in the
+      tables settled the 6b way, by the software.
+   4. The core: the module on the same FPGA, a switch in the menu.
+   5. The printed board: two layers, on XP1 (DIN 41612 C, as НС4's XS1
+      is made anew), the RS-232 half fitted or not.
 7. **The FPGA: a MiSTer core** (decided 2026-10-22; the Tang Nano 20K of
    the first plan dropped).  The target is MiSTer on Terasic's DE10-Nano
    (Cyclone V 5CSEBA6, about 110K LE, 5.5 Mbit of block memory): the
