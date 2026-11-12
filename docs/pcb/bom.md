@@ -67,8 +67,8 @@ XS2, SA1's odd switches closed; ROM-B in the sockets XS3, XS4.
 | К555АП3 |  | 1 | D95 | 74LS240 | `Package_DIP:DIP-20_W7.62mm` |  |
 | К555ИВ3 |  | 1 | D96 | 74LS147 | `Package_DIP:DIP-16_W7.62mm` |  |
 | КР1533ТМ2 |  | 1 | D98 | 74ALS74 | `Package_DIP:DIP-14_W7.62mm` |  |
-| НР1-11А | 3-15-1 кОм ±10% | 1 | DA1 | Bourns 4116R-1 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103) | `Package_DIP:DIP-16_W7.62mm` |  |
-| НР1-11А | 3-15-10 кОм ±10% | 1 | DA2 | Bourns 4116R-1 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103) | `Package_DIP:DIP-16_W7.62mm` |  |
+| НР1-11А | 3-15-1 кОм ±10% | 1 | DA1 | Bourns 4116R-2 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103) | `Package_DIP:DIP-16_W7.62mm` |  |
+| НР1-11А | 3-15-10 кОм ±10% | 1 | DA2 | Bourns 4116R-2 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103) | `Package_DIP:DIP-16_W7.62mm` |  |
 | перемычка | jumper (two contacts on Э3) | 8 | E1, E2, E3, E4, E5, E6, E7, E8 | a wire link | `ns4:Wire_Link_P12.70mm` | E1..E8, fitted as netlist/analog.csv says |
 | перемычка на 3 | jumper (three contacts) | 1 | E9 | 3-pin header and a jumper | `Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical` | E9 (netlist/pcb_parts.csv), a jumper on 1-2 as delivered |
 | С1-4 | 560 Ом | 4 | R1, R3, R77, R79 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |

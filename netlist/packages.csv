@@ -15,7 +15,7 @@ type,footprint,equivalent,note
 С1-4,ns4:R_Axial_P12.70mm,"0.25 W carbon or metal film, 5 %",
 С2-23,ns4:R_Axial_P12.70mm,"0.25 W metal film, 1 %",the RS-232 receivers' 23.7 kOhm and the like
 СП5-16ВА,ns4:Trimmer_SP5-16VA,a trimmer with СП5-16ВА's pins (Bourns 3296W does not fit: its pins are in a row),the video DAC's levels; the pins' order to be checked against СП5-16ВА's
-НР1-11А,Package_DIP:DIP-16_W7.62mm,"Bourns 4116R-1 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103)",
+НР1-11А,Package_DIP:DIP-16_W7.62mm,"Bourns 4116R-2 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103)",
 ВДМ1-10,Button_Switch_THT:SW_DIP_SPSTx10_Slide_6.7x26.96mm_W7.62mm_P2.54mm_LowProfile,10-position DIP switch,SA1: switch k joins pins k and 21-k; odd ones closed for the МС 7004 on XS2 (netlist/variants.md)
 КД522Б,Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal,1N4148,
 КС133А,Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal,BZX55C3V3 (3.3 V zener),the supply monitor VD11
