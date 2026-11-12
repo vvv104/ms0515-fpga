@@ -45,10 +45,10 @@ endfunction()
 foreach(chip
         k555la3 k555la4 k555la2 k555la13 k555li1 k555li3 k555li6 k555ll1
         kr531le1 k555lp5 k555ln1 k555ln2 k155ln5 k155lp9 k555tl2 k555lr11
-        k555id7 kr531id14 k555kp2 k555kp11 k555kp15 k555iv3 k555ap3 k555ap5
+        k555id7 kr531id14 k555kp2 k555kp11 k555kp15 k555iv3 k555ap3 k555ap5 k555ap6
         k555tm2 kr531tm2 kr1533tm2 k555tm8 k555tm9 k555ir22 k555ir23 k555ir16
         k555ie10 k555ie19
-        kr559ip11 kr1102ap15 k554sa3 kr565ru5 kr580vi53 kr580vv55 kr580vv51
+        kr559ip11 kr1102ap15 k554sa3 kr565ru5 kr565ru7 kr580vi53 kr580vv55 kr580vv51
         k155ln3 k155tm2 k1102lp1 k564kp2 k589ir12 kr580vr43)
     ms0515_chip_test(${chip})
 endforeach()

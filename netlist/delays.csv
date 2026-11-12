@@ -37,6 +37,7 @@ type,ns,oe_ns,off_ns,path,kind,source
 К555ИВ3,15,,,any->any (mean of in- and out-of-phase),typ,"TI SN74LS147 SDLS053B p.10, https://www.ti.com/lit/ds/sdls053/sdls053.pdf"
 К555АП3,10.5,17.5,12.5,A->Y,typ,"TI SN74LS240 SDLS144D sec 6.7, https://www.ti.com/lit/ds/symlink/sn74ls240.pdf"
 К555АП5,12,17.5,12.5,A->Y,typ,"TI SN74LS244 SDLS144D sec 6.7, https://www.ti.com/lit/ds/symlink/sn74ls244.pdf"
+К555АП6,8,26,15,A->B or B->A,typ,"TI SN74LS245 SDLS146B sec 7.6 p.5 (CL 45 pF; disable CL 5 pF), https://www.ti.com/lit/ds/symlink/sn74ls245.pdf"
 К555ТМ2,19,,,CLK/CLR/PRE->Q (one row in the datasheet),typ,"TI SN74LS74A SDLS119 p.5, https://www.ti.com/lit/ds/symlink/sn74ls74a.pdf"
 КР531ТМ2,6,,,CLK->Q,typ,"TI SN74S74 SDLS119 p.6, https://www.ti.com/lit/ds/symlink/sn74s74.pdf"
 КР1533ТМ2,17,,,CLK->Q (CL 50 pF),max,"TI SN74ALS74A SDAS143C p.4, https://www.ti.com/lit/ds/symlink/sn74als74a.pdf"
@@ -53,6 +54,7 @@ type,ns,oe_ns,off_ns,path,kind,source
 КР556РТ12,40,,,address->out tAA (82S136 analogue),typ,"Signetics 1977 Bipolar & MOS Memory p.123, https://xdevs.com/doc/eBooks/1977_Signetics_Bipolar_and_MOS_Memory.pdf"
 К573РФ4Б,450,150,130,address->data tACC; tOE; tDF,max,"НПП Восток К573РФ4 6КО.348.422-04ТУ p.2 (tACC tOE), https://eandc.ru/pdf/mikroskhema/k573rf4.pdf; ST M2764A-4 Table 7B p.5 (tDF), https://archive.org/download/2764_EPROM/2764_EPROM.pdf"
 КР565РУ5Г,120,120,60,CAS->data tCAC; turn-off after CAS,max,"eandc К565РУ5 sheet p.2, https://eandc.ru/pdf/mikroskhema/k565ru5.pdf"
+КР565РУ7Г,100,100,70,CAS->data tCAC; turn-off after CAS,max,"eandc К565РУ7 sheet p.3, https://eandc.ru/pdf/mikroskhema/k565ru7.pdf"
 КР1807ВМ1,model,,,its bus timing (docs/t11-model.md),model,T-11 Engineering Specification
 КР580ВИ53,model,,,its bus timing (docs/vi53.md),model,docs/vi53.md
 КР580ВВ55А,model,,,its bus timing (docs/vv55.md),model,docs/vv55.md

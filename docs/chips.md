@@ -36,6 +36,7 @@ for every chip.  The delays are taken from them already.
 | К555ИВ3 | `k555iv3.sv` | 74LS147 | TI SN74LS147 SDLS053B p.10, https://www.ti.com/lit/ds/sdls053/sdls053.pdf |
 | К555АП3 | `k555ap3.sv` | 74LS240 | TI SN74LS240 SDLS144D sec 6.7, https://www.ti.com/lit/ds/symlink/sn74ls240.pdf |
 | К555АП5 | `k555ap5.sv` | 74LS244 | TI SN74LS244 SDLS144D sec 6.7, https://www.ti.com/lit/ds/symlink/sn74ls244.pdf |
+| К555АП6 | `k555ap6.sv` | 74LS245 | TI SN74LS245 SDLS146B sec 7.6 p.5, table 1 p.9, https://www.ti.com/lit/ds/symlink/sn74ls245.pdf (the memory expansion module) |
 | К555ТМ2 | `k555tm2.sv` | 74LS74 | TI SN74LS74A SDLS119 p.5, https://www.ti.com/lit/ds/symlink/sn74ls74a.pdf |
 | КР531ТМ2 | `kr531tm2.sv` | 74S74 | TI SN74S74 SDLS119 p.6, https://www.ti.com/lit/ds/symlink/sn74s74.pdf |
 | КР1533ТМ2 | `kr1533tm2.sv` | 74ALS74 | TI SN74ALS74A SDAS143C p.4, https://www.ti.com/lit/ds/symlink/sn74als74a.pdf |
@@ -52,6 +53,7 @@ for every chip.  The delays are taken from them already.
 | КР556РТ12 | `kr556rt12.sv` | 82S136 | Signetics 1977 Bipolar & MOS Memory p.123, https://xdevs.com/doc/eBooks/1977_Signetics_Bipolar_and_MOS_Memory.pdf |
 | К573РФ4Б | `k573rf4.sv` | 2764 | НПП Восток К573РФ4 6КО.348.422-04ТУ p.2 (tACC tOE), https://eandc.ru/pdf/mikroskhema/k573rf4.pdf; ST M2764A-4 Table 7B p.5 (tDF), https://archive.org/download/2764_EPROM/2764_EPROM.pdf |
 | КР565РУ5Г | `kr565ru5.sv` | 4164 | eandc К565РУ5 sheet p.2, https://eandc.ru/pdf/mikroskhema/k565ru5.pdf |
+| КР565РУ7Г | `kr565ru7.sv` | 41256 | eandc К565РУ7 sheet p.1-3, https://eandc.ru/pdf/mikroskhema/k565ru7.pdf (the memory expansion module) |
 | КР1807ВМ1 | `kr1807vm1.sv` | DEC T-11 (DC310) | T-11 Engineering Specification |
 | КР580ВИ53 | `kr580vi53.sv` | Intel 8253 | `docs/vi53.md` |
 | КР580ВВ55А | `kr580vv55.sv` | Intel 8255A | `docs/vv55.md` |

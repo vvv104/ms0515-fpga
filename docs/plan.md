@@ -135,6 +135,11 @@ to any one board.  From stage 6 on there are two projects:
       8274; no pinout until it is identified.
    2. The missing chip models: К555АП6, КР565РУ7Г (from КР565РУ5's);
       КМ1818ВГ01 and G1 for the RS-232 half, after ВГ01 is identified.
+      **The RAM disk's done** (2026-11-12): `k555ap6.sv` (74LS245, TI
+      SDLS146B: typ 8 ns, enable 26, disable 15) and `kr565ru7.sv` (41256,
+      the eandc К565РУ7 sheet: КР565РУ7Г tCAC <= 100 ns, off <= 70, tRAC
+      <= 200), each with its test; 79 of 79 at typ (НС4's board is not
+      touched).  ВГ01 and G1 wait for the RS-232 half.
    3. The module generated beside the board (`tools/board.py`), in
       simulation: Omega's EX.SYS finds the RAM disk, a file copied to it
       and read back, against the emulator's RAM disk; doubts in the
