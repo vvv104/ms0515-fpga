@@ -7,16 +7,15 @@
 // once before the image goes in.
 #pragma once
 
-#include "Vns4.h"
-#include "Vns4___024root.h"
+#include "board_model.h"
 #include "rom_image.h"
 
 // false, and nothing written, when the image is not a 16 KB ROM
-inline bool plug_rom(Vns4& m, const std::vector<std::uint8_t>& image)
+inline bool plug_rom(Vboard& m, const std::vector<std::uint8_t>& image)
 {
     if (image.size() != kRomBytes)
         return false;
     m.eval();
-    fill_rom(m.rootp->ns4__DOT__D65__DOT__cells, m.rootp->ns4__DOT__D77__DOT__cells, image);
+    fill_rom(MS0515_BOARD_CELLS(m, D65), MS0515_BOARD_CELLS(m, D77), image);
     return true;
 }

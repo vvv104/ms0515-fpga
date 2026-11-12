@@ -10,7 +10,7 @@
 // five), and the first and the last of them are kept.
 #pragma once
 
-#include "Vns4.h"
+#include "board_model.h"
 
 #include <algorithm>
 #include <array>
@@ -46,7 +46,7 @@ public:
     // `cycles` RAS cycles that write
     void trace(int cycles) { trace_left_ = cycles; }
 
-    void see(const Vns4& m, std::uint64_t t)
+    void see(const Vboard& m, std::uint64_t t)
     {
         t_ = t;
         const std::uint8_t a = address(m);
@@ -131,7 +131,7 @@ public:
     std::uint8_t known(std::size_t cell) const { return known_[cell]; }
 
 private:
-    static std::uint8_t address(const Vns4& m)
+    static std::uint8_t address(const Vboard& m)
     {
         const CData bits[8] = {m.n_A0_H, m.n_A1_H, m.n_A2_H, m.n_A3_H,
                                m.n_A4_H, m.n_A5_H, m.n_A6_H, m.n_A7_H};
@@ -140,7 +140,7 @@ private:
             v = static_cast<std::uint8_t>(v | (bits[i] & 1u) << i);
         return v;
     }
-    static std::uint8_t video_row(const Vns4& m)
+    static std::uint8_t video_row(const Vboard& m)
     {
         const CData bits[8] = {m.n_AV01_H, m.n_AV02_H, m.n_AV03_H, m.n_AV04_H,
                                m.n_AV05_H, m.n_AV06_H, m.n_AV07_H, m.n_AV08_H};
@@ -149,7 +149,7 @@ private:
             v = static_cast<std::uint8_t>(v | (bits[i] & 1u) << i);
         return v;
     }
-    static std::uint8_t video_column(const Vns4& m)
+    static std::uint8_t video_column(const Vboard& m)
     {
         const CData bits[8] = {m.n_AV09_H, m.n_AV10_H, m.n_AV11_H, m.n_AV12_H,
                                m.n_R3_H,   m.n_R3_H,   m.n_R3_H,   m.n_AV13_H};
@@ -158,21 +158,21 @@ private:
             v = static_cast<std::uint8_t>(v | (bits[i] & 1u) << i);
         return v;
     }
-    static std::uint16_t data_in(const Vns4& m)
+    static std::uint16_t data_in(const Vboard& m)
     {
         const CData bits[16] = {m.n_MK00_H, m.n_MK01_H, m.n_MK02_H, m.n_MK03_H, m.n_MK04_H, m.n_MK05_H,
                                 m.n_MK06_H, m.n_MK07_H, m.n_MK08_H, m.n_MK09_H, m.n_MK10_H, m.n_MK11_H,
                                 m.n_MK12_H, m.n_MK13_H, m.n_MK14_H, m.n_MK15_H};
         return pack(bits);
     }
-    static std::uint16_t data_out(const Vns4& m)
+    static std::uint16_t data_out(const Vboard& m)
     {
         const CData bits[16] = {m.n_D00_H, m.n_D01_H, m.n_D02_H, m.n_D03_H, m.n_D04_H, m.n_D05_H,
                                 m.n_D06_H, m.n_D07_H, m.n_D08_H, m.n_D09_H, m.n_D10_H, m.n_D11_H,
                                 m.n_D12_H, m.n_D13_H, m.n_D14_H, m.n_D15_H};
         return pack(bits);
     }
-    static std::uint16_t cpu_address(const Vns4& m)
+    static std::uint16_t cpu_address(const Vboard& m)
     {
         const CData bits[16] = {m.n_AD00_H, m.n_AD01_H, m.n_AD02_H, m.n_AD03_H, m.n_AD04_H, m.n_AD05_H,
                                 m.n_AD06_H, m.n_AD07_H, m.n_AD08_H, m.n_AD09_H, m.n_AD10_H, m.n_AD11_H,
@@ -189,7 +189,7 @@ private:
 
     std::size_t cell() const { return static_cast<std::size_t>(row_) << 8 | column_; }
 
-    void write(const Vns4& m, bool lo, bool hi)
+    void write(const Vboard& m, bool lo, bool hi)
     {
         last_write_ = cell();
         written_at_[cell()] = t_;

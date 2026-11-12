@@ -13,6 +13,12 @@ plays, in `sim/board/`, at the board's connectors.
 
 ## Runs
 
+`run_board_ext` takes the same arguments: the same bench on НС4 with the
+memory expansion module on XS1 (`rtl/board/ns4_ext.sv`, plan 6a), the
+green wire `АД03` -> D80.5 in (`sim/board/board_model.h` picks the model).
+The emulator beside it has no RAM disk and no diskette, so past ROM-B's
+keyboard request only the screens say anything.
+
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
 [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
 [rom=IMAGE] [keys=FILE] [joy=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq]
@@ -88,7 +94,8 @@ plays, in `sim/board/`, at the board's connectors.
   interrupt acknowledge).  The end's `READY slips:` line gives them,
   and the summary's `slips=`.
 - `drawn`: the board as Э3 draws it, without the owner's board's changes
-  (`netlist/vvv104.csv`: D70.15 on `~D14.3`, not on GND);
+  (`netlist/vvv104.csv`: D70.15 on `~D14.3`, not on GND; under
+  `run_board_ext` also without the green wire, D80.5 on `ВБРЕГ L`);
 - `edges=FROM-TO` (machine microseconds): every change of the nets at the
   picture's left edge, master tick by tick - the border (`БОРДС`,
   `БОРДК`), D70's enable (`~D14.3`), the strobes `ВК2`..`ВК5`, `СТРОБ`,

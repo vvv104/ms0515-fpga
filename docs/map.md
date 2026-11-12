@@ -158,7 +158,8 @@ proves is said with it.
 5. **The board at its delay corners**: `conan build . -o "&:corner=min"`
    and `max` (build/min, build/max); check `MS0515_BOARD_SV` in
    `build/<corner>/CMakeCache.txt` names the corner's board.
-6. **The real software on the board**: `run_board` (`docs/bench.md`),
+6. **The real software on the board**: `run_board` (`docs/bench.md`;
+   `run_board_ext` the board with the memory expansion module),
    from `build/Release/sim`, `build/min/sim`, `build/max/sim`, the output
    folder made beforehand (it is not made by the run):
    `run_board 20000 FOLDER 30 disk=IMAGE keyboard [seed=N] [rom=ROM-A]`

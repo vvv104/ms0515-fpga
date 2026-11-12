@@ -33,7 +33,9 @@
 // slips since the fetch before (ready_slips.h; their count by the cycle's
 // kind is in the end's lines, and in the summary).  `drawn` builds
 // the board as Э3 draws it, without the owner's board's changes
-// (netlist/vvv104.csv: D70.15 on ~D14.3, not on GND).  edges=FROM-TO
+// (netlist/vvv104.csv: D70.15 on ~D14.3, not on GND; run_board_ext, the
+// board with the memory expansion module, also without the green wire
+// АД03 -> D80.5).  edges=FROM-TO
 // (machine microseconds) prints, master tick by tick, every change of the
 // nets at the picture's left edge: the border (БОРДС, БОРДК), D70's enable
 // (~D14.3), the strobes ВК2..ВК5, СТРОБ, ЧТ ВЗУ, ССИ, РАЗР; then, in hex,
@@ -49,7 +51,7 @@
 #include <verilated.h>
 
 
-#include "Vns4.h"
+#include "board_model.h"
 #include "power.h"
 #include "keyboard_stub.h"
 #include "xp4.h"
@@ -91,7 +93,7 @@ namespace {
 
 constexpr int kMasterMhz = 120;
 
-std::uint16_t mk(const Vns4& m)
+std::uint16_t mk(const Vboard& m)
 {
     const CData bits[16] = {m.n_MK00_H, m.n_MK01_H, m.n_MK02_H, m.n_MK03_H, m.n_MK04_H, m.n_MK05_H,
                             m.n_MK06_H, m.n_MK07_H, m.n_MK08_H, m.n_MK09_H, m.n_MK10_H, m.n_MK11_H,
@@ -330,7 +332,7 @@ public:
     Irqs(std::uint64_t from_us, std::uint64_t to_us) : from_(from_us * kMasterMhz), to_(to_us * kMasterMhz) {}
 
     // slips, held: the READY slips and the clock's held ticks counted so far (ready_slips.h)
-    void see(const Vns4& m, std::uint64_t t, std::uint64_t slips, std::uint64_t held)
+    void see(const Vboard& m, std::uint64_t t, std::uint64_t slips, std::uint64_t held)
     {
         const unsigned req = (!m.n_ZAPR_KL_L) << 5 | (!m.n_ZAPR_TAYM_L) << 4 | (!m.n_ZAPR_M_S2_L) << 3 |
                              (!m.n_ZAPR_D_S2_L) << 2 | (!m.n_ZAPR_7007_L) << 1 | (!m.n_ZAPR_MON_L);
@@ -368,7 +370,7 @@ public:
 
 private:
     static double seconds(std::uint64_t t) { return static_cast<double>(t) / (1e6 * kMasterMhz); }
-    static unsigned address(const Vns4& m)
+    static unsigned address(const Vboard& m)
     {
         const CData b[16] = {m.n_AD00_H, m.n_AD01_H, m.n_AD02_H, m.n_AD03_H, m.n_AD04_H, m.n_AD05_H,
                              m.n_AD06_H, m.n_AD07_H, m.n_AD08_H, m.n_AD09_H, m.n_AD10_H, m.n_AD11_H,
@@ -388,7 +390,7 @@ class Edges {
 public:
     Edges(std::uint64_t from_us, std::uint64_t to_us) : from_(from_us * kMasterMhz), to_(to_us * kMasterMhz) {}
 
-    void see(const Vns4& m, std::uint64_t t)
+    void see(const Vboard& m, std::uint64_t t)
     {
         if (t < from_ || t >= to_) return;
         const unsigned now = (m.n_BORDS_L & 1u) | (m.n_BORDK_L & 1u) << 1 | (m.nx_D14_3 & 1u) << 2 |
@@ -428,7 +430,7 @@ class Writes {
 public:
     std::vector<std::pair<unsigned, unsigned>> ranges;
 
-    void see(const Vns4& m, std::uint64_t t, const DramWatch& dram)
+    void see(const Vboard& m, std::uint64_t t, const DramWatch& dram)
     {
         if (ranges.empty()) return;
         const bool ras = m.n_PVAS_L != 0;
@@ -455,7 +457,7 @@ public:
 
 private:
     // АД00..АД15 as a word
-    static unsigned ad(const Vns4& m)
+    static unsigned ad(const Vboard& m)
     {
         const CData b[16] = {m.n_AD00_H, m.n_AD01_H, m.n_AD02_H, m.n_AD03_H, m.n_AD04_H, m.n_AD05_H,
                              m.n_AD06_H, m.n_AD07_H, m.n_AD08_H, m.n_AD09_H, m.n_AD10_H, m.n_AD11_H,
@@ -487,7 +489,7 @@ public:
     bool diverged = false;
     Lockstep lockstep;
 
-    void see(const Vns4& m, Emulator& emu, std::uint64_t t)
+    void see(const Vboard& m, Emulator& emu, std::uint64_t t)
     {
         if (m.n_START_H && t >= kSupplyRiseTicks) started_ = true;
         if (started_ && !m.n_START_H && !m.n_PVAS_L && ras_was_ && m.n_REZH0_H)
@@ -532,7 +534,7 @@ public:
         }
     }
 
-    void see(const Vns4& m, std::uint64_t t, const Emulator& emu, bool started)
+    void see(const Vboard& m, std::uint64_t t, const Emulator& emu, bool started)
     {
         if (grab.see(m))
             frame_ends(t, emu, started);
@@ -643,7 +645,7 @@ private:
 };
 
 // The joystick on XP8: a line held is its pin to ground, a line let go the pin open.
-void xp8_joystick(Vns4& m, unsigned held)
+void xp8_joystick(Vboard& m, unsigned held)
 {
     CData* const pin[Joystick::kLines] = {&m.x_XP8_p10, &m.x_XP8_p11, &m.x_XP8_p12, &m.x_XP8_p13, &m.x_XP8_p14};
     CData* const oe[Joystick::kLines] = {&m.x_XP8_p10_oe, &m.x_XP8_p11_oe, &m.x_XP8_p12_oe, &m.x_XP8_p13_oe,
@@ -740,7 +742,7 @@ void report(const Options& o, const Fetches& f, const Camera& cam, const Emulato
 // The parts of a run that a snapshot carries: the board, the bench's
 // drive and keyboard, the tick it was taken at, the frames so far.
 struct Parts {
-    Vns4& m;
+    Vboard& m;
     std::unique_ptr<drive::Mc5305>& fdd;
     keyboard::Stub& kbd;
     int& frames;
@@ -792,9 +794,12 @@ int main(int argc, char** argv)
     // the power-up state, set before the model is made
     Verilated::randReset(o.seed == 0 ? 0 : 2);
     Verilated::randSeed(o.seed);
-    auto m = std::make_unique<Vns4>();
+    auto m = std::make_unique<Vboard>();
     disconnect(*m);
     m->s_D70_15 = o.drawn ? 1 : 0;
+#ifdef MS0515_BOARD_EXT
+    m->s_D80_5 = o.drawn ? 1 : 0;      // the green wire, АД03 into D80.5; Э3's ВБРЕГ L when drawn
+#endif
     Emulator emu(o.rom.empty() ? MS0515_FIRMWARE_DIR "/ms0515-romb.rom" : o.rom);
     if (!o.rom.empty() && o.load.empty()) {
         std::ifstream f(o.rom, std::ios::binary);

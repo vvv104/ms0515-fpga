@@ -4,7 +4,7 @@
 // falls.  The whole line, blanking too: 960 samples, 64 us at 15 MHz.
 #pragma once
 
-#include "Vns4.h"
+#include "board_model.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -20,7 +20,7 @@ public:
     Lines last;         // the frame that ended last
 
     // true as a frame ends (then in `last`); the tick's samples go to the next
-    bool see(const Vns4& m)
+    bool see(const Vboard& m)
     {
         bool ended = false;
         if (!m.n_KSI_L && ksi_was_) {

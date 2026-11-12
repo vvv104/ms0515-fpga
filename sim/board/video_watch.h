@@ -9,7 +9,7 @@
 // load against what the latches took.
 #pragma once
 
-#include "Vns4.h"
+#include "board_model.h"
 #include "dram_watch.h"
 
 #include <algorithm>
@@ -25,7 +25,7 @@ public:
         std::uint64_t requests = 0, requests_lost = 0;
     };
 
-    void see(const Vns4& m, const DramWatch& dram, std::uint64_t t)
+    void see(const Vboard& m, const DramWatch& dram, std::uint64_t t)
     {
         const std::uint16_t d = data(m), dv = video_data(m);
         const bool cht = m.n_CHT_VZU_H != 0, vk2 = m.n_VK2_H != 0, vk3 = m.n_VK3_H != 0;
@@ -146,7 +146,7 @@ private:
     // comes while the reset still holds is lost - the word is not read and
     // the registers load the one before again.  Kept: how many, and how
     // close the strobes came after a reset ended.
-    void request(const Vns4& m, std::uint64_t t)
+    void request(const Vboard& m, std::uint64_t t)
     {
         const bool strob = m.n_STROB_H != 0, reset = !m.n_SBRVZU_L;
         if (!reset && reset_was_)
@@ -162,7 +162,7 @@ private:
         reset_was_ = reset;
     }
 
-    static unsigned address(const Vns4& m)
+    static unsigned address(const Vboard& m)
     {
         const CData bits[8] = {m.n_A0_H, m.n_A1_H, m.n_A2_H, m.n_A3_H, m.n_A4_H, m.n_A5_H, m.n_A6_H, m.n_A7_H};
         unsigned v = 0;
@@ -170,7 +170,7 @@ private:
             v |= (bits[i] & 1u) << i;
         return v;
     }
-    static unsigned dram_column(const Vns4& m)
+    static unsigned dram_column(const Vboard& m)
     {
         const CData bits[8] = {m.n_AV09_H, m.n_AV10_H, m.n_AV11_H, m.n_AV12_H,
                                m.n_R3_H,   m.n_R3_H,   m.n_R3_H,   m.n_AV13_H};
@@ -212,14 +212,14 @@ private:
         return printed_[static_cast<std::size_t>(kind)]++ < kPrinted;
     }
 
-    static std::uint16_t data(const Vns4& m)
+    static std::uint16_t data(const Vboard& m)
     {
         const CData bits[16] = {m.n_D00_H, m.n_D01_H, m.n_D02_H, m.n_D03_H, m.n_D04_H, m.n_D05_H,
                                 m.n_D06_H, m.n_D07_H, m.n_D08_H, m.n_D09_H, m.n_D10_H, m.n_D11_H,
                                 m.n_D12_H, m.n_D13_H, m.n_D14_H, m.n_D15_H};
         return pack(bits);
     }
-    static std::uint16_t video_data(const Vns4& m)
+    static std::uint16_t video_data(const Vboard& m)
     {
         const CData bits[16] = {m.n_DV00_H, m.n_DV01_H, m.n_DV02_H, m.n_DV03_H, m.n_DV04_H, m.n_DV05_H,
                                 m.n_DV06_H, m.n_DV07_H, m.n_DV08_H, m.n_DV09_H, m.n_DV10_H, m.n_DV11_H,

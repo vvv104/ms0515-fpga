@@ -99,7 +99,8 @@ target_compile_definitions(test_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOU
 # the same folder as the board above (a corner's, when it is one)
 get_filename_component(MS0515_BOARD_DIR "${MS0515_BOARD_SV}" DIRECTORY)
 ms0515_model(Vns4_ext "${MS0515_BOARD_DIR}/ns4_ext.sv" ns4_ext
-             PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv")
+             PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv"
+             ARGS --savable)
 ms0515_test(test_exdisk board/test_exdisk.cpp Vns4_ext)
 target_compile_definitions(test_exdisk PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
 
@@ -178,3 +179,8 @@ target_link_libraries(bench_board PRIVATE Vns4)
 add_executable(run_board board/run_board.cpp)
 target_link_libraries(run_board PRIVATE Vns4 Vmc5305 ms0515_core)
 target_compile_definitions(run_board PRIVATE MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
+# run_board_ext: the same with the memory expansion module on XS1 (plan 6a)
+add_executable(run_board_ext board/run_board.cpp)
+target_link_libraries(run_board_ext PRIVATE Vns4_ext Vmc5305 ms0515_core)
+target_compile_definitions(run_board_ext PRIVATE MS0515_BOARD_EXT
+                           MS0515_FIRMWARE_DIR="${PROJECT_SOURCE_DIR}/firmware")
