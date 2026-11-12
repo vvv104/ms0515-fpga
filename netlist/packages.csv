@@ -11,17 +11,17 @@ type,footprint,equivalent,note
 К10-17-1б-М47,ns4:C_Disc_P5.08mm,ceramic C0G,
 К10-17-1б-М1500,ns4:C_Disc_P5.08mm,ceramic C0G,"the RS-232 lines' filters (C46, C47) and the like"
 КМ-6Б-Н90,ns4:C_Rect_P10.16mm,ceramic X7R,
-К53-14,ns4:CP_Axial_P25.40mm,"tantalum, axial, the same capacitance and voltage",the supply's bulk capacitors
+К53-14,ns4:CP_Axial_P25.40mm,"an axial 33 uF 16 V, aluminium or tantalum (К53-14 is aluminium oxide-semiconductor, 7.2 x 16 mm)",the supply's bulk capacitors
 С1-4,ns4:R_Axial_P12.70mm,"0.25 W carbon or metal film, 5 %",
 С2-23,ns4:R_Axial_P12.70mm,"0.25 W metal film, 1 %",the RS-232 receivers' 23.7 kOhm and the like
-СП5-16ВА,ns4:Trimmer_SP5-16VA,a trimmer with СП5-16ВА's pins (Bourns 3296W does not fit: its pins are in a row),the video DAC's levels; the pins' order to be checked against СП5-16ВА's
+СП5-16ВА,ns4:Trimmer_SP5-16VA,a trimmer with СП5-16ВА's pins (Bourns 3296W does not fit: its pins are in a row),"the video DAC's levels; its sheet draws the pins on a 3 x 3 mm corner, the 1991 holes stand 2.54 x 3.17 mm; which pin is the wiper the sheet does not say"
 НР1-11А,Package_DIP:DIP-16_W7.62mm,"Bourns 4116R-2 (15 resistors bussed to pin 16), the value as ПЭ3 gives it (3-15-1 kOhm: -102, 3-15-10 kOhm: -103)",
 ВДМ1-10,Button_Switch_THT:SW_DIP_SPSTx10_Slide_6.7x26.96mm_W7.62mm_P2.54mm_LowProfile,10-position DIP switch,SA1: switch k joins pins k and 21-k; odd ones closed for the МС 7004 on XS2 (netlist/variants.md)
 КД522Б,Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal,1N4148,
 КС133А,Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal,BZX55C3V3 (3.3 V zener),the supply monitor VD11
 АЛ307БМ,LED_THT:LED_D5.0mm,"red LED, 5 mm",
-КТ677АС,Package_DIP:DIP-14_W7.62mm,none checked: four transistors in DIP-14,the video DAC; an imported quad (MPQ2222 kind) only after its pins are checked against ПЭ3's
-КТ676АС,Package_DIP:DIP-14_W7.62mm,none checked: four transistors in DIP-14,the video DAC; as КТ677АС
+КТ677АС,Package_DIP:DIP-14_W7.62mm,"MPQ2222A: four NPN in DIP-14, pins as Э3 sheet 4 draws VT1's (C1 B1 E1 1-3, E2 B2 C2 5-7, C3 B3 E3 8-10, E4 B4 C4 12-14, 4 and 11 free)",the video DAC: NPN in common base
+КТ676АС,Package_DIP:DIP-14_W7.62mm,"four PNP in DIP-14 with VT1's pins (MPQ2907 kind, none found on sale in DIP), or four 2N2907 on an adapter",the video DAC: PNP with the emitters to +5 V
 РК 353БВ-11А4,ns4:Crystal_RK353_P12.70mm,"8 MHz crystal, HC-49/U",
 РК 169МА-6АН,ns4:Crystal_RK169_P5.08mm,"15 MHz crystal, HC-49/U",
 ОНП-ВС-39-4,Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,"4-pin header, 2.54 mm",XP1: +12 V and +5 V

@@ -75,13 +75,48 @@ All but the three below: roughly 40,000-60,000 RUB.
 
 - **КР1807ВМ1 (T-11)**: no shop.  Avito, eBay (as DEC DC310), the zx-pk.ru
   market; none of them could be read on 2026-11-12.
-- **КТ676АС, КТ677АС**: no listing anywhere.  An imported quad in DIP-14
-  (MPQ2222 or MPQ2907 kind) only after its type and pins are checked against
-  Э3 sheet 4 (`DT1`, `DT2`; `docs/findings.md`).
+- **КТ676АС, КТ677АС**: no listing anywhere.  Э3 sheet 4 settles what they
+  are: VT1 (КТ677АС) four NPN in common base (bases on two diodes' drop,
+  collectors to +5 V through the trimmers), VT2 (КТ676АС) four PNP (emitters
+  to +5 V through 24 Ohm, collectors into the 75 Ohm outputs).  Both have the
+  pins C1 B1 E1 on 1-3, E2 B2 C2 on 5-7, C3 B3 E3 on 8-10, E4 B4 C4 on 12-14,
+  4 and 11 free - Central Semiconductor's MPQ2222A pinout (pins 3-7 and
+  10-14 read off its sheet, 1, 2, 8, 9 by its symmetry).  VT1: MPQ2222A,
+  ChipDip 2,180-2,660 RUB, 6-7 weeks.  VT2: a PNP quad in DIP-14 with those
+  pins (MPQ2907 kind) was not found on sale - ChipDip has only the SOIC-16
+  MMPQ2907A; four 2N2907 (or КТ3107) on a small DIP-14 adapter do.
 - **КР556РТ12**: a fusible-link PROM, programmed once.  The TL866 kind of
   programmer (about 7,000 RUB, it does the 27C64) does not do bipolar PROMs;
   it takes a programmer that does, or someone who has one.  The contents:
   `firmware/d13_kdrv.r12`, `firmware/d21_strv.r12`.
+
+## The doubtful parts against their sheets
+
+ChipDip's documents, kept in `ms0515_data/docs/chipdip/` (chips) and
+`ms0515_data/docs/chipdip-parts/` (the rest):
+
+- **СП5-16ВА** (DOC059521313): a round body 11 mm across, 9.7 mm high, three
+  pins on three corners of a 3 x 3 mm square.  The 1991 holes of all four
+  (R27, R31, R40, R50) stand 2.54 x 3.17 mm, so the sheet's 3 mm is either
+  rounded or the board took the pins bent; to be tried with a part in hand
+  before ordering.  Which pin is the wiper the sheet does not say; on НС4
+  the wiper and one end are tied to +5 V.
+- **К53-14** (DOC016051638): aluminium oxide-semiconductor, not tantalum;
+  33 uF 16 V is 7.2 x 16 mm, which the 25.4 mm holes take.  Any axial 33 uF
+  16 V does.
+- **К554СА3А**: Э3 uses pins 3 (IN+), 4 (IN-), 9 (OUT) of a 14-pin package;
+  an 8-pin LM311P has other pins and does not go in.  The 14-pin К554СА3А
+  is on sale (above).
+- No sheet found for ОНП-ЖГ-79, ОНЦ-КГ-4-5/16-Р, СНП59-96, РК353, РК169,
+  НР1-11; their footprints stay as the 1991 holes have them.
+
+## The chips' delays against Soviet sheets
+
+The К555 sheets ChipDip carries (eandc.ru's) give maximum delays only, and
+they are TI's maximums for the 74LS part: К555ИД7 18/32, 20/41, 27/39,
+26/38 ns as the SN74LS138; К555КП2 15/26, 24/32, 29/38 ns as the SN74LS153.
+The Soviet specification copies TI's, so `netlist/delays.csv` (TI's typical,
+its maximum where a sheet gives no typical) stands as it is.
 
 ## Sources
 

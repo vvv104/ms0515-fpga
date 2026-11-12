@@ -9,7 +9,7 @@ XS2, SA1's odd switches closed; ROM-B in the sockets XS3, XS4.
 |---|---|---|---|---|---|---|
 | РК 353БВ-11А4 | 8 МГц | 1 | BQ1 | 8 MHz crystal, HC-49/U | `ns4:Crystal_RK353_P12.70mm` |  |
 | РК 169МА-6АН | 15 МГц | 1 | BQ2 | 15 MHz crystal, HC-49/U | `ns4:Crystal_RK169_P5.08mm` |  |
-| К53-14 | 16В 33 мкФ ±20% | 4 | C1, C2, C10, C11 | tantalum, axial, the same capacitance and voltage | `ns4:CP_Axial_P25.40mm` | the supply's bulk capacitors |
+| К53-14 | 16В 33 мкФ ±20% | 4 | C1, C2, C10, C11 | an axial 33 uF 16 V, aluminium or tantalum (К53-14 is aluminium oxide-semiconductor, 7.2 x 16 mm) | `ns4:CP_Axial_P25.40mm` | the supply's bulk capacitors |
 | К10-17-2б-Н90 | 0,22 мкФ +80-20% | 65 | C3, C4, C7, C8, C9, C12, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24, C25, C26, C27, C28, C29, C30, C31, C32, C33, C34, C36, C37, C38, C39, C41, C42, C43, C44, C48, C49, C50, C51, C52, C53, C55, C56, C57, C58, C59, C60, C61, C62, C63, C65, C66, C67, C68, C69, C71, C73, C75, C76, C77, C80, C81, C85, C87 | ceramic X7R | `ns4:C_Disc_P5.08mm` | decoupling, as ПЭ3 gives the value |
 | К10-17-1б-М47 | 100 пФ ±10% | 3 | C5, C6, C70 | ceramic C0G | `ns4:C_Disc_P5.08mm` |  |
 | К10-17-1б-М47 | 68 пФ ±10% | 1 | C35 | ceramic C0G | `ns4:C_Disc_P5.08mm` |  |
@@ -80,7 +80,7 @@ XS2, SA1's odd switches closed; ROM-B in the sockets XS3, XS4.
 | С1-4 | 4,7 кОм | 4 | R18, R20, R64, R70 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
 | С1-4 | 1,2 кОм | 1 | R19 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
 | С1-4 | 20 Ом | 7 | R24, R25, R43, R45, R60, R62, R75 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
-| СП5-16ВА | 330 Ом (trimmer) | 4 | R27, R31, R40, R50 | a trimmer with СП5-16ВА's pins (Bourns 3296W does not fit: its pins are in a row) | `ns4:Trimmer_SP5-16VA` | the video DAC's levels; the pins' order to be checked against СП5-16ВА's |
+| СП5-16ВА | 330 Ом (trimmer) | 4 | R27, R31, R40, R50 | a trimmer with СП5-16ВА's pins (Bourns 3296W does not fit: its pins are in a row) | `ns4:Trimmer_SP5-16VA` | the video DAC's levels; its sheet draws the pins on a 3 x 3 mm corner, the 1991 holes stand 2.54 x 3.17 mm; which pin is the wiper the sheet does not say |
 | С1-4 | 180 Ом | 1 | R29 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
 | С1-4 | 24 Ом | 3 | R30, R33, R35 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
 | С1-4 | 75 Ом | 5 | R32, R34, R36, R37, R38 | 0.25 W carbon or metal film, 5 % | `ns4:R_Axial_P12.70mm` |  |
@@ -99,8 +99,8 @@ XS2, SA1's odd switches closed; ROM-B in the sockets XS3, XS4.
 | КД522Б | diode | 13 | VD1, VD2, VD3, VD4, VD5, VD6, VD7, VD8, VD10, VD12, VD13, VD14, VD15 | 1N4148 | `Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal` |  |
 | АЛ307БМ | LED | 3 | VD9, VD16, VD17 | red LED, 5 mm | `LED_THT:LED_D5.0mm` |  |
 | КС133А | zener 3,3 В | 1 | VD11 | BZX55C3V3 (3.3 V zener) | `Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal` | the supply monitor VD11 |
-| КТ677АС | transistor assembly | 1 | VT1 | none checked: four transistors in DIP-14 | `Package_DIP:DIP-14_W7.62mm` | the video DAC; an imported quad (MPQ2222 kind) only after its pins are checked against ПЭ3's |
-| КТ676АС | transistor assembly | 1 | VT2 | none checked: four transistors in DIP-14 | `Package_DIP:DIP-14_W7.62mm` | the video DAC; as КТ677АС |
+| КТ677АС | transistor assembly | 1 | VT1 | MPQ2222A: four NPN in DIP-14, pins as Э3 sheet 4 draws VT1's (C1 B1 E1 1-3, E2 B2 C2 5-7, C3 B3 E3 8-10, E4 B4 C4 12-14, 4 and 11 free) | `Package_DIP:DIP-14_W7.62mm` | the video DAC: NPN in common base |
+| КТ676АС | transistor assembly | 1 | VT2 | four PNP in DIP-14 with VT1's pins (MPQ2907 kind, none found on sale in DIP), or four 2N2907 on an adapter | `Package_DIP:DIP-14_W7.62mm` | the video DAC: PNP with the emitters to +5 V |
 | ОНП-ВС-39-4 | plug, 4 | 1 | XP1 | 4-pin header, 2.54 mm | `Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical` | XP1: +12 V and +5 V |
 | ОНП-КГ-56-40 | plug, 40 | 2 | XP2, XP4 | IDC box header 2x20, 2.54 mm | `Connector_IDC:IDC-Header_2x20_P2.54mm_Vertical` | XP2 the supply, XP4 the drive: the original's pitch is 2.5 mm, the cables are made new |
 | ОНП-ЖГ-79-25 | plug, 25 | 1 | XP3 | D-sub 25, pins, right angle | `ns4:DSUB-25_ONP-ZhG-79` | XP3: port A of the МС 7007's ВВ55 and its strobes; the 1991 board's holes |
