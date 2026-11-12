@@ -112,11 +112,14 @@ ChipDip's documents, kept in `ms0515_data/docs/chipdip/` (chips) and
 
 ## The chips' delays against Soviet sheets
 
-The К555 sheets ChipDip carries (eandc.ru's) give maximum delays only, and
-they are TI's maximums for the 74LS part: К555ИД7 18/32, 20/41, 27/39,
-26/38 ns as the SN74LS138; К555КП2 15/26, 24/32, 29/38 ns as the SN74LS153.
-The Soviet specification copies TI's, so `netlist/delays.csv` (TI's typical,
-its maximum where a sheet gives no typical) stands as it is.
+The Soviet sheets ChipDip carries give maximum delays only, and they are
+mostly TI's maximums as `netlist/delays-max.csv` has them: К555ИД7 18/32,
+20/41, 27/39, 26/38 ns as the SN74LS138; К555КП2 15/26, 24/32, 29/38 ns as
+the SN74LS153; КР1533ТМ2 CLK->Q 16/18 ns as the SN74ALS74A.  КР1533ИЕ10
+differs: CLK->Q 15/17 ns (SN74ALS161B 15/20), CLK->carry 23/26 ns (20),
+CLR->Q 24 and ENT->carry 13 as TI's.  Its CLK->Q at the Soviet maximum
+rounds to the same ticks as now (2 at max, 1 at typical), so
+`netlist/delays.csv` and `delays-max.csv` stand as they are.
 
 ## Sources
 
