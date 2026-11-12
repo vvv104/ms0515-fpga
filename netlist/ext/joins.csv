@@ -1,0 +1,76 @@
+# How the module's XP1 meets НС4's XS1 (Э3): every contact the module uses.
+# kind: same - Э3 has the contact on that net; wire - Э3 leaves it free and
+# the module needs the НС4 net named (by logic, a wire on НС4 to prove on the
+# model); open - free on Э3 and no НС4 net for it known; conflict - Э3 has
+# the contact on another net.
+contact,name,module_net,ns4_net,kind,evidence
+1,A1,GND,GND,same,Э3's XS1 contact
+2,A2,GND,GND,same,Э3's XS1 contact
+4,A4,АД01,АД01 H,same,Э3's XS1 contact
+5,A5,АД02,АД02 H,same,Э3's XS1 contact
+6,A6,АД03,АД03 H,same,Э3's XS1 contact
+8,A8,АД05,АД05 H,same,Э3's XS1 contact
+9,A9,АД06,АД06 H,same,Э3's XS1 contact
+10,A10,АД07,АД07 H,same,Э3's XS1 contact
+19,A19,GND,GND,same,Э3's XS1 contact
+20,A20,GND,GND,same,Э3's XS1 contact
+21,A21,цепь 104,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+22,A22,цепь 107,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+23,A23,цепь 106,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+24,A24,цепь 109,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+25,A25,GND,GND,same,Э3's XS1 contact
+26,A26,GND,GND,same,Э3's XS1 contact
+27,A27,+5V,+5V,same,Э3's XS1 contact
+28,A28,+5V,+5V,same,Э3's XS1 contact
+29,A29,+12V,+12V,same,Э3's XS1 contact
+30,A30,+12V,+12V,same,Э3's XS1 contact
+31,A31,-12V,-12V,same,Э3's XS1 contact
+32,A32,-12V,-12V,same,Э3's XS1 contact
+33,B1,GND,GND,same,Э3's XS1 contact
+34,B2,GND,GND,same,Э3's XS1 contact
+35,B3,МК00,МК00 H,same,Э3's XS1 contact
+36,B4,МК01,МК01 H,same,Э3's XS1 contact
+37,B5,МК02,МК02 H,same,Э3's XS1 contact
+38,B6,МК03,МК03 H,same,Э3's XS1 contact
+39,B7,МК04,МК04 H,same,Э3's XS1 contact
+40,B8,МК05,МК05 H,same,Э3's XS1 contact
+41,B9,МК06,МК06 H,same,Э3's XS1 contact
+42,B10,МК07,МК07 H,same,Э3's XS1 contact
+51,B19,GND,GND,same,Э3's XS1 contact
+52,B20,GND,GND,same,Э3's XS1 contact
+53,B21,цепь 125,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+54,B22,RxD_B,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+55,B23,CTS_B,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+56,B24,запрос комм,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+57,B25,GND,GND,same,Э3's XS1 contact
+58,B26,GND,GND,same,Э3's XS1 contact
+59,B27,+5V,+5V,same,Э3's XS1 contact
+60,B28,+5V,+5V,same,Э3's XS1 contact
+61,B29,+12V,+12V,same,Э3's XS1 contact
+62,B30,+12V,+12V,same,Э3's XS1 contact
+63,B31,-12V,-12V,same,Э3's XS1 contact
+64,B32,-12V,-12V,same,Э3's XS1 contact
+65,C1,GND,GND,same,Э3's XS1 contact
+66,C2,GND,GND,same,Э3's XS1 contact
+67,C3,ДЧТ,ДЧТ L,same,Э3's XS1 contact
+68,C4,ДЗП,ДЗП L,same,Э3's XS1 contact
+69,C5,ПВАС,ПВАС L,same,Э3's XS1 contact
+70,C6,ПВАК,ПВАК L,same,Э3's XS1 contact
+79,C15,GND,GND,same,Э3's XS1 contact
+80,C16,GND,GND,same,Э3's XS1 contact
+81,C17,цепь 103,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+82,C18,цепь 105,,open,"Э3 leaves this contact free: a line of the RS-232 half (its lines, its interrupt request) whose way on НС4 is not known"
+83,C19,цепь 108,GND,conflict,Э3 has this contact on GND
+84,C20,TxD_B,GND,conflict,Э3 has this contact on GND
+85,C21,TC15,ТС15 H,wire,logic: the module's D35 (the RAS/CAS chain) is clocked by it; НС4's 15 MHz; to prove on the model
+86,C22,ДЧТ51,ЧТ51 L,wire,"logic: the module reads its ВВ55 (and ВИ53, ВГ01) with it, as НС4 reads its ВВ51 and ВИ53; to prove on the model"
+87,C23,выбор устр,ВБРЕГ L,wire,"logic: with АД03 high and АД07 low it selects the module's registers: НС4's register block select, D80's enable; to prove on the model"
+88,C24,СТАРТ,СТАРТ H,wire,"logic: resets the module's ВВ55 (RESET, high) as НС4's ВВ55s; to prove on the model"
+89,C25,GND,GND,same,Э3's XS1 contact
+90,C26,GND,GND,same,Э3's XS1 contact
+91,C27,+5V,+5V,same,Э3's XS1 contact
+92,C28,+5V,+5V,same,Э3's XS1 contact
+93,C29,+12V,+12V,same,Э3's XS1 contact
+94,C30,+12V,+12V,same,Э3's XS1 contact
+95,C31,-12V,-12V,same,Э3's XS1 contact
+96,C32,-12V,-12V,same,Э3's XS1 contact

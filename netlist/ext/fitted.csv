@@ -1,0 +1,44 @@
+# What is fitted on the owner's module, read off its parts-side photo
+# ($MS0515_DATA/photos/known-machines/0_d497a_ec95e9c1_XXXL.jpg, 1280 px;
+# the solder side 0_d4979: «09.11.93 г.» by hand).  The photo shows 27 chips
+# and the parts list's RAM-disk half has 27; each type and its count agree.
+# The photo does not tie a position to a reference: where a type has several
+# (К555КП11 three, КР565РУ7Г sixteen) the references are the list's.  The
+# RS-232 half is not fitted: no 40-pin, 24-pin or 8-pin chip, no oscillator.
+ref,type_listed,fitted,marking,date
+D1,КМ1818ВГ01,no,,
+D2,КР580ВВ55А,yes,КР580ВВ55А,9302
+D3,КР580ВИ53,no,,
+D4,КР1102АП15,no,,
+D5,КР1102АП15,no,,
+D6,К555АП6,yes,КР1533АП6,9105
+D7,К555КП11,no,,
+D8,К555ТМ2,no,,
+D9,КР559ИП11,no,,
+D10,К555ЛН1,yes,КР1533ЛН1,9101
+D11,КР559ИП11,no,,
+D12,К555ЛЛ1,yes,КР1533ЛЛ1,9107
+D13,КР531ИД14,yes,КР531ИД14,9008
+D14,К555ИЕ19,yes,К555ИЕ19,9209
+D15,К555КП11,yes,К555КП11,9102
+D16,К555КП11,yes,К555КП11,9102
+D17,К555КП11,yes,К555КП11,9102
+D18,К555КП2,yes,КР1533КП2,9104
+D19,КР565РУ7Г,yes,КР565РУ7Г,9108
+D20,КР565РУ7Г,yes,КР565РУ7Г,9108
+D21,КР565РУ7Г,yes,КР565РУ7Г,9108
+D22,КР565РУ7Г,yes,КР565РУ7Г,9108
+D23,КР565РУ7Г,yes,КР565РУ7Г,9108
+D24,КР565РУ7Г,yes,КР565РУ7Г,9108
+D25,КР565РУ7Г,yes,КР565РУ7Г,9108
+D26,КР565РУ7Г,yes,КР565РУ7Г,9108
+D27,КР565РУ7Г,yes,КР565РУ7Г,9108
+D28,КР565РУ7Г,yes,КР565РУ7Г,9108
+D29,КР565РУ7Г,yes,КР565РУ7Г,9108
+D30,КР565РУ7Г,yes,КР565РУ7Г,9108
+D31,КР565РУ7Г,yes,КР565РУ7Г,9108
+D32,КР565РУ7Г,yes,КР565РУ7Г,9108
+D33,КР565РУ7Г,yes,КР565РУ7Г,9108
+D34,КР565РУ7Г,yes,КР565РУ7Г,9108
+D35,К555ИР16,yes,К555ИР16,9107
+G1,ГК25-П15АР,no,,

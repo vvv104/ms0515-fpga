@@ -1,0 +1,36 @@
+# Pinouts of the module's types that НС4 has not (netlist/pinouts.csv
+# holds the others).  КМ1818ВГ01 has none yet: not identified.
+type,pin,name,source
+К555АП6,1,DIR,74LS245 (TI SDLS146)
+К555АП6,2,A1,74LS245 (TI SDLS146)
+К555АП6,3,A2,74LS245 (TI SDLS146)
+К555АП6,4,A3,74LS245 (TI SDLS146)
+К555АП6,5,A4,74LS245 (TI SDLS146)
+К555АП6,6,A5,74LS245 (TI SDLS146)
+К555АП6,7,A6,74LS245 (TI SDLS146)
+К555АП6,8,A7,74LS245 (TI SDLS146)
+К555АП6,9,A8,74LS245 (TI SDLS146)
+К555АП6,18,B1,74LS245 (TI SDLS146)
+К555АП6,17,B2,74LS245 (TI SDLS146)
+К555АП6,16,B3,74LS245 (TI SDLS146)
+К555АП6,15,B4,74LS245 (TI SDLS146)
+К555АП6,14,B5,74LS245 (TI SDLS146)
+К555АП6,13,B6,74LS245 (TI SDLS146)
+К555АП6,12,B7,74LS245 (TI SDLS146)
+К555АП6,11,B8,74LS245 (TI SDLS146)
+К555АП6,19,G,74LS245 (TI SDLS146)
+КР565РУ7Г,1,A8,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,2,DI,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,3,WE,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,4,RAS,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,5,A0,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,6,A2,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,7,A1,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,9,A7,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,10,A5,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,11,A4,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,12,A3,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,13,A6,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,14,DO,41256; the tables' RA0-RA8 land on its address pins
+КР565РУ7Г,15,CAS,41256; the tables' RA0-RA8 land on its address pins
+ГК25-П15АР,8,OUT,"a 14-pin can oscillator: 7 common, 8 out, 14 +5 V"

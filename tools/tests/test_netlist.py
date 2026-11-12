@@ -191,6 +191,53 @@ class TheRepositorysNetlistTest(unittest.TestCase):
     def test_the_owners_board(self):
         self.assertEqual(self.check("vvv104"), (0, []))
 
+    def test_the_memory_expansion_module(self):
+        """netlist/ext/: the module's own parts and nets, its new types'
+        pinouts beside НС4's (which hold the rest)."""
+        self.assertEqual(self.check("ext"), (0, []))
+
+
+class JoinsTest(unittest.TestCase):
+    """joins.csv against both netlists: every contact the module uses is
+    there, `same` agrees with НС4's XS1, a `wire` lands on a free contact and
+    names a net НС4 has."""
+
+    NS4 = [netlist.Conn("АД01 H", "XS1", 4, "", "2", ""), netlist.Conn("ТС15 H", "D91", 6, "", "3", "")]
+    MOD = [netlist.Conn("АД01", "XP1", 4, "A4", "2", ""), netlist.Conn("TC15", "XP1", 85, "C21", "2", "")]
+
+    def joins(self, *rows):
+        return [netlist.Join(*r) for r in rows]
+
+    def test_agreeing_joins_have_no_problem(self):
+        j = self.joins((4, "АД01", "АД01 H", "same"), (85, "TC15", "ТС15 H", "wire"))
+        self.assertEqual(netlist.check_joins(j, self.MOD, self.NS4), [])
+
+    def test_a_contact_left_out(self):
+        j = self.joins((4, "АД01", "АД01 H", "same"))
+        self.assertTrue(any("85" in p.text for p in netlist.check_joins(j, self.MOD, self.NS4)))
+
+    def test_same_but_another_net(self):
+        j = self.joins((4, "АД01", "АД02 H", "same"), (85, "TC15", "ТС15 H", "wire"))
+        self.assertEqual(len(netlist.check_joins(j, self.MOD, self.NS4)), 1)
+
+    def test_wire_to_a_net_ns4_has_not(self):
+        j = self.joins((4, "АД01", "АД01 H", "same"), (85, "TC15", "ТС 15", "wire"))
+        self.assertEqual(len(netlist.check_joins(j, self.MOD, self.NS4)), 1)
+
+
+class ModulePinoutsTest(unittest.TestCase):
+    """A module's pinouts file holds only the types НС4 has not: the others
+    come from НС4's, and only its own may be reported as unused."""
+
+    def test_unused_only_among_its_own(self):
+        parts = {"D1": netlist.Part("D1", "A", "", 14)}
+        pinouts = netlist.Pinouts()
+        pinouts.update({"A": {1: "X"}, "B": {1: "Y"}, "C": {1: "Z"}})
+        problems = netlist.check(parts, pinouts, [], own_types={"A", "C"})
+        texts = [p.text for p in problems]
+        self.assertIn("pinout of C: no part has that type", texts)
+        self.assertNotIn("pinout of B: no part has that type", texts)
+
 
 if __name__ == "__main__":
     unittest.main()

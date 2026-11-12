@@ -117,6 +117,22 @@ to any one board.  From stage 6 on there are two projects:
    1. The module's netlist from the tables (`netlist/ext/`), checked
       against the parts list and the photos; the four XS1 joins in
       `vvv104.csv`.
+      **Done** (2026-11-12): `netlist/ext/` - 104 parts, 151 nets, 746
+      pins (the chips' power pins in `parts.csv`), every pin the tables
+      name on one net and every chip pin they leave out an unused one (D1
+      11, 30-32, 38; D11's fourth receiver; D35's QB; G1's free pins);
+      `tools/netlist.py check ext` clean.  The joins went to
+      `netlist/ext/joins.csv`, not `vvv104.csv` (that file takes only what
+      a photo shows): 54 contacts as Э3 wires them, the four wires above,
+      10 RS-232-half lines Э3 leaves free (A21-A24, B21-B24, C17, C18) and
+      2 in conflict - C19 (цепь 108) and C20 (TxD_B) are GND on Э3's XS1
+      (83, 84): the full module's drivers would fight НС4's ground there;
+      the owner's module has no D5, so no driver.  `fitted.csv`: the
+      owner's module, 27 chips by type and date.  To settle on the model:
+      D14, the RAM disk's address counter, is clocked from `ДЧТ51` alone
+      (`ТАКТ`), so it would step on reads only; D1's reset is СТАРТ
+      inverted, the ВВ55's not.  D1 (КМ1818ВГ01) is wired as an Intel
+      8274; no pinout until it is identified.
    2. The missing chip models: К555АП6, КР565РУ7Г (from КР565РУ5's);
       КМ1818ВГ01 and G1 for the RS-232 half, after ВГ01 is identified.
    3. The module generated beside the board (`tools/board.py`), in

@@ -48,6 +48,9 @@ D70.15 on GND).  Everything below serves both; where they differ is
 | `netlist/placement-1991.csv` | every other part's pads on the 1991 board's holes | `sb-labels.csv` (the assembly drawing's labels, read by eye) on `copper.json`'s holes, checked by the nets; `tools/tests/test_placement_1991.py` |
 | `netlist/variants.md` | the board's build variants (jumpers, sockets) | Э3, ТО |
 | `netlist/packages.csv` | each non-chip part type's footprint and equivalent | for stage 8 |
+| `netlist/ext/parts.csv`, `pinouts.csv`, `nets.csv` | the memory expansion module (plan 6a): its parts, the pinouts of its types НС4 has not, its nets | the plant's parts list and connection tables (`docs/ext` of `$MS0515_DATA`), converted once and checked by `tools/netlist.py check ext` |
+| `netlist/ext/joins.csv` | every XP1 contact the module uses against НС4's XS1: the same net, a wire НС4 needs (by logic), free, or in conflict | the two netlists |
+| `netlist/ext/fitted.csv` | what is fitted on the owner's module: the RAM-disk half, markings and dates | his module's photos |
 | `netlist/pcb_parts.csv`, `pcb_nets.csv`, `pcb.csv` | what the new printed board adds (jumper E9) | owner's decision, stage 8d |
 | `netlist/ms7004/*.csv` | the МС 7004 keyboard: parts, pins, nets, matrix, PC keys | its own documents (`docs/ms7004.md`) |
 | `netlist/open.md` | reads not settled yet | |

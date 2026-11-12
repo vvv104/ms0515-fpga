@@ -5,6 +5,10 @@
     python tools/netlist.py stats   - parts, nets and pins read so far
     python tools/netlist.py check vvv104 - the same with a board's changes
                                     (netlist/vvv104.csv) applied over Э3
+    python tools/netlist.py check ext - the memory expansion module
+                                    (netlist/ext/: parts, nets, the pinouts
+                                    of its types НС4 has not, joins.csv - its
+                                    XP1 against НС4's XS1)
 
 netlist/<board>.csv  ref,pin,from_net,to_net,evidence - the changes a real
                      board makes to Э3: a pin moved off one net onto
@@ -105,6 +109,54 @@ def load(parts_path, pinouts_path, nets_path):
     return load_parts(parts_path), load_pinouts(pinouts_path), load_nets(nets_path)
 
 
+MODULES = ("ext",)              # netlist/<module>/: a board of its own on НС4's XS1
+
+
+def load_module(path):
+    """(parts, pinouts, conns, own types) of a module's netlist: its parts and
+    nets, its pinouts.csv for the types НС4 has not over НС4's for the rest."""
+    parts, conns = load_parts(os.path.join(path, "parts.csv")), load_nets(os.path.join(path, "nets.csv"))
+    pinouts = load_pinouts(os.path.join(ROOT, "pinouts.csv"))
+    own = load_pinouts(os.path.join(path, "pinouts.csv"))
+    pinouts.update(own)
+    for t, labels in own.drawn.items():
+        pinouts.drawn[t] = labels
+    return parts, pinouts, conns, set(own)
+
+
+@dataclass
+class Join:
+    contact: int
+    module_net: str
+    ns4_net: str
+    kind: str
+
+
+def load_joins(path):
+    return [Join(int(r["contact"]), r["module_net"], r["ns4_net"], r["kind"]) for r in rows(path)]
+
+
+def check_joins(joins, module_conns, ns4_conns, plug="XP1", socket="XS1"):
+    """The problems of a module's joins.csv: a contact the module uses and the
+    file leaves out, a `same` join that is not НС4's XS1 net, a `wire` onto a
+    contact НС4 already wires or to a net НС4 has not."""
+    used = {c.pin: c.net for c in module_conns if c.ref == plug}
+    xs1 = {c.pin: c.net for c in ns4_conns if c.ref == socket}
+    nets = {c.net for c in ns4_conns}
+    by_contact = {j.contact: j for j in joins}
+    problems = [Problem(True, f"{plug}.{p} ('{n}') not in joins.csv") for p, n in sorted(used.items())
+                if p not in by_contact]
+    for j in joins:
+        where = f"join {plug}.{j.contact} '{j.module_net}' -> '{j.ns4_net}' ({j.kind})"
+        if used.get(j.contact) != j.module_net:
+            problems.append(Problem(True, f"{where}: the module has '{used.get(j.contact)}' there"))
+        elif j.kind == "same" and xs1.get(j.contact) != j.ns4_net:
+            problems.append(Problem(True, f"{where}: {socket}.{j.contact} is '{xs1.get(j.contact)}'"))
+        elif j.kind == "wire" and (j.contact in xs1 or j.ns4_net not in nets):
+            problems.append(Problem(True, f"{where}: not a free contact or no such НС4 net"))
+    return problems
+
+
 def check_conn(c, parts, pinouts, seen):
     """The problems of one pin on one net."""
     where = f"{c.ref}.{c.pin} on '{c.net}' (sheet {c.sheet})"
@@ -130,13 +182,16 @@ def check_conn(c, parts, pinouts, seen):
     return problems
 
 
-def check(parts, pinouts, conns):
+def check(parts, pinouts, conns, own_types=None):
+    """The problems of a netlist; `own_types` are the types whose pinouts
+    are its own (a module's: НС4's others are lent to it) - only these may
+    be reported as used by no part (all of them when None)."""
     problems = []
     seen = {}
     for c in conns:
         problems += check_conn(c, parts, pinouts, seen)
     used_types = {p.type for p in parts.values()}
-    for t in sorted(set(pinouts) - used_types):
+    for t in sorted(set(pinouts if own_types is None else own_types) - used_types):
         problems.append(Problem(True, f"pinout of {t}: no part has that type"))
     nets = defaultdict(list)
     for c in conns:
@@ -190,8 +245,15 @@ def main(argv):
     sys.stdout.reconfigure(encoding="utf-8")
     command = argv[1] if len(argv) > 1 else "check"
     board = argv[2] if len(argv) > 2 else None
-    parts, pinouts, conns = load(*(os.path.join(ROOT, n) for n in
-                                   ("parts.csv", "pinouts.csv", "nets.csv")))
+    own, joined = None, []
+    if board in MODULES:
+        parts, pinouts, conns, own = load_module(os.path.join(ROOT, board))
+        joined = check_joins(load_joins(os.path.join(ROOT, board, "joins.csv")), conns,
+                             load_nets(os.path.join(ROOT, "nets.csv")))
+        board = None
+    else:
+        parts, pinouts, conns = load(*(os.path.join(ROOT, n) for n in
+                                       ("parts.csv", "pinouts.csv", "nets.csv")))
     if board:
         conns, errors = apply_changes(conns, load_changes(os.path.join(ROOT,
                                                                        f"{board}.csv")))
@@ -203,7 +265,7 @@ def main(argv):
         print(f"{len(parts)} parts, {len({c.net for c in conns})} nets, "
               f"{len(conns)} pins on nets, {len(pinouts)} pinouts")
         return 0
-    problems = check(parts, pinouts, conns)
+    problems = check(parts, pinouts, conns, own) + joined
     for p in problems:
         print(("error: " if p.error else "warning: ") + p.text)
     return 1 if any(p.error for p in problems) else 0
