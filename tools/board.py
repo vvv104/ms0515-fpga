@@ -12,7 +12,7 @@ is plugged in there, and what reaches none of the nets taken left out.
 
 The board is the chips of netlist/parts.csv wired by netlist/nets.csv, with
 the places where the drawing cannot be right (netlist/deviations.csv) and
-then the owner's board's changes (netlist/vvv104.csv) applied - each of
+then the standard build's change made at assembly (netlist/assembly.csv) applied - each of
 these a switch: a board input s_<ref>_<pin> takes the moved chip input
 back to Э3's net while 1; a chip's socket ports (load_*) come out as
 board inputs l_<ref>_<name>, its cells loaded from outside:
@@ -236,7 +236,7 @@ def ms7004_sources():
 def ns4_sources():
     n = os.path.join(REPO, "netlist")
     return Sources(os.path.join(n, "parts.csv"), os.path.join(n, "pinouts.csv"),
-                   os.path.join(n, "nets.csv"), os.path.join(n, "vvv104.csv"),
+                   os.path.join(n, "nets.csv"), os.path.join(n, "assembly.csv"),
                    os.path.join(n, "analog.csv"), os.path.join(REPO, "rtl", "chips"),
                    os.path.join(n, "firmware.csv"), os.path.join(n, "delays.csv"),
                    os.path.join(n, "deviations.csv"), os.path.join(n, "delays-max.csv"),
@@ -329,10 +329,10 @@ def setup_ticks(chip, corner):
     return max(1, int(ns / TICK_NS + 0.5))
 
 
-# Parts the owner's board lacks, with the switch that picks his board
-# (netlist/vvv104.csv): C70 is bitten off there (the leads' stubs in the
-# pads, docs/findings.md "C70 on the boards seen"), D70.15 on GND beside
-# it - one switch, 1 for the board as drawn, carries both.
+# Parts the standard build leaves out, with the switch that takes it back
+# to Э3 as drawn (netlist/assembly.csv): C70, as on the owner's board,
+# where it is bitten off (docs/findings.md "C70 on the boards seen"),
+# beside D70.15 on GND - one switch, 1 for the board as drawn, carries both.
 OWNER_LACKS = {"C70": ("D70", 15)}
 
 

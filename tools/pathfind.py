@@ -2,14 +2,11 @@
 """PathFinder on the 1991 board's hidden layers: Э3's nets joined inside, between the
 holes the board already has.
 
-    <KiCad>/bin/python tools/pathfind.py [variant] export [BOARD]     - build/pathfind/board.json
-    python tools/pathfind.py [variant] route [ITERATIONS] [LAYER...]   - build/pathfind/routes.json
-    <KiCad>/bin/python tools/pathfind.py [variant] apply OUT [BOARD]   - the routes on a copy of the board
-    <KiCad>/bin/python tools/pathfind.py [variant] planes [ROUTED]     - the plane pins the routing's
+    <KiCad>/bin/python tools/pathfind.py export [BOARD]     - build/pathfind/board.json
+    python tools/pathfind.py route [ITERATIONS] [LAYER...]   - build/pathfind/routes.json
+    <KiCad>/bin/python tools/pathfind.py apply OUT [BOARD]   - the routes on a copy of the board
+    <KiCad>/bin/python tools/pathfind.py planes [ROUTED]     - the plane pins the routing's
                                        vias cut off the planes into board.json; `route`, `apply` again
-
-With a variant (vvv104) the board is kicad/ns4-<variant>.kicad_pcb and the work folder
-build/pathfind-<variant>.
 
 `export` takes the placed board with Mick's outer copper laid (kicad/ns4.kicad_pcb) and the
 1991 holes (netlist/copper.json); `route` runs on numpy and scipy, which KiCad's Python
@@ -562,16 +559,13 @@ def apply(out, board_path):
     return 0
 
 
-COMMANDS = ("export", "route", "apply", "planes")
-
-
-def planes(routed, variant):
+def planes(routed):
     """The routed board read back (tools/readback.py): the plane pins cut off the planes
     go into board.json, so that `route` again joins them by a run."""
     sys.path.insert(0, HERE)
     import readback
     groups = readback.pin_groups(*readback.read_board(routed))
-    splits = readback.plane_splits(groups, readback.wanted(variant))
+    splits = readback.plane_splits(groups, readback.wanted())
     path = os.path.join(WORK, "board.json")
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
@@ -584,18 +578,13 @@ def planes(routed, variant):
 
 
 def where(argv):
-    """(board, work folder, the rest of argv): Э3's board, or a variant's when argv names one."""
-    rest = argv[1:]
-    variant = rest.pop(0) if rest and rest[0] not in COMMANDS else None
-    name = f"ns4-{variant}" if variant else "ns4"
-    work = os.path.join(ROOT, "build", f"pathfind-{variant}" if variant else "pathfind")
-    return os.path.join(ROOT, "kicad", f"{name}.kicad_pcb"), work, rest
+    """(board, work folder, the rest of argv)."""
+    return os.path.join(ROOT, "kicad", "ns4.kicad_pcb"), os.path.join(ROOT, "build", "pathfind"), argv[1:]
 
 
 def main(argv):
     global WORK
     board, WORK, rest = where(argv)
-    variant = argv[1] if len(argv) > 1 and argv[1] not in COMMANDS else None
     argv = [argv[0]] + rest
     if len(argv) > 1 and argv[1] == "export":
         export(argv[2] if len(argv) > 2 else board, os.path.join(WORK, "board.json"))
@@ -605,7 +594,7 @@ def main(argv):
     if len(argv) > 2 and argv[1] == "apply":
         return apply(os.path.join(ROOT, argv[2]), argv[3] if len(argv) > 3 else board)
     if len(argv) > 1 and argv[1] == "planes":
-        return planes(os.path.join(ROOT, argv[2]) if len(argv) > 2 else board, variant)
+        return planes(os.path.join(ROOT, argv[2]) if len(argv) > 2 else board)
     print(__doc__)
     return 2
 

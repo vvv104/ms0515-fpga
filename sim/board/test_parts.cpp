@@ -207,7 +207,7 @@ std::unique_ptr<ms0515_board_t> emulator_after(const std::string& rom_name)
 // knows the board's 25 ns of ink before paper at a word's edge after a
 // flashing one - docs/baseline.md, open list 3).
 // `drawn`: the board as 3.858.420 Э3 draws it, D70's enable on ~D14.3, not
-// on GND as on the owner's board (netlist/vvv104.csv); it starts its frame
+// on GND as in the standard build (netlist/assembly.csv); it starts its frame
 // with the word its registers held through the frame's border, word 8000
 // (screen_compare.h, `held`).
 void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool drawn = false)

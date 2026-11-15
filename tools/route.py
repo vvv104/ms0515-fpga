@@ -3,17 +3,15 @@
 
 Run with KiCad's own Python, which has pcbnew:
 
-    <KiCad>/bin/python tools/route.py [vvv104] [--work DIR] start [--from BOARD | --keep]
-    <KiCad>/bin/python tools/route.py [vvv104] [--work DIR] run [passes per chunk] [chunks without gain]
-    <KiCad>/bin/python tools/route.py [vvv104] [--work DIR] finish [OUT.kicad_pcb]
+    <KiCad>/bin/python tools/route.py [--work DIR] start [--from ns4 | --keep]
+    <KiCad>/bin/python tools/route.py [--work DIR] run [passes per chunk] [chunks without gain]
+    <KiCad>/bin/python tools/route.py [--work DIR] finish [OUT.kicad_pcb]
 
-Э3's board (kicad/ns4.kicad_pcb, work files in build/route) or, named, a
-variant's (kicad/ns4-vvv104.kicad_pcb, build/route-vvv104); `--work DIR`
+The board is kicad/ns4.kicad_pcb, work files in build/route; `--work DIR`
 puts the work files elsewhere (a probe beside a routing kept).  `start` is
-from the empty board.  `start --from BOARD` (ns4 for Э3's, or a variant's
-name) takes the other board's routing, so `run` routes only what differs
-- the two boards have one placement; `start --keep` takes the board's own
-last state, when it was made again with a part added.  The routing
+from the empty board.  `start --from ns4` takes the routing kept in
+build/route (when `--work` names another folder), so `run` routes only
+what differs; `start --keep` takes the board's own last state, when it was made again with a part added.  The routing
 carried over loses the nets that lost a pin (their wires may still reach
 it); a net that only gained one keeps its wires.  It is refused when a
 part stands elsewhere than it stood: wires of other nets may pass where
@@ -93,14 +91,12 @@ BASE = os.path.join(ROOT, "build", "route")         # Э3's board's work files
 EDGE_UM = 500               # copper to the board's edge, as KiCad's DRC checks it
 
 
-def configure(variant=None, work=None):
-    """The board routed and its work files: Э3's in build/route, a
-    variant's (tools/pcb.py derive) in build/route-<variant>, or the
-    folder `work` (relative to the repository's root)."""
+def configure(work=None):
+    """The board routed (kicad/ns4.kicad_pcb) and its work files: in
+    build/route, or the folder `work` (relative to the repository's root)."""
     global BOARD, WORK, STATE, NEXT, SESSION, NEXT_SES, LOG, PROGRESS
-    name = f"ns4-{variant}" if variant else "ns4"
-    BOARD = os.path.join(ROOT, "kicad", f"{name}.kicad_pcb")
-    WORK = os.path.join(ROOT, "build", f"route-{variant}" if variant else "route")
+    BOARD = os.path.join(ROOT, "kicad", "ns4.kicad_pcb")
+    WORK = BASE
     if work:
         WORK = os.path.normpath(os.path.join(ROOT, work))
     STATE = os.path.join(WORK, "state.dsn")
@@ -304,15 +300,17 @@ def carried(ses_text, old_design, new_design):
 
 def carry_from(options):
     """The work folder whose routing `start` takes: none (the empty board),
-    the board's own (--keep), another board's (--from ns4 | <variant>)."""
+    the board's own (--keep), the default folder's (--from ns4)."""
     if "--keep" in options:
         return WORK
     if "--from" not in options:
         return None
     name = options[options.index("--from") + 1:][:1]
     if not name:
-        raise SystemExit("--from which board: ns4 or a variant's name")
-    other = BASE if name[0] == "ns4" else os.path.join(ROOT, "build", f"route-{name[0]}")
+        raise SystemExit("--from which board: ns4")
+    if name[0] != "ns4":
+        raise SystemExit("--from ns4 is the only board")
+    other = BASE
     if os.path.normpath(other) == os.path.normpath(WORK):
         raise SystemExit("--from the board itself: that is --keep")
     return other
@@ -433,24 +431,22 @@ COMMANDS = ("start", "run", "finish")
 
 
 def parse(argv):
-    """(variant, work folder, command, its arguments) off the command line:
-    `route.py [variant] [--work DIR] command [args]`."""
+    """(work folder, command, its arguments) off the command line:
+    `route.py [--work DIR] command [args]`."""
     argv = argv[1:]
-    variant = work = None
-    if argv and argv[0] not in COMMANDS and argv[0] != "--work":
-        variant, argv = argv[0], argv[1:]
+    work = None
     if argv[:1] == ["--work"]:
         if len(argv) < 2:
             raise SystemExit("--work which folder")
         work, argv = argv[1], argv[2:]
     if not argv or argv[0] not in COMMANDS:
         raise SystemExit(__doc__)
-    return variant, work, argv[0], argv[1:]
+    return work, argv[0], argv[1:]
 
 
 def main(argv):
-    variant, work, command, args = parse(argv)
-    configure(variant, work)
+    work, command, args = parse(argv)
+    configure(work)
     if command == "start":
         return start(carry_from(args))
     if command == "run":

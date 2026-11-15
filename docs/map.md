@@ -26,10 +26,10 @@ One source, two things made from it, and one check of both:
   emulator (`../ms0515`, the MS 0515 emulator, an independent model from
   other sources), fetch for fetch and point for point (stage 6).
 
-Two versions of the board (owner, 2026-11-05): Э3 as drawn (`ns4`) and
-the owner's machine as it worked (`vvv104` = Э3 + `netlist/vvv104.csv`,
-D70.15 on GND).  Everything below serves both; where they differ is
-`netlist/vvv104.csv` alone.
+One board (owner, 2026-11-15): Э3's, `ns4`, in the standard build - the
+owner's fix made at assembly (`netlist/assembly.csv`, D70.15 on GND, C70
+left out).  The board model takes it back to Э3 as drawn with one
+switch, `s_D70_15`.
 
 ## The sources (written by hand)
 
@@ -39,7 +39,7 @@ D70.15 on GND).  Everything below serves both; where they differ is
 | `netlist/pinouts.csv` | every chip type's pins: number, name, direction | the chips' datasheets |
 | `netlist/nets.csv` | every net: its pins, the sheet and zone read from | Э3 sheets 1-5 |
 | `netlist/deviations.csv` | places where the drawing cannot be right, each argued | `docs/findings.md` |
-| `netlist/vvv104.csv` | the owner's board's change to Э3 (a pin moved), its evidence | his board's photos |
+| `netlist/assembly.csv` | the standard build's change to Э3, made at assembly (a pin moved), its evidence | the owner's board's photos |
 | `netlist/analog.csv` | each analog part's digital stand-in | `docs/analog.md` |
 | `netlist/fitted.csv`, `fitted-others.csv`, `fitted-compare.md`, `fitted-asked.md`, `fitted-passives.md`, `fitted-1991.csv` | what is fitted on the owner's board and on Frolov's and Radon17's, read off the photographs: the КР1533 substitutes for К555 by position and production run, dates; the three compared, and what it says for the 640 x 200 edge; what the photos did not tell; `fitted-1991.csv` is read by `tools/board.py` for every generated board | `netlist/variants.md` |
 | `netlist/delays.csv`, `delays-max.csv` | each chip path's typical / maximum delay, with its page | datasheets, `docs/timing.md` |
@@ -77,13 +77,12 @@ again in memory and fails if the committed one differs.
 | `kicad/ns4*.kicad_sch` | `python tools/kicad.py` | `netlist/` | `... check`; with kicad-cli a tool test reads the nets back |
 | `docs/pcb/bom.md` | `python tools/bom.py` | `parts.csv`, `pcb_parts.csv`, `packages.csv`, `docs/chips.md`, `firmware.csv` | `... check` |
 | `kicad/ns4.pretty` (all but DIN-5) | `python tools/pretty.py` | `placement-1991.csv` (the D-subs' holes) | `... check` |
-| `kicad/ns4-vvv104.kicad_pcb`, `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py vvv104`, `... pcb.py` | `netlist/` (+ `vvv104.csv`) + `placement.csv` + `placement-1991.csv` + footprints; every part where the 1991 board had it, on both | `... pcb.py check [vvv104]`: every pad's net against the netlist |
-| the same files (routing) | `tools/route.py [vvv104] start / run / finish` (Freerouting), state in `build/route[-vvv104]` | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
-| the same files (the inside over the 1991 copper) | `<KiCad>/bin/python tools/pathfind.py export`, `python tools/pathfind.py route`, `<KiCad>/bin/python tools/pathfind.py apply OUT` (PathFinder), state in `build/pathfind` | the board with Mick's outer layers laid | `tools/tests/test_pathfind.py`; the routed board by `pcb.py check` and KiCad's DRC |
-| `kicad/ns4.kicad_pcb`, `kicad/ns4-vvv104.kicad_pcb` (routed) | `tools/pcb.py [vvv104]` (placed, the 1991 outer copper: the routing gone), then `pathfind.py [vvv104] export`, `route`, `apply kicad/<board>.kicad_pcb`; if `readback.py` finds a plane pin cut off, `pathfind.py [vvv104] planes`, `route`, `pcb.py [vvv104]`, `apply` again | as above | `pcb.py check [vvv104]`, `readback.py BOARD [vvv104]`, KiCad's DRC |
+| `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py` | `netlist/` + `placement.csv` + `placement-1991.csv` + footprints; every part where the 1991 board had it | `... pcb.py check`: every pad's net against the netlist |
+| the same file (routing) | `tools/route.py [--work DIR] start / run / finish` (Freerouting), state in `build/route` | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
+| the same file (the inside over the 1991 copper) | `<KiCad>/bin/python tools/pathfind.py export`, `python tools/pathfind.py route`, `<KiCad>/bin/python tools/pathfind.py apply OUT` (PathFinder), state in `build/pathfind` | the board with Mick's outer layers laid | `tools/tests/test_pathfind.py`; the routed board by `pcb.py check` and KiCad's DRC |
+| `kicad/ns4.kicad_pcb` (routed) | `tools/pcb.py` (placed, the 1991 outer copper: the routing gone), then `pathfind.py export`, `route`, `apply kicad/ns4.kicad_pcb`; if `readback.py` finds a plane pin cut off, `pathfind.py planes`, `route`, `pcb.py`, `apply` again | as above | `pcb.py check`, `readback.py BOARD`, KiCad's DRC |
 | `build/fab/ns4/` (gerbers, drill, assembly drawing; not kept) | `python tools/fab.py` | the routed board | `tools/tests/test_fab.py`; `docs/pcb/fab.md` says what they are |
-| (a check) the routed board's nets off its copper | `<KiCad>/bin/python tools/readback.py [BOARD] [variant]` | the routed board, `netlist/` (pcb.py's pin_nets) | `tools/tests/test_readback.py`; exit 1 on a difference |
-| the second board | `tools/pcb.py derive TO FROM` + `route.py ... start --from` | the first board as routed; only the nets its pins left are routed again | `pcb.py check` |
+| (a check) the routed board's nets off its copper | `<KiCad>/bin/python tools/readback.py [BOARD]` | the routed board, `netlist/` (pcb.py's pin_nets) | `tools/tests/test_readback.py`; exit 1 on a difference |
 
 ## The comparison files (made by a command, not kept)
 
@@ -140,7 +139,7 @@ Each step only on the steps before it being green.  What each step
 proves is said with it.
 
 1. **The netlist is consistent.**  `python tools/netlist.py check` and
-   `check vvv104`: every pin on one net, every part's pins known, pin
+   `check assembly`: every pin on one net, every part's pins known, pin
    names as drawn against the datasheet's.  `python -m unittest discover
    -s tools/tests` (with `$KICAD_CLI` set, or one test is skipped).
 2. **The netlist is the copper** (needs `$MS0515_DATA`): `copper.py`,
@@ -178,13 +177,13 @@ proves is said with it.
 7. **The core**: `quartus_sh -t boards/de10nano/core.tcl` -
    `build/mister/output_files/ms0515.fit.summary` (resources),
    `ms0515.sta.rpt` (Setup Summary: the 120 MHz domain's slack).
-8. **The printed board**, Э3's first, eight layers: `<KiCad>/bin/python
+8. **The printed board**, Э3's, eight layers: `<KiCad>/bin/python
    tools/pcb.py` (placement), `tools/route.py start`, `run 8 3`,
    `finish` (routing from the empty board, a day and more; `run` again
    goes on after a stop; progress in `build/route/progress.txt`),
    `pcb.py check` (pads against the netlist), `kicad-cli pcb drc`
-   (clearances, shorts).  Then the owner's from it: `pcb.py derive
-   vvv104`, `route.py vvv104 start --from ns4`, `run`, `finish`.
+   (clearances, shorts).  The owner's fix is made at assembly
+   (`docs/pcb/fab.md`), not in copper.
 
 Steps 1-5 take about half an hour; step 6 about two hours (side by
 side); step 7 about half an hour; step 8 a day.

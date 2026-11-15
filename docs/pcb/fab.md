@@ -13,8 +13,7 @@ Not built yet: nothing here has been on a bench.
 ## The files
 
 `python tools/fab.py` (KiCad's command line as `$KICAD_CLI` or on the PATH)
-writes `build/fab/ns4/` (`python tools/fab.py kicad/ns4-vvv104.kicad_pcb`:
-the owner's board, D70.15 on GND, into `build/fab/ns4-vvv104/`):
+writes `build/fab/ns4/`:
 
 - `ns4-gerbers.zip` - what a fab takes: the eight copper layers, both masks,
   both silkscreens, the outline, the drill files (plated and not, apart) and
@@ -68,7 +67,7 @@ As the netlist has them (`netlist/analog.csv`; why: `netlist/variants.md`):
 ## Assembly: the left-edge fix
 
 The copper stays as the 1991 board's, D70.15 on `~D14.3` as Э3 draws it;
-the fix is made at assembly, as on the owner's board (`netlist/vvv104.csv`):
+the fix is made at assembly, as on the owner's board (`netlist/assembly.csv`):
 
 1. leave C70 out (its pads, by D85 towards D84, stay empty);
 2. before soldering D70 (К555КП11 / 74LS257) bend its pin 15 (OE) out so it
@@ -76,8 +75,8 @@ the fix is made at assembly, as on the owner's board (`netlist/vvv104.csv`):
 3. solder a short wire from that pin to GND: D57.10 is the nearest ground
    pin, as on the owner's board.
 
-The model of this build is the `vvv104` board (the switch `s_D70_15` 0, the
-MiSTer core's default); it passes every picture test at every corner.
+The model of this build is the board model's default (the switch `s_D70_15`
+0, the MiSTer core's default too); it passes every picture test at every corner.
 
 ## The first power-on
 

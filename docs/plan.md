@@ -25,19 +25,15 @@ Three places need care:
   moved after OSA's ^Q hung), the board follows Э3, and a difference in
   behaviour there is a finding for the open question, not a fault.
 
-**Two boards, one model** (owner, 2026-11-05).  Stages 1-5 are shared:
-the netlist read off Э3 and the chips from their datasheets owe nothing
-to any one board.  From stage 6 on there are two projects:
-- **the owner's board, `vvv104`** (Э3 with `netlist/vvv104.csv`, D70.15
-  on GND) - **active**.  Every run since 2026-10-21 was of this board
-  (the model's default), so what was found in 6-8 is its groundwork;
-  but the model changed under it (К555ИР16's MODE, DA2 as logic), so it
-  is taken again in one baseline run on one commit, `docs/baseline.md`,
-  and only what passes there counts;
-- **Э3's board, `ns4`** - its printed board is routed first (stage 8),
-  on the 1991 copper; built with the owner's fix by hand at assembly
-  (2026-11-15, 6b), since as drawn its picture's left edge loses a race
-  on the model.
+**One board** (owner, 2026-11-15).  From 2026-11-05 there were two
+projects, Э3's board (`ns4`) and the owner's (`vvv104`, D70.15 on GND).
+Now there is one: Э3's board, `ns4`, on the 1991 copper, in the standard
+build - the owner's fix made by hand at assembly (`netlist/assembly.csv`,
+C70 left out; `docs/pcb/fab.md`, "Assembly"), since as drawn its
+picture's left edge loses a race on the model (6b).  The board model's
+default is the standard build (every run since 2026-10-21 was of it);
+the switch `s_D70_15` gives Э3 as drawn, kept as the record of the race.
+The second printed board, `ns4-vvv104`, is gone.
 
 1. **Netlist of НС4.**  Read the four Э3 sheets and the ПЭ3 element list
    into `netlist/` (parts, pins, nets, with sheet and zone), starting from
@@ -70,14 +66,15 @@ to any one board.  From stage 6 on there are two projects:
    `СТАРТ Н` pulse, and after it no net may have two drivers on at once
    (`contention_at` names the net).
 6b. **Disputed places decided by software.**  Every place the sources do
-   not settle becomes a switchable change in `netlist/vvv104.csv` with its
+   not settle becomes a switchable change in `netlist/vvv104.csv` (now
+   `netlist/assembly.csv`) with its
    candidates (as Э3, as the copper, to pin X or Y).  The board is built
    with each and runs the real software - the ROM self-test, Omega and
    ОСА with the RAM disk, floppy writes, Rodionov's system on ROM-A - frame
    by frame against the emulator.  A wrong candidate breaks something; if
    none does, the place does not matter to the machine and is marked so.
    The factory wires all match Э3; the bare wire on the owner's board (GND
-   to the lifted D70.15) is in `vvv104.csv`.
+   to the lifted D70.15) was in `vvv104.csv`, now `assembly.csv`.
    **Reopened** (owner, 2026-11-14): it was closed on 2026-11-09 with a
    fitted speed of the serial chain (`SERIAL_SPEED`, D30/D21/D14/D70 at
    0.55, never measured), now taken out - only Э3 and the sheets go into
@@ -85,7 +82,7 @@ to any one board.  From stage 6 on there are two projects:
    (`ms0515_data/docs/nc4-model-audit.md`).  With C70 modelled, Э3's
    board as drawn loses 640 x 200's left edge: on the beam
    (`sim/board/beam_compare.h`) point 0 of each line is cut by 5 of its
-   8 ticks at typ and max, and won by a hair at min; the vvv104 board
+   8 ticks at typ and max, and won by a hair at min; the owner's board
    passes at every corner (`docs/findings.md`, D70).
    **Decided** (owner, 2026-11-15): the owner's fix is the standard build -
    C70 not fitted, D70.15 on GND, made by hand at assembly on the 1991

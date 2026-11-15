@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """The routed board's netlist read off its copper, against netlist/ (docs/plan.md 8e).
 
-    <KiCad>/bin/python tools/readback.py [BOARD] [variant]   - exit 1 on a difference
+    <KiCad>/bin/python tools/readback.py [BOARD]   - exit 1 on a difference
 
 The net names on the board's copper are ours, so they are not used: the pads,
 tracks, vias and the planes' fill are joined where their copper touches, each
 group of pins so found is a net of the board as it would be made, and these
 groups must be the netlist's nets - every net's pins in one group, no group
-with the pins of two (tools/pcb.py's pin_nets: Э3 or a variant, the chips in
+with the pins of two (tools/pcb.py's pin_nets: Э3's, the chips in
 sockets on the sockets' pins).  A pad is its copper's circle or box; a plane
 reaches a pad where its fill overlaps the pad's copper (a thermal spoke).
 """
@@ -214,21 +214,20 @@ def read_board(path):
     return pads, tracks, vias, plane_pins(board, pads)
 
 
-def wanted(variant):
+def wanted():
     """{pin: net} of the netlist, as tools/pcb.py's check reads it."""
     sys.path.insert(0, HERE)
     import pcb
     kinds = {ref: item.type for ref, item in pcb.load_items().items()}
     return {f"{ref}.{pcb.pad_of(kinds[ref], pin)}": net
-            for (ref, pin), net in pcb.pin_nets(variant).items() if ref in kinds}
+            for (ref, pin), net in pcb.pin_nets().items() if ref in kinds}
 
 
 def main(argv):
     path = argv[1] if len(argv) > 1 else os.path.join(ROOT, "build", "pathfind", "ns4-pathfind.kicad_pcb")
-    variant = argv[2] if len(argv) > 2 else None
     pads, tracks, vias, planes = read_board(path)
     groups = pin_groups(pads, tracks, vias, planes)
-    diffs = compare(groups, wanted(variant))
+    diffs = compare(groups, wanted())
     for d in diffs:
         print(d)
     print(f"{len(pads)} pins, {len(tracks)} track pieces, {len(vias)} vias, {len(planes)} planes: "

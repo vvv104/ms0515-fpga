@@ -96,7 +96,7 @@ keyboard request only the screens say anything.
   interrupt acknowledge).  The end's `READY slips:` line gives them,
   and the summary's `slips=`.
 - `e3`: the board as Э3 draws it, without the owner's board's changes:
-  D70.15 on `~D14.3`, not on GND (`netlist/vvv104.csv`), C70 on
+  D70.15 on `~D14.3`, not on GND (`netlist/assembly.csv`), C70 on
   `БОРДС L`, not bitten off (`docs/findings.md`, "C70 on the boards
   seen"); one switch of the generated board, `s_D70_15`, carries the
   two (`tools/board.py`, `OWNER_LACKS`);

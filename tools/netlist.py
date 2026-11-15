@@ -3,8 +3,8 @@
 
     python tools/netlist.py check   - list the problems (exit 1 on errors)
     python tools/netlist.py stats   - parts, nets and pins read so far
-    python tools/netlist.py check vvv104 - the same with a board's changes
-                                    (netlist/vvv104.csv) applied over Э3
+    python tools/netlist.py check assembly - the same with the standard
+                                    build's change (netlist/assembly.csv) over Э3
     python tools/netlist.py check ext - the memory expansion module
                                     (netlist/ext/: parts, nets, the pinouts
                                     of its types НС4 has not, joins.csv - its

@@ -23,8 +23,8 @@
 // written into the cells of D65/D77 while the machine is held in reset.
 // It stays there until the core is loaded again.
 //
-// The board is the owner's НС4 rev. 3А (netlist/vvv104.csv); its one change
-// from Э3, D70.15 lifted onto GND, can be taken back in the menu.
+// The board is НС4 as the standard build (netlist/assembly.csv); its one
+// change from Э3, D70.15 lifted onto GND, can be taken back in the menu.
 module emu
 (
     `include "sys/emu_ports.vh"

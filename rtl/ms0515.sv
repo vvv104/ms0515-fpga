@@ -32,7 +32,7 @@ module ms0515 (
     input  logic        rom_we,
     input  logic [13:0] rom_addr,
     input  logic [7:0]  rom_data,
-    // the owner's board's changes (netlist/vvv104.csv) taken back to Э3:
+    // the standard build's change (netlist/assembly.csv) taken back to Э3:
     // D70.15 on ~D14.3 as drawn, not on GND
     input  logic        d70_drawn,
     // the jumpers E3/E4, the frame rate (netlist/variants.md): 0 E3 alone,

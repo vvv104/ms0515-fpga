@@ -1,0 +1,11 @@
+# The standard build's change to 3.858.420 Э3, made by hand at assembly
+# (owner, 2026-11-15; docs/pcb/fab.md, "Assembly"): the printed board is
+# the 1991 copper, as Э3 draws it, and this is done on it after.  It is
+# the fix found on the owner's board (photo MC 0515 04), where Э3 as drawn
+# loses the picture's left edge on the model at the typical and slowest
+# delays (docs/findings.md, D70); with it every picture passes at every
+# corner.  C70 goes with it (left out: tools/board.py, OWNER_LACKS).
+# A change goes in only when it is the standard build's; each is a switch
+# of the board model (s_<ref>_<pin>, 1 for Э3 as drawn).
+ref,pin,from_net,to_net,evidence
+D70,15,~D14.3,GND,"owner's board photo MC 0515 04 (read by the owner 2026-10-20): pin 15 of D70 is lifted off its pad and a bare wire ties it to D57.10 (GND); not on the assembly drawing - a later fix, made the standard build 2026-11-15. D70 (strobe mux) is then always enabled; D14.3 still drives D74.1"

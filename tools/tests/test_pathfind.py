@@ -128,12 +128,8 @@ class Route(unittest.TestCase):
 
 
 @unittest.skipIf(pathfind is None, "no scipy")
-class Variant(unittest.TestCase):
-    def test_a_variant_has_its_own_board_and_work_folder(self):
-        board, work, rest = pathfind.where(["pathfind.py", "vvv104", "route", "300"])
-        self.assertTrue(board.endswith(os.path.join("kicad", "ns4-vvv104.kicad_pcb")))
-        self.assertTrue(work.endswith(os.path.join("build", "pathfind-vvv104")))
-        self.assertEqual(rest, ["route", "300"])
+class Where(unittest.TestCase):
+    def test_the_board_and_the_work_folder(self):
         board, work, rest = pathfind.where(["pathfind.py", "export"])
         self.assertTrue(board.endswith(os.path.join("kicad", "ns4.kicad_pcb")))
         self.assertTrue(work.endswith(os.path.join("build", "pathfind")))

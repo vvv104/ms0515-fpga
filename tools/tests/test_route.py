@@ -95,7 +95,7 @@ class Wiring(unittest.TestCase):
         self.assertIn('(wire (path In4.Cu 250 187773 -25342 187773 -30000)(net "~D94.1")(type route))', out)
         self.assertNotIn("1 -2  3 -4", out)          # the design's own wires are gone
 
-    def test_a_variant_drops_the_nets_its_pins_left(self):
+    def test_the_nets_to_drop_lose_their_wires(self):
         out = route.session_wiring(SESSION, DESIGN, drop=["ВБ1 H"])
         self.assertNotIn('"ВБ1 H")(type', out)
         self.assertIn('(net "~D94.1")(type route))', out)
@@ -125,27 +125,23 @@ class Wiring(unittest.TestCase):
 
     def test_a_start_is_from_the_empty_board_unless_told(self):
         try:
-            route.configure("vvv104")
-            self.assertIsNone(route.carry_from([]))
-            self.assertEqual(route.carry_from(["--keep"]), route.WORK)
-            self.assertTrue(route.carry_from(["--from", "ns4"]).endswith(os.path.join("build", "route")))
             route.configure()
             self.assertIsNone(route.carry_from([]))
-            self.assertTrue(route.carry_from(["--from", "vvv104"]).endswith(os.path.join("build", "route-vvv104")))
+            self.assertEqual(route.carry_from(["--keep"]), route.WORK)
             with self.assertRaises(SystemExit):
                 route.carry_from(["--from"])
             with self.assertRaises(SystemExit):
-                route.carry_from(["--from", "ns4"])                   # its own board: that is --keep
+                route.carry_from(["--from", "ns4"])                   # its own folder: that is --keep
+            with self.assertRaises(SystemExit):
+                route.carry_from(["--from", "other"])
+            route.configure("build/route-six")
+            self.assertTrue(route.carry_from(["--from", "ns4"]).endswith(os.path.join("build", "route")))
         finally:
             route.configure()
 
-    def test_a_variant_has_its_own_files(self):
-        try:
-            route.configure("vvv104")
-            self.assertTrue(route.BOARD.endswith(os.path.join("kicad", "ns4-vvv104.kicad_pcb")))
-            self.assertTrue(route.STATE.endswith(os.path.join("build", "route-vvv104", "state.dsn")))
-        finally:
-            route.configure()
+    def test_the_boards_files(self):
+        route.configure()
+        self.assertTrue(route.BOARD.endswith(os.path.join("kicad", "ns4.kicad_pcb")))
         self.assertTrue(route.STATE.endswith(os.path.join("build", "route", "state.dsn")))
 
     def test_a_session_in_other_units_is_refused(self):
@@ -190,25 +186,25 @@ class Options(unittest.TestCase):
                                     "--router.copper_to_edge_clearance_um=500"])
 
     def test_the_command_line(self):
-        self.assertEqual(route.parse(["route.py", "run", "2", "5"]), (None, None, "run", ["2", "5"]))
-        self.assertEqual(route.parse(["route.py", "vvv104", "start", "--from", "ns4"]),
-                         ("vvv104", None, "start", ["--from", "ns4"]))
-        self.assertEqual(route.parse(["route.py", "vvv104", "--work", "build/x", "run", "1", "1"]),
-                         ("vvv104", "build/x", "run", ["1", "1"]))
+        self.assertEqual(route.parse(["route.py", "run", "2", "5"]), (None, "run", ["2", "5"]))
+        self.assertEqual(route.parse(["route.py", "start", "--from", "ns4"]),
+                         (None, "start", ["--from", "ns4"]))
+        self.assertEqual(route.parse(["route.py", "--work", "build/x", "run", "1", "1"]),
+                         ("build/x", "run", ["1", "1"]))
         self.assertEqual(route.parse(["route.py", "--work", "build/x", "finish", "out.kicad_pcb"]),
-                         (None, "build/x", "finish", ["out.kicad_pcb"]))
+                         ("build/x", "finish", ["out.kicad_pcb"]))
         for bad in (["route.py"], ["route.py", "vvv104"], ["route.py", "--work"], ["route.py", "--work", "x"]):
             with self.assertRaises(SystemExit):
                 route.parse(bad)
 
     def test_a_work_folder_of_its_own_leaves_the_boards_alone(self):
         try:
-            route.configure("vvv104", "build/route-six")
-            self.assertTrue(route.BOARD.endswith(os.path.join("kicad", "ns4-vvv104.kicad_pcb")))
+            route.configure("build/route-six")
+            self.assertTrue(route.BOARD.endswith(os.path.join("kicad", "ns4.kicad_pcb")))
             self.assertTrue(route.STATE.endswith(os.path.join("build", "route-six", "state.dsn")))
             self.assertTrue(route.LOG.endswith(os.path.join("build", "route-six", "freerouting.log")))
             self.assertEqual(route.carry_from(["--keep"]), route.WORK)
-            self.assertTrue(route.carry_from(["--from", "vvv104"]).endswith(os.path.join("build", "route-vvv104")))
+            self.assertTrue(route.carry_from(["--from", "ns4"]).endswith(os.path.join("build", "route")))
         finally:
             route.configure()
 

@@ -38,9 +38,9 @@
 // (machine microseconds) adds every fetch in that stretch, with the READY
 // slips since the fetch before (ready_slips.h; their count by the cycle's
 // kind is in the end's lines, and in the summary).  `e3` builds
-// the board as Э3 draws it, without the owner's board's changes: D70.15
-// on ~D14.3, not on GND (netlist/vvv104.csv), and C70 on БОРДС L, not
-// bitten off (tools/board.py: OWNER_LACKS - one switch, s_D70_15, carries
+// the board as Э3 draws it, without the standard build's change: D70.15
+// on ~D14.3, not on GND (netlist/assembly.csv), and C70 on БОРДС L, not
+// left out (tools/board.py: OWNER_LACKS - one switch, s_D70_15, carries
 // the two).  run_board_ext,
 // the board with the memory expansion module, has the green wire АД03 ->
 // D80.5 the module needs, on either board - the new board's jumper E9 at
@@ -270,7 +270,7 @@ struct Options {
     std::string layout = "omega";       // the formatter its tracks are laid out as
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
     bool logic_drive = false;           // the MiSTer core's drive in place of the bench's (logic_drive.h)
-    bool e3 = false;                    // Э3's board, not the owner's (netlist/vvv104.csv)
+    bool e3 = false;                    // Э3's board as drawn, not the standard build (netlist/assembly.csv)
     bool nowire = false;                // run_board_ext: no green wire АД03 -> D80.5
     const FrameRate* rate = &default_frame_rate();  // the jumpers E3/E4
     std::uint64_t edge_from = 0, edge_to = 0;  // the left edge's nets logged (machine us)

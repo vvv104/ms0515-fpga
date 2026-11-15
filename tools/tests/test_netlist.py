@@ -188,8 +188,8 @@ class TheRepositorysNetlistTest(unittest.TestCase):
     def test_e3_as_read(self):
         self.assertEqual(self.check(), (0, []))
 
-    def test_the_owners_board(self):
-        self.assertEqual(self.check("vvv104"), (0, []))
+    def test_the_standard_build(self):
+        self.assertEqual(self.check("assembly"), (0, []))
 
     def test_the_memory_expansion_module(self):
         """netlist/ext/: the module's own parts and nets, its new types'

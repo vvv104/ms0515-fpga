@@ -3,26 +3,16 @@
 
 Run with KiCad's own Python, which has pcbnew:
 
-    <KiCad>/bin/python tools/pcb.py [vvv104] - write kicad/ns4.kicad_pcb, or
-                                               kicad/ns4-vvv104.kicad_pcb:
+    <KiCad>/bin/python tools/pcb.py          - write kicad/ns4.kicad_pcb:
                                                the board placed, no wires
-    <KiCad>/bin/python tools/pcb.py check [vvv104]
+    <KiCad>/bin/python tools/pcb.py check
                                              - the board's pads against the
                                                netlist (stage 8e), exit 1 on
                                                a difference
-    <KiCad>/bin/python tools/pcb.py derive TO [FROM]
-                                             - the board TO made from the
-                                               board FROM as routed (ns4 for
-                                               Э3's, or a variant's name; FROM
-                                               ns4 when left out): the pins
-                                               that differ put on TO's nets,
-                                               the nets they left unrouted
 
-Two boards, one placement: ns4 is Э3 as drawn (the one whose 640 x 200
-left edge is still open, docs/findings.md), ns4-vvv104 the owner's board as
-it worked, D70.15 on GND.  Every part stands where Э3's nets put it on
-both, so one is made from the other as routed (`derive`), and the two
-differ only in the changed nets' copper.
+One board: ns4, Э3 as drawn, the 1991 copper.  The owner's fix at the left
+edge (C70 not fitted, D70.15 lifted to GND) is made at assembly, not on the
+board (docs/pcb/fab.md, "Assembly").
 
 The board is the netlist's (netlist/parts.csv, nets.csv - Э3 as read, the
 one the board model runs the machine's software on) with the footprints of
@@ -89,27 +79,14 @@ def pad_of(kind, pin):
     return str(pin)
 
 
-def board_path(variant=None):
-    """kicad/ns4.kicad_pcb, Э3's board; kicad/ns4-<variant>.kicad_pcb, one with
-    netlist/<variant>.csv's changes."""
-    return OUT if not variant else os.path.join(ROOT, "kicad", f"ns4-{variant}.kicad_pcb")
-
-
-def changes(variant):
-    """netlist/<variant>.csv's changes, none for Э3's board."""
-    return nl.load_changes(os.path.join(NET, f"{variant}.csv")) if variant else []
-
-
-def pin_nets(variant=None):
+def pin_nets():
     """{(ref, pin): net} with the chips' power pins; a chip in a socket's
-    pins given to the socket.  With a variant its changes are applied."""
+    pins given to the socket."""
     parts, _, conns = nl.load(os.path.join(NET, "parts.csv"), os.path.join(NET, "pinouts.csv"),
                               os.path.join(NET, "nets.csv"))
     parts.update(nl.load_parts(os.path.join(NET, "pcb_parts.csv")))
     conns += nl.load_nets(os.path.join(NET, "pcb_nets.csv"))
     conns, errors = nl.apply_changes(conns, nl.load_changes(os.path.join(NET, "pcb.csv")))
-    if not errors:
-        conns, errors = nl.apply_changes(conns, changes(variant))
     if errors:
         raise SystemExit("\n".join(p.text for p in errors))
     nets = {}
@@ -427,14 +404,13 @@ def stack(board):
         board.SetLayerType(layer, pcbnew.LT_POWER if layer in PLANES else pcbnew.LT_SIGNAL)
 
 
-def build(variant=None):
-    """The board placed, no wires: the pads on the variant's nets, the
-    parts where Э3's nets put them - one placement for every variant."""
+def build():
+    """The board placed, no wires: the pads on the netlist's nets."""
     board = pcbnew.BOARD()
     stack(board)
     rules(board)
     dirs = footprint_dirs()
-    nets = pin_nets(variant)
+    nets = pin_nets()
     codes, fps, skipped, missing = {}, {}, [], []
     for ref, item in sorted(load_items().items(), key=lambda kv: bom.natural(kv[0])):
         fp = new_footprint(board, dirs, item)
@@ -447,7 +423,7 @@ def build(variant=None):
     outline(board)
     place_dips(fps, free)
     place_1991(board, dirs, fps, free)
-    failed = place_rest(fps, free, pin_nets() if variant else nets)
+    failed = place_rest(fps, free, nets)
     snap(fps)
     lay_copper(board)
     for layer, net in PLANES.items():
@@ -572,42 +548,11 @@ def board_nets(board):
             for fp in board.GetFootprints() for pad in fp.Pads() if pad.GetNumber()}
 
 
-def variant_of(name):
-    """A board's name on the command line: ns4 is Э3's, else a variant's."""
-    return None if name == "ns4" else name
-
-
-def derive(to, frm=None):
-    """The board `to` made from the board `frm`, as placed and routed: the
-    pads whose nets differ put on `to`'s nets, the wires of the nets they
-    left taken off (`tools/route.py ... start --from` routes those again)."""
-    board = pcbnew.LoadBoard(board_path(frm))
-    kinds = {ref: item.type for ref, item in load_items().items()}
-    was, now = pin_nets(frm), pin_nets(to)
-    left = set()
-    for (ref, pin), name in sorted(now.items()):
-        if was.get((ref, pin)) == name or ref not in kinds:
-            continue
-        pad = board.FindFootprintByReference(ref).FindPadByNumber(pad_of(kinds[ref], pin))
-        net = board.FindNet(name)
-        if net is None:
-            net = pcbnew.NETINFO_ITEM(board, name)
-            board.Add(net)
-        pad.SetNet(net)
-        left.add(was.get((ref, pin)))
-    left.discard(None)
-    for track in [t for t in board.GetTracks() if t.GetNetname() in left]:
-        board.Delete(track)
-    pcbnew.ZONE_FILLER(board).Fill(board.Zones())
-    board.Save(board_path(to))
-    return sorted(left)
-
-
-def check(board, variant=None):
+def check(board):
     """The pads' nets against the netlist: a list of differences."""
     want = {}
     kinds = {ref: item.type for ref, item in load_items().items()}
-    for (ref, pin), net in pin_nets(variant).items():
+    for (ref, pin), net in pin_nets().items():
         if ref in kinds:
             want[(ref, pad_of(kinds[ref], pin))] = net
     have = board_nets(board)
@@ -620,20 +565,13 @@ def check(board, variant=None):
 
 def main(argv):
     if argv[1:2] == ["check"]:
-        variant = argv[2] if len(argv) > 2 else None
-        diffs = check(pcbnew.LoadBoard(board_path(variant)), variant)
+        diffs = check(pcbnew.LoadBoard(OUT))
         for d in diffs:
             print(d)
         print(f"{len(diffs)} differences")
         return 1 if diffs else 0
-    if argv[1:2] == ["derive"] and len(argv) in (3, 4):
-        to, frm = variant_of(argv[2]), variant_of(argv[3] if len(argv) == 4 else "ns4")
-        left = derive(to, frm)
-        print(f"{board_path(to)}: {board_path(frm)} with the wires of {', '.join(left)} taken off")
-        return 0
-    variant = argv[1] if len(argv) > 1 else None
-    out = board_path(variant)
-    board, skipped, missing, failed = build(variant)
+    out = OUT
+    board, skipped, missing, failed = build()
     for s in skipped:
         print("no footprint yet:", s)
     for m in missing:

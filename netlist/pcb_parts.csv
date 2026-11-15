@@ -1,5 +1,5 @@
 # Parts of the printed board made anew (docs/plan.md stage 8) that Э3 does
-# not have - on both its versions, ns4 and ns4-vvv104.  A part goes in only
+# not have.  A part goes in only
 # as a mode of the machine, as Э3's own jumpers E1..E8 are, never as a
 # repair.  The board model (tools/board.py) does not read this file: with
 # its jumpers as delivered the board is Э3.
