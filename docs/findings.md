@@ -637,6 +637,16 @@ the border stands, and no phase break: one edge a sample early, of the
 kind the owner's board shows at its right edge at max (100 samples at
 639), not the first word's shift.
 
+**The owner's fix as the standard build** (2026-11-15).  A fit was tried
+once more - the chain D30, D21, D14, D70 at 0.55 of its delays on Э3's
+board: typ passed, min kept its 25 ticks in 320 x 200 (the chain does not
+decide it there) and max got worse in 640 x 200 (4982 ticks).  No share
+mends all three, so none went in.  The owner's decision: his board's fix -
+C70 off, D70.15 on GND - is the standard build, since it removes the race
+and passes every picture at every corner; on the new printed board it is
+made by hand at assembly, on the 1991 copper (`docs/pcb/fab.md`).  Э3's
+race stays open as a record.
+
 **The fit taken out; the race on the beam** (2026-11-14, -15).  The
 owner's rule: only Э3 is right, whatever his board's fixes; every rule
 of the model audited by where it came from

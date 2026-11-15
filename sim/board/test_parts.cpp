@@ -257,7 +257,8 @@ TEST_CASE("video: 640 x 200 in the border's colour, as the emulator's picture of
 // delays the chain loses that race at typ and max (point 0 cut by 5 of
 // its 8 ticks) and wins it by a hair at min; no fit is put back to pass
 // (docs/findings.md, D70; ms0515_data/docs/nc4-model-audit.md).  Marked
-// may_fail while the race is open.
+// may_fail: the standard build is the owner's fix, which has no race (the
+// tests above); these stay as the record of Э3 as drawn.
 TEST_CASE("video: Э3's board draws 320 x 200 as the emulator" * doctest::may_fail())
 {
     picture_as_emulator("vid320.rom", 420, true);

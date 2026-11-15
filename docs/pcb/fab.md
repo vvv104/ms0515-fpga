@@ -63,6 +63,21 @@ As the netlist has them (`netlist/analog.csv`; why: `netlist/variants.md`):
 | E9 | 1-2 | the board's own: D80.5 on `ВБРЕГ L` as Э3 draws it; 2-3 for the RAM-disk module (`netlist/pcb_parts.csv`) |
 | SA1 | 1-20, 3-18, 5-16, 7-14, 9-12 closed | the base build: the МС 7004 keyboard on XS2 |
 | XS3, XS4 | ROM-B | the two К573РФ4 (D65, D77) in sockets; ROM-A runs Rodionov's disk, ROM-B the Omega kit (`docs/findings.md`) |
+| C70, D70.15 | C70 not fitted; D70's pin 15 lifted off its pad, a wire from it to GND (D57.10 is near) | the standard build (owner, 2026-11-15): D70 always enabled, as on the owner's board - the left edge of the picture right at every corner of the chips' delays, where Э3 as drawn loses it on the model (Known risks).  The copper is the 1991 board's, so this is done by hand, as on his board |
+
+## Assembly: the left-edge fix
+
+The copper stays as the 1991 board's, D70.15 on `~D14.3` as Э3 draws it;
+the fix is made at assembly, as on the owner's board (`netlist/vvv104.csv`):
+
+1. leave C70 out (its pads, by D85 towards D84, stay empty);
+2. before soldering D70 (К555КП11 / 74LS257) bend its pin 15 (OE) out so it
+   misses its hole - or, if a socket is used, bend it on the chip;
+3. solder a short wire from that pin to GND: D57.10 is the nearest ground
+   pin, as on the owner's board.
+
+The model of this build is the `vvv104` board (the switch `s_D70_15` 0, the
+MiSTer core's default); it passes every picture test at every corner.
 
 ## The first power-on
 
@@ -81,8 +96,10 @@ the most the board draws: +5 V 2 A, +12 V 0.1 A, -12 V 0.02 A.
 
 ## Known risks
 
-- **640 x 200's left edge** (`docs/findings.md`, plan 6b/6d): on the model Э3's
-  board draws it right only with the chain to D70 at the serial machines' speed;
-  on copper the chips as fitted decide it.
+- **The picture's left edge** (`docs/findings.md`, D70): on the model Э3's
+  board as drawn (C70 fitted, D70.15 on `~D14.3`) loses the race to D70's
+  first clock of a line at the typical and the slowest delays - point 0 cut.
+  The standard build avoids the race altogether (Assembly, above); a board
+  built as drawn is left to the chips as fitted.
 - The inner layers are new, not the 1991 board's (no scan shows them); what
   they must join, to ring out on a real board: `docs/pcb/inner-layers.md`.

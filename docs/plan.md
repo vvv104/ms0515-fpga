@@ -34,10 +34,10 @@ to any one board.  From stage 6 on there are two projects:
   but the model changed under it (К555ИР16's MODE, DA2 as logic), so it
   is taken again in one baseline run on one commit, `docs/baseline.md`,
   and only what passes there counts;
-- **Э3's board, `ns4`** - 6b closed with a fitted speed of the chain to
-  D70 (2026-11-09); it goes on from the owner's board's stages, done
-  again where the two differ, and its printed board is routed first
-  (stage 8).
+- **Э3's board, `ns4`** - its printed board is routed first (stage 8),
+  on the 1991 copper; built with the owner's fix by hand at assembly
+  (2026-11-15, 6b), since as drawn its picture's left edge loses a race
+  on the model.
 
 1. **Netlist of НС4.**  Read the four Э3 sheets and the ПЭ3 element list
    into `netlist/` (parts, pins, nets, with sheet and zone), starting from
@@ -87,6 +87,10 @@ to any one board.  From stage 6 on there are two projects:
    (`sim/board/beam_compare.h`) point 0 of each line is cut by 5 of its
    8 ticks at typ and max, and won by a hair at min; the vvv104 board
    passes at every corner (`docs/findings.md`, D70).
+   **Decided** (owner, 2026-11-15): the owner's fix is the standard build -
+   C70 not fitted, D70.15 on GND, made by hand at assembly on the 1991
+   copper (`docs/pcb/fab.md`, "Assembly").  Э3's race is left open as a
+   record: its two picture tests stay, marked may_fail; no fit goes in.
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
