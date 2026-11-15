@@ -1,7 +1,14 @@
 // ms0515: the machine for the MiSTer core (plan stage 7d) - the НС4 board
-// (rtl/board/ns4_machine.sv), drive 0 on XP4 (rtl/parts/mc5305.sv), the
-// picture (rtl/parts/ns4_video.sv) and the supply, as the bench has them
-// (sim/board/power.h, xp4.h): what the bench plays is logic here.
+// with the memory expansion module in XS1 (rtl/board/ns4_ext_machine.sv),
+// drive 0 on XP4 (rtl/parts/mc5305.sv), the picture (rtl/parts/ns4_video.sv)
+// and the supply, as the bench has them (sim/board/power.h, xp4.h): what
+// the bench plays is logic here.
+//
+// The module (plan 6a): its RAM disk's 512 KB in DDR3 (rtl/parts/ext_ram.sv)
+// in place of its sixteen КР565РУ7, which do not fit the block memory.
+// module_in 0 takes it out - its select held off, so it answers nothing -
+// and puts НС4's D80.5 back on Э3's net; 1 puts it in with the green wire,
+// АД03 into D80.5, which it needs (netlist/ext/changes.csv).
 //
 // The supply: the monitor VD11/R58 holds D95.13 low for the first
 // millisecond, as the supply rises - after the FPGA is loaded and again
@@ -38,6 +45,18 @@ module ms0515 (
     // the jumpers E3/E4, the frame rate (netlist/variants.md): 0 E3 alone,
     // 72 Hz, as on the boards photographed; 1 both, 50 Hz; 2 E4 alone, 60 Hz
     input  logic [1:0]  frame,
+    // the memory expansion module in XS1, its RAM in DDR3 (MiSTer's DDRAM_*)
+    input  logic        module_in,
+    output logic [31:0] ram_faults,     // ext_ram's: reads before their word came (0 by design)
+    input  logic        ddr_busy,
+    output logic [7:0]  ddr_burstcnt,
+    output logic [28:0] ddr_addr,
+    input  logic [63:0] ddr_dout,
+    input  logic        ddr_dout_ready,
+    output logic        ddr_rd,
+    output logic [63:0] ddr_din,
+    output logic [7:0]  ddr_be,
+    output logic        ddr_we,
     // the keyboard
     input  logic [1:0]  kbd_source,
     input  logic [10:0] ps2_key,
@@ -90,7 +109,14 @@ module ms0515 (
     logic vyhkl, vyhod;
     assign kbd_tx = !vyhkl;
 
-    ns4_machine board (
+    // the module's RAM pins
+    logic        m_ras, m_cas0, m_cas1, m_we;
+    logic [8:0]  m_ra;
+    logic [7:0]  m_dk;
+    logic [17:2] m_ma;
+    logic [15:0] m_q, m_q_oe;
+
+    ns4_ext_machine board (
         .clk,
         .x_VD11_p1(1'b0), .x_VD11_p1_oe(risen != RISE),
         .x_XP4_p8(1'b0),  .x_XP4_p8_oe(!index),
@@ -106,7 +132,35 @@ module ms0515 (
         .l_D65_we(rom_we && !rom_addr[0]), .l_D65_a(rom_addr[13:1]), .l_D65_d(rom_data),
         .l_D77_we(rom_we && rom_addr[0]),  .l_D77_a(rom_addr[13:1]), .l_D77_d(rom_data),
         .s_D70_15(d70_drawn),
-        .s_E3(frame == 2'd2), .s_E4(frame != 2'd0)
+        .s_E3(frame == 2'd2), .s_E4(frame != 2'd0),
+        .s_D80_5(!module_in), .s_MD12_12(module_in),
+        .n_M_RAS(m_ras), .n_M_CAS0(m_cas0), .n_M_CAS1(m_cas1), .n_M_WE(m_we),
+        .n_M_RA0(m_ra[0]), .n_M_RA1(m_ra[1]), .n_M_RA2(m_ra[2]), .n_M_RA3(m_ra[3]),
+        .n_M_RA4(m_ra[4]), .n_M_RA5(m_ra[5]), .n_M_RA6(m_ra[6]), .n_M_RA7(m_ra[7]), .n_M_RA8(m_ra[8]),
+        .n_M_DK00(m_dk[0]), .n_M_DK01(m_dk[1]), .n_M_DK02(m_dk[2]), .n_M_DK03(m_dk[3]),
+        .n_M_DK04(m_dk[4]), .n_M_DK05(m_dk[5]), .n_M_DK06(m_dk[6]), .n_M_DK07(m_dk[7]),
+        .n_M_MA02(m_ma[2]),   .n_M_MA03(m_ma[3]),
+        .n_M_MA04(m_ma[4]),   .n_M_MA05(m_ma[5]),   .n_M_MA06(m_ma[6]),   .n_M_MA07(m_ma[7]),
+        .n_M_MA08(m_ma[8]),   .n_M_MA09(m_ma[9]),   .n_M_MA10(m_ma[10]),  .n_M_MA11(m_ma[11]),
+        .n_M_MA12(m_ma[12]),  .n_M_MA13(m_ma[13]),  .n_M_MA14(m_ma[14]),  .n_M_MA15(m_ma[15]),
+        .n_M_MA16(m_ma[16]),  .n_M_MA17(m_ma[17]),
+        .r_MD19_p14(m_q[0]),  .r_MD19_p14_oe(m_q_oe[0]),  .r_MD20_p14(m_q[1]),  .r_MD20_p14_oe(m_q_oe[1]),
+        .r_MD21_p14(m_q[2]),  .r_MD21_p14_oe(m_q_oe[2]),  .r_MD22_p14(m_q[3]),  .r_MD22_p14_oe(m_q_oe[3]),
+        .r_MD23_p14(m_q[4]),  .r_MD23_p14_oe(m_q_oe[4]),  .r_MD24_p14(m_q[5]),  .r_MD24_p14_oe(m_q_oe[5]),
+        .r_MD25_p14(m_q[6]),  .r_MD25_p14_oe(m_q_oe[6]),  .r_MD26_p14(m_q[7]),  .r_MD26_p14_oe(m_q_oe[7]),
+        .r_MD27_p14(m_q[8]),  .r_MD27_p14_oe(m_q_oe[8]),  .r_MD28_p14(m_q[9]),  .r_MD28_p14_oe(m_q_oe[9]),
+        .r_MD29_p14(m_q[10]), .r_MD29_p14_oe(m_q_oe[10]), .r_MD30_p14(m_q[11]), .r_MD30_p14_oe(m_q_oe[11]),
+        .r_MD31_p14(m_q[12]), .r_MD31_p14_oe(m_q_oe[12]), .r_MD32_p14(m_q[13]), .r_MD32_p14_oe(m_q_oe[13]),
+        .r_MD33_p14(m_q[14]), .r_MD33_p14_oe(m_q_oe[14]), .r_MD34_p14(m_q[15]), .r_MD34_p14_oe(m_q_oe[15])
+    );
+
+    ext_ram ram (
+        .clk, .reset,
+        .ras_n(m_ras), .cas0_n(m_cas0), .cas1_n(m_cas1), .we_n(m_we),
+        .ra(m_ra), .di(m_dk), .ma(m_ma),
+        .q(m_q), .q_oe(m_q_oe), .faults(ram_faults),
+        .ddr_busy, .ddr_burstcnt, .ddr_addr, .ddr_dout, .ddr_dout_ready,
+        .ddr_rd, .ddr_din, .ddr_be, .ddr_we
     );
 
     mc5305 drive (

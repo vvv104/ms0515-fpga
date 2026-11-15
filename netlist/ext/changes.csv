@@ -4,3 +4,4 @@
 # with the module it belongs to, until a sharper photo settles it.
 ref,pin,from_net,to_net,evidence
 D80,5,ВБРЕГ L,АД03 H,"the green wire on the owner's board (photo MC 0515 04): АД03 to D80 pin 5 (G2B), by the chip's turn as the owner reads it (docs/findings.md); with it НС4's registers answer at АД03 low only and the module's at АД03 high"
+MD12,12,ВБРЕГ L,+5V,"not a change of either board: the switch that takes the module out (the MiSTer core's menu, plan 6a step 4) - D12's gate 4 (К555ЛЛ1) passes the module's select, выбор устр on XP1.C23; held high the module never answers and drives nothing on XS1, as if it were not plugged in; 1 the module in, as wired"

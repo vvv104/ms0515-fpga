@@ -35,18 +35,30 @@ std::vector<std::uint8_t> read_rom(const std::string& name)
 
 // The board from power-on with exdisk.rom, run until the program has left
 // its end mark (or 200 ms); `drawn` puts НС4's D80.5 back on Э3's net - the
-// board without the green wire.
-CpuWrites run_exdisk(bool drawn)
+// board without the green wire; `out` takes the module out (its select
+// held off, as the core's menu does); fights counts, from the supply's rise
+// on, the ticks НС4's data bus МК00..МК07 had two drivers on for longer
+// than a handover (test_board.cpp's Fights) - where НС4's registers and the
+// module meet when both answer.  (The module's own ДК00..ДК07 are not
+// counted: a RAM chip's DO stays on while its -CAS does, past -RAS, and
+// meets the next driver there, with the green wire as without it -
+// docs/findings.md.)
+constexpr int kHandover = 3;
+constexpr int kFought[] = {37, 38, 39, 40, 41, 42, 43, 44};    // МК00..МК07 (ns4_ext.sv's header)
+
+CpuWrites run_exdisk(bool drawn, bool out = false, std::uint64_t* fights = nullptr)
 {
     Verilated::randReset(0);
     auto m = std::make_unique<Vns4_ext>();
     disconnect(*m);
     m->s_D80_5 = drawn ? 1 : 0;
+    m->s_MD12_12 = out ? 0 : 1;
     const std::vector<std::uint8_t> rom = read_rom("exdisk.rom");
     REQUIRE(rom.size() == kRomBytes);
     m->eval();
     fill_rom(m->rootp->ns4_ext__DOT__D65__DOT__cells, m->rootp->ns4_ext__DOT__D77__DOT__cells, rom);
     CpuWrites writes;
+    std::vector<int> run(64, 0);
     const std::uint64_t end = 200ull * 1000 * kMasterMhz;
     for (std::uint64_t t = 0; t < end && !writes.word_at(01012); ++t) {
         power(*m, t);
@@ -55,6 +67,13 @@ CpuWrites run_exdisk(bool drawn)
         m->clk = 1;
         m->eval();
         writes.see(*m);
+        if (fights && t >= kSupplyRiseTicks)
+            for (int n : kFought) {
+                int& r = run[static_cast<std::size_t>(n)];
+                r = (m->contention_at[n / 32] >> (n % 32) & 1) ? r + 1 : 0;
+                if (r > kHandover)
+                    ++*fights;
+            }
     }
     return writes;
 }
@@ -63,17 +82,33 @@ CpuWrites run_exdisk(bool drawn)
 
 TEST_CASE("RAM disk: eight pages through the data port come back as written, at every address bit")
 {
-    const CpuWrites writes = run_exdisk(false);
+    std::uint64_t fights = 0;
+    const CpuWrites writes = run_exdisk(false, false, &fights);
     REQUIRE(writes.word_at(01012) == std::optional<std::uint16_t>(052525));
     CHECK(writes.word_at(01010) == std::optional<std::uint16_t>(2048));
     CHECK(writes.word_at(01006) == std::optional<std::uint16_t>(0));
+    CHECK(fights == 0);
 }
 
 // Without the green wire НС4's own registers answer at the module's
 // addresses too (D80 decodes АД05-07 alone): the two fight on the bus.
 TEST_CASE("RAM disk: without НС4's green wire the pages do not come back")
 {
-    const CpuWrites writes = run_exdisk(true);
+    std::uint64_t fights = 0;
+    const CpuWrites writes = run_exdisk(true, false, &fights);
     REQUIRE(writes.word_at(01012) == std::optional<std::uint16_t>(052525));
     CHECK(writes.word_at(01006) != std::optional<std::uint16_t>(0));
+    CHECK(fights > 0);
+}
+
+// The module taken out (the core's menu): its select held off, it answers
+// nothing - with Э3's D80.5 НС4's own registers take the addresses alone,
+// so what is written does not come back, and nothing fights on the bus.
+TEST_CASE("RAM disk: the module taken out answers nothing")
+{
+    std::uint64_t fights = 0;
+    const CpuWrites writes = run_exdisk(true, true, &fights);
+    REQUIRE(writes.word_at(01012) == std::optional<std::uint16_t>(052525));
+    CHECK(writes.word_at(01006) != std::optional<std::uint16_t>(0));
+    CHECK(fights == 0);
 }

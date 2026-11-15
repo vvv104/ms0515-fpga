@@ -241,6 +241,7 @@ module ns4_ext (
     input  logic s_D80_5,
     input  logic s_E3,
     input  logic s_E4,
+    input  logic s_MD12_12,
     output logic n_A0_H,
     output logic n_A1_H,
     output logic n_A2_H,
@@ -5467,7 +5468,7 @@ module ns4_ext (
         .p9(n_AD07_H),
         .p10(n_M_SOEDN_02),
         .p8(r_MD12_p8),
-        .p12(n_VBREG_L),
+        .p12(s_MD12_12 ? n_VBREG_L : 1'b1),
         .p13(n_M_SOEDN_01),
         .p11(r_MD12_p11)
     );

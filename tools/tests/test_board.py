@@ -752,13 +752,6 @@ class TheBoard(unittest.TestCase):
         with open(os.path.join(ROOT, "rtl", "board", "ns4_inputs.inc"), encoding="utf-8") as f:
             self.assertEqual(f.read(), inputs, "rtl/board/ns4_inputs.inc is stale: run tools/board.py")
 
-    def test_the_machine_s_board_matches_the_committed_file(self):
-        text, problems = board.generate_machine(board.ns4_sources(), board.MACHINE_INPUTS,
-                                                board.MACHINE_OUTPUTS)
-        self.assertEqual(errors(problems), [])
-        with open(os.path.join(ROOT, "rtl", "board", "ns4_machine.sv"), encoding="utf-8") as f:
-            self.assertEqual(f.read(), text, "rtl/board/ns4_machine.sv is stale: run tools/board.py")
-
 
 class Setup(unittest.TestCase):
     # К555ИР16's MODE setup: the sheet's 20 ns is a guaranteed maximum, the
@@ -802,6 +795,41 @@ class RcEdge(unittest.TestCase):
                                r"\(\.clk\(clk\), \.i\(\{c_n_SGI_L\}\), \.o\(\{n_SGI_L\}\)\);")
 
 
+class TheMachineWithTheModule(unittest.TestCase):
+    """НС4 with the module inside the MiSTer core: the module's sixteen
+    КР565РУ7 left out, their pins ports - their inputs' nets out, their
+    outputs in - for the RAM disk kept in DDR3 (rtl/parts/ext_ram.sv)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text, cls.problems = board.generate_machine(
+            board.ns4_ext_sources(), board.MACHINE_INPUTS, board.EXT_MACHINE_OUTPUTS, board.EXT_RAM)
+
+    def test_generates_without_errors_and_matches_the_committed_file(self):
+        self.assertEqual(errors(self.problems), [])
+        with open(os.path.join(ROOT, "rtl", "board", "ns4_ext_machine.sv"), encoding="utf-8") as f:
+            self.assertEqual(f.read(), self.text, "rtl/board/ns4_ext_machine.sv is stale: run tools/board.py")
+
+    def test_the_module_ram_is_left_out(self):
+        self.assertNotIn("kr565ru7", self.text)
+        self.assertEqual(len(board.EXT_RAM), 16)
+
+    def test_the_ram_s_outputs_come_in_unregistered(self):
+        for ref in board.EXT_RAM:
+            self.assertIn(f"    input  logic r_{ref}_p14,\n", self.text)
+            self.assertIn(f"    input  logic r_{ref}_p14_oe,\n", self.text)
+            self.assertNotIn(f"q_r_{ref}_p14", self.text)
+            self.assertNotIn(f"    logic r_{ref}_p14;", self.text)
+        # through the chip's own delay, tCAC, as on the bench's board
+        self.assertRegex(self.text, r"delay_bank #\(.*\) \w+ \(\.clk\(clk\), \.i\(\{[^}]*\br_MD19_p14\b")
+
+    def test_the_ram_s_inputs_and_the_address_go_out(self):
+        for net in (["n_M_RAS", "n_M_CAS0", "n_M_CAS1", "n_M_WE"] +
+                    [f"n_M_RA{i}" for i in range(9)] + [f"n_M_DK0{i}" for i in range(8)] +
+                    [f"n_M_MA{i:02}" for i in range(2, 18)]):
+            self.assertIn(f"    output logic {net}", self.text)
+
+
 class TheBoardWithTheModule(unittest.TestCase):
     """НС4 with the memory expansion module (plan 6a): its chips beside the
     board's, prefixed M, its XP1 nets joined to НС4's by joins.csv, the chips
@@ -821,6 +849,11 @@ class TheBoardWithTheModule(unittest.TestCase):
             self.assertEqual(f.read(), text, "rtl/board/ns4_ext.sv is stale: run tools/board.py")
         with open(os.path.join(ROOT, "rtl", "board", "ns4_ext_inputs.inc"), encoding="utf-8") as f:
             self.assertEqual(f.read(), inputs, "rtl/board/ns4_ext_inputs.inc is stale: run tools/board.py")
+
+    def test_a_switch_takes_the_module_out(self):
+        # its select, выбор устр (= ВБРЕГ L) into D12's gate 4, held high at 0
+        text, _, _ = board.generate_all(board.ns4_ext_sources())
+        self.assertIn(".p12(s_MD12_12 ? n_VBREG_L : 1'b1),", text)
 
     def test_the_module_s_chips_beside_the_board_s(self):
         self.assertTrue({"D2", "MD2", "MD19", "MD34", "MD35", "MD6"} <= self.placed())

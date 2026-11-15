@@ -1125,3 +1125,33 @@ settles:
   stands.  Hence EX.SYS's way (as the emulator's ramdisk.h describes
   it): a page's first byte to 177570, the other 255 to 177550 - the
   hardware asks for exactly that.
+- **Open: the module's data lines see two drivers after a read.**  In the
+  same run (`test_exdisk.cpp`, the module in, the green wire on) the
+  module's own data lines `ДК00`..`ДК07` have two drivers on for longer
+  than a bus handover (more than 3 ticks) again and again - 229 376
+  ticks in all - each time with `-RAS` already high and a bank's `-CAS`
+  still low: the RAM chips' DO, which `-CAS` alone holds on (as
+  КР565РУ7's sheet has it, `kr565ru7.sv`), and another of the module's
+  drivers on those lines; which one is not traced yet.  It does not
+  spoil a byte - the pages come back right - and it does not reach НС4's
+  bus: `МК00`..`МК07` show no such fight while the module is in with
+  the wire, nor while it is taken out.  Without the wire they do, where
+  НС4's registers and the module answer at once.
+
+### The module in the MiSTer core (plan 6a step 4, 2026-11-15)
+
+The module's 512 KB are more than the FPGA's block memory has left beside
+the board's own (5 662 720 bits, 1 643 857 taken by the core: the sixteen
+КР565РУ7's 4 194 304 do not fit even packed whole), so the core keeps
+them in DDR3 (`rtl/parts/ext_ram.sv`) and the generated board leaves the
+chips out (`rtl/board/ns4_ext_machine.sv`).  DDR3 answers in some 100-200
+ns and not always as soon; the module's address does not wait for it:
+MA02..MA17 (the ВВ55's ports and the counter D14) stand before each cycle
+begins, so the word is fetched as the address changes and is there when
+`-CAS` falls.  On the model, exdisk's 2048 bytes come back right through
+it with DDR3 answering in 100-400 ns and holding one request in four, no
+read before its word (`test_machine.cpp`); against the sixteen chips'
+models, tick for tick, with resets in the middle of an answer
+(`test_ext_ram.cpp`).  The menu takes the module out: its select
+(`выбор устр` into D12's gate 4) held off, so it answers nothing, and
+D80.5 back on Э3's net.

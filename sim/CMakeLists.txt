@@ -118,14 +118,18 @@ ms0515_model(Vms7004_keys "${PROJECT_SOURCE_DIR}/rtl/parts/ms7004_keys.sv" ms700
 ms0515_test(test_ms7004_keys parts/test_ms7004_keys.cpp Vms7004_keys)
 ms0515_model(Vvideo_half "${PROJECT_SOURCE_DIR}/rtl/parts/video_half.sv" video_half)
 ms0515_test(test_video_half parts/test_video_half.cpp Vvideo_half)
+# the module's RAM in DDR3 (rtl/parts/ext_ram.sv) against its sixteen chips
+ms0515_model(Vext_ram_check "${CMAKE_CURRENT_SOURCE_DIR}/parts/ext_ram_check.sv" ext_ram_check
+             ARGS -y "${PROJECT_SOURCE_DIR}/rtl/parts")
+ms0515_test(test_ext_ram parts/test_ext_ram.cpp Vext_ram_check)
 ms0515_model(Vmc5305 "${PROJECT_SOURCE_DIR}/rtl/parts/mc5305.sv" mc5305
              PACKAGES "${PROJECT_SOURCE_DIR}/rtl/parts/mc5305_pkg.sv" ARGS -y "${PROJECT_SOURCE_DIR}/rtl/parts")
 ms0515_test(test_mc5305 parts/test_mc5305.cpp Vmc5305)
 # ... and on the board's own levels
 ms0515_test(test_board_video board/test_board_video.cpp Vns4 Vns4_video)
 
-# the machine of the MiSTer core: the board inside it (rtl/board/ns4_machine.sv)
-# with the parts, against the bench's board
+# the machine of the MiSTer core: the board inside it with the module
+# (rtl/board/ns4_ext_machine.sv) and the parts, against the bench's board
 ms0515_model(Vms0515 "${PROJECT_SOURCE_DIR}/rtl/ms0515.sv" ms0515
              PACKAGES ${MS0515_CPU_PACKAGES} "${MS0515_CHIPS}/kr1818vg93_pkg.sv"
                       "${PROJECT_SOURCE_DIR}/rtl/parts/mc5305_pkg.sv" "${MS0515_CHIPS}/km1816ve48_pkg.sv"

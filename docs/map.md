@@ -57,7 +57,7 @@ switch, `s_D70_15`.
 | `netlist/ms7004/*.csv` | the МС 7004 keyboard: parts, pins, nets, matrix, PC keys | its own documents (`docs/ms7004.md`) |
 | `netlist/open.md` | reads not settled yet | |
 | `rtl/chips/*.sv` | one module per chip type, pin for pin | datasheets; T-11 Engineering Specification |
-| `rtl/parts/*.sv` | the core's parts around the board: drive, keyboard translator, video out | `rtl/parts/README.md` |
+| `rtl/parts/*.sv` | the core's parts around the board: drive, keyboard translator, video out, the module's RAM in DDR3 | `rtl/parts/README.md` |
 | `rtl/ms0515.sv`, `boards/de10nano/*.sv`, `*.sdc`, `*.tcl` | the core: the machine, its MiSTer `emu`, clocks, timing, build scripts | stage 7d |
 | `boards/de10nano/template` | MiSTer's framework, a git submodule (not ours, not copied) | Template_MiSTer |
 | `firmware/*.rom`, `*.r12` | the machine's ROMs and the video PROMs, as read from real chips | `firmware/README.md` |
@@ -72,7 +72,7 @@ again in memory and fails if the committed one differs.
 
 | File | Made by | From | Check |
 |---|---|---|---|
-| `rtl/board/ns4.sv`, `ns4_inputs.inc`, `ns4_machine.sv`, `ms7004.sv`, `ms7004_machine.sv`, `ms7004_inputs.inc`, `ns4_ext.sv`, `ns4_ext_inputs.inc` (НС4 with the memory expansion module) | `python tools/board.py` | `netlist/*.csv`, `netlist/ms7004/*.csv`, `netlist/ext/*.csv`, the chip modules' ports, `delays.csv` | `python tools/board.py check` |
+| `rtl/board/ns4.sv`, `ns4_inputs.inc`, `ms7004.sv`, `ms7004_machine.sv`, `ms7004_inputs.inc`, `ns4_ext.sv`, `ns4_ext_inputs.inc` (НС4 with the memory expansion module), `ns4_ext_machine.sv` (the same for the MiSTer core, the module's RAM chips left out) | `python tools/board.py` | `netlist/*.csv`, `netlist/ms7004/*.csv`, `netlist/ext/*.csv`, the chip modules' ports, `delays.csv` | `python tools/board.py check` |
 | `rtl/parts/ms7004_keys_pkg.sv` | `python tools/ms7004_keys.py` | `netlist/ms7004/pc_keys.csv`, `matrix.csv` | `... check` |
 | `firmware/tests/*.rom` | `python tools/test_roms.py` | `firmware/tests/*.mac`, assembled by DEC's MACRO/LINK run in the emulator's `ms0515-run` | `... check` |
 | `kicad/ns4*.kicad_sch` | `python tools/kicad.py` | `netlist/` | `... check`; with kicad-cli a tool test reads the nets back |

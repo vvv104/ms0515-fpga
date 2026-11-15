@@ -154,6 +154,22 @@ The second printed board, `ns4-vvv104`, is gone.
       without the green wire they do not (`docs/findings.md`, the module
       on the model).  Next: Omega with EX.SYS on it.
    4. The core: the module on the same FPGA, a switch in the menu.
+      **On the model** (2026-11-15): its 512 KB do not fit the block
+      memory beside the board (owner: then DDR3, no extra board), so
+      `tools/board.py` writes `rtl/board/ns4_ext_machine.sv` with the
+      sixteen КР565РУ7 left out, their pins ports, and
+      `rtl/parts/ext_ram.sv` keeps the cells in DDR3 through MiSTer's
+      DDRAM port, the word fetched as the module's address changes
+      (`docs/findings.md`, the module in the core).  The core takes that
+      board in place of `ns4_machine.sv` (gone); the menu's "RAM disk
+      module (XS1)" takes the module out - a switch in
+      `netlist/ext/changes.csv` holds its select off - and puts D80.5
+      back on Э3's net.  `test_ext_ram` holds the bridge to the chips'
+      models tick for tick, DDR3 slow and held up, with resets;
+      `test_machine` runs exdisk on the core with the module in (2048
+      bytes right, no read before its word) and out (nothing comes back,
+      DDR3 untouched).  Next: the Quartus build - resources and timing
+      with the DDRAM port - and Omega's EX.SYS on the core.
    5. The printed board: two layers, on XP1 (DIN 41612 C, as НС4's XS1
       is made anew), the RS-232 half fitted or not.
 7. **The FPGA: a MiSTer core** (decided 2026-10-22; the Tang Nano 20K of

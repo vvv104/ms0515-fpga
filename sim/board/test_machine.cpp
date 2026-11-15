@@ -1,20 +1,26 @@
 // The machine of the MiSTer core (rtl/ms0515.sv: the board inside the
-// machine, rtl/board/ns4_machine.sv, with the drive and the picture as
-// logic) against the bench's board (rtl/board/ns4.sv) and ns4_video on its
-// lines, tick for tick from power-on, no disk: the picture, the drive's
-// lines and the keyboard's line the same.  The picture comes a master tick
+// machine with the memory expansion module, rtl/board/ns4_ext_machine.sv,
+// with the drive and the picture as logic) against the bench's board
+// (rtl/board/ns4.sv) and ns4_video on its lines, tick for tick from
+// power-on, no disk, the module taken out: the picture, the drive's lines
+// and the keyboard's line the same.  The picture comes a master tick
 // later: inside the machine ns4_video takes the board's levels at the edge
 // they change on, where the bench gives them to it after.
 //
 // With a keyboard, the bench's stub (keyboard_stub.h) sends keys: on the
 // bench's board at XS2.3 as the socket has them, on the machine's serial
 // line as a UART's (idle high), the inverse.
+//
+// With the module in, its RAM disk in DDR3 (rtl/parts/ext_ram.sv, the
+// bench's DDR3 ddram.h) is worked by exdisk.rom as on the bench's board.
 #include <doctest/doctest.h>
 
 #include "Vms0515.h"
 #include "Vms0515___024root.h"
 #include "Vns4.h"
 #include "Vns4_video.h"
+#include "cpu_writes.h"
+#include "ddram.h"
 #include "keyboard_stub.h"
 #include "power.h"
 
@@ -23,6 +29,9 @@
 #include <fstream>
 #include <iterator>
 #include <memory>
+#include <optional>
+#include <string>
+#include <vector>
 
 namespace {
 
@@ -68,6 +77,91 @@ void idle(Vms0515& m, bool keyboard)
     m.sd_buff_addr = 0;
     m.sd_buff_dout = 0;
     m.sd_buff_wr = 0;
+    m.module_in = 0;
+    m.ddr_busy = 0;
+    m.ddr_dout_ready = 0;
+    m.ddr_dout = 0;
+}
+
+// a master tick of the machine with its DDR3
+void tick(Vms0515& m, Ddram& ddr, std::uint64_t& t)
+{
+    ddr.present(m, t);
+    m.clk = 0;
+    m.eval();
+    ddr.take(m, t);
+    m.clk = 1;
+    m.eval();
+    ++t;
+}
+
+// a 16 KB ROM from firmware/tests into the machine's sockets, DDR3 there
+// from the first tick, as on the DE10-Nano
+void load_rom(Vms0515& m, Ddram& ddr, std::uint64_t& t, const char* name)
+{
+    std::ifstream f(std::string(MS0515_FIRMWARE_DIR "/tests/") + name, std::ios::binary);
+    REQUIRE(f);
+    const std::vector<char> rom{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
+    REQUIRE(rom.size() == 16384);
+    tick(m, ddr, t);                    // the chips' cells from their CONTENTS first
+    for (unsigned i = 0; i < 16384; ++i) {
+        m.rom_we = 1;
+        m.rom_addr = static_cast<SData>(i);
+        m.rom_data = static_cast<CData>(rom[i]);
+        tick(m, ddr, t);
+    }
+    m.rom_we = 0;
+}
+
+// the bus as cpu_writes.h reads it, from the nets inside the machine's
+// board (АД00 is not among them: nothing there reads it, and the writes
+// are taken by the word)
+struct Bus {
+    unsigned n_PVAS_L, n_PVAK_L, n_PMLB_L, n_PSTB_L;
+    unsigned n_AD00_H, n_AD01_H, n_AD02_H, n_AD03_H, n_AD04_H, n_AD05_H, n_AD06_H, n_AD07_H;
+    unsigned n_AD08_H, n_AD09_H, n_AD10_H, n_AD11_H, n_AD12_H, n_AD13_H, n_AD14_H, n_AD15_H;
+    unsigned n_MK00_H, n_MK01_H, n_MK02_H, n_MK03_H, n_MK04_H, n_MK05_H, n_MK06_H, n_MK07_H;
+    unsigned n_MK08_H, n_MK09_H, n_MK10_H, n_MK11_H, n_MK12_H, n_MK13_H, n_MK14_H, n_MK15_H;
+};
+
+Bus bus_of(const Vms0515& m)
+{
+#define MS0515_NET(n) m.rootp->ms0515__DOT__board__DOT__##n
+    return {MS0515_NET(n_PVAS_L), MS0515_NET(n_PVAK_L), MS0515_NET(n_PMLB_L), MS0515_NET(n_PSTB_L),
+            0, MS0515_NET(n_AD01_H), MS0515_NET(n_AD02_H), MS0515_NET(n_AD03_H),
+            MS0515_NET(n_AD04_H), MS0515_NET(n_AD05_H), MS0515_NET(n_AD06_H), MS0515_NET(n_AD07_H),
+            MS0515_NET(n_AD08_H), MS0515_NET(n_AD09_H), MS0515_NET(n_AD10_H), MS0515_NET(n_AD11_H),
+            MS0515_NET(n_AD12_H), MS0515_NET(n_AD13_H), MS0515_NET(n_AD14_H), MS0515_NET(n_AD15_H),
+            MS0515_NET(n_MK00_H), MS0515_NET(n_MK01_H), MS0515_NET(n_MK02_H), MS0515_NET(n_MK03_H),
+            MS0515_NET(n_MK04_H), MS0515_NET(n_MK05_H), MS0515_NET(n_MK06_H), MS0515_NET(n_MK07_H),
+            MS0515_NET(n_MK08_H), MS0515_NET(n_MK09_H), MS0515_NET(n_MK10_H), MS0515_NET(n_MK11_H),
+            MS0515_NET(n_MK12_H), MS0515_NET(n_MK13_H), MS0515_NET(n_MK14_H), MS0515_NET(n_MK15_H)};
+#undef MS0515_NET
+}
+
+// exdisk.rom (firmware/tests/exdisk.mac, as test_exdisk.cpp runs it on the
+// bench's board) on the machine with the module in or out, its RAM in a
+// DDR3 that answers in 12..48 ticks (100-400 ns) and holds a request one
+// tick in four; until the program's end mark or 200 ms.  faults: ext_ram's
+// from the supply's rise on - before it the board's strobes are its
+// power-on's, while the supply monitor holds it (power.h), and nothing
+// reads what they show
+CpuWrites run_exdisk(Vms0515& m, Ddram& ddr, bool module_in, std::uint32_t& faults)
+{
+    idle(m, false);
+    m.module_in = module_in ? 1 : 0;
+    std::uint64_t t = 0;
+    load_rom(m, ddr, t, "exdisk.rom");
+    CpuWrites writes;
+    std::uint32_t at_rise = 0;
+    while (t < 200000ull * kMasterMhz && !writes.word_at(01012)) {
+        tick(m, ddr, t);
+        writes.see(bus_of(m));
+        if (t == kSupplyRiseTicks)
+            at_rise = m.ram_faults;
+    }
+    faults = m.ram_faults - at_rise;
+    return writes;
 }
 
 void feed(Vns4_video& v, const Vns4& n)
@@ -273,4 +367,36 @@ TEST_CASE("ms0515: the speaker's node comes out - the timer's 1 kHz tone of the 
         at_1khz += us > 999.0 && us < 1001.0 ? 1 : 0;
     }
     CHECK(at_1khz >= 10);
+}
+
+// The memory expansion module in the machine (plan 6a, step 4): its RAM
+// disk in DDR3 (rtl/parts/ext_ram.sv) in place of its sixteen chips,
+// exdisk's eight pages written through the data port and read back as on
+// the bench's board with the chips (test_exdisk.cpp) - and no read came
+// before the word it reads.
+TEST_CASE("ms0515: the module's RAM disk in DDR3 - eight pages come back as written")
+{
+    auto machine = std::make_unique<Vms0515>();
+    Ddram ddr(12, 48, 4);
+    std::uint32_t faults = 0;
+    const CpuWrites writes = run_exdisk(*machine, ddr, true, faults);
+    REQUIRE(writes.word_at(01012) == std::optional<std::uint16_t>(052525));
+    CHECK(writes.word_at(01010) == std::optional<std::uint16_t>(2048));
+    CHECK(writes.word_at(01006) == std::optional<std::uint16_t>(0));
+    CHECK(faults == 0);
+    CHECK(ddr.writes() >= 2048);
+    MESSAGE(ddr.reads() << " words fetched, " << ddr.writes() << " bytes written");
+}
+
+// Taken out in the menu, the module answers nothing (its select held off)
+// and D80.5 is back on Э3's net: НС4's own registers at those addresses.
+TEST_CASE("ms0515: the module taken out - the pages do not come back, DDR3 not written")
+{
+    auto machine = std::make_unique<Vms0515>();
+    Ddram ddr(12, 48, 4);
+    std::uint32_t faults = 0;
+    const CpuWrites writes = run_exdisk(*machine, ddr, false, faults);
+    REQUIRE(writes.word_at(01012) == std::optional<std::uint16_t>(052525));
+    CHECK(writes.word_at(01006) != std::optional<std::uint16_t>(0));
+    CHECK(ddr.writes() == 0);
 }

@@ -25,6 +25,11 @@
 //
 // The board is НС4 as the standard build (netlist/assembly.csv); its one
 // change from Э3, D70.15 lifted onto GND, can be taken back in the menu.
+//
+// The memory expansion module (plan 6a), the RAM disk's half, in XS1 or
+// not, as the menu says: in, with НС4's green wire it needs; its 512 KB in
+// DDR3 at 0x30000000, the cores' part (rtl/parts/ext_ram.sv).  Out by
+// default, as the board is delivered.
 module emu
 (
     `include "sys/emu_ports.vh"
@@ -34,7 +39,6 @@ module emu
     assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
     assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH,
             SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
-    assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;
     assign VGA_SL = 0;
     assign VGA_F1 = 0;
     assign VGA_SCALER = 0;
@@ -60,6 +64,7 @@ module emu
         "-;",
         "O[6],D70.15 (rev. 3A),On GND,As drawn (E3);",
         "O[8:7],Frame rate (E3/E4),72 Hz,50 Hz,60 Hz;",
+        "O[9],RAM disk module (XS1),Out,In;",
         "-;",
         "O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
         "-;",
@@ -103,6 +108,8 @@ module emu
     pll pll (.refclk(CLK_50M), .rst(RESET), .outclk_0(clk_sys), .outclk_1(clk_video), .locked(locked));
 
     // ---- the machine -------------------------------------------------------
+    // the module's RAM disk in DDR3 (rtl/parts/ext_ram.sv), on the master clock
+    assign DDRAM_CLK = clk_sys;
     // a ROM image coming from the menu: the machine held in reset meanwhile
     wire       rom_loading = ioctl_download && ioctl_index[5:0] == 6'd1;
     wire       rom_we = rom_loading && ioctl_wr && ioctl_addr[26:14] == 13'd0;
@@ -126,6 +133,10 @@ module emu
         .clk(clk_sys), .reset,
         .rom_we, .rom_addr(ioctl_addr[13:0]), .rom_data(ioctl_dout),
         .d70_drawn(status[6]), .frame(status[8:7] == 2'd3 ? 2'd0 : status[8:7]),
+        .module_in(status[9]), .ram_faults(),
+        .ddr_busy(DDRAM_BUSY), .ddr_burstcnt(DDRAM_BURSTCNT), .ddr_addr(DDRAM_ADDR),
+        .ddr_dout(DDRAM_DOUT), .ddr_dout_ready(DDRAM_DOUT_READY), .ddr_rd(DDRAM_RD),
+        .ddr_din(DDRAM_DIN), .ddr_be(DDRAM_BE), .ddr_we(DDRAM_WE),
         .kbd_source(kbd_inside ? 2'd1 : on_user || on_uart ? 2'd2 : 2'd0),
         .ps2_key, .kbd_mode(status[5]), .kbd_rx(rx_sync[1]), .kbd_tx,
         .kbd_leds(), .kbd_bell, .speaker,

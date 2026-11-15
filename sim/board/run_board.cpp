@@ -877,6 +877,7 @@ int main(int argc, char** argv)
     set_frame_rate(*m, *o.rate);
 #ifdef MS0515_BOARD_EXT
     m->s_D80_5 = o.nowire ? 1 : 0;     // the green wire, АД03 into D80.5; Э3's ВБРЕГ L without it
+    m->s_MD12_12 = 1;                  // the module in (the core's menu can take it out)
 #endif
     Emulator emu(o.rom.empty() ? MS0515_FIRMWARE_DIR "/ms0515-romb.rom" : o.rom, *o.rate);
     if (!o.rom.empty() && o.load.empty()) {
