@@ -221,3 +221,19 @@ TEST_CASE("screen_compare: single edges a sample off are no phase break")
     at(f, 0, 40) = static_cast<std::uint8_t>(kBorder | 8);
     CHECK(compare_screen(f, v.data(), true, kBorder, kLeft, 16, 1).phase_breaks == 0);
 }
+
+// The emulator's picture as samples, to be saved and looked at beside the
+// board's: the frame the board would give of it, cut to the active area.
+TEST_CASE("screen_compare: the emulator's picture is the board's frame's active area")
+{
+    const Vram v = stripes();
+    const Frame f = frame_of(v);
+    const Frame p = emulator_picture(v.data(), true, kBorder);
+    REQUIRE(p.size() == 200);
+    for (int y = 0; y < 200; ++y) {
+        REQUIRE(p[static_cast<std::size_t>(y)].size() == 640);
+        for (int x = 0; x < 640; ++x)
+            CHECK(p[static_cast<std::size_t>(y)][static_cast<std::size_t>(x)] ==
+                  f[static_cast<std::size_t>(kTop + y)][static_cast<std::size_t>(kLeft + x)]);
+    }
+}

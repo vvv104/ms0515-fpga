@@ -35,6 +35,9 @@ module ms0515 (
     // the owner's board's changes (netlist/vvv104.csv) taken back to Э3:
     // D70.15 on ~D14.3 as drawn, not on GND
     input  logic        d70_drawn,
+    // the jumpers E3/E4, the frame rate (netlist/variants.md): 0 E3 alone,
+    // 72 Hz, as on the boards photographed; 1 both, 50 Hz; 2 E4 alone, 60 Hz
+    input  logic [1:0]  frame,
     // the keyboard
     input  logic [1:0]  kbd_source,
     input  logic [10:0] ps2_key,
@@ -102,7 +105,8 @@ module ms0515 (
         .nx_D69_9(bright), .nx_D93_3(speaker),
         .l_D65_we(rom_we && !rom_addr[0]), .l_D65_a(rom_addr[13:1]), .l_D65_d(rom_data),
         .l_D77_we(rom_we && rom_addr[0]),  .l_D77_a(rom_addr[13:1]), .l_D77_d(rom_data),
-        .s_D70_15(d70_drawn)
+        .s_D70_15(d70_drawn),
+        .s_E3(frame == 2'd2), .s_E4(frame != 2'd0)
     );
 
     mc5305 drive (

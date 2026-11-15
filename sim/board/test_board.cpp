@@ -5,6 +5,7 @@
 #include <verilated.h>
 
 #include "Vns4.h"
+#include "frame_rate.h"
 #include "power.h"
 #include "rom_socket.h"
 
@@ -178,14 +179,16 @@ std::vector<std::uint8_t> read_rom(const std::string& path)
     return {std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
 }
 
-// The emulator from reset with a ROM: the PC of each of its first n instructions.
-std::vector<std::uint16_t> emulator_fetches(std::size_t n, const std::string& rom_path)
+// The emulator from reset with a ROM and the board's jumpers: the PC of each
+// of its first n instructions.
+std::vector<std::uint16_t> emulator_fetches(std::size_t n, const std::string& rom_path, const FrameRate& rate)
 {
     const std::vector<std::uint8_t> rom = read_rom(rom_path);
     auto board = std::make_unique<ms0515_board_t>();
     board_init(board.get());
     board_load_rom(board.get(), rom.data(), static_cast<std::uint32_t>(rom.size()));
     board_reset(board.get());
+    board->dip_refresh = rate.dip_refresh;
     std::vector<std::uint16_t> pcs;
     while (pcs.size() < n) {
         pcs.push_back(board->cpu.r[7]);
@@ -236,13 +239,15 @@ std::string octal(unsigned v)
 // The first 100 ms after power-on: the sync PROMs' timing, D16's reset pulse
 // and the processor let go, from then on no net with two drivers on, and
 // the processor running the ROM in the sockets as the emulator does (ROM-B
-// as built, or another image put in).  The jumpers E3 and E4, both fitted
-// as the machines in use had them (РВК1 and РВК0 low), are the 50 Hz row of
-// the ТО's Table 10: 312 lines of 64 us.
-static void power_on(int seed, const std::string& rom_path = kRomB)
+// as built, or another image put in).  The jumpers E3 and E4 as a build has
+// them (frame_rate.h): E3 alone as on the boards photographed, 72 Hz, 262
+// lines of 53.3 us; both, 50 Hz, 312 of 64 us; E4 alone, 60 Hz, 260 of 64.
+static void power_on(int seed, const std::string& rom_path = kRomB,
+                     const FrameRate& rate = default_frame_rate())
 {
-    INFO("power-up state seed " << seed << ", ROM " << rom_path);
+    INFO("power-up state seed " << seed << ", ROM " << rom_path << ", " << rate.hz << " Hz");
     Board b(seed);
+    set_frame_rate(b.m(), rate);
     if (rom_path != kRomB)
         REQUIRE(plug_rom(b.m(), read_rom(rom_path)));
     Falls line, frame;
@@ -271,20 +276,27 @@ static void power_on(int seed, const std::string& rom_path = kRomB)
     }
     MESSAGE(fights.handovers << " bus handovers overlapped by at most " << Fights::kHandover << " ticks");
     REQUIRE(line.at.size() > 100);
-    CHECK(line.period_us(1) == doctest::Approx(64.0).epsilon(0.001));
+    // the lines from СТАРТ on: before it D76's port B is as it powered up
+    // and may drive РВК0, which E3 alone leaves to it (the 72 Hz build)
+    REQUIRE(start_fell > 0);
+    std::size_t first = 0;
+    while (first < line.at.size() && line.at[first] < start_fell)
+        ++first;
+    REQUIRE(line.at.size() > first + 100);
+    CHECK(line.period_us(first) == doctest::Approx(rate.line_us).epsilon(0.001));
     REQUIRE(frame.at.size() >= 4);
-    // The last frame: 312 lines, the 50 Hz page of the sync PROM D13 (with
-    // E3 fitted РВК1 is low whatever D76's port B does before СТАРТ).
-    CHECK(frame.period_us(frame.at.size() - 2) == doctest::Approx(312 * 64.0).epsilon(0.01));
+    // The last frame: the page of the sync PROM D13 the jumpers pick
+    const double frame_us = rate.lines * rate.line_us;
+    CHECK(frame.period_us(frame.at.size() - 2) == doctest::Approx(frame_us).epsilon(0.01));
     // D16 counts АПК7: the processor is held from its 2nd fall to its 4th -
     // two frames
     REQUIRE(start_rose > 0);
     REQUIRE(start_fell > start_rose);
     CHECK(static_cast<double>(start_fell - start_rose) / kMasterMhz ==
-          doctest::Approx(2 * 312 * 64.0).epsilon(0.02));
+          doctest::Approx(2 * frame_us).epsilon(0.02));
 
     REQUIRE(fetches.size() > 100);
-    const std::vector<std::uint16_t> expected = emulator_fetches(fetches.size(), rom_path);
+    const std::vector<std::uint16_t> expected = emulator_fetches(fetches.size(), rom_path, rate);
     std::size_t same = 0;
     while (same < fetches.size() && fetches[same] == expected[same])
         ++same;
@@ -296,9 +308,16 @@ static void power_on(int seed, const std::string& rom_path = kRomB)
     CHECK(same == fetches.size());
 }
 
-TEST_CASE("power-on: 64 us lines, 50 Hz frames, СТАРТ H, then ROM-B as in the emulator")
+TEST_CASE("power-on: 53.3 us lines, 72 Hz frames, СТАРТ H, then ROM-B as in the emulator")
 {
     power_on(0);
+}
+
+// The other builds' jumpers: E3 and E4 both (50 Hz), E4 alone (60 Hz).
+TEST_CASE("power-on with the jumpers of the 50 Hz and the 60 Hz builds")
+{
+    for (const int hz : {50, 60})
+        power_on(0, kRomB, *frame_rate(hz));
 }
 
 // The other ROM pair in the sockets: ROM-A, which OSA needs.

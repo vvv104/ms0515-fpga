@@ -43,6 +43,9 @@ netlist/analog.csv   ref,treatment,pins,reason
                    empty for 1-2): a fitted jumper, a closed switch, a part
                    standing for a conductor
     open           left out: not fitted, or no effect on the logic
+    jumper         a build's option from a line (pin 1) to GND (pin 2), `pins`
+                   'fitted' or 'open' by default; a board input s_<ref>
+                   flips it while 1
     pull0 / pull1  pulls the part's signal nets low / high
     port           a connector: its signal pins brought out
     pending        brought out like a connector until it has a model
@@ -278,6 +281,28 @@ def load_delays(path):
     return out
 
 
+def parse_paths(text):
+    """The paths column, "S0 S1:22 1G 2G:18.5": {pin name or number: ns},
+    the delay from those inputs to the outputs."""
+    out = {}
+    for group in re.findall(r"([^:]+):([\d.]+)", text or ""):
+        for pin in group[0].split():
+            out[pin] = float(group[1])
+    return out
+
+
+def load_paths(typ_path, max_path, corner):
+    """{chip type: {pin: ns}} of the paths column at a corner: delays.csv's
+    at typ, delays-max.csv's at max, MIN_SHARE of the typical at min."""
+    table = max_path if corner == "max" else typ_path
+    if not table:
+        return {}
+    out = {r["type"]: parse_paths(r.get("paths")) for r in nl.rows(table) if (r.get("paths") or "").strip()}
+    if corner == "min":
+        out = {t: {p: ns * MIN_SHARE for p, ns in pins.items()} for t, pins in out.items()}
+    return out
+
+
 # The share of the typical delay taken for the min corner where a datasheet
 # prints no minimum - most do not (docs/timing.md, "Corners").
 MIN_SHARE = 0.5
@@ -309,16 +334,6 @@ def setup_ticks(chip, corner):
 # pads, docs/findings.md "C70 on the boards seen"), D70.15 on GND beside
 # it - one switch, 1 for the board as drawn, carries both.
 OWNER_LACKS = {"C70": ("D70", 15)}
-
-# Э3's board as the serial boards drew it: with C70 on БОРДС L the chain from
-# D30's step to D70's enable loses 640 x 200's left-edge race at the typical
-# figures - in continuous time too (docs/findings.md, D70, "The race in
-# continuous time") - and the serial boards drew the left edge clean.  So
-# their chain was faster: these chips' delays are taken at this share of the
-# corner's on Э3's board, the owner's keeping them (D70.15's switch).  The
-# share is fitted, not measured: the middle of the race's window.
-SERIAL_SPEED = {"D30": 0.55, "D21": 0.55, "D14": 0.55, "D70": 0.55}
-SERIAL_SWITCH = ("D70", 15)
 
 
 def rc_ticks(spec, corner):
@@ -493,6 +508,7 @@ class Builder:
         self.modules = load_modules(src.chips)
         self.firmware = load_firmware(src.firmware)
         self.delays = corner_delays(load_delays(src.delays), src.delays_max, src.corner)
+        self.paths = load_paths(src.delays, src.delays_max, src.corner)
         self.corner = src.corner
         self.fitted = {r["ref"]: r["type"].strip() for r in nl.rows(src.fitted)} if src.fitted else {}
         self.pins = defaultdict(dict)
@@ -503,7 +519,6 @@ class Builder:
         self.instances = []     # (ref, module, [(port, expr)], {parameter: value})
         self.rc = {}            # net: the ticks its rising edge comes late (an "rc" part)
         self.rc_assigns = []    # an rc net on the owner's board's switch: its level
-        self.switched = {}      # a chip output on SERIAL_SWITCH: its wire's raw (r_...)
         self.ports = []         # brought-out inputs, in order
         self.out = []           # (ref, why) parts brought out
         self.wires = []         # internal driver wires
@@ -562,9 +577,6 @@ class Builder:
             # a pass-through between two buses (К555АП6): under a tick its two
             # nets would be one combinational loop, so a tick at least
             ticks = tuple(max(t, 1) for t in ticks)
-        fast, fast_oe = None, None
-        if ref in SERIAL_SPEED and SERIAL_SWITCH in self.switches:
-            fast, fast_oe = self.ticks_of(ref, part, "clk" in module.ports, SERIAL_SPEED[ref])
         for port, way in module.ports.items():
             if port.startswith("load_") and way == "input":    # a socket: its cells loaded
                 name = f"l_{ref}_{port[5:]}"
@@ -589,13 +601,13 @@ class Builder:
                     self.tied.append(f"{ref}.{pin}")
                     conns.append((port, "1'b1"))
                     continue
-                conns.append((port, self.read(name, ref, pin)))
+                conns.append((port, self.path_input(ref, part, pin, self.read(name, ref, pin))))
                 continue
             wire = f"d_{ref}_{port}"
-            conns.append((port, self.delayed(wire, ticks, fast)))
+            conns.append((port, self.delayed(wire, ticks)))
             net = self.net(name)
             if port + "_oe" in module.ports:
-                conns.append((port + "_oe", self.delayed(wire + "_oe", oe_ticks, fast_oe)))
+                conns.append((port + "_oe", self.delayed(wire + "_oe", oe_ticks)))
                 net.tri.append((wire, wire + "_oe"))
             elif module.open_collector:
                 net.oc.append(wire)
@@ -612,11 +624,10 @@ class Builder:
             values["SETUP"] = setup
         self.instances.append((ref, module.name, conns, values))
 
-    def ticks_of(self, ref, part, clocked, share=1.0):
+    def ticks_of(self, ref, part, clocked):
         """The master ticks a chip's outputs lag by, and its output enables
-        as they turn on and off (delays.csv): (rise, fall) pairs, of share
-        of the delays.  None without the file, and none for a chip whose
-        model keeps its own."""
+        as they turn on and off (delays.csv): (rise, fall) pairs.  None
+        without the file, and none for a chip whose model keeps its own."""
         none = ((0, 0), (0, 0))
         if self.delays is None:
             return none
@@ -633,37 +644,37 @@ class Builder:
             return none
         if self.delays[chip] is None:
             return none
-        ns, on, off = (delay_ticks(v * share, clocked) for v in self.delays[chip])
+        ns, on, off = (delay_ticks(v, clocked) for v in self.delays[chip])
         return (ns, ns), (on, off)
 
-    def delayed(self, wire, ticks, fast=None):
-        """The wire a chip's output port drives: the net's driver itself, or
-        r_... feeding a delay line into it; ticks is (rise, fall).  With
-        fast ticks other than ticks, two lines - g_... and f_... - and the
-        serial switch picks: f_ on Э3's board (SERIAL_SPEED)."""
+    def path_input(self, ref, part, pin, level):
+        """An input on a slower path of its own (load_paths): through a
+        delay line of the path's delay less the chip's; else as it is."""
+        paths = self.paths.get(self.fitted.get(ref) or part.type) or self.paths.get(part.type)
+        if not paths or self.delays is None or level.startswith("1'b"):
+            return level
+        name = self.pinouts.get(part.type, {}).get(pin)
+        ns = paths.get(name, paths.get(str(pin)))
+        own = self.delays.get(self.fitted.get(ref) or part.type) or self.delays.get(part.type)
+        if ns is None or own is None:
+            return level
+        ticks = delay_ticks(ns - own[0], False)
+        if ticks <= 0:
+            return level
+        wire = f"p_{ref}_p{pin}"
         self.wires.append(wire)
-        if fast is not None and fast != ticks:
-            return self.switched_lines(wire, ticks, fast)
+        self.lines.append(((ticks, ticks), level, wire))
+        return wire
+
+    def delayed(self, wire, ticks):
+        """The wire a chip's output port drives: the net's driver itself, or
+        r_... feeding a delay line into it; ticks is (rise, fall)."""
+        self.wires.append(wire)
         if ticks == (0, 0):
             return wire
         raw = "r_" + wire[2:]
         self.wires.append(raw)
         self.lines.append((ticks, raw, wire))
-        return raw
-
-    def switched_lines(self, wire, ticks, fast):
-        """A chip output's two delay lines on the serial switch; the raw."""
-        raw, typical, quick = "r_" + wire[2:], "g_" + wire[2:], "f_" + wire[2:]
-        self.wires.append(raw)
-        for t, to in ((ticks, typical), (fast, quick)):
-            self.wires.append(to)
-            if t == (0, 0):
-                self.rc_assigns.append(f"    assign {to} = {raw};")
-            else:
-                self.lines.append((t, raw, to))
-        switch = f"s_{SERIAL_SWITCH[0]}_{SERIAL_SWITCH[1]}"
-        self.rc_assigns.append(f"    assign {wire} = {switch} ? {quick} : {typical};")
-        self.switched[wire] = raw
         return raw
 
     def place_rc(self, ref, t):
@@ -742,6 +753,19 @@ class Builder:
         self.instances.append((ref, module.name, [("i", "{" + ", ".join(ins) + "}"), ("o", wire)],
                                {"N": len(ins)}))
 
+    def place_jumper(self, ref, t):
+        """A build's jumper from a line to ground: the board input s_<ref>
+        flips it from the way `t.pins` says it is fitted by default."""
+        pins = self.pins.get(ref, {})
+        if t.pins not in ("fitted", "open") or self.joins.find(pins.get(2, "")) != "GND" \
+                or not pins.get(1) or self.joins.find(pins[1]) in POWER:
+            self.problems.error(f"{ref}: a jumper is from a line (pin 1) to GND (pin 2), "
+                                f"'fitted' or 'open' by default in analog.csv")
+            return
+        switch = f"s_{ref}"
+        self.loads.append((switch, ""))
+        self.net(pins[1]).oc.append(switch if t.pins == "fitted" else f"~{switch}")
+
     def supply(self, ref, pin):
         """A pin with no logic: a supply left off the power table (VEE of
         КР1102АП15) or an analogue one (its slew-rate resistor's W-S)."""
@@ -783,6 +807,8 @@ class Builder:
                 self.place_detector(ref, t)
             elif t.kind == "rc":
                 self.place_rc(ref, t)
+            elif t.kind == "jumper":
+                self.place_jumper(ref, t)
             elif t.kind not in ("short", "wire", "open"):
                 self.problems.error(f"{ref}: unknown treatment '{t.kind}'")
         return self
@@ -1018,9 +1044,6 @@ def generate_machine(src, inputs, outputs):
     for n in b.rc:                      # an rc net's level runs through its own delay line
         if n in nets:
             wires.update({"c_" + ident(n), "cs_" + ident(n)})
-    for w in b.switched:                # a serial-switched output's two lines
-        if w in wires:
-            wires.update({"g_" + w[2:], "f_" + w[2:]})
     b.rc_assigns = [a for a in b.rc_assigns if a.split()[1] in {ident(n) for n in nets} | wires]
     unused = []
     instances = []
@@ -1037,7 +1060,8 @@ def generate_machine(src, inputs, outputs):
         instances.append((ref, module, out, values))
     b.ports = keep
     b.instances = instances
-    b.lines = [line for line in b.lines if line[2] in wires]
+    kept = {ident(n) for n in nets}     # a line may drive a kept net itself (an rc net)
+    b.lines = [line for line in b.lines if line[2] in wires or line[2] in kept]
     b.wires = [w for w in b.wires if w in wires] + unused
     levels = {n: e for n, e in levels.items() if n in nets}
     return emit(b, levels, {n: None for n in levels}, set(outputs)), b.problems
@@ -1048,7 +1072,6 @@ def machine_live(b, levels, wanted):
     the wires, from the nets back through the chips driving them."""
     by_ident = {ident(n): n for n in levels}
     raw_of = {to: raw for _, raw, to in b.lines}
-    raw_of.update(b.switched)
     driver = {}
     for i, (_, module, conns, _) in enumerate(b.instances):
         ports = b.modules[module].ports
@@ -1072,8 +1095,14 @@ def machine_live(b, levels, wanted):
             _, module, conns, _ = b.instances[i]
             ports = b.modules[module].ports
             for port, expr in conns:
-                if ports.get(port) == "input":
-                    todo += [by_ident[x] for x in TOKEN.findall(expr) if x in by_ident]
+                if ports.get(port) != "input":
+                    continue
+                for x in TOKEN.findall(expr):
+                    if x.startswith("p_") and x in raw_of:     # an input on a path of its own
+                        wires.add(x)
+                        x = raw_of[x]
+                    if x in by_ident:
+                        todo.append(by_ident[x])
     return nets, insts, wires
 
 

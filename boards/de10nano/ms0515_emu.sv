@@ -59,6 +59,7 @@ module emu
         "O[5],Keys,By character,By position;",
         "-;",
         "O[6],D70.15 (rev. 3A),On GND,As drawn (E3);",
+        "O[8:7],Frame rate (E3/E4),72 Hz,50 Hz,60 Hz;",
         "-;",
         "O[122:121],Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
         "-;",
@@ -124,7 +125,7 @@ module emu
     ms0515 machine (
         .clk(clk_sys), .reset,
         .rom_we, .rom_addr(ioctl_addr[13:0]), .rom_data(ioctl_dout),
-        .d70_drawn(status[6]),
+        .d70_drawn(status[6]), .frame(status[8:7] == 2'd3 ? 2'd0 : status[8:7]),
         .kbd_source(kbd_inside ? 2'd1 : on_user || on_uart ? 2'd2 : 2'd0),
         .ps2_key, .kbd_mode(status[5]), .kbd_rx(rx_sync[1]), .kbd_tx,
         .kbd_leds(), .kbd_bell, .speaker,

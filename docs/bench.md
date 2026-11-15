@@ -15,14 +15,16 @@ plays, in `sim/board/`, at the board's connectors.
 
 `run_board_ext` takes the same arguments: the same bench on НС4 with the
 memory expansion module on XS1 (`rtl/board/ns4_ext.sv`, plan 6a), the
-green wire `АД03` -> D80.5 in (`sim/board/board_model.h` picks the model).
+green wire `АД03` -> D80.5 in, which the module needs, with `e3` too -
+the new board's jumper E9 at 2-3 (`netlist/pcb_parts.csv`); `nowire` is
+E9 at 1-2 (`sim/board/board_model.h` picks the model).
 The emulator beside it has no RAM disk and no diskette, so past ROM-B's
 keyboard request only the screens say anything.
 
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
 [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
 [rom=IMAGE] [keys=FILE] [joy=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq]
-[fetches=FROM-TO] [drawn] [edges=FROM-TO]`
+[fetches=FROM-TO] [e3] [edges=FROM-TO]`
 
 - the processor's fetches against the emulator's (from power-on only: a
   run from a snapshot is not followed), every Nth frame against its
@@ -93,9 +95,13 @@ keyboard request only the screens say anything.
   "READY"), by the cycle's kind on `РЕЖ1`, `РЕЖ0` (a fetch, data, an
   interrupt acknowledge).  The end's `READY slips:` line gives them,
   and the summary's `slips=`.
-- `drawn`: the board as Э3 draws it, without the owner's board's changes
-  (`netlist/vvv104.csv`: D70.15 on `~D14.3`, not on GND; under
-  `run_board_ext` also without the green wire, D80.5 on `ВБРЕГ L`);
+- `e3`: the board as Э3 draws it, without the owner's board's changes:
+  D70.15 on `~D14.3`, not on GND (`netlist/vvv104.csv`), C70 on
+  `БОРДС L`, not bitten off (`docs/findings.md`, "C70 on the boards
+  seen"); one switch of the generated board, `s_D70_15`, carries the
+  two (`tools/board.py`, `OWNER_LACKS`);
+- `nowire` (`run_board_ext` alone): without the green wire, D80.5 on
+  `ВБРЕГ L` as Э3 draws it - the board the module does not work on;
 - `edges=FROM-TO` (machine microseconds): every change of the nets at the
   picture's left edge, master tick by tick - the border (`БОРДС`,
   `БОРДК`), D70's enable (`~D14.3`), the strobes `ВК2`..`ВК5`, `СТРОБ`,

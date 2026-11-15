@@ -26,6 +26,8 @@ module ns4_machine (
     input  logic l_D77_we,
     input  logic [12:0] l_D77_a,
     input  logic [7:0] l_D77_d,
+    input  logic s_E3,
+    input  logic s_E4,
     output logic n_DV_H,
     output logic n_KC_H,
     output logic n_KSI_L,
@@ -46,6 +48,7 @@ module ns4_machine (
 );
     logic d_BQ1_p1;
     logic d_BQ2_p1;
+    logic c_n_SGI_L;
     logic c_n_BORDS_L;
     logic cs_n_BORDS_L;
     logic d_D1_p7;
@@ -166,20 +169,12 @@ module ns4_machine (
     logic r_D13_p11;
     logic d_D14_p3;
     logic r_D14_p3;
-    logic g_D14_p3;
-    logic f_D14_p3;
     logic d_D14_p6;
     logic r_D14_p6;
-    logic g_D14_p6;
-    logic f_D14_p6;
     logic d_D14_p8;
     logic r_D14_p8;
-    logic g_D14_p8;
-    logic f_D14_p8;
     logic d_D14_p11;
     logic r_D14_p11;
-    logic g_D14_p11;
-    logic f_D14_p11;
     logic d_D15_p2;
     logic r_D15_p2;
     logic d_D15_p4;
@@ -218,20 +213,12 @@ module ns4_machine (
     logic r_D19_p14_oe;
     logic d_D21_p14;
     logic r_D21_p14;
-    logic g_D21_p14;
-    logic f_D21_p14;
     logic d_D21_p13;
     logic r_D21_p13;
-    logic g_D21_p13;
-    logic f_D21_p13;
     logic d_D21_p12;
     logic r_D21_p12;
-    logic g_D21_p12;
-    logic f_D21_p12;
     logic d_D21_p11;
     logic r_D21_p11;
-    logic g_D21_p11;
-    logic f_D21_p11;
     logic d_D22_p8;
     logic d_D22_p8_oe;
     logic d_D22_p7;
@@ -609,16 +596,24 @@ module ns4_machine (
     logic r_D60_p6;
     logic d_D60_p8;
     logic r_D60_p8;
+    logic p_D61_p14;
+    logic p_D61_p2;
     logic d_D61_p7;
     logic r_D61_p7;
     logic d_D61_p9;
     logic r_D61_p9;
+    logic p_D62_p14;
+    logic p_D62_p2;
     logic d_D62_p7;
     logic r_D62_p7;
     logic d_D62_p9;
     logic r_D62_p9;
+    logic p_D63_p14;
+    logic p_D63_p2;
+    logic p_D63_p1;
     logic d_D63_p7;
     logic r_D63_p7;
+    logic p_D63_p15;
     logic d_D63_p9;
     logic r_D63_p9;
     logic d_D64_p4;
@@ -669,36 +664,39 @@ module ns4_machine (
     logic r_D66_p8;
     logic d_D66_p11;
     logic r_D66_p11;
+    logic p_D67_p14;
+    logic p_D67_p2;
     logic d_D67_p7;
     logic r_D67_p7;
     logic d_D67_p9;
     logic r_D67_p9;
+    logic p_D68_p14;
+    logic p_D68_p2;
     logic d_D68_p7;
     logic r_D68_p7;
     logic d_D68_p9;
     logic r_D68_p9;
+    logic p_D69_p14;
+    logic p_D69_p2;
+    logic p_D69_p1;
     logic d_D69_p7;
     logic r_D69_p7;
+    logic p_D69_p15;
     logic d_D69_p9;
     logic r_D69_p9;
+    logic p_D70_p1;
     logic d_D70_p4;
     logic r_D70_p4;
     logic d_D70_p4_oe;
     logic r_D70_p4_oe;
-    logic g_D70_p4_oe;
-    logic f_D70_p4_oe;
     logic d_D70_p7;
     logic r_D70_p7;
     logic d_D70_p7_oe;
     logic r_D70_p7_oe;
-    logic g_D70_p7_oe;
-    logic f_D70_p7_oe;
     logic d_D70_p9;
     logic r_D70_p9;
     logic d_D70_p9_oe;
     logic r_D70_p9_oe;
-    logic g_D70_p9_oe;
-    logic f_D70_p9_oe;
     logic d_D71_p6;
     logic r_D71_p6;
     logic d_D71_p8;
@@ -763,6 +761,10 @@ module ns4_machine (
     logic d_D76_p24_oe;
     logic d_D76_p23;
     logic d_D76_p23_oe;
+    logic d_D76_p22;
+    logic d_D76_p22_oe;
+    logic d_D76_p21;
+    logic d_D76_p21_oe;
     logic d_D76_p10;
     logic d_D76_p10_oe;
     logic d_D76_p11;
@@ -990,6 +992,8 @@ module ns4_machine (
     logic r_D86_p5;
     logic d_D86_p5_oe;
     logic r_D86_p5_oe;
+    logic p_D87_p14;
+    logic p_D87_p2;
     logic d_D87_p7;
     logic r_D87_p7;
     logic d_D87_p9;
@@ -1212,10 +1216,6 @@ module ns4_machine (
     logic unused_r_D70_p12;
     logic unused_r_D70_p12_oe;
     logic unused_r_D73_p11;
-    logic unused_d_D76_p22;
-    logic unused_d_D76_p22_oe;
-    logic unused_d_D76_p21;
-    logic unused_d_D76_p21_oe;
     logic unused_d_D76_p20;
     logic unused_d_D76_p20_oe;
     logic unused_d_D76_p19;
@@ -1430,6 +1430,8 @@ module ns4_machine (
     logic n_RPRRT_H;
     logic n_RVB0_H;
     logic n_RVB1_H;
+    logic n_RVK0_H;
+    logic n_RVK1_H;
     logic n_RVU0_H;
     logic n_RVU1_H;
     logic n_RZP_H;
@@ -1959,8 +1961,8 @@ module ns4_machine (
         .p2(n_APK6_H),
         .p1(n_APK7_H),
         .p17(n_APK8_H),
-        .p16(1'b0),
-        .p15(1'b0),
+        .p16(n_RVK1_H),
+        .p15(n_RVK0_H),
         .p8(1'b0),
         .p10(1'b0),
         .p14(r_D13_p14),
@@ -2083,7 +2085,7 @@ module ns4_machine (
         .p3(n_TS5_H),
         .p2(n_TS6_H),
         .p1(n_TS7_H),
-        .p17(1'b0),
+        .p17(n_RVK0_H),
         .p16(1'b0),
         .p15(1'b0),
         .p8(1'b0),
@@ -2874,8 +2876,8 @@ module ns4_machine (
     );
 
     k555kp2 D61 (
-        .p14(n_VB0_H),
-        .p2(n_VB1_H),
+        .p14(p_D61_p14),
+        .p2(p_D61_p2),
         .p1(1'b0),
         .p6(n_AD01_H),
         .p5(n_AD09_H),
@@ -2891,8 +2893,8 @@ module ns4_machine (
     );
 
     k555kp2 D62 (
-        .p14(n_VB0_H),
-        .p2(n_VB1_H),
+        .p14(p_D62_p14),
+        .p2(p_D62_p2),
         .p1(1'b0),
         .p6(n_AD05_H),
         .p5(n_A13_H),
@@ -2908,15 +2910,15 @@ module ns4_machine (
     );
 
     k555kp2 D63 (
-        .p14(n_VK8_H),
-        .p2(n_VK5_H),
-        .p1(n_VK7_H),
+        .p14(p_D63_p14),
+        .p2(p_D63_p2),
+        .p1(p_D63_p1),
         .p6(n_SN_H),
         .p5(n_SNF_H),
         .p4(n_OKRSN_H),
         .p3(n_OKSN_H),
         .p7(r_D63_p7),
-        .p15(n_VK7_H),
+        .p15(p_D63_p15),
         .p10(n_KR_H),
         .p11(n_KRF_H),
         .p12(n_OKRKR_H),
@@ -3122,8 +3124,8 @@ module ns4_machine (
     );
 
     k555kp2 D67 (
-        .p14(n_VB0_H),
-        .p2(n_VB1_H),
+        .p14(p_D67_p14),
+        .p2(p_D67_p2),
         .p1(1'b0),
         .p6(n_AD03_H),
         .p5(n_AD11_H),
@@ -3139,8 +3141,8 @@ module ns4_machine (
     );
 
     k555kp2 D68 (
-        .p14(n_VB0_H),
-        .p2(n_VB1_H),
+        .p14(p_D68_p14),
+        .p2(p_D68_p2),
         .p1(1'b0),
         .p6(n_AD07_H),
         .p5(n_A15_H),
@@ -3156,15 +3158,15 @@ module ns4_machine (
     );
 
     k555kp2 D69 (
-        .p14(n_VK8_H),
-        .p2(n_VK5_H),
-        .p1(n_VK7_H),
+        .p14(p_D69_p14),
+        .p2(p_D69_p2),
+        .p1(p_D69_p1),
         .p6(n_ZL_H),
         .p5(n_ZLF_H),
         .p4(n_OKRZL_H),
         .p3(n_OKZL_H),
         .p7(r_D69_p7),
-        .p15(n_VK7_H),
+        .p15(p_D69_p15),
         .p10(n_INT_H),
         .p11(n_INT_H),
         .p12(n_IND3_H),
@@ -3173,7 +3175,7 @@ module ns4_machine (
     );
 
     k555kp11 D70 (
-        .p1(n_RAZR_H),
+        .p1(p_D70_p1),
         .p15(s_D70_15 ? nx_D14_3 : 1'b0),
         .p2(n_TS1_H),
         .p3(n_TS15_L),
@@ -3304,8 +3306,8 @@ module ns4_machine (
         .p25_in(n_PRMAG_H),
         .p24_in(n_ZAVERSH_H),
         .p23_in(n_OBSL_H),
-        .p22_in(1'b0),
-        .p21_in(1'b0),
+        .p22_in(n_RVK1_H),
+        .p21_in(n_RVK0_H),
         .p20_in(n_GTV_H),
         .p19_in(n_ZOVM_H),
         .p18_in(n_GOT93_H),
@@ -3315,10 +3317,10 @@ module ns4_machine (
         .p24_oe(d_D76_p24_oe),
         .p23(d_D76_p23),
         .p23_oe(d_D76_p23_oe),
-        .p22(unused_d_D76_p22),
-        .p22_oe(unused_d_D76_p22_oe),
-        .p21(unused_d_D76_p21),
-        .p21_oe(unused_d_D76_p21_oe),
+        .p22(d_D76_p22),
+        .p22_oe(d_D76_p22_oe),
+        .p21(d_D76_p21),
+        .p21_oe(d_D76_p21_oe),
         .p20(unused_d_D76_p20),
         .p20_oe(unused_d_D76_p20_oe),
         .p19(unused_d_D76_p19),
@@ -3817,8 +3819,8 @@ module ns4_machine (
     );
 
     k555kp2 D87 (
-        .p14(n_RVB0_H),
-        .p2(n_RVB1_H),
+        .p14(p_D87_p14),
+        .p2(p_D87_p2),
         .p1(1'b0),
         .p6(nx_D99_10),
         .p5(n_AD14_H),
@@ -4071,19 +4073,19 @@ module ns4_machine (
     );
 
     // the chips' propagation delays (netlist/delays.csv), a bank for the outputs of one delay
+    delay_bank #(.TICKS(2), .FALL(0), .W(1)) b2_0_0 (.clk(clk), .i({c_n_SGI_L}), .o({n_SGI_L}));
     delay_bank #(.TICKS(3), .FALL(0), .W(1)) b3_0_0 (.clk(clk), .i({c_n_BORDS_L}), .o({cs_n_BORDS_L}));
     delay_bank #(.TICKS(13), .W(16)) b13_13_0 (.clk(clk), .i({r_D2_p14, r_D3_p14, r_D5_p14, r_D6_p14, r_D11_p14, r_D12_p14, r_D18_p14, r_D19_p14, r_D26_p14, r_D27_p14, r_D34_p14, r_D35_p14, r_D44_p14, r_D45_p14, r_D53_p14, r_D54_p14}), .o({d_D2_p14, d_D3_p14, d_D5_p14, d_D6_p14, d_D11_p14, d_D12_p14, d_D18_p14, d_D19_p14, d_D26_p14, d_D27_p14, d_D34_p14, d_D35_p14, d_D44_p14, d_D45_p14, d_D53_p14, d_D54_p14}));
     delay_bank #(.TICKS(13), .FALL(6), .W(16)) b13_6_0 (.clk(clk), .i({r_D2_p14_oe, r_D3_p14_oe, r_D5_p14_oe, r_D6_p14_oe, r_D11_p14_oe, r_D12_p14_oe, r_D18_p14_oe, r_D19_p14_oe, r_D26_p14_oe, r_D27_p14_oe, r_D34_p14_oe, r_D35_p14_oe, r_D44_p14_oe, r_D45_p14_oe, r_D53_p14_oe, r_D54_p14_oe}), .o({d_D2_p14_oe, d_D3_p14_oe, d_D5_p14_oe, d_D6_p14_oe, d_D11_p14_oe, d_D12_p14_oe, d_D18_p14_oe, d_D19_p14_oe, d_D26_p14_oe, d_D27_p14_oe, d_D34_p14_oe, d_D35_p14_oe, d_D44_p14_oe, d_D45_p14_oe, d_D53_p14_oe, d_D54_p14_oe}));
-    delay_bank #(.TICKS(2), .W(64)) b2_2_0 (.clk(clk), .i({r_D4_p2, r_D4_p4, r_D4_p6, r_D4_p8, r_D4_p10, r_D4_p12, r_D8_p2, r_D8_p10, r_D8_p12, r_D32_p5, r_D39_p3, r_D39_p6, r_D39_p8, r_D39_p11, r_D52_p18_oe, r_D52_p16_oe, r_D52_p14_oe, r_D52_p12_oe, r_D52_p9_oe, r_D52_p7_oe, r_D52_p5_oe, r_D52_p3_oe, r_D58_p18_oe, r_D58_p16_oe, r_D58_p14_oe, r_D58_p12_oe, r_D58_p9_oe, r_D58_p7_oe, r_D58_p5_oe, r_D58_p3_oe, r_D61_p7, r_D61_p9, r_D62_p7, r_D62_p9, r_D63_p7, r_D63_p9, r_D64_p4, r_D64_p6, r_D64_p8, r_D64_p10, r_D67_p7, r_D67_p9, r_D68_p7, r_D68_p9, r_D69_p7, r_D69_p9, r_D70_p4_oe, r_D70_p7_oe, r_D70_p9_oe, r_D72_p3, r_D72_p6, r_D72_p8, r_D72_p11, r_D74_p3, r_D74_p6, r_D74_p8, r_D74_p11, r_D79_p3, r_D79_p6, r_D79_p8, r_D79_p11, r_D80_p15, r_D80_p14, r_D80_p13}), .o({d_D4_p2, d_D4_p4, d_D4_p6, d_D4_p8, d_D4_p10, d_D4_p12, d_D8_p2, d_D8_p10, d_D8_p12, d_D32_p5, d_D39_p3, d_D39_p6, d_D39_p8, d_D39_p11, d_D52_p18_oe, d_D52_p16_oe, d_D52_p14_oe, d_D52_p12_oe, d_D52_p9_oe, d_D52_p7_oe, d_D52_p5_oe, d_D52_p3_oe, d_D58_p18_oe, d_D58_p16_oe, d_D58_p14_oe, d_D58_p12_oe, d_D58_p9_oe, d_D58_p7_oe, d_D58_p5_oe, d_D58_p3_oe, d_D61_p7, d_D61_p9, d_D62_p7, d_D62_p9, d_D63_p7, d_D63_p9, d_D64_p4, d_D64_p6, d_D64_p8, d_D64_p10, d_D67_p7, d_D67_p9, d_D68_p7, d_D68_p9, d_D69_p7, d_D69_p9, g_D70_p4_oe, g_D70_p7_oe, g_D70_p9_oe, d_D72_p3, d_D72_p6, d_D72_p8, d_D72_p11, d_D74_p3, d_D74_p6, d_D74_p8, d_D74_p11, d_D79_p3, d_D79_p6, d_D79_p8, d_D79_p11, d_D80_p15, d_D80_p14, d_D80_p13}));
+    delay_bank #(.TICKS(2), .W(64)) b2_2_0 (.clk(clk), .i({r_D4_p2, r_D4_p4, r_D4_p6, r_D4_p8, r_D4_p10, r_D4_p12, r_D8_p2, r_D8_p10, r_D8_p12, r_D32_p5, r_D39_p3, r_D39_p6, r_D39_p8, r_D39_p11, r_D52_p18_oe, r_D52_p16_oe, r_D52_p14_oe, r_D52_p12_oe, r_D52_p9_oe, r_D52_p7_oe, r_D52_p5_oe, r_D52_p3_oe, r_D58_p18_oe, r_D58_p16_oe, r_D58_p14_oe, r_D58_p12_oe, r_D58_p9_oe, r_D58_p7_oe, r_D58_p5_oe, r_D58_p3_oe, r_D61_p7, r_D61_p9, r_D62_p7, r_D62_p9, r_D63_p7, r_D63_p9, r_D64_p4, r_D64_p6, r_D64_p8, r_D64_p10, r_D67_p7, r_D67_p9, r_D68_p7, r_D68_p9, r_D69_p7, r_D69_p9, r_D70_p4_oe, r_D70_p7_oe, r_D70_p9_oe, r_D72_p3, r_D72_p6, r_D72_p8, r_D72_p11, r_D74_p3, r_D74_p6, r_D74_p8, r_D74_p11, r_D79_p3, r_D79_p6, r_D79_p8, r_D79_p11, r_D80_p15, r_D80_p14, r_D80_p13}), .o({d_D4_p2, d_D4_p4, d_D4_p6, d_D4_p8, d_D4_p10, d_D4_p12, d_D8_p2, d_D8_p10, d_D8_p12, d_D32_p5, d_D39_p3, d_D39_p6, d_D39_p8, d_D39_p11, d_D52_p18_oe, d_D52_p16_oe, d_D52_p14_oe, d_D52_p12_oe, d_D52_p9_oe, d_D52_p7_oe, d_D52_p5_oe, d_D52_p3_oe, d_D58_p18_oe, d_D58_p16_oe, d_D58_p14_oe, d_D58_p12_oe, d_D58_p9_oe, d_D58_p7_oe, d_D58_p5_oe, d_D58_p3_oe, d_D61_p7, d_D61_p9, d_D62_p7, d_D62_p9, d_D63_p7, d_D63_p9, d_D64_p4, d_D64_p6, d_D64_p8, d_D64_p10, d_D67_p7, d_D67_p9, d_D68_p7, d_D68_p9, d_D69_p7, d_D69_p9, d_D70_p4_oe, d_D70_p7_oe, d_D70_p9_oe, d_D72_p3, d_D72_p6, d_D72_p8, d_D72_p11, d_D74_p3, d_D74_p6, d_D74_p8, d_D74_p11, d_D79_p3, d_D79_p6, d_D79_p8, d_D79_p11, d_D80_p15, d_D80_p14, d_D80_p13}));
     delay_bank #(.TICKS(2), .W(27)) b2_2_1 (.clk(clk), .i({r_D80_p12, r_D80_p11, r_D80_p10, r_D80_p9, r_D80_p7, r_D84_p3, r_D84_p6, r_D84_p8, r_D84_p11, r_D86_p5, r_D87_p7, r_D87_p9, r_D93_p3, r_D93_p6, r_D93_p11, r_D95_p18_oe, r_D95_p16_oe, r_D95_p14_oe, r_D95_p12_oe, r_D95_p9_oe, r_D95_p7_oe, r_D95_p5_oe, r_D95_p3_oe, r_D96_p9, r_D96_p7, r_D96_p6, r_D96_p14}), .o({d_D80_p12, d_D80_p11, d_D80_p10, d_D80_p9, d_D80_p7, d_D84_p3, d_D84_p6, d_D84_p8, d_D84_p11, d_D86_p5, d_D87_p7, d_D87_p9, d_D93_p3, d_D93_p6, d_D93_p11, d_D95_p18_oe, d_D95_p16_oe, d_D95_p14_oe, d_D95_p12_oe, d_D95_p9_oe, d_D95_p7_oe, d_D95_p5_oe, d_D95_p3_oe, d_D96_p9, d_D96_p7, d_D96_p6, d_D96_p14}));
-    delay_bank #(.TICKS(1), .W(64)) b1_1_0 (.clk(clk), .i({r_D7_p4, r_D7_p5, r_D7_p6, r_D7_p7, r_D7_p12, r_D10_p2, r_D10_p5, r_D10_p7, r_D10_p10, r_D10_p12, r_D14_p3, r_D14_p6, r_D14_p8, r_D14_p11, r_D15_p2, r_D15_p4, r_D15_p6, r_D15_p8, r_D15_p10, r_D15_p12, r_D16_p3, r_D16_p4, r_D16_p5, r_D16_p10, r_D16_p9, r_D17_p6, r_D17_p9, r_D17_p8, r_D25_p8, r_D25_p6, r_D31_p12, r_D31_p6, r_D31_p8, r_D33_p5, r_D33_p6, r_D33_p9, r_D33_p8, r_D40_p2, r_D40_p7, r_D40_p10, r_D41_p5, r_D41_p6, r_D41_p9, r_D41_p8, r_D43_p2, r_D43_p7, r_D43_p10, r_D43_p15, r_D43_p3, r_D43_p6, r_D43_p11, r_D46_p3, r_D46_p4, r_D46_p5, r_D46_p6, r_D46_p11, r_D46_p10, r_D46_p9, r_D46_p8, r_D47_p5, r_D47_p6, r_D47_p9, r_D47_p8, r_D51_p2}), .o({d_D7_p4, d_D7_p5, d_D7_p6, d_D7_p7, d_D7_p12, d_D10_p2, d_D10_p5, d_D10_p7, d_D10_p10, d_D10_p12, g_D14_p3, g_D14_p6, g_D14_p8, g_D14_p11, d_D15_p2, d_D15_p4, d_D15_p6, d_D15_p8, d_D15_p10, d_D15_p12, d_D16_p3, d_D16_p4, d_D16_p5, d_D16_p10, d_D16_p9, d_D17_p6, d_D17_p9, d_D17_p8, d_D25_p8, d_D25_p6, d_D31_p12, d_D31_p6, d_D31_p8, d_D33_p5, d_D33_p6, d_D33_p9, d_D33_p8, d_D40_p2, d_D40_p7, d_D40_p10, d_D41_p5, d_D41_p6, d_D41_p9, d_D41_p8, d_D43_p2, d_D43_p7, d_D43_p10, d_D43_p15, d_D43_p3, d_D43_p6, d_D43_p11, d_D46_p3, d_D46_p4, d_D46_p5, d_D46_p6, d_D46_p11, d_D46_p10, d_D46_p9, d_D46_p8, d_D47_p5, d_D47_p6, d_D47_p9, d_D47_p8, d_D51_p2}));
-    delay_bank #(.TICKS(1), .W(64)) b1_1_1 (.clk(clk), .i({r_D51_p2_oe, r_D51_p5, r_D51_p5_oe, r_D51_p6, r_D51_p6_oe, r_D51_p9, r_D51_p9_oe, r_D51_p12, r_D51_p12_oe, r_D51_p15, r_D51_p15_oe, r_D51_p16, r_D51_p16_oe, r_D51_p19, r_D51_p19_oe, r_D52_p18, r_D52_p16, r_D52_p14, r_D52_p12, r_D52_p9, r_D52_p7, r_D52_p5, r_D52_p3, r_D57_p2, r_D57_p2_oe, r_D57_p5, r_D57_p5_oe, r_D57_p6, r_D57_p6_oe, r_D57_p9, r_D57_p9_oe, r_D57_p12, r_D57_p12_oe, r_D57_p15, r_D57_p15_oe, r_D57_p16, r_D57_p16_oe, r_D57_p19, r_D57_p19_oe, r_D58_p18, r_D58_p16, r_D58_p14, r_D58_p12, r_D58_p9, r_D58_p7, r_D58_p5, r_D58_p3, r_D59_p3, r_D59_p4, r_D59_p9, r_D59_p8, r_D60_p6, r_D60_p8, r_D66_p3, r_D66_p6, r_D66_p8, r_D66_p11, r_D70_p4, r_D70_p4_oe, r_D70_p7, r_D70_p7_oe, r_D70_p9, r_D70_p9_oe, r_D71_p6}), .o({d_D51_p2_oe, d_D51_p5, d_D51_p5_oe, d_D51_p6, d_D51_p6_oe, d_D51_p9, d_D51_p9_oe, d_D51_p12, d_D51_p12_oe, d_D51_p15, d_D51_p15_oe, d_D51_p16, d_D51_p16_oe, d_D51_p19, d_D51_p19_oe, d_D52_p18, d_D52_p16, d_D52_p14, d_D52_p12, d_D52_p9, d_D52_p7, d_D52_p5, d_D52_p3, d_D57_p2, d_D57_p2_oe, d_D57_p5, d_D57_p5_oe, d_D57_p6, d_D57_p6_oe, d_D57_p9, d_D57_p9_oe, d_D57_p12, d_D57_p12_oe, d_D57_p15, d_D57_p15_oe, d_D57_p16, d_D57_p16_oe, d_D57_p19, d_D57_p19_oe, d_D58_p18, d_D58_p16, d_D58_p14, d_D58_p12, d_D58_p9, d_D58_p7, d_D58_p5, d_D58_p3, d_D59_p3, d_D59_p4, d_D59_p9, d_D59_p8, d_D60_p6, d_D60_p8, d_D66_p3, d_D66_p6, d_D66_p8, d_D66_p11, d_D70_p4, f_D70_p4_oe, d_D70_p7, f_D70_p7_oe, d_D70_p9, f_D70_p9_oe, d_D71_p6}));
-    delay_bank #(.TICKS(1), .W(64)) b1_1_2 (.clk(clk), .i({r_D71_p8, r_D73_p3, r_D73_p6, r_D73_p8, r_D78_p2, r_D78_p2_oe, r_D78_p5, r_D78_p5_oe, r_D78_p6, r_D78_p6_oe, r_D78_p9, r_D78_p9_oe, r_D78_p12, r_D78_p12_oe, r_D78_p15, r_D78_p15_oe, r_D78_p16, r_D78_p16_oe, r_D78_p19, r_D78_p19_oe, r_D85_p12, r_D85_p6, r_D85_p8, r_D88_p8, r_D89_p2, r_D89_p2_oe, r_D89_p5, r_D89_p5_oe, r_D89_p6, r_D89_p6_oe, r_D89_p9, r_D89_p9_oe, r_D89_p12, r_D89_p12_oe, r_D89_p15, r_D89_p15_oe, r_D89_p16, r_D89_p16_oe, r_D91_p2, r_D91_p4, r_D91_p6, r_D91_p8, r_D91_p10, r_D91_p12, r_D92_p5_oe, r_D92_p6_oe, r_D92_p9_oe, r_D92_p12_oe, r_D92_p15_oe, r_D92_p16_oe, r_D92_p19_oe, r_D94_p2_oe, r_D94_p5_oe, r_D94_p6_oe, r_D94_p9_oe, r_D94_p12_oe, r_D94_p15_oe, r_D94_p16_oe, r_D94_p19_oe, r_D95_p18, r_D95_p16, r_D95_p14, r_D95_p12, r_D95_p9}), .o({d_D71_p8, d_D73_p3, d_D73_p6, d_D73_p8, d_D78_p2, d_D78_p2_oe, d_D78_p5, d_D78_p5_oe, d_D78_p6, d_D78_p6_oe, d_D78_p9, d_D78_p9_oe, d_D78_p12, d_D78_p12_oe, d_D78_p15, d_D78_p15_oe, d_D78_p16, d_D78_p16_oe, d_D78_p19, d_D78_p19_oe, d_D85_p12, d_D85_p6, d_D85_p8, d_D88_p8, d_D89_p2, d_D89_p2_oe, d_D89_p5, d_D89_p5_oe, d_D89_p6, d_D89_p6_oe, d_D89_p9, d_D89_p9_oe, d_D89_p12, d_D89_p12_oe, d_D89_p15, d_D89_p15_oe, d_D89_p16, d_D89_p16_oe, d_D91_p2, d_D91_p4, d_D91_p6, d_D91_p8, d_D91_p10, d_D91_p12, d_D92_p5_oe, d_D92_p6_oe, d_D92_p9_oe, d_D92_p12_oe, d_D92_p15_oe, d_D92_p16_oe, d_D92_p19_oe, d_D94_p2_oe, d_D94_p5_oe, d_D94_p6_oe, d_D94_p9_oe, d_D94_p12_oe, d_D94_p15_oe, d_D94_p16_oe, d_D94_p19_oe, d_D95_p18, d_D95_p16, d_D95_p14, d_D95_p12, d_D95_p9}));
-    delay_bank #(.TICKS(1), .W(15)) b1_1_3 (.clk(clk), .i({r_D95_p7, r_D95_p5, r_D95_p3, r_D97_p2, r_D97_p5, r_D97_p7, r_D97_p15, r_D98_p5, r_D98_p9, r_D99_p2, r_D99_p4, r_D99_p6, r_D99_p8, r_D99_p10, r_D99_p12}), .o({d_D95_p7, d_D95_p5, d_D95_p3, d_D97_p2, d_D97_p5, d_D97_p7, d_D97_p15, d_D98_p5, d_D98_p9, d_D99_p2, d_D99_p4, d_D99_p6, d_D99_p8, d_D99_p10, d_D99_p12}));
-    delay_bank #(.TICKS(5), .W(8)) b5_5_0 (.clk(clk), .i({r_D13_p14, r_D13_p13, r_D13_p12, r_D13_p11, r_D21_p14, r_D21_p13, r_D21_p12, r_D21_p11}), .o({d_D13_p14, d_D13_p13, d_D13_p12, d_D13_p11, g_D21_p14, g_D21_p13, g_D21_p12, g_D21_p11}));
-    delay_bank #(.TICKS(3), .W(10)) b3_3_0 (.clk(clk), .i({r_D21_p14, r_D21_p13, r_D21_p12, r_D21_p11, r_D32_p5_oe, r_D48_p3, r_D48_p5, r_D48_p11, r_D48_p13, r_D86_p5_oe}), .o({f_D21_p14, f_D21_p13, f_D21_p12, f_D21_p11, d_D32_p5_oe, d_D48_p3, d_D48_p5, d_D48_p11, d_D48_p13, d_D86_p5_oe}));
+    delay_bank #(.TICKS(1), .W(64)) b1_1_0 (.clk(clk), .i({r_D7_p4, r_D7_p5, r_D7_p6, r_D7_p7, r_D7_p12, r_D10_p2, r_D10_p5, r_D10_p7, r_D10_p10, r_D10_p12, r_D14_p3, r_D14_p6, r_D14_p8, r_D14_p11, r_D15_p2, r_D15_p4, r_D15_p6, r_D15_p8, r_D15_p10, r_D15_p12, r_D16_p3, r_D16_p4, r_D16_p5, r_D16_p10, r_D16_p9, r_D17_p6, r_D17_p9, r_D17_p8, r_D25_p8, r_D25_p6, r_D31_p12, r_D31_p6, r_D31_p8, r_D33_p5, r_D33_p6, r_D33_p9, r_D33_p8, r_D40_p2, r_D40_p7, r_D40_p10, r_D41_p5, r_D41_p6, r_D41_p9, r_D41_p8, r_D43_p2, r_D43_p7, r_D43_p10, r_D43_p15, r_D43_p3, r_D43_p6, r_D43_p11, r_D46_p3, r_D46_p4, r_D46_p5, r_D46_p6, r_D46_p11, r_D46_p10, r_D46_p9, r_D46_p8, r_D47_p5, r_D47_p6, r_D47_p9, r_D47_p8, r_D49_p10}), .o({d_D7_p4, d_D7_p5, d_D7_p6, d_D7_p7, d_D7_p12, d_D10_p2, d_D10_p5, d_D10_p7, d_D10_p10, d_D10_p12, d_D14_p3, d_D14_p6, d_D14_p8, d_D14_p11, d_D15_p2, d_D15_p4, d_D15_p6, d_D15_p8, d_D15_p10, d_D15_p12, d_D16_p3, d_D16_p4, d_D16_p5, d_D16_p10, d_D16_p9, d_D17_p6, d_D17_p9, d_D17_p8, d_D25_p8, d_D25_p6, d_D31_p12, d_D31_p6, d_D31_p8, d_D33_p5, d_D33_p6, d_D33_p9, d_D33_p8, d_D40_p2, d_D40_p7, d_D40_p10, d_D41_p5, d_D41_p6, d_D41_p9, d_D41_p8, d_D43_p2, d_D43_p7, d_D43_p10, d_D43_p15, d_D43_p3, d_D43_p6, d_D43_p11, d_D46_p3, d_D46_p4, d_D46_p5, d_D46_p6, d_D46_p11, d_D46_p10, d_D46_p9, d_D46_p8, d_D47_p5, d_D47_p6, d_D47_p9, d_D47_p8, d_D49_p10}));
+    delay_bank #(.TICKS(1), .W(64)) b1_1_1 (.clk(clk), .i({r_D49_p10_oe, r_D50_p10, r_D50_p10_oe, r_D51_p2, r_D51_p2_oe, r_D51_p5, r_D51_p5_oe, r_D51_p6, r_D51_p6_oe, r_D51_p9, r_D51_p9_oe, r_D51_p12, r_D51_p12_oe, r_D51_p15, r_D51_p15_oe, r_D51_p16, r_D51_p16_oe, r_D51_p19, r_D51_p19_oe, r_D52_p18, r_D52_p16, r_D52_p14, r_D52_p12, r_D52_p9, r_D52_p7, r_D52_p5, r_D52_p3, r_D55_p13, r_D55_p13_oe, r_D55_p12, r_D55_p12_oe, r_D55_p11, r_D55_p11_oe, r_D55_p10, r_D55_p10_oe, r_D56_p13, r_D56_p13_oe, r_D56_p12, r_D56_p12_oe, r_D56_p11, r_D56_p11_oe, r_D56_p10, r_D56_p10_oe, r_D57_p2, r_D57_p2_oe, r_D57_p5, r_D57_p5_oe, r_D57_p6, r_D57_p6_oe, r_D57_p9, r_D57_p9_oe, r_D57_p12, r_D57_p12_oe, r_D57_p15, r_D57_p15_oe, r_D57_p16, r_D57_p16_oe, r_D57_p19, r_D57_p19_oe, r_D58_p18, r_D58_p16, r_D58_p14, r_D58_p12, r_D58_p9}), .o({d_D49_p10_oe, d_D50_p10, d_D50_p10_oe, d_D51_p2, d_D51_p2_oe, d_D51_p5, d_D51_p5_oe, d_D51_p6, d_D51_p6_oe, d_D51_p9, d_D51_p9_oe, d_D51_p12, d_D51_p12_oe, d_D51_p15, d_D51_p15_oe, d_D51_p16, d_D51_p16_oe, d_D51_p19, d_D51_p19_oe, d_D52_p18, d_D52_p16, d_D52_p14, d_D52_p12, d_D52_p9, d_D52_p7, d_D52_p5, d_D52_p3, d_D55_p13, d_D55_p13_oe, d_D55_p12, d_D55_p12_oe, d_D55_p11, d_D55_p11_oe, d_D55_p10, d_D55_p10_oe, d_D56_p13, d_D56_p13_oe, d_D56_p12, d_D56_p12_oe, d_D56_p11, d_D56_p11_oe, d_D56_p10, d_D56_p10_oe, d_D57_p2, d_D57_p2_oe, d_D57_p5, d_D57_p5_oe, d_D57_p6, d_D57_p6_oe, d_D57_p9, d_D57_p9_oe, d_D57_p12, d_D57_p12_oe, d_D57_p15, d_D57_p15_oe, d_D57_p16, d_D57_p16_oe, d_D57_p19, d_D57_p19_oe, d_D58_p18, d_D58_p16, d_D58_p14, d_D58_p12, d_D58_p9}));
+    delay_bank #(.TICKS(1), .W(64)) b1_1_2 (.clk(clk), .i({r_D58_p7, r_D58_p5, r_D58_p3, r_D59_p3, r_D59_p4, r_D59_p9, r_D59_p8, r_D60_p6, r_D60_p8, n_VB0_H, n_VB1_H, n_VB0_H, n_VB1_H, n_VK8_H, n_VK5_H, n_VK7_H, n_VK7_H, r_D66_p3, r_D66_p6, r_D66_p8, r_D66_p11, n_VB0_H, n_VB1_H, n_VB0_H, n_VB1_H, n_VK8_H, n_VK5_H, n_VK7_H, n_VK7_H, n_RAZR_H, r_D70_p4, r_D70_p7, r_D70_p9, r_D71_p6, r_D71_p8, r_D73_p3, r_D73_p6, r_D73_p8, r_D78_p2, r_D78_p2_oe, r_D78_p5, r_D78_p5_oe, r_D78_p6, r_D78_p6_oe, r_D78_p9, r_D78_p9_oe, r_D78_p12, r_D78_p12_oe, r_D78_p15, r_D78_p15_oe, r_D78_p16, r_D78_p16_oe, r_D78_p19, r_D78_p19_oe, r_D85_p12, r_D85_p6, r_D85_p8, n_RVB0_H, n_RVB1_H, r_D88_p8, r_D89_p2, r_D89_p2_oe, r_D89_p5, r_D89_p5_oe}), .o({d_D58_p7, d_D58_p5, d_D58_p3, d_D59_p3, d_D59_p4, d_D59_p9, d_D59_p8, d_D60_p6, d_D60_p8, p_D61_p14, p_D61_p2, p_D62_p14, p_D62_p2, p_D63_p14, p_D63_p2, p_D63_p1, p_D63_p15, d_D66_p3, d_D66_p6, d_D66_p8, d_D66_p11, p_D67_p14, p_D67_p2, p_D68_p14, p_D68_p2, p_D69_p14, p_D69_p2, p_D69_p1, p_D69_p15, p_D70_p1, d_D70_p4, d_D70_p7, d_D70_p9, d_D71_p6, d_D71_p8, d_D73_p3, d_D73_p6, d_D73_p8, d_D78_p2, d_D78_p2_oe, d_D78_p5, d_D78_p5_oe, d_D78_p6, d_D78_p6_oe, d_D78_p9, d_D78_p9_oe, d_D78_p12, d_D78_p12_oe, d_D78_p15, d_D78_p15_oe, d_D78_p16, d_D78_p16_oe, d_D78_p19, d_D78_p19_oe, d_D85_p12, d_D85_p6, d_D85_p8, p_D87_p14, p_D87_p2, d_D88_p8, d_D89_p2, d_D89_p2_oe, d_D89_p5, d_D89_p5_oe}));
+    delay_bank #(.TICKS(1), .W(51)) b1_1_3 (.clk(clk), .i({r_D89_p6, r_D89_p6_oe, r_D89_p9, r_D89_p9_oe, r_D89_p12, r_D89_p12_oe, r_D89_p15, r_D89_p15_oe, r_D89_p16, r_D89_p16_oe, r_D91_p2, r_D91_p4, r_D91_p6, r_D91_p8, r_D91_p10, r_D91_p12, r_D92_p5_oe, r_D92_p6_oe, r_D92_p9_oe, r_D92_p12_oe, r_D92_p15_oe, r_D92_p16_oe, r_D92_p19_oe, r_D94_p2_oe, r_D94_p5_oe, r_D94_p6_oe, r_D94_p9_oe, r_D94_p12_oe, r_D94_p15_oe, r_D94_p16_oe, r_D94_p19_oe, r_D95_p18, r_D95_p16, r_D95_p14, r_D95_p12, r_D95_p9, r_D95_p7, r_D95_p5, r_D95_p3, r_D97_p2, r_D97_p5, r_D97_p7, r_D97_p15, r_D98_p5, r_D98_p9, r_D99_p2, r_D99_p4, r_D99_p6, r_D99_p8, r_D99_p10, r_D99_p12}), .o({d_D89_p6, d_D89_p6_oe, d_D89_p9, d_D89_p9_oe, d_D89_p12, d_D89_p12_oe, d_D89_p15, d_D89_p15_oe, d_D89_p16, d_D89_p16_oe, d_D91_p2, d_D91_p4, d_D91_p6, d_D91_p8, d_D91_p10, d_D91_p12, d_D92_p5_oe, d_D92_p6_oe, d_D92_p9_oe, d_D92_p12_oe, d_D92_p15_oe, d_D92_p16_oe, d_D92_p19_oe, d_D94_p2_oe, d_D94_p5_oe, d_D94_p6_oe, d_D94_p9_oe, d_D94_p12_oe, d_D94_p15_oe, d_D94_p16_oe, d_D94_p19_oe, d_D95_p18, d_D95_p16, d_D95_p14, d_D95_p12, d_D95_p9, d_D95_p7, d_D95_p5, d_D95_p3, d_D97_p2, d_D97_p5, d_D97_p7, d_D97_p15, d_D98_p5, d_D98_p9, d_D99_p2, d_D99_p4, d_D99_p6, d_D99_p8, d_D99_p10, d_D99_p12}));
+    delay_bank #(.TICKS(5), .W(8)) b5_5_0 (.clk(clk), .i({r_D13_p14, r_D13_p13, r_D13_p12, r_D13_p11, r_D21_p14, r_D21_p13, r_D21_p12, r_D21_p11}), .o({d_D13_p14, d_D13_p13, d_D13_p12, d_D13_p11, d_D21_p14, d_D21_p13, d_D21_p12, d_D21_p11}));
+    delay_bank #(.TICKS(3), .W(6)) b3_3_0 (.clk(clk), .i({r_D32_p5_oe, r_D48_p3, r_D48_p5, r_D48_p11, r_D48_p13, r_D86_p5_oe}), .o({d_D32_p5_oe, d_D48_p3, d_D48_p5, d_D48_p11, d_D48_p13, d_D86_p5_oe}));
     delay_bank #(.TICKS(2), .FALL(3), .W(4)) b2_3_0 (.clk(clk), .i({r_D48_p3_oe, r_D48_p5_oe, r_D48_p11_oe, r_D48_p13_oe}), .o({d_D48_p3_oe, d_D48_p5_oe, d_D48_p11_oe, d_D48_p13_oe}));
-    delay_bank #(.TICKS(7), .W(20)) b7_7_0 (.clk(clk), .i({r_D49_p10, r_D49_p10_oe, r_D50_p10, r_D50_p10_oe, r_D55_p13, r_D55_p13_oe, r_D55_p12, r_D55_p12_oe, r_D55_p11, r_D55_p11_oe, r_D55_p10, r_D55_p10_oe, r_D56_p13, r_D56_p13_oe, r_D56_p12, r_D56_p12_oe, r_D56_p11, r_D56_p11_oe, r_D56_p10, r_D56_p10_oe}), .o({d_D49_p10, d_D49_p10_oe, d_D50_p10, d_D50_p10_oe, d_D55_p13, d_D55_p13_oe, d_D55_p12, d_D55_p12_oe, d_D55_p11, d_D55_p11_oe, d_D55_p10, d_D55_p10_oe, d_D56_p13, d_D56_p13_oe, d_D56_p12, d_D56_p12_oe, d_D56_p11, d_D56_p11_oe, d_D56_p10, d_D56_p10_oe}));
     delay_bank #(.TICKS(53), .W(16)) b53_53_0 (.clk(clk), .i({r_D65_p11, r_D65_p12, r_D65_p13, r_D65_p15, r_D65_p16, r_D65_p17, r_D65_p18, r_D65_p19, r_D77_p11, r_D77_p12, r_D77_p13, r_D77_p15, r_D77_p16, r_D77_p17, r_D77_p18, r_D77_p19}), .o({d_D65_p11, d_D65_p12, d_D65_p13, d_D65_p15, d_D65_p16, d_D65_p17, d_D65_p18, d_D65_p19, d_D77_p11, d_D77_p12, d_D77_p13, d_D77_p15, d_D77_p16, d_D77_p17, d_D77_p18, d_D77_p19}));
     delay_bank #(.TICKS(17), .FALL(15), .W(16)) b17_15_0 (.clk(clk), .i({r_D65_p11_oe, r_D65_p12_oe, r_D65_p13_oe, r_D65_p15_oe, r_D65_p16_oe, r_D65_p17_oe, r_D65_p18_oe, r_D65_p19_oe, r_D77_p11_oe, r_D77_p12_oe, r_D77_p13_oe, r_D77_p15_oe, r_D77_p16_oe, r_D77_p17_oe, r_D77_p18_oe, r_D77_p19_oe}), .o({d_D65_p11_oe, d_D65_p12_oe, d_D65_p13_oe, d_D65_p15_oe, d_D65_p16_oe, d_D65_p17_oe, d_D65_p18_oe, d_D65_p19_oe, d_D77_p11_oe, d_D77_p12_oe, d_D77_p13_oe, d_D77_p15_oe, d_D77_p16_oe, d_D77_p17_oe, d_D77_p18_oe, d_D77_p19_oe}));
     delay_bank #(.TICKS(17), .W(1)) b17_17_0 (.clk(clk), .i({r_D90_p9}), .o({d_D90_p9}));
@@ -4287,6 +4289,8 @@ module ns4_machine (
     assign n_RPRRT_H = d_D97_p2;
     assign n_RVB0_H = d_D97_p5;
     assign n_RVB1_H = d_D97_p7;
+    assign n_RVK0_H = ~s_E4 & (d_D76_p21_oe ? d_D76_p21 : 1'b1);
+    assign n_RVK1_H = s_E3 & (d_D76_p22_oe ? d_D76_p22 : 1'b1);
     assign n_RVU0_H = d_D76_p4_oe ? d_D76_p4 : 1'b1;
     assign n_RVU1_H = d_D76_p3_oe ? d_D76_p3 : 1'b1;
     assign n_RZP_H = d_D1_p30;
@@ -4300,7 +4304,7 @@ module ns4_machine (
     assign n_SC_H = d_D63_p7;
     assign n_SDLV_H = d_D1_p17;
     assign n_SDPR_H = d_D1_p18;
-    assign n_SGI_L = d_D13_p13 & d_D21_p13;
+    assign c_n_SGI_L = d_D13_p13 & d_D21_p13;
     assign n_SHAG_H = d_D1_p15;
     assign n_SHAG_L = d_D64_p6;
     assign n_SIGN_L = d_D25_p8;
@@ -4498,19 +4502,4 @@ module ns4_machine (
     assign nx_XP5_3 = 1'b0;
     assign nx_XP5_6 = 1'b0;
     assign n_BORDS_L = s_D70_15 ? cs_n_BORDS_L : c_n_BORDS_L;
-    assign f_D14_p3 = r_D14_p3;
-    assign d_D14_p3 = s_D70_15 ? f_D14_p3 : g_D14_p3;
-    assign f_D14_p6 = r_D14_p6;
-    assign d_D14_p6 = s_D70_15 ? f_D14_p6 : g_D14_p6;
-    assign f_D14_p8 = r_D14_p8;
-    assign d_D14_p8 = s_D70_15 ? f_D14_p8 : g_D14_p8;
-    assign f_D14_p11 = r_D14_p11;
-    assign d_D14_p11 = s_D70_15 ? f_D14_p11 : g_D14_p11;
-    assign d_D21_p14 = s_D70_15 ? f_D21_p14 : g_D21_p14;
-    assign d_D21_p13 = s_D70_15 ? f_D21_p13 : g_D21_p13;
-    assign d_D21_p12 = s_D70_15 ? f_D21_p12 : g_D21_p12;
-    assign d_D21_p11 = s_D70_15 ? f_D21_p11 : g_D21_p11;
-    assign d_D70_p4_oe = s_D70_15 ? f_D70_p4_oe : g_D70_p4_oe;
-    assign d_D70_p7_oe = s_D70_15 ? f_D70_p7_oe : g_D70_p7_oe;
-    assign d_D70_p9_oe = s_D70_15 ? f_D70_p9_oe : g_D70_p9_oe;
 endmodule

@@ -71,17 +71,17 @@ inline void expect(const std::uint8_t* vram, bool hires, int border, int xp, int
     b = (attr & 0x80) ? norm((lit ? bg : fg) | bright << 3) : a;
 }
 
-// is sample s the picture's with its point taken at xp and its attribute at
-// xa?  A point beyond the line's ends is the border: its colour, whatever
-// the brightness; an attribute beyond them is the end word's.
-inline bool fits(const std::uint8_t* vram, bool hires, int border, int xp, int xa, int y, int s)
+// the colours a sample with its point taken at xp (0..639) and its
+// attribute at xa (0..639) may show, into out; how many: the picture's (two
+// when it flashes), and after a flashing word its ink and paper swapped
+inline int candidates(const std::uint8_t* vram, bool hires, int border, int xp, int xa, int y, int out[3])
 {
-    if (xp < 0 || xp >= 640)
-        return (s & 7) == (border & 7);
     int a = 0, b = 0;
-    expect(vram, hires, border, xp, xa < 0 ? 0 : xa > 639 ? 639 : xa, y, a, b);
-    if (s == a || s == b)
-        return true;
+    expect(vram, hires, border, xp, xa, y, a, b);
+    int n = 0;
+    out[n++] = a;
+    if (b != a)
+        out[n++] = b;
     // The first sample of a word after a flashing one, in the flash's
     // inverted half: the inversion (ВК8 H, from D31 and D39) is let go a
     // couple of К555 delays after the attributes change, so for 25 ns the
@@ -93,9 +93,24 @@ inline bool fits(const std::uint8_t* vram, bool hires, int border, int xp, int x
             const std::uint8_t attr = row[xp / 16 * 2 + 1];
             const int bright = (attr >> 6) & 1;
             const int ink = norm((attr & 7) | bright << 3), paper = norm(((attr >> 3) & 7) | bright << 3);
-            return s == (a == ink ? paper : ink);
+            out[n++] = a == ink ? paper : ink;
         }
     }
+    return n;
+}
+
+// is sample s the picture's with its point taken at xp and its attribute at
+// xa?  A point beyond the line's ends is the border: its colour, whatever
+// the brightness; an attribute beyond them is the end word's.
+inline bool fits(const std::uint8_t* vram, bool hires, int border, int xp, int xa, int y, int s)
+{
+    if (xp < 0 || xp >= 640)
+        return (s & 7) == (border & 7);
+    int c[3] = {0, 0, 0};
+    const int n = candidates(vram, hires, border, xp, xa < 0 ? 0 : xa > 639 ? 639 : xa, y, c);
+    for (int i = 0; i < n; ++i)
+        if (s == c[i])
+            return true;
     return false;
 }
 
@@ -230,4 +245,18 @@ inline ScreenCompare compare_screen(const std::vector<std::vector<std::uint8_t>>
     if (best.differ >= 0)
         best.phase_breaks = hires ? screen_detail::phase_breaks(frame, vram, hires, border, best.dx, best.dy) : 0;
     return best;
+}
+
+// The emulator's picture of its video memory as samples, 200 lines of 640
+// (a flashing cell in its first phase), to look at beside the board's.
+inline std::vector<std::vector<std::uint8_t>> emulator_picture(const std::uint8_t* vram, bool hires, int border)
+{
+    std::vector<std::vector<std::uint8_t>> picture(200, std::vector<std::uint8_t>(640));
+    for (int y = 0; y < 200; ++y)
+        for (int x = 0; x < 640; ++x) {
+            int a = 0, b = 0;
+            screen_detail::expect(vram, hires, border, x, x, y, a, b);
+            picture[static_cast<std::size_t>(y)][static_cast<std::size_t>(x)] = static_cast<std::uint8_t>(a);
+        }
+    return picture;
 }

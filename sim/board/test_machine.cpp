@@ -55,6 +55,7 @@ void idle(Vms0515& m, bool keyboard)
     m.rom_addr = 0;
     m.rom_data = 0;
     m.d70_drawn = 0;
+    m.frame = 0;                        // 72 Hz, E3 alone
     m.kbd_source = keyboard ? 2 : 0;    // the serial line, or nothing
     m.ps2_key = 0;
     m.kbd_mode = 0;

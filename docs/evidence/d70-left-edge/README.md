@@ -1,12 +1,13 @@
 # The left edge of a 640 x 200 line: D70, БОРДС L and C70
 
-**Closed with a fitted speed** (2026-11-09): with C70 modelled the
-typical chain is ~12 ns short; Э3's board now takes the serial chain's
-speed (D30/D21/D14/D70 at 0.55, fitted, not measured) and draws the
-edge as the emulator at the typical and min delays, not at max.  A
-measured serial board would prove or replace
-the figure.  `docs/findings.md`, D70, "Э3's board with the serial
-chain's speed".  What follows is the question as it was put.
+**Open again** (2026-11-14): it was closed on 2026-11-09 with a fitted
+speed of the serial chain (D30/D21/D14/D70 at 0.55, never measured);
+the fit is taken out, only Э3 and the sheets going into the model.  With
+C70 modelled the typical chain is short, and on the beam point 0 of
+each 640 x 200 line is cut by 5 of its 8 ticks at the typical and max
+delays (won by a hair at min).  A measured serial board, or a photo of
+its left edge at 640 x 200, would settle it.  `docs/findings.md`, D70.
+What follows is the question as it was put.
 
 Gathered for the owners of working MS 0515 machines (zx-pk.ru), so that
 everything the question rests on can be looked at in one place.  The

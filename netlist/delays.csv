@@ -6,13 +6,13 @@
 # whose model keeps its own datasheet timing.  oe_ns is a three-state
 # output's enable delay (tPZH/tPZL, an EPROM's tOE), ns when empty; off_ns
 # its disable (tPHZ/tPLZ, an EPROM's tDF, a DRAM's turn-off), oe_ns when
-# empty.  One
-# delay per chip is a
-# simplification: where paths differ (a mux's select and data, a ripple
-# counter's stages) the path named is the one taken.  The sources' test
+# empty.  One delay per chip is a simplification: where a chip's paths
+# differ (a mux's select, data and strobe) the path named is the one taken
+# for its outputs, and paths gives the others as "pins:ns" ("S0 S1:22"),
+# their inputs delayed by the difference (tools/board.py, load_paths).  The sources' test
 # loads: LS 2 kOhm 15 pF; LS three-state parts and LS38 667 Ohm 45 pF;
 # S 280 Ohm 15 pF.
-type,ns,oe_ns,off_ns,path,kind,source
+type,ns,oe_ns,off_ns,path,kind,source,paths
 К555ЛА3,9.5,,,A/B->Y,typ,"TI SN74LS00 SDLS025D sec 6.10, https://www.ti.com/lit/ds/symlink/sn74ls00.pdf"
 К555ЛА4,9.5,,,A/B/C->Y,typ,"TI SN74LS10 SDLS035A p.4, https://www.ti.com/lit/ds/symlink/sn74ls10.pdf"
 К555ЛА2,10.5,,,any->Y,typ,"TI SN74LS30 SDLS099 p.4, https://www.ti.com/lit/ds/symlink/sn74ls30.pdf"
@@ -31,8 +31,8 @@ type,ns,oe_ns,off_ns,path,kind,source
 К555ЛР11,12.25,,,any->Y,typ,"TI SN74LS51 SDLS113 p.5, https://www.ti.com/lit/ds/symlink/sn74ls51.pdf"
 К555ИД7,17.5,,,A/B/C->Y (mean of 2 and 3 levels),typ,"TI SN74LS138 p.4, https://www.ti.com/lit/ds/symlink/sn74ls138.pdf"
 КР531ИД14,6.6,,,A/B->Y (mean of 2 and 3 levels),typ,"TI SN74S139A p.4, https://www.ti.com/lit/ds/symlink/sn74s139a.pdf"
-К555КП2,13.5,,,data->Y (select->Y 22),typ,"TI SN74LS153 SDLS055A p.5, https://www.ti.com/lit/ds/symlink/sn74ls153.pdf"
-К555КП11,9,17,17,data->Y (select->Y 16.5),typ,"TI SN74LS257B SDLS148 p.4, https://www.ti.com/lit/ds/symlink/sn74ls257b.pdf"
+К555КП2,13.5,,,data->Y (select->Y 22),typ,"TI SN74LS153 SDLS055A p.5, https://www.ti.com/lit/ds/symlink/sn74ls153.pdf",S0 S1:22 1G 2G:18.5
+К555КП11,9,17,17,data->Y (select->Y 16.5),typ,"TI SN74LS257B SDLS148 p.4, https://www.ti.com/lit/ds/symlink/sn74ls257b.pdf",SEL:16.5
 К555КП15,17.5,28,22.5,D->Y,typ,"TI SN74LS251 SDLS085 p.6, https://www.ti.com/lit/ds/symlink/sn74ls251.pdf"
 К555ИВ3,15,,,any->any (mean of in- and out-of-phase),typ,"TI SN74LS147 SDLS053B p.10, https://www.ti.com/lit/ds/sdls053/sdls053.pdf"
 К555АП3,10.5,17.5,12.5,A->Y,typ,"TI SN74LS240 SDLS144D sec 6.7, https://www.ti.com/lit/ds/symlink/sn74ls240.pdf"
@@ -45,7 +45,7 @@ type,ns,oe_ns,off_ns,path,kind,source
 К555ТМ9,20.5,,,CLK->Q,typ,"TI SN74LS174 SDLS068A p.5, https://www.ti.com/lit/ds/symlink/sn74ls174.pdf"
 К555ИР22,12,20,13.5,D->Q (latch transparent),typ,"TI SN74LS373 SDLS165B p.7, https://www.ti.com/lit/ds/symlink/sn74ls373.pdf"
 К555ИР23,17,20.5,13.5,CLK->Q,typ,"TI SN74LS374 SDLS165B p.7, https://www.ti.com/lit/ds/symlink/sn74ls374.pdf"
-К555ИР16,65,,,C->Q3,max,"eandc К555ИР16 sheet (TI SN74LS295B not found), https://eandc.ru/pdf/mikroskhema/k555ir16.pdf"
+К555ИР16,16.5,19,13,CLK->Q (CL 45 pF),typ,"TI SN54LS295B/SN74LS295B, The TTL Data Book p.3-943: tPLH typ 14, tPHL typ 19; tPZH 18, tPZL 20; tPHZ 13, tPLZ 13, https://pulsar-cad.com/datasheets/44/03/00000000344.pdf"
 К555ИЕ10,15.5,,,CLK->Q,typ,"TI SN74LS161A SDLS060 p.15, https://www.ti.com/lit/ds/symlink/sn74ls161a.pdf"
 К555ИЕ19,12.5,,,A->QA (QD ripples to 40),typ,"TI SN74LS393 SDLS107 p.8, https://www.ti.com/lit/ds/symlink/sn74ls393.pdf"
 К554СА3А,140,,,input->output (LM311 analogue),typ,"TI LM311 SLCS007K sec 6.7, https://www.ti.com/lit/ds/symlink/lm311.pdf"

@@ -307,6 +307,31 @@ class Generate(unittest.TestCase):
         self.assertEqual(errors(problems), [])
         self.assertIn(".p1(1'b0)", text)
 
+    def test_a_jumper_fitted_by_default_comes_off_on_its_switch(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nE1,перемычка,,2,,,,,\n",
+                    "A,D1,1,,1,\nA,E1,1,,1,\nGND,E1,2,,1,\nB,D1,2,,1,\n",
+                    analog="E1,jumper,fitted,a build's option\n")
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("input  logic s_E1", text)
+        self.assertIn("assign n_A = s_E1;", text)
+
+    def test_a_jumper_open_by_default_goes_on_on_its_switch(self):
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\nE1,перемычка,,2,,,,,\n",
+                    "A,D1,1,,1,\nA,E1,1,,1,\nGND,E1,2,,1,\nB,D1,2,,1,\n",
+                    analog="E1,jumper,open,a build's option\n")
+        text, problems = f.generate()
+        self.assertEqual(errors(problems), [])
+        self.assertIn("assign n_A = ~s_E1;", text)
+
+    def test_a_jumper_not_to_ground_or_without_its_default_is_an_error(self):
+        for nets, pins in (("A,E1,1,,1,\nC,E1,2,,1,\nC,D1,3,,1,\n", "fitted"),
+                           ("A,E1,1,,1,\nGND,E1,2,,1,\n", "")):
+            f = Fixture("D1,К555ЛН1,,14,7,14,,,\nE1,перемычка,,2,,,,,\n",
+                        "A,D1,1,,1,\nB,D1,2,,1,\n" + nets, analog=f"E1,jumper,{pins},an option\n")
+            _, problems = f.generate()
+            self.assertTrue(any("E1" in e for e in errors(problems)), nets)
+
     def test_an_open_part_is_left_out(self):
         f = Fixture("D1,К555ЛН1,,14,7,14,,,\nE1,перемычка,,2,,,,,\n",
                     "A,D1,1,,1,\nA,E1,1,,1,\nGND,E1,2,,1,\nB,D1,2,,1,\n",
@@ -523,6 +548,24 @@ class Delays(unittest.TestCase):
         # under a tick: straight through, no line
         self.assertIn(".p18(d_D2_p18)", text)
         self.assertNotIn("r_D2_p18", text)
+
+    def test_a_slower_path_delays_its_inputs_by_the_difference(self):
+        """A path of its own (paths: pins:ns) - a mux's select beside its
+        data - lags its inputs by its delay less the chip's."""
+        f = Fixture("D1,К555ЛН1,,14,7,14,,,\n", "A,D1,1,,1,\nB,D1,2,,1,\nC,D1,3,,1,\n",
+                    modules=(INVERTER, DELAY_BANK))
+        f.write("delays.csv", "type,ns,source,paths\nК555ЛН1,10,a datasheet,1 3:35\n")
+        with f.dir as d:
+            text, problems = board.generate(board.Sources(
+                parts=os.path.join(d, "parts.csv"), pinouts=os.path.join(d, "pinouts.csv"),
+                nets=os.path.join(d, "nets.csv"), changes=None,
+                analog=os.path.join(d, "analog.csv"), chips=os.path.join(d, "chips"),
+                delays=os.path.join(d, "delays.csv")))
+        self.assertEqual(errors(problems), [])
+        self.assertIn(".p1(p_D1_p1)", text)
+        self.assertIn(".p3(p_D1_p3)", text)
+        self.assertRegex(text, r"delay_bank #\(\.TICKS\(3\), \.W\(2\)\) \w+ \(\.clk\(clk\), "
+                               r"\.i\(\{n_A, n_C\}\), \.o\(\{p_D1_p1, p_D1_p3\}\)\);")
 
     def test_a_transceiver_between_two_buses_lags_a_tick_at_least(self):
         """A pass-through with pins both driven and read and no clock joins
@@ -749,41 +792,14 @@ class RcEdge(unittest.TestCase):
         # the owner's board has no C70: its switch takes the edge straight
         self.assertIn("assign n_BORDS_L = s_D70_15 ? cs_n_BORDS_L : c_n_BORDS_L;", text)
 
-
-def bank_with(text, ticks, raw, to):
-    """Is RAW delayed into TO by a delay bank of TICKS (rise = fall), at the same place in its lists?"""
-    for m in re.finditer(r"delay_bank #\(\.TICKS\((\d+)\)(, \.FALL\(\d+\))?, \.W\(\d+\)\) \w+ "
-                         r"\(\.clk\(clk\), \.i\(\{([^}]*)\}\), \.o\(\{([^}]*)\}\)\);", text):
-        if int(m.group(1)) != ticks or m.group(2):
-            continue
-        ins, outs = m.group(3).split(", "), m.group(4).split(", ")
-        if raw in ins and outs[ins.index(raw)] == to:
-            return True
-    return False
-
-
-class SerialSpeed(unittest.TestCase):
-    # Э3's board as the serial boards drew it: the chain from D30's step to
-    # D70's enable (D30, D21, D14, D70) faster than the typical figures, so
-    # that 640 x 200's left edge wins its race (docs/findings.md, D70); the
-    # owner's board keeps the typical delays.  The switch is D70.15's.
-    def test_the_prom_has_both_lines_and_the_switch_picks(self):
-        text, problems, _ = board.generate_all(board.ns4_sources())
+    def test_an_rc_net_without_a_switch_keeps_its_line_in_the_machine(self):
+        # C35 on СГИ L, on every board: the net is driven by its delay line
+        # in the machine's board as in the bench's, not left undriven
+        text, problems = board.generate_machine(board.ns4_sources(), board.MACHINE_INPUTS,
+                                                board.MACHINE_OUTPUTS)
         self.assertEqual(errors(problems), [])
-        self.assertTrue(bank_with(text, 5, "r_D21_p14", "g_D21_p14"))     # 40 ns, typical
-        self.assertTrue(bank_with(text, 3, "r_D21_p14", "f_D21_p14"))     # 22 ns, serial
-        self.assertIn("assign d_D21_p14 = s_D70_15 ? f_D21_p14 : g_D21_p14;", text)
-
-    def test_d70_comes_on_faster_on_e3s_board(self):
-        text, _, _ = board.generate_all(board.ns4_sources())
-        self.assertTrue(bank_with(text, 2, "r_D70_p4_oe", "g_D70_p4_oe"))
-        self.assertTrue(bank_with(text, 1, "r_D70_p4_oe", "f_D70_p4_oe"))
-        self.assertIn("assign d_D70_p4_oe = s_D70_15 ? f_D70_p4_oe : g_D70_p4_oe;", text)
-
-    def test_a_chip_whose_ticks_do_not_change_keeps_one_line(self):
-        text, _, _ = board.generate_all(board.ns4_sources())
-        self.assertNotIn("f_D70_p4 ", text)       # data 9 ns and 5 ns: one tick either way
-        self.assertNotIn("assign d_D70_p4 =", text)
+        self.assertRegex(text, r"delay_bank #\(\.TICKS\(\d\), \.FALL\(0\), \.W\(1\)\) \w+ "
+                               r"\(\.clk\(clk\), \.i\(\{c_n_SGI_L\}\), \.o\(\{n_SGI_L\}\)\);")
 
 
 class TheBoardWithTheModule(unittest.TestCase):

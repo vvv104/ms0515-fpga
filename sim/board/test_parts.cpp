@@ -6,10 +6,10 @@
 
 #include "Vns4.h"
 #include "cpu_writes.h"
-#include "frame_grab.h"
+#include "beam_compare.h"
+#include "frame_rate.h"
 #include "power.h"
 #include "rom_socket.h"
-#include "screen_compare.h"
 
 extern "C" {
 #include <ms0515/core/board.h>
@@ -198,38 +198,38 @@ std::unique_ptr<ms0515_board_t> emulator_after(const std::string& rom_name)
     return emu;
 }
 
-// The picture of a test ROM that draws and stops: a frame taken off the
-// board's video DAC inputs a whole frame after the program's end mark,
-// against the emulator's picture of its own video memory, point for point.
+// The picture of a test ROM that draws and stops: a frame of the beam
+// taken off the board's video DAC inputs a whole frame after the program's
+// end mark, against the emulator's picture of its own video memory, tick
+// for tick, the points within 25 ns and the attributes within 58 ns at
+// every corner (beam_compare.h: under half the least each draws, so no
+// point may be lost, gained or shifted; screen_compare.h
+// knows the board's 25 ns of ink before paper at a word's edge after a
+// flashing one - docs/baseline.md, open list 3).
 // `drawn`: the board as 3.858.420 Э3 draws it, D70's enable on ~D14.3, not
-// on GND as on the owner's board (netlist/vvv104.csv).  A board at a corner
-// of the delays is held to the picture within one sample (screen_compare.h,
-// which also knows the board's 25 ns of ink before paper at a word's edge
-// after a flashing one - docs/baseline.md, open list 3).  Э3's board starts
-// its frame with the word its registers held through the frame's border,
-// word 8000 (screen_compare.h, `held`).  The slack passes a line's first
-// word a point off edge by edge, so no line's first word may lie at another
-// phase than the rest of it (640 x 200's left-edge race, docs/findings.md,
-// D70).
+// on GND as on the owner's board (netlist/vvv104.csv); it starts its frame
+// with the word its registers held through the frame's border, word 8000
+// (screen_compare.h, `held`).
 void picture_as_emulator(const std::string& rom_name, std::uint64_t ms, bool drawn = false)
 {
     Bench b(rom_name);
-    FrameGrab grab;
-    FrameGrab::Lines taken;
+    Beam beam;
+    Beam::Lines taken;
     int frames_after = 0;
     b.run_ms(ms, [&](Vns4& m) {
         m.s_D70_15 = drawn ? 1 : 0;
-        if (grab.see(m) && b.writes.word_at(01000) == std::optional<std::uint16_t>(052525) && ++frames_after == 2)
-            taken = grab.last;
+        if (beam.see(m) && b.writes.word_at(01000) == std::optional<std::uint16_t>(052525) && ++frames_after == 2)
+            taken = beam.last;
     });
     REQUIRE(frames_after >= 2);
     const auto emu = emulator_after(rom_name);
-    const ScreenCompare c = compare_screen(taken, board_get_vram(emu.get()), board_is_hires(emu.get()),
-                                           board_get_border_color(emu.get()), 232, 16, kCorner ? 1 : 0, drawn);
-    INFO("area at " << c.dx << ", " << c.dy << "; first at " << c.first_x << ", " << c.first_y << ": " << c.got
-                    << ", the emulator's " << c.want << "; " << c.phase_breaks << " phase breaks");
+    const BeamCompare c = compare_beam(taken, board_get_vram(emu.get()), board_is_hires(emu.get()),
+                                       board_get_border_color(emu.get()), default_frame_rate().picture_x, 16,
+                                       kBeamPoints, kBeamAttributes, drawn);
+    INFO("area at tick " << c.x0 << ", line " << c.dy << "; first at point " << c.first_x << " (tick "
+                         << c.first_tick << "), line " << c.first_y << ": " << c.got << ", the emulator's "
+                         << c.want);
     CHECK(c.differ == 0);
-    CHECK(c.phase_breaks == 0);
 }
 
 }  // namespace
@@ -249,23 +249,21 @@ TEST_CASE("video: 640 x 200 in the border's colour, as the emulator's picture of
 }
 
 // The same two pictures on Э3's board, the serial machines' (D70 off in
-// the border, its clocks stopped): its first clock at a line's left edge
-// shifts the word the registers took at the right border, D70 coming on
-// before that clock falls with the chips as fitted (netlist/fitted-1991.csv)
-// and the К555ИР16's setup of the corner (tools/board.py, SETUP_NS); the
-// frame's first word is the one held through the frame's border, word 8000
-// (docs/findings.md, D70).
-TEST_CASE("video: Э3's board draws 320 x 200 as the emulator")
+// the border, its clocks stopped; C70 on БОРДС L, netlist/analog.csv,
+// "rc"): D70 must come on before its first clock at a line's left edge
+// falls, with the К555ИР16's setup (tools/board.py, SETUP_NS), or the
+// line's first word is cut and shifted; the frame's first word is the one
+// held through the frame's border, word 8000.  Open: with the sheets'
+// delays the chain loses that race at typ and max (point 0 cut by 5 of
+// its 8 ticks) and wins it by a hair at min; no fit is put back to pass
+// (docs/findings.md, D70; ms0515_data/docs/nc4-model-audit.md).  Marked
+// may_fail while the race is open.
+TEST_CASE("video: Э3's board draws 320 x 200 as the emulator" * doctest::may_fail())
 {
     picture_as_emulator("vid320.rom", 420, true);
 }
 
-// With C70 on БОРДС L (netlist/analog.csv, "rc") the typical chain to D70's
-// enable loses the race, so Э3's board takes the serial boards' faster one
-// (tools/board.py, SERIAL_SPEED, fitted to the race's ~33 ns window).  That
-// window is narrower than the corners' spread: at a corner the edge may be
-// lost, and the test may fail there (docs/findings.md, D70).
-TEST_CASE("video: Э3's board draws 640 x 200 as the emulator" * doctest::may_fail(kCorner))
+TEST_CASE("video: Э3's board draws 640 x 200 as the emulator" * doctest::may_fail())
 {
     picture_as_emulator("vid640.rom", 420, true);
 }

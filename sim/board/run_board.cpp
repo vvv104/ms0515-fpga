@@ -4,13 +4,19 @@
 //
 //   run_board <machine ms> <folder for the frames> [every Nth frame] [video] [seed=N]
 //             [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
-//             [rom=IMAGE] [keys=FILE] [joy=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO] [drawn]
-//             [edges=FROM-TO]
+//             [rom=IMAGE] [keys=FILE] [joy=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq] [fetches=FROM-TO] [e3]
+//             [edges=FROM-TO] [nowire] [frame=72|50|60] [beam]
 //
 // Every Nth frame is saved and compared with the emulator's screen; with
 // `video`, every frame is saved as well, into <folder>/video, with the
 // master tick each began at in video/frames.txt - tools/frames_to_video.py
-// makes them a film in the machine's own time.  seed=N powers the board up
+// makes them a film in the machine's own time.  With `beam`, every frame
+// as the beam draws it, the ticks the video DAC's inputs change at
+// (beam.h), into <folder>/beam with its own frames.txt - tools/
+// beam_to_video.py draws them, no point sampled; the frames are then
+// compared on the outputs' own grid (Beam::samples), and the run ends with
+// board.bmp, the last of them so sampled, beside emulator.bmp, the
+// emulator's picture of its video memory.  seed=N powers the board up
 // in Verilator's random state from seed N (0, the default: all zero).
 // disk=IMAGE puts the image in drive 0, the МС 5305 on XP4 (sim/board/
 // drive.h), its tracks laid out as the formatter `layout` writes them -
@@ -31,11 +37,17 @@
 // fetch, and every 20 ms the last fetch (docs/bench.md); fetches=FROM-TO
 // (machine microseconds) adds every fetch in that stretch, with the READY
 // slips since the fetch before (ready_slips.h; their count by the cycle's
-// kind is in the end's lines, and in the summary).  `drawn` builds
-// the board as Э3 draws it, without the owner's board's changes
-// (netlist/vvv104.csv: D70.15 on ~D14.3, not on GND; run_board_ext, the
-// board with the memory expansion module, also without the green wire
-// АД03 -> D80.5).  edges=FROM-TO
+// kind is in the end's lines, and in the summary).  `e3` builds
+// the board as Э3 draws it, without the owner's board's changes: D70.15
+// on ~D14.3, not on GND (netlist/vvv104.csv), and C70 on БОРДС L, not
+// bitten off (tools/board.py: OWNER_LACKS - one switch, s_D70_15, carries
+// the two).  run_board_ext,
+// the board with the memory expansion module, has the green wire АД03 ->
+// D80.5 the module needs, on either board - the new board's jumper E9 at
+// 2-3 (netlist/pcb_parts.csv); `nowire` is E9 at 1-2 (D80.5 on ВБРЕГ L,
+// as Э3 draws it).  frame= sets the jumpers E3/E4 and the emulator's
+// alike (frame_rate.h): 72 Hz, E3 alone, as on the boards photographed,
+// unless 50 (both) or 60 (E4 alone) is asked for.  edges=FROM-TO
 // (machine microseconds) prints, master tick by tick, every change of the
 // nets at the picture's left edge: the border (БОРДС, БОРДК), D70's enable
 // (~D14.3), the strobes ВК2..ВК5, СТРОБ, ЧТ ВЗУ, ССИ, РАЗР; then, in hex,
@@ -52,12 +64,14 @@
 
 
 #include "board_model.h"
+#include "frame_rate.h"
 #include "power.h"
 #include "keyboard_stub.h"
 #include "xp4.h"
 #include "logic_drive.h"
 #include "dram_watch.h"
 #include "video_watch.h"
+#include "beam.h"
 #include "frame_grab.h"
 #include "screen_compare.h"
 #include "snapshot.h"
@@ -104,12 +118,16 @@ std::uint16_t mk(const Vboard& m)
     return w;
 }
 
-// one frame as samples: bits 0 blue, 1 red, 2 green, 3 brightness
+// one frame as samples: bits 0 blue, 1 red, 2 green, 3 brightness; as
+// wide as its longest line
 void write_bmp(const std::string& path, const FrameGrab::Lines& lines)
 {
-    const int w = static_cast<int>(kLineSamples), h = static_cast<int>(lines.size());
-    if (h == 0) return;
-    const int row = w * 3;
+    std::size_t widest = 0;
+    for (const auto& line : lines)
+        widest = std::max(widest, line.size());
+    const int w = static_cast<int>(widest), h = static_cast<int>(lines.size());
+    if (h == 0 || w == 0) return;
+    const int row = (w * 3 + 3) / 4 * 4;
     const std::uint32_t size = static_cast<std::uint32_t>(54 + row * h);
     std::vector<std::uint8_t> out(size, 0);
     auto put32 = [&](std::size_t at, std::uint32_t v) {
@@ -137,7 +155,7 @@ void write_bmp(const std::string& path, const FrameGrab::Lines& lines)
 // the emulator from reset with ROM-B, stepped one instruction at a time
 class Emulator {
 public:
-    explicit Emulator(const std::string& rom_path)
+    Emulator(const std::string& rom_path, const FrameRate& rate)
     {
         std::ifstream f(rom_path, std::ios::binary);
         const std::vector<char> rom{std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
@@ -145,6 +163,8 @@ public:
         board_load_rom(b_.get(), reinterpret_cast<const std::uint8_t*>(rom.data()),
                        static_cast<std::uint32_t>(rom.size()));
         board_reset(b_.get());
+        b_->dip_refresh = rate.dip_refresh;
+        picture_x_ = rate.picture_x;
     }
     std::uint16_t next()
     {
@@ -173,11 +193,18 @@ public:
             std::printf("%02x ", vram[i]);
         std::printf("\n");
     }
-    // the board's frame against the emulator's picture of its video memory
-    ScreenCompare screen(const FrameGrab::Lines& lines) const
+    // the board's frame against the emulator's picture of its video memory;
+    // `held`: Э3's board, its frame starting with word 8000 (screen_compare.h)
+    ScreenCompare screen(const FrameGrab::Lines& lines, bool held) const
     {
         return compare_screen(lines, board_get_vram(b_.get()), board_is_hires(b_.get()),
-                              board_get_border_color(b_.get()));
+                              board_get_border_color(b_.get()), picture_x_, 16, 0, held);
+    }
+    // the emulator's picture of its video memory, 640 x 200 samples
+    FrameGrab::Lines picture() const
+    {
+        return emulator_picture(board_get_vram(b_.get()), board_is_hires(b_.get()),
+                                board_get_border_color(b_.get()));
     }
     // the bytes of the emulator's video memory that are not zero
     std::size_t vram_used() const
@@ -188,6 +215,7 @@ public:
 
 private:
     std::unique_ptr<ms0515_board_t> b_ = std::make_unique<ms0515_board_t>();
+    int picture_x_ = 232;
 };
 
 // The board's fetches against the emulator's.  The board waits as the
@@ -236,12 +264,15 @@ struct Options {
     std::string folder;
     int every = 10;
     bool video = false;
+    bool beam = false;                  // every frame tick by tick (beam.h)
     int seed = 0;
     std::string disk;                   // an image in drive 0, the МС 5305 (none: no disk)
     std::string layout = "omega";       // the formatter its tracks are laid out as
     bool keyboard = false;              // the keyboard stub on XS2 (sim/board/keyboard_stub.h)
     bool logic_drive = false;           // the MiSTer core's drive in place of the bench's (logic_drive.h)
-    bool drawn = false;                 // Э3's board, not the owner's (netlist/vvv104.csv)
+    bool e3 = false;                    // Э3's board, not the owner's (netlist/vvv104.csv)
+    bool nowire = false;                // run_board_ext: no green wire АД03 -> D80.5
+    const FrameRate* rate = &default_frame_rate();  // the jumpers E3/E4
     std::uint64_t edge_from = 0, edge_to = 0;  // the left edge's nets logged (machine us)
     std::vector<std::pair<std::uint64_t, std::string>> saves;  // snapshots: (machine ms, file)
     std::string load;                   // a snapshot the run goes on from
@@ -270,6 +301,8 @@ struct Options {
             const std::string arg = argv[a];
             if (arg == "video")
                 video = true;
+            else if (arg == "beam")
+                beam = true;
             else if (arg.rfind("seed=", 0) == 0)
                 seed = std::atoi(arg.c_str() + 5);
             else if (arg.rfind("disk=", 0) == 0)
@@ -278,8 +311,12 @@ struct Options {
                 layout = arg.substr(7);
             else if (arg == "drive=logic")
                 logic_drive = true;
-            else if (arg == "drawn")
-                drawn = true;
+            else if (arg == "e3")
+                e3 = true;
+            else if (arg == "nowire")
+                nowire = true;
+            else if (arg.rfind("frame=", 0) == 0 && frame_rate(std::atoi(arg.c_str() + 6)))
+                rate = frame_rate(std::atoi(arg.c_str() + 6));
             else if (arg.rfind("edges=", 0) == 0 && arg.find('-') != std::string::npos) {
                 edge_from = std::strtoull(arg.c_str() + 6, nullptr, 10);
                 edge_to = std::strtoull(arg.c_str() + arg.find('-') + 1, nullptr, 10);
@@ -524,6 +561,7 @@ private:
 class Camera {
 public:
     FrameGrab grab;
+    Beam beam;
     int frames = 0, last_differ = -1;
 
     explicit Camera(const Options& o) : o_(o)
@@ -532,10 +570,21 @@ public:
             std::filesystem::create_directories(o.folder + "/video");
             starts_.open(o.folder + "/video/frames.txt");
         }
+        if (o.beam) {
+            std::filesystem::create_directories(o.folder + "/beam");
+            beam_starts_.open(o.folder + "/beam/frames.txt");
+        }
     }
 
     void see(const Vboard& m, std::uint64_t t, const Emulator& emu, bool started)
     {
+        if (o_.beam && beam.see(m) && !beam.last.empty()) {
+            char name[32];
+            std::snprintf(name, sizeof name, "/beam/%05d.beam", frames);
+            std::ofstream out(o_.folder + name, std::ios::binary);
+            Beam::write(out, beam.last);
+            beam_starts_ << frames << ' ' << frame_start_ << ' ' << t << '\n';
+        }
         if (grab.see(m))
             frame_ends(t, emu, started);
     }
@@ -561,7 +610,8 @@ private:
 
     void compare(const Emulator& emu)
     {
-        const ScreenCompare c = emu.screen(grab.last);
+        // with the beam, the points on the outputs' own grid (Beam::samples)
+        const ScreenCompare c = emu.screen(o_.beam ? Beam::samples(beam.last) : grab.last, o_.e3);
         last_differ = c.differ;
         if (c.differ < 0)
             std::printf("frame %d: too short to compare\n", frames);
@@ -573,7 +623,7 @@ private:
     }
 
     const Options& o_;
-    std::ofstream starts_;
+    std::ofstream starts_, beam_starts_;
     std::uint64_t frame_start_ = 0;
 };
 
@@ -796,11 +846,12 @@ int main(int argc, char** argv)
     Verilated::randSeed(o.seed);
     auto m = std::make_unique<Vboard>();
     disconnect(*m);
-    m->s_D70_15 = o.drawn ? 1 : 0;
+    m->s_D70_15 = o.e3 ? 1 : 0;
+    set_frame_rate(*m, *o.rate);
 #ifdef MS0515_BOARD_EXT
-    m->s_D80_5 = o.drawn ? 1 : 0;      // the green wire, АД03 into D80.5; Э3's ВБРЕГ L when drawn
+    m->s_D80_5 = o.nowire ? 1 : 0;     // the green wire, АД03 into D80.5; Э3's ВБРЕГ L without it
 #endif
-    Emulator emu(o.rom.empty() ? MS0515_FIRMWARE_DIR "/ms0515-romb.rom" : o.rom);
+    Emulator emu(o.rom.empty() ? MS0515_FIRMWARE_DIR "/ms0515-romb.rom" : o.rom, *o.rate);
     if (!o.rom.empty() && o.load.empty()) {
         std::ifstream f(o.rom, std::ios::binary);
         if (!plug_rom(*m, {std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()})) {
@@ -881,6 +932,10 @@ int main(int argc, char** argv)
     while (next_save < saves.size() && saves[next_save].first * 1000 * kMasterMhz == ticks)
         save_snapshot(saves[next_save++].second, parts, ticks);
     write_bmp(o.folder + "/last.bmp", camera.grab.lines);
+    if (o.beam) {
+        write_bmp(o.folder + "/board.bmp", Beam::samples(camera.beam.last));
+        write_bmp(o.folder + "/emulator.bmp", emu.picture());
+    }
     report_sound(o, sound, from, ticks);
     video.report();
     slips.report();

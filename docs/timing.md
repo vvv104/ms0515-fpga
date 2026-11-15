@@ -90,20 +90,14 @@ A chip whose model takes an input as it stood some ticks before the
 clock's edge gets them as a parameter (`SETUP`), from `SETUP_NS` in
 `tools/board.py`: the sheet's figure, a guaranteed maximum, at the max
 corner; MIN_SHARE of it at the typical and min corners, whose delays are
-not the worst either; at least one tick.  So far the К555ИР16's MODE
-(20 ns: 2 ticks at max, 1 at typ and min) - the 640 x 200 edge's race.
-With C70 the typical chain to D70's enable loses it; Э3's board wins it
-with the serial chain's speed (below).
-
-## Serial speed
-
-`SERIAL_SPEED` in `tools/board.py`: on Э3's board (D70.15's switch at
-1) D30, D21, D14 and D70 lag by 0.55 of the corner's delays, so an
-output whose ticks change gets two delay lines, `g_...` and `f_...`, and
-the switch picks.  The owner's board keeps the corner's delays.  The
-share is fitted to the middle of the left-edge race's window, not
-measured (`docs/findings.md`, D70, "Э3's board with the serial chain's
-speed").
+not the worst either; at least one tick.  So far the К555ИР16: every
+input - MODE, A..D and SER - is taken as it stood that long before the
+clock's fall (the 74LS295 sheet: setup 20 ns for all of them, hold 0 for
+MODE and 10 ns for data; 2 ticks at max, 1 at typ and min) - the 640 x
+200 edge's race.  With C70 the typical chain to D70's enable loses it:
+open (`docs/findings.md`, D70).  The fitted faster chain that once won
+it on Э3's board (`SERIAL_SPEED`, 0.55 of the delays, never measured)
+was taken out on 2026-11-14: only Э3 and the sheets go into the model.
 
 ## Corners
 
@@ -149,40 +143,24 @@ What the corners show (Omega booted to its prompt in all three):
   has taken it, so the DRAM reads cell 243:160 or 243:170 for 003:160 or
   243:160 - about one read a frame, in the blanking: nothing on the
   screen.  None at typ and min.
-- **The picture at a corner: the emulator's within one sample.**  The
-  bench takes the picture's sample at each rise of ТС15 H (the board's
-  own 15 MHz; `sim/board/frame_grab.h`), and the board's outputs to the
-  video DAC do not change together.  Measured on `vid320.rom`, 6 ms of
-  picture, the changes of СЦ, КЦ, ЗЦ H and D69.9 by the master tick after
-  the rise they fall on (`run_board ... edges=`):
-
-  | Corner | The largest group (7457 changes) | The second (1164..1241) | The rest (some 240) |
-  |---|---|---|---|
-  | min | tick 1 | tick 0 | ticks 5, 6 |
-  | typ | tick 0 | tick 6 | ticks 2, 4 |
-  | max | tick 4 | tick 1 | tick 6 |
-
-  The second group comes ahead of the first by 1 tick at min, 2 at typ,
-  3 at max (8, 17, 25 ns).  At typ the sample at the rise takes both
-  changed, at max neither; at min the rise is the very tick of the
-  second group and the first comes a tick after it, so the sample takes
-  the one new and the other old.  On the frame it is single columns of samples: at
-  min against typ the border's and the picture's edges (samples 168,
-  232, 872, 936) and in 320 x 200 every 16th sample - a word's boundary,
-  where the attribute changes; by that the second group is the
-  attributes' and the first the points'.  The picture tests, brought on
-  2026-11-03 and run at typ only, failed at min from their first day by
-  just this (4222 samples in 320 x 200, 100 in 640 x 200).  On a monitor
-  nothing is sampled: the edges stand 8 to 25 ns apart, whatever the
-  corner - under half a 640 x 200 point (67 ns).  So a board at a corner is held to
-  the emulator's picture within one sample - its point and its attribute
-  each taken there or a sample to the left or right, where the picture
-  fits to the sample best (`sim/board/screen_compare.h`, `slack`); the
-  typical board to the sample.  The slack is for edges, not for a word:
-  in 640 x 200 no line's first word may lie at another shift than the
-  rest of its line (`phase_breaks`), or a first word a point late - the
-  left-edge race lost - would pass edge by edge (`docs/findings.md`,
-  D70, "The slack no longer hides the race").
+- **The picture on the beam, at every corner the same tolerance.**  The
+  bench keeps the video DAC's inputs at every master tick (`beam.h`) and
+  holds every tick of the 640 points to the emulator's picture
+  (`sim/board/beam_compare.h`), each of the four inputs on its own (each
+  has its own path: at max the blank's end lets blue on a tick before
+  green and brightness).  The points and the border's edges may come
+  3 ticks (25 ns) early or late, under half a 640 x 200 point (67 ns);
+  the attributes 7 ticks (58 ns), under half a 320 x 200 point - the
+  board's attributes lead its points by 3 ticks at typ and 5 (42 ns) at
+  max, so a word's last ticks show the next word's colours under its
+  last point; past a line's right end the next word's (the video address
+  runs on).  Under half a point, nothing can be lost, gained or moved by a
+  point inside the tolerance: a word a point late fails tick by tick.  At
+  72 Hz the line has no border, its blank meeting the picture 2 ticks
+  into the first point.  (Until 2026-11-15 the frame was sampled once a
+  point at the ТС15 H rises and a corner board allowed a sample's slack;
+  that measured the skew as 8 / 17 / 25 ns with К555ИР16 at 65 ns, and
+  never saw a point cut short at a line's edge.)
 - **A flashing word's inversion outlasts it by 25 ns** (typ).  The
   colour bits go from the attribute registers D55, D56 to the inputs of
   the multiplexers D63, D69 (К555КП2); the selection between ink and

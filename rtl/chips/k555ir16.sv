@@ -1,12 +1,15 @@
 // К555ИР16 (74LS295): 4-bit shift register with parallel load, clocked on
 // the falling edge of pin 9; MODE (pin 6) high loads A..D, low shifts
 // right (SER into QA); three-state outputs driven while OC (pin 8) is high.
-// MODE counts as it stood SETUP ticks before the edge (hold 0): a MODE that
-// changed within the setup is not yet seen, so MODE falling with the clock,
-// or up to SETUP-1 ticks before, still loads.  The sheet's 20 ns (NTE74LS295A:
-// "Setup Time HIGH or LOW, PE to CP 20 ns", "Hold Time ... PE to CP 0 ns")
-// is a guaranteed maximum: three ticks of 8.33 ns, the default; the board
-// generator gives each corner its own (tools/board.py, SETUP_NS).
+// Every input - MODE, A..D and SER - counts as it stood SETUP ticks before
+// the edge: one that changed within the setup is not yet seen, so an input
+// changing with the clock, or up to SETUP-1 ticks before, keeps its old
+// level.  The sheet (NTE74LS295A) gives all of them the same setup, 20 ns
+// ("Setup Time HIGH or LOW, PE to CP"; data likewise), and holds of 0 (PE)
+// and 10 ns (data) after the edge, which taking the level from before the
+// edge satisfies.  20 ns is a guaranteed maximum: three ticks of 8.33 ns,
+// the default; the board generator gives each corner its own
+// (tools/board.py, SETUP_NS).
 module k555ir16 #(
     parameter int SETUP = 3                                        // ticks, 1..8
 ) (
@@ -19,13 +22,17 @@ module k555ir16 #(
 );
     logic [3:0] state;   // [0] = QA
     logic       c_was;
-    logic [7:0] mode_was;   // [0] the tick before, [k] k+1 ticks before
+    logic [5:0] was [8];    // {MODE, D, C, B, A, SER}: [0] the tick before, [k] k+1 ticks before
+    logic [5:0] seen;
 
+    assign seen = was[SETUP - 1];
     always_ff @(posedge clk) begin
-        c_was    <= p9;
-        mode_was <= {mode_was[6:0], p6};
+        c_was  <= p9;
+        was[0] <= {p6, p5, p4, p3, p2, p1};
+        for (int k = 1; k < 8; k++)
+            was[k] <= was[k - 1];
         if (!p9 && c_was)
-            state <= mode_was[SETUP - 1] ? {p5, p4, p3, p2} : {state[2:0], p1};
+            state <= seen[5] ? seen[4:1] : {state[2:0], seen[0]};
     end
     assign {p10, p11, p12, p13} = state;
     assign {p10_oe, p11_oe, p12_oe, p13_oe} = {4{p8}};

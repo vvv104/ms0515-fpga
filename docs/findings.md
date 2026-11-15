@@ -528,7 +528,7 @@ about half); D70's inputs as drawn (pins 2/3, 5/6,
 draws 640 x 200` test is may_fail again.
 
 **The race by corner, with C70** (2026-11-09; `run_board 401 ...
-rom=firmware/tests/vid640.rom drawn edges=400000-400200`, master ticks
+rom=firmware/tests/vid640.rom e3 edges=400000-400200`, master ticks
 of 8.33 ns from D14.3's fall, the step being the ТС15 H rise that ends
 `СТРОБ`).  The line's first shift must come on the second ТС15 H rise
 after the step; on the first, D70 is still off.
@@ -636,6 +636,25 @@ picture differed in 100 samples, each a line's first sample lit where
 the border stands, and no phase break: one edge a sample early, of the
 kind the owner's board shows at its right edge at max (100 samples at
 639), not the first word's shift.
+
+**The fit taken out; the race on the beam** (2026-11-14, -15).  The
+owner's rule: only Э3 is right, whatever his board's fixes; every rule
+of the model audited by where it came from
+(`ms0515_data/docs/nc4-model-audit.md`).  `SERIAL_SPEED` is gone.  The
+К555ИР16 now takes data and SER, as MODE, from `SETUP` ticks before the
+clock's fall (the sheet's setup for all of them; the old asymmetry was
+an owner-era leftover): Э3's picture is the same to the sample at every
+corner.  The picture is judged on the beam, tick by tick
+(`sim/board/beam_compare.h`; `docs/timing.md`, "Corners"), without the
+sample's slack and without `phase_breaks`.  Э3's board (vid320 / vid640,
+ticks off the picture): typ 349 / 4882, min 25 / 0, max 389 / 252; the
+vvv104 board none at any corner.  All of it is the left edge: at typ and
+max point 0 of each line shows 2 ticks of blank and 3 of the border
+before it, cut by 5 of its 8 ticks, and the frame's first 320 x 200
+word shows word 8000's points under word 0's attributes (the line's
+first clock shifted, not loaded); at min point 0 is lit for one tick
+before it goes dark.  Open: the audit's next steps (rise and fall apart
+on the race chain, the typical setup) come before any conclusion.
 
 **C70 on the boards seen** (2026-11-04).  The owner's board has none:
 two pads where the drawing puts it, by D85 towards D84, with C69 and

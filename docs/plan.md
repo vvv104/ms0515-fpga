@@ -78,15 +78,15 @@ to any one board.  From stage 6 on there are two projects:
    none does, the place does not matter to the machine and is marked so.
    The factory wires all match Э3; the bare wire on the owner's board (GND
    to the lifted D70.15) is in `vvv104.csv`.
-   **Closed with a fitted speed** (owner, 2026-11-09): with C70 modelled
-   Э3's board as drawn lost 640 x 200's left edge at the typical delays;
-   with the serial chain's speed (`SERIAL_SPEED`, D30/D21/D14/D70 at
-   0.55, fitted, not measured) it draws both modes as the emulator at
-   typ and min; at max 640 x 200's first word is a point off (the race's
-   window is narrower than the corners' spread); the frame's first word
-   is the board's own (word 8000) (`docs/findings.md`, D70; the `video:
-   Э3's board draws 640 x 200` test may_fail at the corners, failing at
-   max).
+   **Reopened** (owner, 2026-11-14): it was closed on 2026-11-09 with a
+   fitted speed of the serial chain (`SERIAL_SPEED`, D30/D21/D14/D70 at
+   0.55, never measured), now taken out - only Э3 and the sheets go into
+   the model, each rule audited by where it came from
+   (`ms0515_data/docs/nc4-model-audit.md`).  With C70 modelled, Э3's
+   board as drawn loses 640 x 200's left edge: on the beam
+   (`sim/board/beam_compare.h`) point 0 of each line is cut by 5 of its
+   8 ticks at typ and max, and won by a hair at min; the vvv104 board
+   passes at every corner (`docs/findings.md`, D70).
 6a. **The memory expansion module** (RAM disk + two RS-232C) the same
    way: its connection tables (`docs/ext` of `$MS0515_DATA`) into a netlist
    of its own, its chips as modules, wired to the board's XS1.
