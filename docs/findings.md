@@ -1125,6 +1125,24 @@ settles:
   stands.  Hence EX.SYS's way (as the emulator's ramdisk.h describes
   it): a page's first byte to 177570, the other 255 to 177550 - the
   hardware asks for exactly that.
+- **Omega's EX.SYS works it** (2026-11-15; `run_board_ext`, Omega's
+  games disk, `build/ext-omega2/<corner>`, 62 s of the machine's time):
+  at the prompt `INIT/NOQUERY EX0:` from 24.5 s, `COPY BIRDS.SAV EX0:`
+  from 34 s - «Files copied: DK:BIRDS.SAV to EX0:BIRDS.SAV» - `DIR EX0:`
+  - BIRDS.SAV, 26 blocks, «1 Files, 26 Blocks, 982 Free blocks» - and
+  `RUN EX0:BIRDS` from 58 s: the game loads off the RAM disk and its
+  opening squares fill the screen, as the emulator draws them for BIRDS
+  run off a diskette; at typ, min and max, НС4's own RAM read as written
+  throughout (0 of some 90 million reads differ).  The emulator the run
+  is held against has no module, so the run parts from it at the first
+  access to the module (`diverged=1`); what is checked is the monitor's
+  own answers on the screen.
+- **Open, not the module's: streaks at max in the colour picture.**  At
+  the max corner the opening squares of BIRDS carry thin horizontal
+  streaks and spill a few pixels past the right of the field; at typ and
+  min they do not.  The same streaks are on the run without the module
+  (`build/games3/birds-max`, 2026-11-06, against `birds-typ`), so they
+  come from НС4 at max, not from the module; not traced yet.
 - **Open: the module's data lines see two drivers after a read.**  In the
   same run (`test_exdisk.cpp`, the module in, the green wire on) the
   module's own data lines `ДК00`..`ДК07` have two drivers on for longer

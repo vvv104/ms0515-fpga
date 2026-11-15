@@ -152,7 +152,12 @@ The second printed board, `ns4-vvv104`, is gone.
       switch); `sim/board/test_exdisk.cpp` runs `firmware/tests/exdisk.mac`
       on it: eight pages at every address bit come back as written, and
       without the green wire they do not (`docs/findings.md`, the module
-      on the model).  Next: Omega with EX.SYS on it.
+      on the model).  **Omega done** (2026-11-15): Omega's `INIT/NOQUERY
+      EX0:`, `COPY BIRDS.SAV EX0:` («Files copied»), `DIR EX0:`
+      (BIRDS.SAV, 26 blocks, 982 free) and `RUN EX0:BIRDS` (its opening
+      squares, as the emulator draws them) on the board with the module,
+      typ, min and max, НС4's RAM read as written throughout
+      (`build/ext-omega2`, `docs/findings.md`, the module on the model).
    4. The core: the module on the same FPGA, a switch in the menu.
       **On the model** (2026-11-15): its 512 KB do not fit the block
       memory beside the board (owner: then DDR3, no extra board), so
