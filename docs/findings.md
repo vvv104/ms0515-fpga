@@ -496,10 +496,14 @@ left out (below, "C70 modelled"):
    word has word 8000's points in word 0's attributes, the attribute
    registers loading on their own clock - a margin case, held to within
    one sample as the corners are.  `sim/board/screen_compare.h` (`held`) holds
-   Э3's board to that; the emulator draws word 8000 there too (its
-   `docs/hardware/video.md`, "The frame's first word").  Normally word
-   8000 is as the screen's clear left it, and the corner looks like the
-   rest - the serial machines' screens were clean.
+   Э3's board to that.  Normally word 8000 is as the screen's clear left
+   it, and the corner looks like the rest - the serial machines' screens
+   were clean.  It holds for Э3 as drawn only: in the standard build
+   (D70.15 on GND, 2026-11-15) D70 is on through the border too and the
+   frame starts with its own word 0, as the emulator draws it.  So the
+   emulator was left as it is: the change drawn for it then (word 8000
+   first in 640 x 200, never merged) was dropped on 2026-11-15 with the
+   owner's fix made the standard.
 
 **C70 modelled, 2026-11-09: 640 x 200 open again.**  C70 (100 pF on
 `БОРДС L`) is on Э3 and fitted on Frolov's board; the model had it
