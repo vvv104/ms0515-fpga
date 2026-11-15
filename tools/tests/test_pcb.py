@@ -57,6 +57,53 @@ class Stack(unittest.TestCase):
 
 
 @unittest.skipUnless(pcbnew, "no pcbnew (run with KiCad's Python)")
+class StandardBuild(unittest.TestCase):
+    """The board as the standard build fits it (owner, 2026-11-15): what it
+    leaves out has no body and is out of the lists, its pads kept; what it
+    adds by hand is a body from pin to pin, no pad, the copper untouched."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.board = pcbnew.LoadBoard(pcb.OUT)
+        cls.pads = sum(len(fp.Pads()) for fp in cls.board.GetFootprints())
+        pcb.standard_build(cls.board)
+        pcb.standard_build(cls.board)       # twice: the same board
+
+    def fp(self, ref):
+        return self.board.FindFootprintByReference(ref)
+
+    def test_the_unfitted_have_no_body_and_keep_their_pads(self):
+        for ref in ("E4", "E6", "C70"):
+            fp = self.fp(ref)
+            self.assertTrue(fp.IsDNP() and fp.IsExcludedFromBOM() and fp.IsExcludedFromPosFiles(), ref)
+            self.assertEqual(len(fp.Models()), 0, ref)
+            self.assertEqual(len(fp.Pads()), 2, ref)
+        self.assertFalse(self.fp("E3").IsDNP())
+        self.assertEqual(len(self.fp("E3").Models()), 1)
+
+    def test_the_hand_made_parts_run_from_pin_to_pin_without_pads(self):
+        for part in pcb.hand_parts():
+            fp = self.fp(part.ref)
+            self.assertIsNotNone(fp, part.ref)
+            self.assertEqual(len(fp.Pads()), 0)
+            self.assertTrue(fp.IsBoardOnly())
+            (model,) = fp.Models()
+            a, b = pcb.pin_at(self.board, part.frm), pcb.pin_at(self.board, part.to)
+            self.assertEqual(fp.GetPosition(), a)
+            span = math.hypot(b.x - a.x, b.y - a.y)
+            pitch = pcb.model_pitch(part, pcbnew.ToMM(span))
+            self.assertAlmostEqual(pcbnew.ToMM(span) / model.m_Scale.x, pitch, places=3)
+        self.assertEqual(sum(len(fp.Pads()) for fp in self.board.GetFootprints()), self.pads)
+
+    def test_the_bodies_point_from_the_first_pin_to_the_second(self):
+        for part in pcb.hand_parts():
+            fp = self.fp(part.ref)
+            a, b = pcb.pin_at(self.board, part.frm), pcb.pin_at(self.board, part.to)
+            angle = math.degrees(math.atan2(-(b.y - a.y), b.x - a.x))
+            self.assertAlmostEqual((fp.GetOrientationDegrees() - angle + 540) % 360 - 180, 0, places=1)
+
+
+@unittest.skipUnless(pcbnew, "no pcbnew (run with KiCad's Python)")
 class Placement1991(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

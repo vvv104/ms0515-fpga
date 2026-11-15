@@ -55,25 +55,41 @@ As the netlist has them (`netlist/analog.csv`; why: `netlist/variants.md`):
 |---|---|---|
 | E1 | fitted | a wire in place of a resistor |
 | E2 | fitted | С2 circuit 108 to XP5.5 |
-| E3, E4 | fitted | РВК1 Н, РВК0 Н to ground: with both, the 50 Hz page (the machines in use ran at 50 Hz) |
+| E3 | fitted | РВК1 Н to ground: E3 alone, the 72 Hz page - as on every НС4 photographed (the owner's, Frolov's, Radon17's) |
+| E4 | not fitted | РВК0 Н to ground: with E3, the 50 Hz page; alone, the 60 Hz one |
 | E5 | fitted | the 15 MHz oscillator into ТС15 Н |
 | E6 | not fitted | the speaker to XP6.11 |
 | E7, E8 | fitted | ЧТМАГ Н to SA1's contacts 6 and 10 |
 | E9 | 1-2 | the board's own: D80.5 on `ВБРЕГ L` as Э3 draws it; 2-3 for the RAM-disk module (`netlist/pcb_parts.csv`) |
 | SA1 | 1-20, 3-18, 5-16, 7-14, 9-12 closed | the base build: the МС 7004 keyboard on XS2 |
 | XS3, XS4 | ROM-B | the two К573РФ4 (D65, D77) in sockets; ROM-A runs Rodionov's disk, ROM-B the Omega kit (`docs/findings.md`) |
-| C70, D70.15 | C70 not fitted; D70's pin 15 lifted off its pad, a wire from it to GND (D57.10 is near) | the standard build (owner, 2026-11-15): D70 always enabled, as on the owner's board - the left edge of the picture right at every corner of the chips' delays, where Э3 as drawn loses it on the model (Known risks).  The copper is the 1991 board's, so this is done by hand, as on his board |
+| C70, D70.15, W1 | C70 not fitted; D70's pin 15 lifted off its pad, the wire W1 from it to GND (D57.10) | the standard build (owner, 2026-11-15): D70 always enabled, as on the owner's board - the left edge of the picture right at every corner of the chips' delays, where Э3 as drawn loses it on the model (Known risks).  The copper is the 1991 board's, so this is done by hand, as on his board |
+| R81, VT1.14 | VT1's pin 14 lifted off its hole, 620 kOhm (R81) from it to R38.1 (`МОНО`) | on every НС4 photographed; not on Э3 nor the assembly drawing - a later change on the monochrome output |
 
-## Assembly: the left-edge fix
+## Assembly: the changes made by hand
 
-The copper stays as the 1991 board's, D70.15 on `~D14.3` as Э3 draws it;
-the fix is made at assembly, as on the owner's board (`netlist/assembly.csv`):
+The copper stays as the 1991 board's, as Э3 draws it; what the boards
+seen carry beyond Э3 is made at assembly, off the copper
+(`netlist/assembly_parts.csv`, `netlist/assembly.csv`; `docs/pcb/bom.md`
+lists the parts).  On `kicad/ns4.kicad_pcb` the parts left out are marked
+not fitted, without a body, and W1 and R81 are bodies from pin to pin with
+no pad (`tools/pcb.py standard`); a lifted pin does not show in the 3D view.
+
+The left edge (`docs/findings.md`, D70), as on the owner's board:
 
 1. leave C70 out (its pads, by D85 towards D84, stay empty);
 2. before soldering D70 (К555КП11 / 74LS257) bend its pin 15 (OE) out so it
    misses its hole - or, if a socket is used, bend it on the chip;
-3. solder a short wire from that pin to GND: D57.10 is the nearest ground
-   pin, as on the owner's board.
+3. solder a short wire (W1) from that pin to GND: D57.10 is the nearest
+   ground pin, as on the owner's board.
+
+The monochrome output, as on all three boards photographed:
+
+4. before soldering VT1 (КТ677АС) bend its pin 14 (collector 4) out so it
+   misses its hole;
+5. solder R81, 620 kOhm, from that pin to R38's lead on `МОНО` (R38.1).
+
+The jumpers: E3 only (72 Hz, as on those boards); E4 and E6 left open.
 
 The model of this build is the board model's default (the switch `s_D70_15`
 0, the MiSTer core's default too); it passes every picture test at every corner.

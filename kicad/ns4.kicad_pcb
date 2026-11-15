@@ -1612,7 +1612,7 @@
 				)
 			)
 		)
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_rect
 			(start 0.04 -1.25)
@@ -1644,17 +1644,6 @@
 			(uuid "60a73fc0-78e5-4c16-9508-9d1efda4bf38")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Capacitor_THT.3dshapes/C_Disc_D5.0mm_W2.5mm_P5.00mm.step"
-			(offset
-				(xyz 0.04 0 0)
-			)
-			(scale
-				(xyz 1 1 1)
-			)
-			(rotate
-				(xyz 0 0 0)
-			)
-		)
 	)
 	(footprint "D_DO-35_SOD27_P12.70mm_Horizontal"
 		(locked yes)
@@ -2893,6 +2882,67 @@
 			)
 			(scale
 				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
+	)
+	(footprint ""
+		(layer "F.Cu")
+		(uuid "0f7a2da0-706b-4dad-831d-4fb4d9bc6f9c")
+		(at 54.523 73.5762 17.09189442)
+		(property "Reference" "R81"
+			(at 0 0 17.09189442)
+			(layer "F.Fab")
+			(uuid "0bce1311-2228-44e7-b6b7-a823317b73d1")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "620 кОм ±5%"
+			(at 0 0 17.09189442)
+			(layer "F.Fab")
+			(uuid "091fc25c-123c-4a11-93d0-56113cdfb00a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 17.09189442)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "21a40497-3b03-4c47-bf9e-f7fa8c69f458")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 17.09189442)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "05c68e57-1d03-4470-b0dc-b263a6298b8b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr board_only exclude_from_pos_files)
+		(duplicate_pad_numbers_are_jumpers no)
+		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Resistor_THT.3dshapes/R_Axial_DIN0207_L6.3mm_D2.5mm_P15.24mm_Horizontal.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1.132724016 1 1)
 			)
 			(rotate
 				(xyz 0 0 0)
@@ -27900,7 +27950,7 @@
 				)
 			)
 		)
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_rect
 			(start 0.95 -0.3)
@@ -27932,17 +27982,6 @@
 			(uuid "fd7d24d8-ce76-49eb-8b09-29f2baf08d58")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/ns4.3dshapes/Wire_Link_P12.70mm.wrl"
-			(offset
-				(xyz 0 0 0)
-			)
-			(scale
-				(xyz 1 1 1)
-			)
-			(rotate
-				(xyz 0 0 0)
-			)
-		)
 	)
 	(footprint "DIP-28_W15.24mm"
 		(locked yes)
@@ -33756,7 +33795,7 @@
 				)
 			)
 		)
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_rect
 			(start 0.95 -0.3)
@@ -33788,17 +33827,6 @@
 			(uuid "ed063abe-d9e6-4ce1-8359-f21a893c6c61")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/ns4.3dshapes/Wire_Link_P12.70mm.wrl"
-			(offset
-				(xyz 0 0 0)
-			)
-			(scale
-				(xyz 1 1 1)
-			)
-			(rotate
-				(xyz 0 0 0)
-			)
-		)
 	)
 	(footprint "C_Disc_P5.08mm"
 		(locked yes)
@@ -36928,6 +36956,67 @@
 			)
 			(scale
 				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
+	)
+	(footprint ""
+		(layer "F.Cu")
+		(uuid "87c4d831-3e35-4298-986b-96e6f1fd7880")
+		(at 116.7046 101.4904 -90.05828663)
+		(property "Reference" "W1"
+			(at 0 0 269.9417134)
+			(layer "F.Fab")
+			(uuid "81afffca-9b47-4522-b36e-b631c1859e20")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "0.07 мм²"
+			(at 0 0 269.9417134)
+			(layer "F.Fab")
+			(uuid "52e32f15-b70b-4d20-baaa-b4edb0f5c941")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 269.9417134)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "36ae4c66-0965-44a9-9cb7-7bee61081c76")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 269.9417134)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "ee8c2955-3dc7-4b2f-b789-08ee9352f41a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr board_only exclude_from_pos_files)
+		(duplicate_pad_numbers_are_jumpers no)
+		(embedded_fonts no)
+		(model "${KIPRJMOD}/ns4.3dshapes/Wire_Link_P12.70mm.wrl"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 0.9984807874 1 1)
 			)
 			(rotate
 				(xyz 0 0 0)

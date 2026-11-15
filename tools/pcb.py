@@ -9,10 +9,16 @@ Run with KiCad's own Python, which has pcbnew:
                                              - the board's pads against the
                                                netlist (stage 8e), exit 1 on
                                                a difference
+    <KiCad>/bin/python tools/pcb.py standard - the standard build's fitting
+                                               on kicad/ns4.kicad_pcb as it
+                                               is (routed or not)
 
-One board: ns4, Э3 as drawn, the 1991 copper.  The owner's fix at the left
-edge (C70 not fitted, D70.15 lifted to GND) is made at assembly, not on the
-board (docs/pcb/fab.md, "Assembly").
+One board: ns4, Э3 as drawn, the 1991 copper.  The standard build (owner,
+2026-11-15; docs/pcb/fab.md, "Assembly") is the fitting on it: what it
+leaves out (E4, E6 - the jumpers analog.csv leaves open; C70) is marked not
+fitted, without a body, its pads kept; what it adds by hand off the copper
+(netlist/assembly_parts.csv: the wire D70.15 to GND, 620 kOhm on МОНО) is a
+3D body from pin to pin with no pad.
 
 The board is the netlist's (netlist/parts.csv, nets.csv - Э3 as read, the
 one the board model runs the machine's software on) with the footprints of
@@ -428,7 +434,74 @@ def build():
     lay_copper(board)
     for layer, net in PLANES.items():
         plane(board, codes, net, layer)
+    standard_build(board)
     return board, skipped, missing, failed
+
+
+# The standard build (owner, 2026-11-15; docs/pcb/fab.md, "Assembly"): the
+# parts added by hand get a body from pin to pin - a wire link stretched, or
+# an axial resistor of the nearest lead pitch stretched to the span.
+WIRE_MODEL = ("${KIPRJMOD}/ns4.3dshapes/Wire_Link_P12.70mm.wrl", 12.7)
+RESISTOR_MODEL = "${KICAD10_3DMODEL_DIR}/Resistor_THT.3dshapes/R_Axial_DIN0207_L6.3mm_D2.5mm_P%.2fmm_Horizontal.step"
+RESISTOR_PITCHES = (7.62, 10.16, 15.24)
+
+
+def hand_parts():
+    """The parts the standard build adds by hand (netlist/assembly_parts.csv)."""
+    return bom.assembly_parts(os.path.join(NET, "assembly_parts.csv"))
+
+
+def pin_at(board, pin):
+    """The position of a netlist pin (ref, number)'s pad on the board."""
+    ref, number = pin
+    fp = board.FindFootprintByReference(bom.SOCKETS.get(ref, ref))
+    kind = load_items().get(ref)
+    return fp.FindPadByNumber(pad_of(kind.type if kind else "", number)).GetPosition()
+
+
+def model_pitch(part, span):
+    """The lead pitch of the body's model, in mm, for a span of `span` mm."""
+    if part.ref.startswith("W"):
+        return WIRE_MODEL[1]
+    return min(RESISTOR_PITCHES, key=lambda p: abs(p - span))
+
+
+def hand_footprint(board, part):
+    """A part added by hand: no pad, a body from its first pin to its second."""
+    a, b = pin_at(board, part.frm), pin_at(board, part.to)
+    span = pcbnew.ToMM(int(math.hypot(b.x - a.x, b.y - a.y)))
+    fp = pcbnew.FOOTPRINT(board)
+    fp.SetReference(part.ref)
+    fp.SetValue(part.value or part.type)
+    for text in (fp.Reference(), fp.Value()):
+        text.SetLayer(pcbnew.F_Fab)
+    fp.SetBoardOnly(True)
+    fp.SetExcludedFromPosFiles(True)
+    pitch = model_pitch(part, span)
+    model = pcbnew.FP_3DMODEL()
+    model.m_Filename = WIRE_MODEL[0] if part.ref.startswith("W") else RESISTOR_MODEL % pitch
+    model.m_Scale = pcbnew.VECTOR3D(span / pitch, 1, 1)
+    fp.Add3DModel(model)
+    fp.SetPosition(a)
+    fp.SetOrientationDegrees(math.degrees(math.atan2(-(b.y - a.y), b.x - a.x)))
+    return fp
+
+
+def standard_build(board):
+    """What the standard build leaves out: no body, out of the parts and
+    placement lists, its pads kept; what it adds by hand: hand_footprint.
+    Again on the same board, the same."""
+    for ref in bom.standard_unfitted():
+        fp = board.FindFootprintByReference(ref)
+        fp.SetDNP(True)
+        fp.SetExcludedFromBOM(True)
+        fp.SetExcludedFromPosFiles(True)
+        fp.Models().clear()
+    for part in hand_parts():
+        old = board.FindFootprintByReference(part.ref)
+        if old:
+            board.Remove(old)
+        board.Add(hand_footprint(board, part))
 
 
 # The 1991 board's outer layers (Mick's 1, 2, 7, 8) as fixed copper: tools/lay1991.py.
@@ -564,6 +637,12 @@ def check(board):
 
 
 def main(argv):
+    if argv[1:2] == ["standard"]:
+        board = pcbnew.LoadBoard(OUT)
+        standard_build(board)
+        board.Save(OUT)
+        print(f"{OUT}: the standard build's fitting")
+        return 0
     if argv[1:2] == ["check"]:
         diffs = check(pcbnew.LoadBoard(OUT))
         for d in diffs:

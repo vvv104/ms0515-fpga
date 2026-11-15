@@ -99,5 +99,39 @@ class Table(unittest.TestCase):
         self.assertIn("| С1-4 | 1 кОм | 2 | R1, R2 | film | `Resistor_THT:R_Axial` |  |", text)
 
 
+class StandardBuild(unittest.TestCase):
+    """What the standard build leaves out and what it adds by hand."""
+
+    def write(self, name, text):
+        self.dir = getattr(self, "dir", None) or tempfile.TemporaryDirectory()
+        path = os.path.join(self.dir.name, name)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(text)
+        return path
+
+    def test_a_jumper_left_open_is_not_fitted_and_a_fitted_one_is(self):
+        analog = self.write("analog.csv", "ref,treatment,pins,reason\n"
+                            "E1,short,,fitted\nE3,jumper,fitted,x\nE4,jumper,open,x\nE6,open,,x\n"
+                            "R38,open,,video output load\n")
+        self.assertEqual(bom.not_fitted(analog, {"C70"}), {"E4", "E6", "C70"})
+
+    def test_the_hand_made_parts_are_read_with_their_pins(self):
+        path = self.write("assembly_parts.csv", "# x\nref,type,value,from,to,lifts,evidence\n"
+                          "R81,С1-4,620 кОм,R38.1,VT1.14,VT1.14,photos\n")
+        (part,) = bom.assembly_parts(path)
+        self.assertEqual((part.ref, part.value, part.frm, part.to, part.lifts),
+                         ("R81", "620 кОм", ("R38", 1), ("VT1", 14), ("VT1", 14)))
+
+    def test_the_list_leaves_the_unfitted_out_and_names_them_apart(self):
+        items, _ = Fixture("C5,К10-17,100 пФ,2,,,,,\nC70,К10-17,100 пФ,2,,,,,\n",
+                           "К10-17,Capacitor_THT:C_Disc,ceramic,\n").items()
+        parts = bom.assembly_parts(self.write("a.csv", "ref,type,value,from,to,lifts,evidence\n"
+                                              "W1,провод,,D70.15,D57.10,D70.15,photo\n"))
+        text = bom.document(items, {"C70"}, parts)
+        self.assertIn("| К10-17 | 100 пФ | 1 | C5 |", text)
+        self.assertIn("Not fitted: C70", text)
+        self.assertIn("| W1 | провод |  | D70.15 | D57.10 | D70.15 |", text)
+
+
 if __name__ == "__main__":
     unittest.main()

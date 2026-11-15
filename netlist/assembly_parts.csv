@@ -1,0 +1,10 @@
+# The parts the standard build adds by hand at assembly, off the copper
+# (owner, 2026-11-15; docs/pcb/fab.md, "Assembly"): each from one pin to
+# another, `lifts` the pin bent off its hole first (it then touches only the
+# part).  The printed board stays the 1991 copper, so tools/pcb.py gives each
+# a 3D body only, no pads, and tools/bom.py lists them apart.  What the
+# standard build leaves out is in netlist/analog.csv (the jumpers 'open') and
+# tools/board.py (OWNER_LACKS: C70).
+ref,type,value,from,to,lifts,evidence
+W1,провод МГТФ,0.07 мм²,D70.15,D57.10,D70.15,"the owner's board, photo MC 0515 04 (read by the owner 2026-10-20): D70's pin 15 off its pad, a bare wire to D57.10 (GND) - netlist/assembly.csv; the left edge's race gone (docs/findings.md, D70)"
+R81,С1-4,620 кОм ±5%,R38.1,VT1.14,VT1.14,"on all three НС4 boards photographed (the owner's, Frolov's, Radon17's): a resistor from R38.1 (МОНО) to VT1's pin 14, the pin bent off its hole on the owner's and Radon17's (Frolov's photo too coarse for the pin); bands dark blue, red, wide yellow - 620 kOhm. Not on Э3 or the assembly drawing: a later change, on the МОНО output"

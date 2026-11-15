@@ -40,6 +40,7 @@ switch, `s_D70_15`.
 | `netlist/nets.csv` | every net: its pins, the sheet and zone read from | Э3 sheets 1-5 |
 | `netlist/deviations.csv` | places where the drawing cannot be right, each argued | `docs/findings.md` |
 | `netlist/assembly.csv` | the standard build's change to Э3, made at assembly (a pin moved), its evidence | the owner's board's photos |
+| `netlist/assembly_parts.csv` | the parts the standard build adds by hand off the copper (W1, R81): pin to pin, the pin lifted first; read by `tools/bom.py` and `tools/pcb.py standard` | the three НС4 boards' photos |
 | `netlist/analog.csv` | each analog part's digital stand-in | `docs/analog.md` |
 | `netlist/fitted.csv`, `fitted-others.csv`, `fitted-compare.md`, `fitted-asked.md`, `fitted-passives.md`, `fitted-1991.csv` | what is fitted on the owner's board and on Frolov's and Radon17's, read off the photographs: the КР1533 substitutes for К555 by position and production run, dates; the three compared, and what it says for the 640 x 200 edge; what the photos did not tell; `fitted-1991.csv` is read by `tools/board.py` for every generated board | `netlist/variants.md` |
 | `netlist/delays.csv`, `delays-max.csv` | each chip path's typical / maximum delay, with its page | datasheets, `docs/timing.md` |
