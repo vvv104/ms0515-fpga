@@ -14,7 +14,8 @@
 // as the beam draws it, the ticks the video DAC's inputs change at
 // (beam.h), into <folder>/beam with its own frames.txt - tools/
 // beam_to_video.py draws them, no point sampled; the frames are then
-// compared on the outputs' own grid (Beam::samples), and the run ends with
+// compared on the beam, tick by tick, as the tests judge them
+// (beam_compare.h), and the run ends with
 // board.bmp, the last of them so sampled, beside emulator.bmp, the
 // emulator's picture of its video memory.  seed=N powers the board up
 // in Verilator's random state from seed N (0, the default: all zero).
@@ -72,6 +73,7 @@
 #include "dram_watch.h"
 #include "video_watch.h"
 #include "beam.h"
+#include "beam_compare.h"
 #include "frame_grab.h"
 #include "screen_compare.h"
 #include "snapshot.h"
@@ -199,6 +201,12 @@ public:
     {
         return compare_screen(lines, board_get_vram(b_.get()), board_is_hires(b_.get()),
                               board_get_border_color(b_.get()), picture_x_, 16, 0, held);
+    }
+    // the same on the beam, tick by tick, as the tests judge it (beam_compare.h)
+    BeamCompare beam(const Beam::Lines& lines, bool held) const
+    {
+        return compare_beam(lines, board_get_vram(b_.get()), board_is_hires(b_.get()),
+                            board_get_border_color(b_.get()), picture_x_, 16, kBeamPoints, kBeamAttributes, held);
     }
     // the emulator's picture of its video memory, 640 x 200 samples
     FrameGrab::Lines picture() const
@@ -610,8 +618,11 @@ private:
 
     void compare(const Emulator& emu)
     {
-        // with the beam, the points on the outputs' own grid (Beam::samples)
-        const ScreenCompare c = emu.screen(o_.beam ? Beam::samples(beam.last) : grab.last, o_.e3);
+        if (o_.beam) {
+            compare_on_beam(emu);
+            return;
+        }
+        const ScreenCompare c = emu.screen(grab.last, o_.e3);
         last_differ = c.differ;
         if (c.differ < 0)
             std::printf("frame %d: too short to compare\n", frames);
@@ -620,6 +631,22 @@ private:
         else
             std::printf("frame %d: %d samples differ (area at %d, %d); first at %d, %d: %x, the emulator's %x\n",
                         frames, c.differ, c.dx, c.dy, c.first_x, c.first_y, c.got, c.want);
+    }
+
+    // with the beam: tick by tick, within the tests' tolerances (beam_compare.h)
+    void compare_on_beam(const Emulator& emu)
+    {
+        const BeamCompare c = emu.beam(beam.last, o_.e3);
+        last_differ = c.differ;
+        if (c.differ < 0)
+            std::printf("frame %d: too short to compare\n", frames);
+        else if (c.differ == 0)
+            std::printf("frame %d: as the emulator's screen on the beam (area at tick %d, line %d)\n", frames,
+                        c.x0, c.dy);
+        else
+            std::printf("frame %d: %d ticks differ on the beam (area at tick %d, line %d); first at point %d "
+                        "(tick %d), line %d: %x, the emulator's %x\n",
+                        frames, c.differ, c.x0, c.dy, c.first_x, c.first_tick, c.first_y, c.got, c.want);
     }
 
     const Options& o_;

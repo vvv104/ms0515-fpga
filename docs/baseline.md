@@ -760,7 +760,9 @@ The owner's board first (`docs/plan.md` 8d).
    a point off (the test may_fail there, and fails; it passed before
    only by the corners' slack, which now looks at the line's phase -
    `docs/findings.md`, D70, "Э3's board with the serial chain's speed",
-   "The slack no longer hides the race").
+   "The slack no longer hides the race").  Since: the fit taken out
+   (2026-11-14) and the owner's fix made the standard build
+   (2026-11-15) - `docs/findings.md`, D70.
 7. The cell 000:000 at max from an unseeded power-up (step 6, the games
    diskette's boot): 900 reads of it not as written, where ОСА's run
    had 2.  Looked into: the bench's watch took the strobes standing low

@@ -21,6 +21,9 @@ class Commands(unittest.TestCase):
         self.assertIn("--check-zones", cmds[0])
         self.assertIn("--excellon-separate-th", cmds[1])
 
+    def test_the_assembly_drawing_crosses_out_what_the_standard_build_leaves_out(self):
+        self.assertIn("--crossout-DNP-footprints-on-fab-layers", fab.commands("cli", "b", "out")[2])
+
 
 if __name__ == "__main__":
     unittest.main()

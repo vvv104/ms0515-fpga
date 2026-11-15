@@ -310,7 +310,7 @@ The second printed board, `ns4-vvv104`, is gone.
        looked up in the tables in one tick.  The queue's head is now
        registered and looked up a tick later, two ticks after an event
        instead of one: the 120 MHz domain +0.65 ns (33 % of the ALMs).  The owner's board's changes
-       (`netlist/vvv104.csv`) are switches: the generator gives each moved
+       (`netlist/vvv104.csv`, now `netlist/assembly.csv`) are switches: the generator gives each moved
        input an `s_<ref>_<pin>` that takes it back to Э3's net, and the
        menu has one for D70.15 (on GND, or as drawn).  Left for 7d: the
        post-fit netlist on the bench.

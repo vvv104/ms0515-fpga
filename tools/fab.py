@@ -31,7 +31,8 @@ def commands(cli, board, out):
         [cli, "pcb", "export", "drill", "-o", gerber + os.sep, "--format", "excellon",
          "--excellon-separate-th", "--generate-map", "--map-format", "pdf", board],
         [cli, "pcb", "export", "pdf", "-o", os.path.join(out, "assembly-top.pdf"), "--layers", ASSEMBLY_LAYERS,
-         "--mode-single", "--black-and-white", "--sketch-pads-on-fab-layers", "--check-zones", board],
+         "--mode-single", "--black-and-white", "--sketch-pads-on-fab-layers",
+         "--crossout-DNP-footprints-on-fab-layers", "--check-zones", board],
     ]
 
 

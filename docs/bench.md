@@ -24,7 +24,7 @@ keyboard request only the screens say anything.
 `run_board <machine ms> <folder> [every Nth frame] [video] [seed=N]
 [disk=IMAGE] [layout=omega|vvv|fdz] [drive=logic] [keyboard] [save=FILE@MS] [load=FILE]
 [rom=IMAGE] [keys=FILE] [joy=FILE] [watch=LO-HI] [spot=ROW:COLUMN] [irq]
-[fetches=FROM-TO] [e3] [edges=FROM-TO]`
+[fetches=FROM-TO] [e3] [edges=FROM-TO] [frame=72|50|60] [beam]`
 
 - the processor's fetches against the emulator's (from power-on only: a
   run from a snapshot is not followed), every Nth frame against its
@@ -100,6 +100,15 @@ keyboard request only the screens say anything.
   `БОРДС L`, not bitten off (`docs/findings.md`, "C70 on the boards
   seen"); one switch of the generated board, `s_D70_15`, carries the
   two (`tools/board.py`, `OWNER_LACKS`);
+- `frame=72|50|60`: the jumpers E3/E4 and the emulator's frame alike
+  (`sim/board/frame_rate.h`): 72 Hz, E3 alone, as on every НС4
+  photographed and in the standard build, unless 50 (both) or 60 (E4
+  alone) is asked for;
+- `beam`: every frame as the beam draws it, the ticks the video DAC's
+  inputs change at (`sim/board/beam.h`), into `<folder>/beam` -
+  `tools/beam_to_video.py` makes a film of them, no point sampled - and
+  the frames compared with the emulator's on the beam, tick by tick,
+  within the tests' tolerances (`sim/board/beam_compare.h`);
 - `nowire` (`run_board_ext` alone): without the green wire, D80.5 on
   `ВБРЕГ L` as Э3 draws it - the board the module does not work on;
 - `edges=FROM-TO` (machine microseconds): every change of the nets at the

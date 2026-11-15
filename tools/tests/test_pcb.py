@@ -95,6 +95,13 @@ class StandardBuild(unittest.TestCase):
             self.assertAlmostEqual(pcbnew.ToMM(span) / model.m_Scale.x, pitch, places=3)
         self.assertEqual(sum(len(fp.Pads()) for fp in self.board.GetFootprints()), self.pads)
 
+    def test_the_assembly_drawing_shows_each_from_pin_to_pin(self):
+        for part in pcb.hand_parts():
+            (line,) = [g for g in self.fp(part.ref).GraphicalItems() if g.GetLayer() == pcbnew.F_Fab]
+            a, b = pcb.pin_at(self.board, part.frm), pcb.pin_at(self.board, part.to)
+            for got, want in ((line.GetStart(), a), (line.GetEnd(), b)):
+                self.assertLess(math.hypot(got.x - want.x, got.y - want.y), pcbnew.FromMM(0.01), part.ref)
+
     def test_the_bodies_point_from_the_first_pin_to_the_second(self):
         for part in pcb.hand_parts():
             fp = self.fp(part.ref)

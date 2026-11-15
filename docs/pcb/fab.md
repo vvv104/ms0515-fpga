@@ -19,6 +19,8 @@ writes `build/fab/ns4/`:
   both silkscreens, the outline, the drill files (plated and not, apart) and
   their maps, and KiCad's job file;
 - `assembly-top.pdf` - the parts' outlines and names on the parts' side;
+  the parts the standard build leaves out crossed out, the two it adds by
+  hand (W1, R81) as lines from pin to pin;
 - the parts list is `docs/pcb/bom.md` (`tools/bom.py`).
 
 ## What to order

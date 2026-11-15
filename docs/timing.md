@@ -98,6 +98,8 @@ MODE and 10 ns for data; 2 ticks at max, 1 at typ and min) - the 640 x
 open (`docs/findings.md`, D70).  The fitted faster chain that once won
 it on Э3's board (`SERIAL_SPEED`, 0.55 of the delays, never measured)
 was taken out on 2026-11-14: only Э3 and the sheets go into the model.
+The race stays open as a record of Э3 as drawn; the standard build
+(owner, 2026-11-15: D70.15 on GND, C70 out) has none.
 
 ## Corners
 

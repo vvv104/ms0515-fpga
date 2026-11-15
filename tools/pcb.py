@@ -483,6 +483,14 @@ def hand_footprint(board, part):
     model.m_Scale = pcbnew.VECTOR3D(span / pitch, 1, 1)
     fp.Add3DModel(model)
     fp.SetPosition(a)
+    line = pcbnew.PCB_SHAPE(fp, pcbnew.SHAPE_T_SEGMENT)     # the assembly drawing's
+    line.SetLayer(pcbnew.F_Fab)
+    line.SetWidth(pcbnew.FromMM(0.3))
+    line.SetStart(a)
+    line.SetEnd(pcbnew.VECTOR2I(a.x + pcbnew.FromMM(span), a.y))
+    fp.Add(line)
+    for text, side in ((fp.Reference(), -1), (fp.Value(), 1)):     # beside the line's middle
+        text.SetPosition(pcbnew.VECTOR2I(a.x + pcbnew.FromMM(span / 2), a.y + side * pcbnew.FromMM(1.2)))
     fp.SetOrientationDegrees(math.degrees(math.atan2(-(b.y - a.y), b.x - a.x)))
     return fp
 
