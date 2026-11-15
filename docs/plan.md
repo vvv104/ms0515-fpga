@@ -168,8 +168,10 @@ The second printed board, `ns4-vvv104`, is gone.
       models tick for tick, DDR3 slow and held up, with resets;
       `test_machine` runs exdisk on the core with the module in (2048
       bytes right, no read before its word) and out (nothing comes back,
-      DDR3 untouched).  Next: the Quartus build - resources and timing
-      with the DDRAM port - and Omega's EX.SYS on the core.
+      DDR3 untouched).  Quartus builds it (2026-11-15): 14 307 ALMs
+      (34 %, 553 more than without the module), block memory as before
+      (1 643 857 bits, 29 %), every clock met - setup slack 0.464 ns on
+      the master clock, the worst hold 0.254 ns.  Next: Omega's EX.SYS on the core.
    5. The printed board: two layers, on XP1 (DIN 41612 C, as НС4's XS1
       is made anew), the RS-232 half fitted or not.
 7. **The FPGA: a MiSTer core** (decided 2026-10-22; the Tang Nano 20K of

@@ -1154,4 +1154,6 @@ read before its word (`test_machine.cpp`); against the sixteen chips'
 models, tick for tick, with resets in the middle of an answer
 (`test_ext_ram.cpp`).  The menu takes the module out: its select
 (`выбор устр` into D12's gate 4) held off, so it answers nothing, and
-D80.5 back on Э3's net.
+D80.5 back on Э3's net.  Built by Quartus the bridge costs 553 ALMs and
+no block memory (14 307 ALMs, 34 %; 1 643 857 bits as before), the
+master clock still met with 0.464 ns of setup slack.
