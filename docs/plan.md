@@ -190,7 +190,7 @@ The second printed board, `ns4-vvv104`, is gone.
       apart on the photos (four 8 + 8 for the list's three DIP16 and one
       DIP14; XS1's numbering one hole off the copper), so they are left
       off, and the photos' copper is laid only where it joins the RAM
-      disk's own pads (3.4 m, 61 vias).
+      disk's own pads (3.1 m, 98 vias).
       C1's - lead is under its laid-over body, 7.5 mm right of the +
       square pad at the same height (owner's views from both sides: the
       2 x 2 square pads under them take a resistor with their lower two);
