@@ -1,0 +1,77 @@
+# The parts the module's printed board made anew carries (tools/pcb_ext.py):
+# the RAM disk as the owner's module is fitted (its photos, $MS0515_DATA/
+# photos/known-machines/0_d497a, 0_d4979; owner, 2026-11-17: no part on it
+# besides these, and the board is to be his module's alone).  The chips are
+# those netlist/ext/fitted.csv marks fitted (D2 in its socket XS3); the
+# two-pin parts those he framed on the photo; XP1 the plug.  Left off with
+# the RS-232 half (D1, D3, D4, D5, D7, D8, D9, D11, G1, C2..C8, C31..C34,
+# R15..R26, VD1, VD2, the sockets XS2, XS4) the ROM board's socket XS1:
+# their empty footprints on the photos could not all be told apart.
+ref
+D2
+XS3
+D6
+D10
+D12
+D13
+D14
+D15
+D16
+D17
+D18
+D19
+D20
+D21
+D22
+D23
+D24
+D25
+D26
+D27
+D28
+D29
+D30
+D31
+D32
+D33
+D34
+D35
+XP1
+C1
+C9
+C10
+C11
+C12
+C13
+C14
+C15
+C16
+C17
+C18
+C19
+C20
+C21
+C22
+C23
+C24
+C25
+C26
+C27
+C28
+C29
+C30
+R1
+R2
+R3
+R4
+R5
+R6
+R7
+R8
+R9
+R10
+R11
+R12
+R13
+R14
+R27

@@ -1,0 +1,6 @@
+# Pins of the module's connection tables its printed board made anew
+# (tools/pcb_ext.py) leaves off their nets; the format of netlist/pcb.csv.
+# A pin moved to ~<ref>.<pin> is on no other pin: no copper reaches it.
+ref,pin,from_net,to_net,evidence
+XP1,83,цепь 108,~XP1.83,"owner, 2026-11-15: XP1.C19 is on GND on НС4's XS1 (Э3; netlist/ext/joins.csv, conflict), so D5's output would drive НС4's ground when the RS-232 half is fitted; the contact is left free"
+XP1,84,TxD_B,~XP1.84,"owner, 2026-11-15: XP1.C20, as XP1.C19"

@@ -170,6 +170,11 @@ class Layers(unittest.TestCase):
 
 
 class Options(unittest.TestCase):
+    def test_a_pass_with_one_violation_is_counted(self):
+        log = ("pass #1 ... with score 606.20 (197 unrouted and 0 violations), using\n"
+               "completed ... final score: 935.81 (32 unrouted and 1 violation), using\n")
+        self.assertEqual(route.PASS_DONE.findall(log), [("197", "0"), ("32", "1")])
+
     def test_freerouting_keeps_the_rules_width_and_the_boards_edge(self):
         was = os.environ.get("FREEROUTING_JAR")
         os.environ["FREEROUTING_JAR"] = __file__                  # any file: the jar is not run here
@@ -185,17 +190,48 @@ class Options(unittest.TestCase):
                                     "--router.automatic_neckdown=false",
                                     "--router.copper_to_edge_clearance_um=500"])
 
+    def test_the_modules_board_takes_its_vias_cheaper(self):
+        was = os.environ.get("FREEROUTING_JAR")
+        os.environ["FREEROUTING_JAR"] = __file__
+        try:
+            route.configure(board="ext")
+            ext = route.freerouting_args("a.dsn", "b.ses", 3)
+            route.configure()
+            ns4 = route.freerouting_args("a.dsn", "b.ses", 3)
+        finally:
+            route.configure()
+            if was is None:
+                del os.environ["FREEROUTING_JAR"]
+            else:
+                os.environ["FREEROUTING_JAR"] = was
+        self.assertEqual(ext, ns4 + ["--router.scoring.via_costs=5"])
+
     def test_the_command_line(self):
-        self.assertEqual(route.parse(["route.py", "run", "2", "5"]), (None, "run", ["2", "5"]))
+        self.assertEqual(route.parse(["route.py", "run", "2", "5"]), ("ns4", None, "run", ["2", "5"]))
         self.assertEqual(route.parse(["route.py", "start", "--from", "ns4"]),
-                         (None, "start", ["--from", "ns4"]))
+                         ("ns4", None, "start", ["--from", "ns4"]))
         self.assertEqual(route.parse(["route.py", "--work", "build/x", "run", "1", "1"]),
-                         ("build/x", "run", ["1", "1"]))
+                         ("ns4", "build/x", "run", ["1", "1"]))
         self.assertEqual(route.parse(["route.py", "--work", "build/x", "finish", "out.kicad_pcb"]),
-                         ("build/x", "finish", ["out.kicad_pcb"]))
-        for bad in (["route.py"], ["route.py", "vvv104"], ["route.py", "--work"], ["route.py", "--work", "x"]):
+                         ("ns4", "build/x", "finish", ["out.kicad_pcb"]))
+        self.assertEqual(route.parse(["route.py", "--board", "ext", "run"]), ("ext", None, "run", []))
+        self.assertEqual(route.parse(["route.py", "--board", "ext", "--work", "build/y", "start"]),
+                         ("ext", "build/y", "start", []))
+        for bad in (["route.py"], ["route.py", "vvv104"], ["route.py", "--work"], ["route.py", "--work", "x"],
+                    ["route.py", "--board", "vvv104", "run"], ["route.py", "--board"]):
             with self.assertRaises(SystemExit):
                 route.parse(bad)
+
+    def test_the_modules_board_has_its_own_files(self):
+        try:
+            route.configure(board="ext")
+            self.assertTrue(route.BOARD.endswith(os.path.join("kicad", "ext.kicad_pcb")))
+            self.assertTrue(route.STATE.endswith(os.path.join("build", "route-ext", "state.dsn")))
+            self.assertIsNone(route.carry_from([]))
+            with self.assertRaises(SystemExit):
+                route.carry_from(["--from", "ns4"])               # another board's routing
+        finally:
+            route.configure()
 
     def test_a_work_folder_of_its_own_leaves_the_boards_alone(self):
         try:

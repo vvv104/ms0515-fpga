@@ -177,8 +177,28 @@ The second printed board, `ns4-vvv104`, is gone.
       (34 %, 553 more than without the module), block memory as before
       (1 643 857 bits, 29 %), every clock met - setup slack 0.464 ns on
       the master clock, the worst hold 0.254 ns.  Next: Omega's EX.SYS on the core.
-   5. The printed board: two layers, on XP1 (DIN 41612 C, as НС4's XS1
-      is made anew), the RS-232 half fitted or not.
+   5. The printed board: the original's, from the owner's module's
+      photos (owner, 2026-11-17: laid out and routed as it, the unclear
+      guessed and said so) - 246.1 x 71.1 mm, four layers (ground and
+      +5 V inside, as the original's), every chip, socket and two-pin
+      part on its holes (`netlist/ext/placement.csv`),
+      one notch (over SA1), XP1 a DIN 41612 C on the СНП59's holes, the
+      board standing behind НС4's XS1 down to НС4.  The RAM disk alone,
+      as his module was fitted (`netlist/ext/assembly.csv`: 27 chips, C1,
+      C9..C30, R1..R14, R27; owner, 2026-11-17): the RS-232 half's and
+      the ROM board socket's empty footprints could not all be told
+      apart on the photos (four 8 + 8 for the list's three DIP16 and one
+      DIP14; XS1's numbering one hole off the copper), so they are left
+      off, and the photos' copper is laid only where it joins the RAM
+      disk's own pads (3.4 m, 61 vias).
+      C1's - lead is under its laid-over body, 7.5 mm right of the +
+      square pad at the same height (owner's views from both sides: the
+      2 x 2 square pads under them take a resistor with their lower two);
+      the copper, when the routing is read off the photos, to confirm it.
+      That resistor is R27 (pinkish, not the list's grey С1-4: one end in
+      an inner layer, the other under ИД14 - the pull-up of «запрос комм»,
+      which reaches the plug).
+      Open: which RU7 is which (alike, D19..D34 in order).
 7. **The FPGA: a MiSTer core** (decided 2026-10-22; the Tang Nano 20K of
    the first plan dropped).  The target is MiSTer on Terasic's DE10-Nano
    (Cyclone V 5CSEBA6, about 110K LE, 5.5 Mbit of block memory): the

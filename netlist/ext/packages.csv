@@ -1,0 +1,19 @@
+# The footprint of every part type of the memory expansion module other
+# than the chips, for its printed board made anew (plan 6a step 5): a KiCad
+# library footprint (library:name), or ns4: for one of kicad/ns4.pretty, and
+# what can stand in for the Soviet part.  The chips take a DIP by their pin
+# count and their analogue from docs/chips.md, as НС4's do (tools/bom.py).
+# A type НС4 has too keeps НС4's footprint, but XP1: the module's
+# СНП-59-96 is the plug, НС4's the socket.
+type,footprint,equivalent,note
+ГК25-П15АР,Package_DIP:DIP-14_W10.16mm,"a 5.0688 MHz TTL oscillator, a hybrid in a wide DIP-14 (rows 10.16 mm)","G1, the RS-232 half's clock; its footprint as on the original (its photos: 7 + 7, rows 10.2 mm, pin 1 square)"
+К53-14,Capacitor_THT:CP_Radial_D10.0mm_P7.50mm,"a radial 33 uF 16 V, aluminium or tantalum","the bulk capacitor on +5 V; laid over across the empty ВИ53 socket as on the original (its photos)"
+К10-59,ns4:C_Disc_P5.08mm,ceramic X7R,"the RS-232 lines' filters, 2200 pF"
+К10-17-1б-Н90,Capacitor_THT:C_Disc_D7.5mm_W5.0mm_P7.50mm,ceramic X7R,"decoupling; leads 7.5 mm apart, as on the original (its photos)"
+С1-4,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical,"0.25 W carbon or metal film, 5 %",standing: the board is lower than the original and keeps clear of НС4's parts
+С2-23,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical,"0.25 W metal film, 1 %","the RS-232 receivers' 23.7 kOhm; standing, as С1-4"
+КД522Б,Diode_THT:D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp,1N4148,"КР1102АП15's supply diodes; standing, as С1-4"
+СНП-59-96,Connector_DIN:DIN41612_C_3x32_Male_Horizontal_THT,"DIN 41612 C, 96 pins, male, angled","XP1: mates НС4's XS1 made anew (DIN 41612 C female); the original's pitch is 2.5 mm"
+ОНП-КГ-34,Connector_PinSocket_2.54mm:PinSocket_2x17_P2.54mm_Vertical,"2x17 socket strip, 2.54 mm","XS1, the ROM board's connector; the original's pitch is 2.5 mm, a ROM board is made new"
+РС-40-7,Package_DIP:DIP-40_W15.24mm_Socket,40-pin DIP socket,"XS2, XS3: D1, D2 (the chip takes the socket's place)"
+РС-24,Package_DIP:DIP-24_W15.24mm_Socket,24-pin DIP socket,XS4: D3 (the chip takes the socket's place)

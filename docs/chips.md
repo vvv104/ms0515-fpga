@@ -59,6 +59,7 @@ for every chip.  The delays are taken from them already.
 | КР580ВВ55А | `kr580vv55.sv` | Intel 8255A | `docs/vv55.md` |
 | КР580ВВ51А | `kr580vv51.sv` | Intel 8251A | `docs/vv51.md` |
 | КР1818ВГ93 | `kr1818vg93.sv` | WD FD1793 | `docs/vg93.md` |
+| КМ1818ВГ01 | none yet | Intel 8274 | not identified: the memory expansion module's connection tables wire it as an 8274 MPSC (`netlist/ext/parts.csv`); the module's RS-232 half, not modelled |
 
 Not chips but models the generator places:
 
