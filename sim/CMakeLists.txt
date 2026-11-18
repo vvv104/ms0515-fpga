@@ -53,6 +53,10 @@ foreach(chip
     ms0515_chip_test(${chip})
 endforeach()
 
+# a resistor pack read as logic, as wide as the board's (DA2, eleven lines)
+ms0515_model(Vany_low "${MS0515_CHIPS}/any_low.sv" any_low ARGS -GN=11)
+ms0515_test(test_any_low chips/test_any_low.cpp Vany_low)
+
 # a crystal: the 8 MHz one by default, the 15 MHz one by its parameters
 ms0515_model(Vcrystal "${MS0515_CHIPS}/crystal.sv" crystal)
 ms0515_model(Vcrystal_15 "${MS0515_CHIPS}/crystal.sv" crystal ARGS -GPERIOD=8 -GHIGH=4)
