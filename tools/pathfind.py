@@ -4,9 +4,17 @@ holes the board already has.
 
     <KiCad>/bin/python tools/pathfind.py export [BOARD]     - build/pathfind/board.json
     python tools/pathfind.py route [ITERATIONS] [LAYER...]   - build/pathfind/routes.json
+    python tools/pathfind.py smooth                          - routes.json's staircases pulled
+                                       straight where the line keeps clear of other nets
     <KiCad>/bin/python tools/pathfind.py apply OUT [BOARD]   - the routes on a copy of the board
     <KiCad>/bin/python tools/pathfind.py planes [ROUTED]     - the plane pins the routing's
                                        vias cut off the planes into board.json; `route`, `apply` again
+
+`pathfind.py ext ...` does the same on the memory expansion module's board
+(kicad/ext.kicad_pcb, build/pathfind-ext): every track of it on its two outer layers,
+on a 0.635 mm grid, a layer changed only in a pad, a hole of the original
+(netlist/ext/holes.csv) or one of lattice()'s, a hole made a via as the module's own
+(tools/pcb_ext.py).
 
 `export` takes the placed board with Mick's outer copper laid (kicad/ns4.kicad_pcb) and the
 1991 holes (netlist/copper.json); `route` runs on numpy and scipy, which KiCad's Python
@@ -41,10 +49,14 @@ REACH = 0.9                  # a pad's centre to the farthest cell a stub may jo
 VIA_COST = 2.0
 PRES_MAX = 1e6            # the price of sharing stops growing here...
 FULL_EVERY = 10          # every tenth round reroutes every net, not the sharing ones alone
+ROUNDS = 100              # `route`'s rounds unless told
+PRICES = {}               # PathFinder.run()'s prices of sharing, its own unless set
 FORBID = 1e18             # ...far below a cell of another net's
 PLANES = ("GND", "+5V")
 OPEN, SHUT = -1, -2
 LAYERS = ["In1.Cu", "In3.Cu", "In4.Cu", "In6.Cu"]
+HOLES = "ns4"             # whose free holes `export` takes, and what a free hole becomes
+TAIL = 0.15               # mm: smooth() lays no run shorter, a slant to an off-grid end instead
 
 
 def seg_dist(px, py, x0, y0, x1, y1):
@@ -168,6 +180,9 @@ class Model:
         ys = self.oy + np.arange(self.ny) * PITCH
         self._own[:, :, (xs < x0 + gap) | (xs > x1 - gap)] = SHUT
         self._own[:, (ys < y0 + gap) | (ys > y1 - gap), :] = SHUT
+        for cx0, cy0, cx1, cy1 in self.board.get("cuts", []):     # a notch cut out of the outline
+            self._own[:, ((ys > cy0 - gap) & (ys < cy1 + gap))[:, None]
+                      & ((xs > cx0 - gap) & (xs < cx1 + gap))[None, :]] = SHUT
 
     def _holes(self):
         """The cells a route may change layer in, each with its hole: (x, y, free hole or None)."""
@@ -353,6 +368,7 @@ class PathFinder:
         routes, failed = {}, {}
         todo = list(nets)
         over = 0
+        best = None              # (islands unreached, cells shared, iteration, routes, failed): the round kept
         for it in range(1, iterations + 1):
             t = time.time()
             for net in todo:
@@ -366,6 +382,9 @@ class PathFinder:
             if self.log:
                 self.log(f"iteration {it}: {len(todo)} nets routed, {over} cells shared, "
                          f"{sum(len(f) for f in failed.values())} islands unreached, {time.time() - t:.0f} s")
+            score = (sum(len(f) for f in failed.values()), over)
+            if best is None or score < best[:2]:
+                best = (*score, it, dict(routes), dict(failed))
             if over == 0 and not any(failed.values()):
                 break
             hist[occ > 1] += hist_step * (occ[occ > 1] - 1)
@@ -374,6 +393,9 @@ class PathFinder:
             todo = [n for n in nets if failed[n] or shared[self._used(routes[n])].any()]
             if it % FULL_EVERY == 0:      # the nets in a shared cell's way move too, now and then
                 todo = list(nets)
+        _, over, it, routes, failed = best
+        if self.log:
+            self.log(f"kept iteration {it}: {over} cells shared")
         return Result(routes, [(n, k) for n in nets for k in failed[n]], over, it)
 
     def shared(self, result):
@@ -426,17 +448,74 @@ def export(board_path, out):
         else:
             tracks.append([board.GetLayerName(t.GetLayer()), mm(t.GetStart().x), mm(t.GetStart().y),
                            mm(t.GetEnd().x), mm(t.GetEnd().y), mm(t.GetWidth()), t.GetNetname()])
-    with open(os.path.join(ROOT, "netlist", "copper.json"), encoding="utf-8") as f:
-        holes = [(x * pcb.MM_PER_PX, y * pcb.MM_PER_PX) for x, y in json.load(f)["pads"]]
+    holes = free_holes(pcb)
     taken = [(p[0], p[1]) for p in pads] + [(v[0], v[1]) for v in vias]
     free = [h for h in holes if min(math.dist(h, t) for t in taken) > 0.3]
+    if HOLES == "ext":       # a via in one must stay clear of every pad, via and other hole's via
+        rings = [(p[0], p[1], p[2]) for p in pads] + [(v[0], v[1], v[2]) for v in vias]
+        kept = []
+        for h in free:
+            if all(math.dist(h, (x, y)) > r + FREE_R + CLEAR for x, y, r in rings) and \
+                    all(math.dist(h, k) > 2 * FREE_R + CLEAR for k in kept):
+                kept.append(h)
+        free = kept
     box = board.GetBoardEdgesBoundingBox()
-    data = {"pads": pads, "vias": vias, "tracks": tracks, "free": free,
-            "box": [mm(box.GetLeft()), mm(box.GetTop()), mm(box.GetRight()), mm(box.GetBottom())]}
+    box = [mm(box.GetLeft()), mm(box.GetTop()), mm(box.GetRight()), mm(box.GetBottom())]
+    if HOLES == "ext":
+        free += lattice(pads, vias, tracks, free, box)
+    data = {"pads": pads, "vias": vias, "tracks": tracks, "free": free, "box": box}
+    if HOLES == "ext":
+        import pcb_ext
+        data["cuts"] = [list(c) for c in pcb_ext.CUTS.values()]
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False)
     print(f"{len(pads)} pads, {len(vias)} vias, {len(tracks)} tracks, {len(free)} holes no copper takes -> {out}")
+
+
+def lattice(pads, vias, tracks, free, box):
+    """[(x, y)]: holes a via may be drilled in besides the original's - the centres
+    between four pins of the pads' 2.54 mm grid, 2 mm inside the board, as clear of every
+    pad (0.6 mm), via and hole (1.3 mm) and track (0.6 mm) as a via between two DIP rows
+    stands.  The original's holes alone leave the module's board too few to route in."""
+    xs, ys = [p[0] for p in pads], [p[1] for p in pads]
+
+    def phase(vs):                       # the pads' grid's offset, mod 2.54, as their mean angle
+        a = sum(math.cos(2 * math.pi * v / 2.54) for v in vs), sum(math.sin(2 * math.pi * v / 2.54) for v in vs)
+        return math.atan2(a[1], a[0]) / (2 * math.pi) * 2.54 + 1.27
+    ox, oy = phase(xs), phase(ys)
+    x0, y0, x1, y1 = box
+    taken = [(p[0], p[1], p[2] + 0.6) for p in pads] + [(v[0], v[1], FREE_R + 0.95) for v in vias]
+    taken += [(x, y, FREE_R + 0.95) for x, y in free]
+    out = []
+    for i in range(math.floor((x0 - ox) / 2.54), math.ceil((x1 - ox) / 2.54) + 1):
+        for j in range(math.floor((y0 - oy) / 2.54), math.ceil((y1 - oy) / 2.54) + 1):
+            x, y = ox + i * 2.54, oy + j * 2.54
+            if x0 + 2 < x < x1 - 2 and y0 + 2 < y < y1 - 2 and \
+                    all(math.dist((x, y), (tx, ty)) > r for tx, ty, r in taken) and \
+                    all(seg_dist(x, y, *t[1:5]) >= t[5] / 2 + 0.6 for t in tracks):
+                out.append((x, y))
+    return out
+
+
+def free_holes(pcb):
+    """The board's holes in mm: the 1991 board's (netlist/copper.json), or the module's
+    (netlist/ext/holes.csv)."""
+    if HOLES == "ext":
+        import netlist
+        return [(float(r["x"]), float(r["y"])) for r in netlist.rows(os.path.join(ROOT, "netlist", "ext", "holes.csv"))]
+    with open(os.path.join(ROOT, "netlist", "copper.json"), encoding="utf-8") as f:
+        return [(x * pcb.MM_PER_PX, y * pcb.MM_PER_PX) for x, y in json.load(f)["pads"]]
+
+
+def via_size():
+    """A free hole made a via: the 1991 board's (pcb.VIA_1991) or the module's (pcb_ext.SIGNAL)."""
+    sys.path.insert(0, HERE)
+    if HOLES == "ext":
+        import pcb_ext
+        return {"via": pcb_ext.SIGNAL["via"], "drill": pcb_ext.SIGNAL["drill"]}
+    import pcb
+    return pcb.VIA_1991
 
 
 def _nearest_on(items, layer, x, y):
@@ -504,6 +583,307 @@ def _straight(m, run, net):
     return out
 
 
+def _seg_seg(ax, ay, bx, by, w):
+    """Distances of the segment (ax, ay)-(bx, by) to the segments w[:, 0:4] (x0, y0, x1, y1)."""
+    x0, y0, x1, y1 = w[:, 0], w[:, 1], w[:, 2], w[:, 3]
+
+    def to_seg(px, py, sx0, sy0, sx1, sy1):
+        dx, dy = sx1 - sx0, sy1 - sy0
+        n = dx * dx + dy * dy
+        k = np.clip(((px - sx0) * dx + (py - sy0) * dy) / np.where(n > 0, n, 1.0), 0.0, 1.0)
+        return np.hypot(sx0 + k * dx - px, sy0 + k * dy - py)
+
+    def side(px, py, qx, qy, rx, ry):
+        return np.sign((qx - px) * (ry - py) - (qy - py) * (rx - px))
+    d = np.minimum.reduce([to_seg(ax, ay, x0, y0, x1, y1), to_seg(bx, by, x0, y0, x1, y1),
+                           to_seg(x0, y0, ax, ay, bx, by), to_seg(x1, y1, ax, ay, bx, by)])
+    cross = (side(ax, ay, bx, by, x0, y0) * side(ax, ay, bx, by, x1, y1) < 0) & \
+            (side(x0, y0, x1, y1, ax, ay) * side(x0, y0, x1, y1, bx, by) < 0)
+    return np.where(cross, 0.0, d)
+
+
+class _Copper:
+    """Every piece of copper as rows (layer or -1 for a hole, x0, y0, x1, y1, how far a
+    track's centre keeps from its centre line, net or -1): the board's, and the routes'
+    pieces, which smooth() swaps for straight ones as it goes."""
+
+    def __init__(self, board, tracks, vias, layers):
+        self.layers, ids = layers, {}
+        rows = []
+        for x, y, r, net, *_ in board["pads"]:
+            rows.append((-1, x, y, x, y, r + (CLEAR if net else HOLE_CLEAR), self._id(ids, net)))
+        for x, y, r, net in board["vias"]:
+            rows.append((-1, x, y, x, y, r + CLEAR, self._id(ids, net)))
+        for layer, x0, y0, x1, y1, w, net in board["tracks"]:
+            if layer in layers:
+                rows.append((layers.index(layer), x0, y0, x1, y1, w / 2 + CLEAR, self._id(ids, net)))
+        for cx0, cy0, cx1, cy1 in board.get("cuts", []):
+            for a, b in (((cx0, cy0), (cx1, cy0)), ((cx1, cy0), (cx1, cy1)), ((cx1, cy1), (cx0, cy1)),
+                         ((cx0, cy1), (cx0, cy0))):
+                rows.append((-1, *a, *b, EDGE, -1))
+        for x, y, net in vias:
+            rows.append((-1, x, y, x, y, FREE_R + CLEAR, self._id(ids, net)))
+        self.fixed = len(rows)
+        for layer, x0, y0, x1, y1, net in tracks:
+            rows.append((layers.index(layer), x0, y0, x1, y1, WIDTH / 2 + CLEAR, self._id(ids, net)))
+        self.ids, self.rows = ids, np.array(rows, dtype=float).reshape(-1, 7)
+        self.alive = np.ones(len(self.rows), bool)
+
+    @staticmethod
+    def _id(ids, net):
+        return ids.setdefault(net, len(ids)) if net else -1
+
+    def clear(self, layer, net, ax, ay, bx, by):
+        """Whether a track of net from (ax, ay) to (bx, by) on layer keeps clear of other nets."""
+        w, gap = self.rows, WIDTH / 2
+        far = w[:, 5] + gap
+        near = self.alive & ((w[:, 0] == layer) | (w[:, 0] == -1)) & (w[:, 6] != self.ids.get(net, -2)) & \
+            (np.minimum(w[:, 1], w[:, 3]) - far < max(ax, bx)) & (np.maximum(w[:, 1], w[:, 3]) + far > min(ax, bx)) & \
+            (np.minimum(w[:, 2], w[:, 4]) - far < max(ay, by)) & (np.maximum(w[:, 2], w[:, 4]) + far > min(ay, by))
+        if not near.any():
+            return True
+        return bool((_seg_seg(ax, ay, bx, by, w[near, 1:5]) >= far[near] - 1e-9).all())
+
+    def swap(self, pieces, layer, net, points):
+        """The routes' pieces (their indices into tracks) replaced by the line through points."""
+        self.alive[[self.fixed + k for k in pieces]] = False
+        new = [(layer, *a, *b, WIDTH / 2 + CLEAR, self.ids[net]) for a, b in zip(points, points[1:])]
+        self.rows = np.vstack([self.rows, np.array(new, dtype=float)])
+        self.alive = np.concatenate([self.alive, np.ones(len(new), bool)])
+
+
+def _chains(tracks, vias=()):
+    """[(layer, net, [point], [piece])]: the routes' pieces in runs between ends - a point
+    three pieces of a layer meet, a dead end, a via (vias: [x, y, net]).
+    A point both layers' runs pass is no end: they join at the via beside it."""
+    key = lambda x, y: (round(x, 4), round(y, 4))                          # noqa: E731
+    at = {}
+    for k, (layer, x0, y0, x1, y1, net) in enumerate(tracks):
+        for p in (key(x0, y0), key(x1, y1)):
+            at.setdefault((layer, net, p), []).append(k)
+    ends = {p for (_, _, p), ks in at.items() if len(ks) != 2}
+    ends |= {key(*v[:2]) for v in vias}
+    seen, out = set(), []
+    for k0, (layer, x0, y0, x1, y1, net) in enumerate(tracks):
+        if k0 in seen:
+            continue
+        run = [key(x0, y0), key(x1, y1)]
+        pieces = [k0]
+        seen.add(k0)
+        out.append(_grow(tracks, at, ends, seen, layer, net, run, pieces, key))
+    return out
+
+
+def _own(board):
+    """{net: [(layer or None for a hole, x0, y0, x1, y1, r)]}: the board's copper by net;
+    a pad by the circle inside it (a square one's sides), so a run past its corner is not on it."""
+    own = {}
+    for x, y, r, net, *inner in board["pads"]:
+        own.setdefault(net, []).append((None, x, y, x, y, inner[1] if len(inner) > 1 else r))
+    for x, y, r, net in board["vias"]:
+        own.setdefault(net, []).append((None, x, y, x, y, r))
+    for layer, x0, y0, x1, y1, w, net in board["tracks"]:
+        own.setdefault(net, []).append((layer, x0, y0, x1, y1, w / 2))
+    return own
+
+
+def _touched(items, layer, p):
+    """The indices of items (_own's of one net) a track's point p on layer touches."""
+    return {k for k, (lay, x0, y0, x1, y1, r) in enumerate(items)
+            if lay in (None, layer) and seg_dist(*p, x0, y0, x1, y1) < r + WIDTH / 2}
+
+
+def _touches(items, line, need):
+    """Whether the track through the points line touches every item (by index) of need."""
+    if not need:
+        return True
+    w = np.array([items[k][1:5] for k in need], dtype=float)
+    reach = np.array([items[k][5] for k in need]) + WIDTH / 2
+    d = np.min([_seg_seg(*a, *b, w) for a, b in zip(line, line[1:])], axis=0)
+    return bool((d < reach).all())
+
+
+def _straight_on(pts):
+    """pts without the points in the middle of a straight line."""
+    out = pts[:1]
+    for b, c in zip(pts[1:], pts[2:]):
+        a = out[-1]
+        if abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) > 1e-9 or \
+                (b[0] - a[0]) * (c[0] - b[0]) + (b[1] - a[1]) * (c[1] - b[1]) < 0:
+            out.append(b)
+    return out + pts[-1:] if len(pts) > 1 else out
+
+
+def _grow(tracks, at, ends, seen, layer, net, run, pieces, key):
+    """One run grown both ways from its first piece until each tip is an end."""
+    for forward in (True, False):
+        while True:
+            tip = run[-1] if forward else run[0]
+            if tip in ends:
+                break
+            nxt = [k for k in at[(layer, net, tip)] if k not in seen]
+            if not nxt:
+                break
+            k = nxt[0]
+            seen.add(k)
+            pieces.append(k)
+            t = tracks[k]
+            a, b = key(t[1], t[2]), key(t[3], t[4])
+            other = b if a == tip else a
+            run.append(other) if forward else run.insert(0, other)
+    return layer, net, run, pieces
+
+
+def _split(tracks):
+    """The tracks with each piece cut where another piece of its net and layer ends on it
+    (a branch off its middle), so that every join is some pieces' common end."""
+    by = {}
+    for t in {tuple(t) for t in tracks}:                    # a piece laid twice counts once
+        by.setdefault((t[0], t[5]), []).append(t)
+    out = []
+    for (layer, net), pieces in by.items():
+        ends = {(x, y) for t in pieces for x, y in (t[1:3], t[3:5])}
+        for _, x0, y0, x1, y1, _ in pieces:
+            length = math.hypot(x1 - x0, y1 - y0)
+            cuts = sorted(((x - x0) * (x1 - x0) + (y - y0) * (y1 - y0)) / length ** 2
+                          for x, y in ends if length and seg_dist(x, y, x0, y0, x1, y1) < 1e-4)
+            cuts = [0.0] + [k for k in cuts if 1e-9 < k < 1 - 1e-9] + [1.0]
+            pts = [(x0 + k * (x1 - x0), y0 + k * (y1 - y0)) for k in cuts]
+            out += [[layer, *a, *b, net] for a, b in zip(pts, pts[1:]) if a != b]
+    return out
+
+
+def _to_centres(board, tracks):
+    """The tracks, each dead end that lies on a pad or via of its net carried on to its
+    centre: a run ends in the hole, not on the copper beside it."""
+    count = {}
+    for layer, x0, y0, x1, y1, net in tracks:
+        for p in ((x0, y0), (x1, y1)):
+            k = (layer, net, round(p[0], 4), round(p[1], 4))
+            count[k] = count.get(k, 0) + 1
+    holes = {}
+    for x, y, r, net, *inner in board["pads"]:
+        holes.setdefault(net, []).append((x, y, inner[1] if len(inner) > 1 else r))
+    for x, y, r, net in board["vias"]:
+        holes.setdefault(net, []).append((x, y, r))
+    out = [list(t) for t in tracks]
+    for (layer, net, x, y), n in count.items():
+        near = [(math.dist((x, y), (hx, hy)), hx, hy) for hx, hy, r in holes.get(net, ())
+                if math.dist((x, y), (hx, hy)) < r + WIDTH / 2]
+        if n == 1 and near and min(near)[0] > 1e-4:
+            _, hx, hy = min(near)
+            out.append([layer, x, y, hx, hy, net])
+    return out
+
+
+def smooth(board, tracks, vias=()):
+    """The routed tracks ([layer, x0, y0, x1, y1, net]; their vias [x, y, net]) with every
+    run between two ends pulled straight wherever it keeps clear of the other nets' copper:
+    the grid's staircases as runs at 0, 45 and 90 degrees, a corner never sharper than a
+    right angle, a run's end in a hole's centre.  The ends stay, and a run still touches
+    every pad, via and track of its net it touched on the way, so the joins do."""
+    tracks = _split(_to_centres(board, tracks))
+    layers = sorted({t[0] for t in tracks})
+    copper = _Copper(board, tracks, vias, layers)
+    own = _own(board)
+    out = []
+    holes = {(round(x, 4), round(y, 4)) for x, y, *_ in board["pads"] + board["vias"] + list(vias)}
+    for layer, net, run, pieces in _chains(tracks, vias):
+        if run[0] in holes and run[-1] not in holes:
+            run = run[::-1]                     # the off-grid end last, where _slide sets a corner by it
+        k, items = layers.index(layer), own.get(net, [])
+        touched = [_touched(items, layer, p) for p in run]
+
+        def fits(start, line, far):
+            """Whether line, standing for run[start..far], touches all that did."""
+            return _touches(items, line, set().union(*touched[start + 1:far]))
+        pts, src, i = [run[0]], [0], 0
+        while i < len(run) - 1:
+            j, best = i, None
+            for far in range(i + 1, len(run)):
+                way = _octo_way(copper, k, net, pts, run[far], run[far] in holes)
+                if way is not None and not fits(i, pts[-1:] + way, far):
+                    way = None
+                if way is None and far > i + 1:
+                    break
+                if way is not None and i + 1 < far < len(run) - 1 and \
+                        _octo_way(copper, k, net, (pts[-1:] + way)[-2:], run[far + 1]) is None:
+                    continue                    # a corner the run could not go on from
+                j, best = far, way
+            scrap = best is not None and (len(best) == 1 or math.dist(best[0], run[j]) < 2 * TAIL)
+            slid = _slide(copper, k, net, pts, run[j]) if scrap and len(pts) > 1 else None
+            if slid is not None and fits(src[-2], [pts[-2], slid, run[j]], j):
+                pts[-1], best = slid, [run[j]]
+            pts += best or [run[j]]
+            src += [j] * len(best or [run[j]])
+            i = j
+        pts = _straight_on(pts)
+        if pts != run:
+            copper.swap(pieces, k, net, pts)
+        out += [[layer, *a, *b, net] for a, b in zip(pts, pts[1:]) if a != b]
+    once = {}                                   # a loop pulled tight lays a piece twice
+    for t in out:
+        once.setdefault((t[0], t[5], frozenset([tuple(t[1:3]), tuple(t[3:5])])), t)
+    return list(once.values())
+
+
+def _octo(a, b):
+    """Whether the run a-b goes at 0, 45 or 90 degrees."""
+    dx, dy = abs(b[0] - a[0]), abs(b[1] - a[1])
+    return min(dx, dy, abs(dx - dy)) < 1e-6
+
+
+def _slide(copper, layer, net, pts, end):
+    """pts[-1] moved the least along the run into it (from pts[-2]) to where a run on to
+    end goes at 0, 45 or 90 degrees, turning no sharper than a right angle: the corner
+    before an off-grid end set by it, no slant or scrap left onto it; None for none."""
+    (ax, ay), (px, py), (ex, ey) = pts[-2], pts[-1], end
+    ux, uy = px - ax, py - ay
+    if _octo(pts[-1], end) or not (ux or uy):
+        return None
+    best = None
+    for vx, vy in ((1, 0), (0, 1), (1, 1), (1, -1)):
+        det = vx * uy - vy * ux
+        if abs(det) < 1e-12:
+            continue
+        s = (vx * (ey - ay) - vy * (ex - ax)) / det          # A + s u on the line through end along v
+        q = (ax + s * ux, ay + s * uy)
+        slide = math.dist(q, (px, py))
+        if s <= 0 or math.dist(q, end) < 1e-6 or \
+                ux * (ex - q[0]) + uy * (ey - q[1]) < -1e-9:
+            continue
+        if (best is None or slide < best[0]) and copper.clear(layer, net, ax, ay, *q) and \
+                copper.clear(layer, net, *q, ex, ey):
+            best = (slide, q)
+    return best and best[1]
+
+
+def _octo_way(copper, layer, net, pts, end, hole=False):
+    """The points after pts[-1] of a clear way to end at 0, 45 and 90 degrees - one
+    straight or diagonal run, or a diagonal and a straight one either way round -
+    turning no sharper than a right angle; None when every way is blocked.  No scrap
+    of a run onto an off-grid end but in a hole's copper (hole: end is a hole's centre),
+    a slant to it otherwise."""
+    (ax, ay), (bx, by) = pts[-1], end
+    dx, dy = bx - ax, by - ay
+    d = min(abs(dx), abs(dy))
+    sx, sy = math.copysign(1, dx), math.copysign(1, dy)
+    diagonal, straight = [(ax + sx * d, ay + sy * d), end], [(bx - sx * d, by - sy * d), end]
+    if d < TAIL:
+        ways = [straight, [end]] if hole and d > 1e-9 else [[end]]
+    elif abs(abs(dx) - abs(dy)) < TAIL:
+        ways = [diagonal, [end]] if hole and abs(abs(dx) - abs(dy)) > 1e-9 else [[end]]
+    else:
+        ways = [diagonal, straight]
+    for way in ways:
+        line = pts[-2:] + way
+        if all((b[0] - a[0]) * (c[0] - b[0]) + (b[1] - a[1]) * (c[1] - b[1]) >= -1e-9
+               for a, b, c in zip(line, line[1:], line[2:])) and \
+                all(copper.clear(layer, net, *a, *b) for a, b in zip([pts[-1]] + way, way)):
+            return way
+    return None
+
+
 def route(iterations, layers):
     with open(os.path.join(WORK, "board.json"), encoding="utf-8") as f:
         board = json.load(f)
@@ -513,7 +893,7 @@ def route(iterations, layers):
     print(f"grid {model.nx} x {model.ny} x {len(layers)} ({', '.join(layers)}); "
           f"{len(model.islands)} nets, {joins} joins to make; {time.time() - t:.0f} s", flush=True)
     finder = PathFinder(model, lambda s: print(s, flush=True))
-    result = finder.run(iterations)
+    result = finder.run(iterations, **PRICES)
     tracks, vias = geometry(model, result)
     shared = finder.shared(result)
     for x, y, layer, nets in shared:
@@ -527,11 +907,25 @@ def route(iterations, layers):
     return 0
 
 
+def smooth_routes():
+    """routes.json's tracks pulled straight (smooth()), in place."""
+    with open(os.path.join(WORK, "board.json"), encoding="utf-8") as f:
+        board = json.load(f)
+    path = os.path.join(WORK, "routes.json")
+    with open(path, encoding="utf-8") as f:
+        routes = json.load(f)
+    before = len(routes["tracks"])
+    routes["tracks"] = smooth(board, routes["tracks"], routes["vias"])
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(routes, f, ensure_ascii=False)
+    print(f"{before} track pieces -> {len(routes['tracks'])} -> {path}")
+    return 0
+
+
 def apply(out, board_path):
-    """The routes as tracks (WIDTH) and vias (pcb.VIA_1991) on a copy of the board."""
+    """The routes as tracks (WIDTH) and vias (via_size()) on a copy of the board."""
     import pcbnew
-    sys.path.insert(0, HERE)
-    import pcb
+    size = via_size()
     with open(os.path.join(WORK, "routes.json"), encoding="utf-8") as f:
         routes = json.load(f)
     board = pcbnew.LoadBoard(board_path)
@@ -549,8 +943,8 @@ def apply(out, board_path):
     for x, y, net in routes["vias"]:
         v = pcbnew.PCB_VIA(board)
         v.SetPosition(at(x, y))
-        v.SetWidth(pcbnew.FromMM(pcb.VIA_1991["via"]))
-        v.SetDrill(pcbnew.FromMM(pcb.VIA_1991["drill"]))
+        v.SetWidth(pcbnew.FromMM(size["via"]))
+        v.SetDrill(pcbnew.FromMM(size["drill"]))
         v.SetNet(board.FindNet(net))
         board.Add(v)
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
@@ -565,7 +959,7 @@ def planes(routed):
     sys.path.insert(0, HERE)
     import readback
     groups = readback.pin_groups(*readback.read_board(routed))
-    splits = readback.plane_splits(groups, readback.wanted())
+    splits = readback.plane_splits(groups, readback.wanted("ext" if HOLES == "ext" else "ns4"))
     path = os.path.join(WORK, "board.json")
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
@@ -578,7 +972,18 @@ def planes(routed):
 
 
 def where(argv):
-    """(board, work folder, the rest of argv)."""
+    """(board, work folder, the rest of argv); `ext` first: the module's board, its holes
+    and its two outer layers."""
+    global HOLES, LAYERS, PITCH, FREE_R, REACH, ROUNDS, PRICES
+    if len(argv) > 1 and argv[1] == "ext":
+        HOLES, LAYERS = "ext", ["F.Cu", "B.Cu"]
+        FREE_R = 0.35                                   # the module's via, 0.6 mm (pcb_ext.SIGNAL), off the grid
+        REACH = 0.6                                     # inside a 0.6 mm via's cells: a stub stays on its own
+        PITCH = 0.635                                   # a quarter of the pins' 2.54: two tracks between pins
+        # the module's whole board routed with nothing shared in 328 rounds (2026-11-18); the
+        # factors of four tried the fewest vias, 289
+        ROUNDS, PRICES = 400, {"pres": 1.0, "pres_growth": 1.25, "hist_step": 0.5}
+        return os.path.join(ROOT, "kicad", "ext.kicad_pcb"), os.path.join(ROOT, "build", "pathfind-ext"), argv[2:]
     return os.path.join(ROOT, "kicad", "ns4.kicad_pcb"), os.path.join(ROOT, "build", "pathfind"), argv[1:]
 
 
@@ -590,7 +995,9 @@ def main(argv):
         export(argv[2] if len(argv) > 2 else board, os.path.join(WORK, "board.json"))
         return 0
     if len(argv) > 1 and argv[1] == "route":
-        return route(int(argv[2]) if len(argv) > 2 else 100, argv[3:] or LAYERS)
+        return route(int(argv[2]) if len(argv) > 2 else ROUNDS, argv[3:] or LAYERS)
+    if len(argv) > 1 and argv[1] == "smooth":
+        return smooth_routes()
     if len(argv) > 2 and argv[1] == "apply":
         return apply(os.path.join(ROOT, argv[2]), argv[3] if len(argv) > 3 else board)
     if len(argv) > 1 and argv[1] == "planes":

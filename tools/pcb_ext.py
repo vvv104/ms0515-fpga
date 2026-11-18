@@ -128,37 +128,6 @@ def placement():
             for r in nl.rows(os.path.join(EXT, "placement.csv"))}
 
 
-def copper():
-    """[{kind, layer, net, x0, y0, x1, y1, width}]: netlist/ext/copper.csv,
-    the original's copper its photos show for sure."""
-    return nl.rows(os.path.join(EXT, "copper.csv"))
-
-
-def lay_copper(board):
-    """The photos' copper on the board, locked: route.py's Freerouting
-    leaves it where it is and routes the rest."""
-    at = lambda x, y: pcbnew.VECTOR2I(pcbnew.FromMM(float(x)), pcbnew.FromMM(float(y)))
-    layers = {"F.Cu": pcbnew.F_Cu, "B.Cu": pcbnew.B_Cu}
-    for r in copper():
-        net = board.FindNet(r["net"])
-        if r["kind"] == "via":
-            v = pcbnew.PCB_VIA(board)
-            v.SetPosition(at(r["x0"], r["y0"]))
-            v.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu)
-            v.SetWidth(pcbnew.FromMM(SIGNAL["via"]))
-            v.SetDrill(pcbnew.FromMM(SIGNAL["drill"]))
-            item = v
-        else:
-            item = pcbnew.PCB_TRACK(board)
-            item.SetStart(at(r["x0"], r["y0"]))
-            item.SetEnd(at(r["x1"], r["y1"]))
-            item.SetWidth(pcbnew.FromMM(float(r["width"])))
-            item.SetLayer(layers[r["layer"]])
-        item.SetNet(net)
-        item.SetLocked(True)
-        board.Add(item)
-
-
 def box_of(fp):
     """The courtyard's box, mm."""
     fp.BuildCourtyardCaches()
@@ -325,7 +294,6 @@ def build():
     failed = place_rest(fps, free, nets)
     pcb.snap(fps)
     planes(board)
-    lay_copper(board)
     return board, skipped, missing, failed
 
 

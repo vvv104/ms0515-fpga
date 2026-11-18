@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """The routed board's netlist read off its copper, against netlist/ (docs/plan.md 8e).
 
-    <KiCad>/bin/python tools/readback.py [BOARD]   - exit 1 on a difference
+    <KiCad>/bin/python tools/readback.py [BOARD]       - exit 1 on a difference
+    <KiCad>/bin/python tools/readback.py ext [BOARD]   - the memory expansion module's board,
+                                     against its netlist (tools/pcb_ext.py's pin_nets)
 
 The net names on the board's copper are ours, so they are not used: the pads,
 tracks, vias and the planes' fill are joined where their copper touches, each
@@ -214,20 +216,27 @@ def read_board(path):
     return pads, tracks, vias, plane_pins(board, pads)
 
 
-def wanted():
-    """{pin: net} of the netlist, as tools/pcb.py's check reads it."""
+def wanted(board="ns4"):
+    """{pin: net} of the netlist, as tools/pcb.py's check reads it (pcb_ext.py's for ext)."""
     sys.path.insert(0, HERE)
     import pcb
-    kinds = {ref: item.type for ref, item in pcb.load_items().items()}
+    src = pcb
+    if board == "ext":
+        import pcb_ext as src
+    kinds = {ref: item.type for ref, item in src.load_items().items()}
     return {f"{ref}.{pcb.pad_of(kinds[ref], pin)}": net
-            for (ref, pin), net in pcb.pin_nets().items() if ref in kinds}
+            for (ref, pin), net in src.pin_nets().items() if ref in kinds}
 
 
 def main(argv):
-    path = argv[1] if len(argv) > 1 else os.path.join(ROOT, "build", "pathfind", "ns4-pathfind.kicad_pcb")
+    board = "ext" if len(argv) > 1 and argv[1] == "ext" else "ns4"
+    argv = argv[1:] if board == "ext" else argv
+    default = os.path.join(ROOT, "kicad", "ext.kicad_pcb") if board == "ext" else \
+        os.path.join(ROOT, "build", "pathfind", "ns4-pathfind.kicad_pcb")
+    path = argv[1] if len(argv) > 1 else default
     pads, tracks, vias, planes = read_board(path)
     groups = pin_groups(pads, tracks, vias, planes)
-    diffs = compare(groups, wanted())
+    diffs = compare(groups, wanted(board))
     for d in diffs:
         print(d)
     print(f"{len(pads)} pins, {len(tracks)} track pieces, {len(vias)} vias, {len(planes)} planes: "

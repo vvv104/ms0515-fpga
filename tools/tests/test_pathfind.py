@@ -1,4 +1,5 @@
 """tools/pathfind.py on made-up boards: PathFinder on a grid whose layer changes are holes only."""
+import math
 import os
 import sys
 import unittest
@@ -125,6 +126,136 @@ class Route(unittest.TestCase):
             for a, b in zip(path, path[1:]):
                 if m.layer_of(a) != m.layer_of(b):
                     self.assertIn(a % m.per_layer, holes)
+
+
+@unittest.skipIf(pathfind is None, "no scipy")
+class Smooth(unittest.TestCase):
+    STAIRS = [("F.Cu", 0.0, 0.0, 1.0, 0.0, "A"), ("F.Cu", 1.0, 0.0, 1.0, 1.0, "A"),
+              ("F.Cu", 1.0, 1.0, 2.0, 1.0, "A"), ("F.Cu", 2.0, 1.0, 2.0, 2.0, "A")]
+    PADS = [(0.0, 0.0, "A", "D1.1", 0.3), (2.0, 2.0, "A", "D2.1", 0.3)]
+
+    def test_a_staircase_with_nothing_in_the_way_becomes_one_line(self):
+        tracks = pathfind.smooth(board(self.PADS, size=(5, 5)), self.STAIRS)
+        self.assertEqual(tracks, [["F.Cu", 0.0, 0.0, 2.0, 2.0, "A"]])
+
+    def test_a_shallow_staircase_becomes_a_diagonal_and_a_straight_run(self):
+        stairs = [("F.Cu", 0.0, 0.0, 2.0, 0.0, "A"), ("F.Cu", 2.0, 0.0, 2.0, 1.0, "A"),
+                  ("F.Cu", 2.0, 1.0, 4.0, 1.0, "A"), ("F.Cu", 4.0, 1.0, 4.0, 2.0, "A")]
+        pads = [(0.0, 0.0, "A", "D1.1", 0.3), (4.0, 2.0, "A", "D2.1", 0.3)]
+        tracks = pathfind.smooth(board(pads, size=(6, 6)), stairs)
+        self.assertEqual(len(tracks), 2)
+        for _, x0, y0, x1, y1, _ in tracks:
+            dx, dy = abs(x1 - x0), abs(y1 - y0)
+            self.assertTrue(dx < 1e-9 or dy < 1e-9 or abs(dx - dy) < 1e-9, (x0, y0, x1, y1))
+
+    def test_another_net_s_copper_well_off_the_diagonal_is_no_obstacle(self):
+        b = board(self.PADS + [(0.3, 1.7, "B", "D3.1", 0.2)], size=(5, 5))
+        self.assertEqual(pathfind.smooth(b, self.STAIRS), [["F.Cu", 0.0, 0.0, 2.0, 2.0, "A"]])
+
+    def test_another_net_s_copper_by_the_diagonal_keeps_the_corner(self):
+        pads = self.PADS + [(1.3, 0.7, "B", "D3.1", 0.2)]
+        tracks = pathfind.smooth(board(pads, size=(5, 5)), self.STAIRS)
+        self.assertNotIn(["F.Cu", 0.0, 0.0, 2.0, 2.0, "A"], tracks)
+        ends = {(t[1], t[2]) for t in tracks} | {(t[3], t[4]) for t in tracks}
+        self.assertTrue({(0.0, 0.0), (2.0, 2.0)} <= ends)
+
+    def test_another_net_s_via_by_the_diagonal_keeps_the_corner(self):
+        tracks = pathfind.smooth(board(self.PADS, size=(5, 5)), self.STAIRS, [(1.3, 0.7, "B")])
+        self.assertNotIn(["F.Cu", 0.0, 0.0, 2.0, 2.0, "A"], tracks)
+
+    def test_copper_on_the_other_layer_is_no_obstacle(self):
+        b = board(self.PADS, tracks=[("B.Cu", 0.0, 2.0, 2.0, 0.0, 0.25, "B")], size=(5, 5))
+        self.assertEqual(pathfind.smooth(b, self.STAIRS), [["F.Cu", 0.0, 0.0, 2.0, 2.0, "A"]])
+
+    def test_a_branch_off_a_piece_s_middle_stays_joined(self):
+        branch = self.STAIRS + [("F.Cu", 1.0, 0.5, 3.0, 0.5, "A")]
+        pads = self.PADS + [(3.0, 0.5, "A", "D3.1", 0.3)]
+        tracks = pathfind.smooth(board(pads, size=(5, 5)), branch)
+        ends = {(t[1], t[2]) for t in tracks} | {(t[3], t[4]) for t in tracks}
+        self.assertIn((1.0, 0.5), ends)
+
+    def test_a_run_through_its_net_s_pad_still_goes_through(self):
+        pads = self.PADS + [(1.0, 1.0, "A", "D3.1", 0.3)]
+        tracks = pathfind.smooth(board(pads, size=(5, 5)), self.STAIRS)
+        self.assertLess(min(pathfind.seg_dist(1.0, 1.0, *t[1:5]) for t in tracks), 0.3)
+
+    def test_a_pad_a_run_touched_on_the_way_it_still_touches(self):
+        pads = self.PADS + [(1.0, 0.2, "A", "D3.1", 0.3)]
+        tracks = pathfind.smooth(board(pads, size=(5, 5)), self.STAIRS)
+        self.assertLess(min(pathfind.seg_dist(1.0, 0.2, *t[1:5]) for t in tracks), 0.3 + pathfind.WIDTH / 2)
+        self.assertLess(len(tracks), len(self.STAIRS))
+
+    def test_a_run_ending_on_a_pad_s_edge_goes_on_to_its_centre(self):
+        line = [("F.Cu", 0.4, 0.0, 3.0, 0.0, "A")]
+        pads = [(0.0, 0.0, "A", "D1.1", 0.5), (3.0, 0.0, "A", "D2.1", 0.3)]
+        (t,) = pathfind.smooth(board(pads, size=(5, 5)), line)
+        self.assertEqual(sorted([tuple(t[1:3]), tuple(t[3:5])]), [(0.0, 0.0), (3.0, 0.0)])
+
+    def test_a_run_changing_layer_beside_a_via_goes_into_it_with_no_scrap(self):
+        via = (3.2, 0.3)
+        route = [("F.Cu", 0.0, 0.0, 3.0, 0.0, "A"), ("F.Cu", 3.0, 0.0, *via, "A"),
+                 ("B.Cu", 3.0, 0.0, *via, "A"), ("B.Cu", 3.0, 0.0, 6.0, 0.0, "A")]
+        pads = [(0.0, 0.0, "A", "D1.1", 0.3), (6.0, 0.0, "A", "D2.1", 0.3)]
+        tracks = pathfind.smooth(board(pads, size=(8, 5)), route, [(*via, "A")])
+        for layer, x0, y0, x1, y1, _ in tracks:
+            dx, dy = abs(x1 - x0), abs(y1 - y0)
+            self.assertGreater(math.hypot(dx, dy), 0.4, (layer, x0, y0, x1, y1))
+            self.assertTrue(dx < 1e-9 or dy < 1e-9 or abs(dx - dy) < 1e-9, (layer, x0, y0, x1, y1))
+        for layer in ("F.Cu", "B.Cu"):
+            self.assertIn(via, {p for t in tracks if t[0] == layer for p in (tuple(t[1:3]), tuple(t[3:5]))})
+
+    def test_the_corner_before_an_off_grid_end_slides_so_no_slant_is_left(self):
+        copper = pathfind._Copper(board([], size=(5, 5)), [], [], ["F.Cu"])
+        q = pathfind._slide(copper, 0, "A", [(0.0, 0.0), (3.0, 0.0)], (3.1, 1.0))
+        self.assertAlmostEqual(q[0], 3.1)
+        self.assertAlmostEqual(q[1], 0.0)
+        self.assertIsNone(pathfind._slide(copper, 0, "A", [(0.0, 0.0), (3.0, 0.0)], (3.0, 1.0)))
+
+    def test_a_corner_does_not_slide_into_another_net_s_copper(self):
+        b = board([(2.6, 0.0, "B", "D3.1", 0.2)], size=(5, 5))
+        copper = pathfind._Copper(b, [], [], ["F.Cu"])
+        q = pathfind._slide(copper, 0, "A", [(0.0, 0.0), (2.0, 0.0)], (2.1, 1.0))
+        self.assertAlmostEqual(q[0], 1.1)               # back to a diagonal, not on to the pad
+
+    def test_an_off_grid_hole_with_no_room_to_slide_takes_the_scrap_inside_it(self):
+        way = pathfind._octo_way(pathfind._Copper(board([], size=(5, 5)), [], [], ["F.Cu"]),
+                                 0, "A", [(0.0, 0.0)], (3.0, 0.1), hole=True)
+        self.assertEqual(len(way), 2)
+        self.assertAlmostEqual(way[0][1], 0.0)          # straight on, the 45 degrees in the hole
+        self.assertLess(math.dist(way[0], way[1]), 0.15)
+
+    def test_a_run_turning_back_down_gets_no_corner_sharper_than_a_right_angle(self):
+        pts = [(6.0, 0.635), (1.27, 0.635), (1.27, 0.0), (0.0, 0.0), (0.0, 3.8)]
+        run = [("F.Cu", *a, *b, "A") for a, b in zip(pts, pts[1:])]
+        pads = [(6.0, 0.635, "A", "D1.1", 0.3), (0.0, 3.8, "A", "D2.1", 0.3)]
+        tracks = pathfind.smooth(board(pads, size=(8, 5)), run)
+        ends = {}
+        for t in tracks:
+            for p, q in ((tuple(t[1:3]), tuple(t[3:5])), (tuple(t[3:5]), tuple(t[1:3]))):
+                ends.setdefault(p, []).append(q)
+        for p, qs in ends.items():
+            if len(qs) == 2:
+                (ax, ay), (bx, by) = qs
+                self.assertLessEqual((ax - p[0]) * (bx - p[0]) + (ay - p[1]) * (by - p[1]), 1e-9, (p, qs))
+
+    def test_a_loop_pulled_tight_lays_its_piece_once(self):
+        loop = [("F.Cu", 0.0, 0.0, 1.0, 0.0, "A"), ("F.Cu", 1.0, 0.0, 1.0, 1.0, "A"),
+                ("F.Cu", 1.0, 1.0, 0.0, 0.0, "A"), ("F.Cu", 0.0, 0.0, -2.0, 0.0, "A")]
+        tracks = pathfind.smooth(board([(-2.0, 0.0, "A", "D1.1", 0.3)], size=(5, 5)), loop)
+        keys = [frozenset([tuple(t[1:3]), tuple(t[3:5])]) for t in tracks]
+        self.assertEqual(len(keys), len(set(keys)))
+
+    def test_pieces_along_one_line_are_one(self):
+        line = [("F.Cu", 0.0, 0.0, 1.0, 0.0, "A"), ("F.Cu", 1.0, 0.0, 2.0, 0.0, "A")]
+        pads = [(0.0, 0.0, "A", "D1.1", 0.3), (2.0, 0.0, "A", "D2.1", 0.3), (1.0, 0.0, "A", "D3.1", 0.2)]
+        self.assertEqual(pathfind.smooth(board(pads, size=(5, 5)), line), [["F.Cu", 0.0, 0.0, 2.0, 0.0, "A"]])
+
+    def test_a_point_where_three_pieces_meet_stays(self):
+        branch = self.STAIRS + [("F.Cu", 1.0, 1.0, 1.0, 3.0, "A")]
+        pads = self.PADS + [(1.0, 3.0, "A", "D3.1", 0.3)]
+        tracks = pathfind.smooth(board(pads, size=(5, 5)), branch)
+        ends = {(t[1], t[2]) for t in tracks} | {(t[3], t[4]) for t in tracks}
+        self.assertIn((1.0, 1.0), ends)
 
 
 @unittest.skipIf(pathfind is None, "no scipy")

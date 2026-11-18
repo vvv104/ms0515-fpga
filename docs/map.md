@@ -52,7 +52,7 @@ switch, `s_D70_15`.
 | `netlist/ext/parts.csv`, `pinouts.csv`, `nets.csv` | the memory expansion module (plan 6a): its parts, the pinouts of its types НС4 has not, its nets | the plant's parts list and connection tables (`docs/ext` of `$MS0515_DATA`), converted once and checked by `tools/netlist.py check ext` |
 | `netlist/ext/joins.csv` | every XP1 contact the module uses against НС4's XS1: the same net, a wire НС4 needs (by logic), free, or in conflict | the two netlists |
 | `netlist/ext/fitted.csv` | what is fitted on the owner's module: the RAM-disk half, markings and dates | his module's photos |
-| `netlist/ext/assembly.csv`, `placement.csv`, `packages.csv`, `pcb.csv`, `copper.csv` | the module's printed board made anew (plan 6a step 5): the parts it carries (the RAM disk as his module has them), where they stand, their footprints, the copper read off the photos that joins their pads (laid fixed) | his module's photos, both sides |
+| `netlist/ext/assembly.csv`, `placement.csv`, `packages.csv`, `pcb.csv`, `copper.csv`, `holes.csv` | the module's printed board made anew (plan 6a step 5): the parts it carries (the RAM disk as his module has them), where they stand, their footprints, the copper read off the photos that joins their pads (a record: the board is routed anew), the holes no pad takes (the router's vias may use them) | his module's photos, both sides |
 | `netlist/ext/analog.csv`, `changes.csv` | the module's parts that are not chips on the generated board; what НС4 changes for it (the green wire, a switch) | `docs/findings.md` |
 | `netlist/pcb_parts.csv`, `pcb_nets.csv`, `pcb.csv` | what the new printed board adds (jumper E9) | owner's decision, stage 8d |
 | `netlist/ms7004/*.csv` | the МС 7004 keyboard: parts, pins, nets, matrix, PC keys | its own documents (`docs/ms7004.md`) |
@@ -78,14 +78,15 @@ again in memory and fails if the committed one differs.
 | `firmware/tests/*.rom` | `python tools/test_roms.py` | `firmware/tests/*.mac`, assembled by DEC's MACRO/LINK run in the emulator's `ms0515-run` | `... check` |
 | `kicad/ns4*.kicad_sch` | `python tools/kicad.py` | `netlist/` | `... check`; with kicad-cli a tool test reads the nets back |
 | `docs/pcb/bom.md` | `python tools/bom.py` | `parts.csv`, `pcb_parts.csv`, `packages.csv`, `docs/chips.md`, `firmware.csv` | `... check` |
-| `kicad/ext.kicad_pcb` (placement and the photos' copper) | `<KiCad>/bin/python tools/pcb_ext.py` | `netlist/ext/` | `tools/tests/test_pcb_ext.py`: every pad's net against the netlist, the copper on its nets |
+| `kicad/ext.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb_ext.py` | `netlist/ext/` | `tools/tests/test_pcb_ext.py`: every pad's net against the netlist, no copper laid |
+| `kicad/ext.kicad_pcb` (routed) | `tools/pcb_ext.py`, then `pathfind.py ext export`, `ext route`, `ext smooth`, `ext apply kicad/ext.kicad_pcb`; if `readback.py ext` finds a plane pin cut off, `pathfind.py ext planes`, `ext route`, `ext smooth`, `pcb_ext.py`, `ext apply` again; state in `build/pathfind-ext` | as above, `netlist/ext/holes.csv` | `pcb_ext.py check`, `readback.py ext BOARD`, KiCad's DRC |
 | `kicad/ns4.pretty` (all but DIN-5) | `python tools/pretty.py` | `placement-1991.csv` (the D-subs' holes) | `... check` |
 | `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py` | `netlist/` + `placement.csv` + `placement-1991.csv` + footprints; every part where the 1991 board had it | `... pcb.py check`: every pad's net against the netlist |
 | the same file (routing) | `tools/route.py [--work DIR] start / run / finish` (Freerouting), state in `build/route` | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
 | the same file (the inside over the 1991 copper) | `<KiCad>/bin/python tools/pathfind.py export`, `python tools/pathfind.py route`, `<KiCad>/bin/python tools/pathfind.py apply OUT` (PathFinder), state in `build/pathfind` | the board with Mick's outer layers laid | `tools/tests/test_pathfind.py`; the routed board by `pcb.py check` and KiCad's DRC |
 | `kicad/ns4.kicad_pcb` (routed) | `tools/pcb.py` (placed, the 1991 outer copper: the routing gone), then `pathfind.py export`, `route`, `apply kicad/ns4.kicad_pcb`; if `readback.py` finds a plane pin cut off, `pathfind.py planes`, `route`, `pcb.py`, `apply` again | as above | `pcb.py check`, `readback.py BOARD`, KiCad's DRC |
 | `build/fab/ns4/` (gerbers, drill, assembly drawing; not kept) | `python tools/fab.py` | the routed board | `tools/tests/test_fab.py`; `docs/pcb/fab.md` says what they are |
-| (a check) the routed board's nets off its copper | `<KiCad>/bin/python tools/readback.py [BOARD]` | the routed board, `netlist/` (pcb.py's pin_nets) | `tools/tests/test_readback.py`; exit 1 on a difference |
+| (a check) the routed board's nets off its copper | `<KiCad>/bin/python tools/readback.py [BOARD]`, `readback.py ext [BOARD]` for the module's | the routed board, `netlist/` (pcb.py's pin_nets; pcb_ext.py's for the module) | `tools/tests/test_readback.py`; exit 1 on a difference |
 
 ## The comparison files (made by a command, not kept)
 

@@ -189,8 +189,21 @@ The second printed board, `ns4-vvv104`, is gone.
       the ROM board socket's empty footprints could not all be told
       apart on the photos (four 8 + 8 for the list's three DIP16 and one
       DIP14; XS1's numbering one hole off the copper), so they are left
-      off, and the photos' copper is laid only where it joins the RAM
-      disk's own pads (3.1 m, 98 vias).
+      off.  The photos' copper where it joins the RAM disk's own pads
+      (3.1 m, 98 vias) is kept as read (`netlist/ext/copper.csv`), but not
+      laid: straightened, it stayed crooked, so the board is routed anew
+      (owner, 2026-11-18) - the photos give the parts, their holes and the
+      holes a via may take (`netlist/ext/holes.csv`).
+      **Routed** (2026-11-18): `tools/pathfind.py ext` - PathFinder on
+      the two outer layers, a 0.635 mm grid (two tracks between pins), a
+      layer changed in a pad, an original hole or one between four pins
+      (`lattice()`), nothing shared in 328 rounds; `smooth` pulls the
+      grid's staircases into runs at 0, 45 and 90 degrees, each ending in
+      its hole's centre.  12.0 m of 0.25 mm track in 2679 pieces, 289
+      vias; no plane pin cut off; `readback.py ext`: 0 differences, 624
+      pins; KiCad's DRC: nothing unconnected, no copper error (the
+      courtyards' 33 and the silkscreen's warnings are the photos'
+      placement).  The tracks' layers are the router's, not the photos'.
       C1's - lead is under its laid-over body, 7.5 mm right of the +
       square pad at the same height (owner's views from both sides: the
       2 x 2 square pads under them take a resistor with their lower two);

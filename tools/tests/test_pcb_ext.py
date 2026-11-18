@@ -22,13 +22,6 @@ def mm(v):
     return pcbnew.ToMM(v)
 
 
-def point_segment(p, a, b):
-    """mm from point p to the segment a-b (all mm)."""
-    dx, dy = b[0] - a[0], b[1] - a[1]
-    k = 0.0 if dx == dy == 0 else max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy)))
-    return math.hypot(p[0] - a[0] - k * dx, p[1] - a[1] - k * dy)
-
-
 @unittest.skipUnless(pcbnew, "no pcbnew (run with KiCad's Python)")
 class Outline(unittest.TestCase):
     def test_the_outline_is_the_originals_less_the_notch(self):
@@ -111,29 +104,10 @@ class Board(unittest.TestCase):
         self.assertAlmostEqual(mm(a1.y), pcb_ext.ROW_A_Y, places=2)
         self.assertAlmostEqual(mm(pads["c1"].y), pcb_ext.ROW_A_Y - 5.08, places=2)
 
-    def test_the_photos_copper_is_laid_fixed_on_its_nets(self):
-        want = [r for r in pcb_ext.copper() if r["kind"] == "track"]
-        vias = [r for r in pcb_ext.copper() if r["kind"] == "via"]
-        tracks = [t for t in self.board.GetTracks() if t.GetClass() == "PCB_TRACK"]
-        laid = [t for t in self.board.GetTracks() if t.GetClass() == "PCB_VIA"]
-        self.assertEqual((len(tracks), len(laid)), (len(want), len(vias)))
-        self.assertTrue(all(t.IsLocked() for t in tracks + laid))
-        have = sorted((t.GetNetname(), round(mm(t.GetStart().x), 2), round(mm(t.GetStart().y), 2)) for t in tracks)
-        self.assertEqual(have, sorted((r["net"], round(float(r["x0"]), 2), round(float(r["y0"]), 2)) for r in want))
-
-    def test_the_photos_copper_keeps_clear_of_other_nets_pads(self):
-        gap = pcb_ext.SIGNAL["clearance"]
-        pads = [(mm(p.GetPosition().x), mm(p.GetPosition().y), mm(max(p.GetSize(pcbnew.F_Cu).x, p.GetSize(pcbnew.F_Cu).y)) / 2,
-                 p.GetNetname(), f"{p.GetParentFootprint().GetReference()}.{p.GetNumber()}") for p in self.board.GetPads()]
-        hits = []
-        for t in self.board.GetTracks():
-            if t.GetClass() != "PCB_TRACK":
-                continue
-            a, b = (mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))
-            for x, y, r, net, name in pads:
-                if net != t.GetNetname() and point_segment((x, y), a, b) < r + mm(t.GetWidth()) / 2 + gap - 1e-3:
-                    hits.append(f"{t.GetNetname()} at {name}")
-        self.assertEqual(hits, [])
+    def test_the_board_comes_with_no_copper_the_router_lays_it_all(self):
+        """The photos' copper drawn anew (owner, 2026-11-18): their holes stay
+        free for the router's vias (netlist/ext/holes.csv), no track is laid."""
+        self.assertEqual(list(self.board.GetTracks()), [])
 
     def test_the_plug_has_no_mounting_holes(self):
         """Where Harting's footprint drills them the original runs tracks
