@@ -3,14 +3,13 @@
 
 Run with KiCad's own Python, which has pcbnew:
 
-    <KiCad>/bin/python tools/route.py [--board B] [--work DIR] start [--from ns4 | --keep]
-    <KiCad>/bin/python tools/route.py [--board B] [--work DIR] run [passes per chunk] [chunks without gain]
-    <KiCad>/bin/python tools/route.py [--board B] [--work DIR] finish [OUT.kicad_pcb]
+    <KiCad>/bin/python tools/route.py [--work DIR] start [--from ns4 | --keep]
+    <KiCad>/bin/python tools/route.py [--work DIR] run [passes per chunk] [chunks without gain]
+    <KiCad>/bin/python tools/route.py [--work DIR] finish [OUT.kicad_pcb]
 
-The board is kicad/ns4.kicad_pcb, work files in build/route; `--board ext`
-is the memory expansion module's, kicad/ext.kicad_pcb (tools/pcb_ext.py),
-work files in build/route-ext; four layers, the supplies on the inner two
-as НС4's are.  `--work DIR`
+The board is kicad/ns4.kicad_pcb, work files in build/route.  The routing
+from the empty board of 2026-11-05..10 (docs/plan.md 8d); the board kept is
+the 1991 outer copper with PathFinder inside (tools/pathfind.py).  `--work DIR`
 puts the work files elsewhere (a probe beside a routing kept).  `start` is
 from the empty board.  `start --from ns4` takes the routing kept in
 build/route (when `--work` names another folder), so `run` routes only
@@ -89,26 +88,17 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = os.path.join(ROOT, "build", "route")         # Э3's board's work files
-BOARDS = ("ns4", "ext")
-# Freerouting's cost of a via (its default 50) where a board wants it
-# lower: the module's two layers stalled at 185 unrouted at 50 with 39
-# vias; in one run of 60 passes 42 at 10, 23 at 5 (763 vias) (2026-11-16).
-# One long run, not short chunks: each new run forgets the costs the last
-# one learnt (one pass a chunk stalled at 104).
-VIA_COSTS = {"ext": 5}
 
 
 EDGE_UM = 500               # copper to the board's edge, as KiCad's DRC checks it
 
 
-def configure(work=None, board="ns4"):
-    """The board routed (kicad/<board>.kicad_pcb) and its work files: in
-    build/route (build/route-<board> for another board than ns4), or the
-    folder `work` (relative to the repository's root)."""
-    global NAME, BOARD, WORK, STATE, NEXT, SESSION, NEXT_SES, LOG, PROGRESS
-    NAME = board
-    BOARD = os.path.join(ROOT, "kicad", f"{board}.kicad_pcb")
-    WORK = BASE if board == "ns4" else f"{BASE}-{board}"
+def configure(work=None):
+    """The board routed (kicad/ns4.kicad_pcb) and its work files: in
+    build/route, or the folder `work` (relative to the repository's root)."""
+    global BOARD, WORK, STATE, NEXT, SESSION, NEXT_SES, LOG, PROGRESS
+    BOARD = os.path.join(ROOT, "kicad", "ns4.kicad_pcb")
+    WORK = BASE
     if work:
         WORK = os.path.normpath(os.path.join(ROOT, work))
     STATE = os.path.join(WORK, "state.dsn")
@@ -317,8 +307,6 @@ def carry_from(options):
         return WORK
     if "--from" not in options:
         return None
-    if NAME != "ns4":
-        raise SystemExit(f"--from: the {NAME} board takes no other board's routing")
     name = options[options.index("--from") + 1:][:1]
     if not name:
         raise SystemExit("--from which board: ns4")
@@ -333,10 +321,9 @@ def carry_from(options):
 def freerouting_args(design, output, passes):
     """Freerouting's command line: the design, the session to write, the
     passes; no neckdown (the rule's width kept), the edge's clearance."""
-    via = [f"--router.scoring.via_costs={VIA_COSTS[NAME]}"] if NAME in VIA_COSTS else []
     return ["java", "-jar", jar(), "-de", design, "-do", output, "-mp", str(passes),
             "--gui.enabled=false", "--router.automatic_neckdown=false",
-            f"--router.copper_to_edge_clearance_um={EDGE_UM}"] + via
+            f"--router.copper_to_edge_clearance_um={EDGE_UM}"]
 
 
 def freerouting(design, output, passes):
@@ -446,26 +433,22 @@ COMMANDS = ("start", "run", "finish")
 
 
 def parse(argv):
-    """(board, work folder, command, its arguments) off the command line:
-    `route.py [--board B] [--work DIR] command [args]`."""
+    """(work folder, command, its arguments) off the command line:
+    `route.py [--work DIR] command [args]`."""
     argv = argv[1:]
-    board, work = "ns4", None
-    if argv[:1] == ["--board"]:
-        if len(argv) < 2 or argv[1] not in BOARDS:
-            raise SystemExit(f"--board which: {', '.join(BOARDS)}")
-        board, argv = argv[1], argv[2:]
+    work = None
     if argv[:1] == ["--work"]:
         if len(argv) < 2:
             raise SystemExit("--work which folder")
         work, argv = argv[1], argv[2:]
     if not argv or argv[0] not in COMMANDS:
         raise SystemExit(__doc__)
-    return board, work, argv[0], argv[1:]
+    return work, argv[0], argv[1:]
 
 
 def main(argv):
-    board, work, command, args = parse(argv)
-    configure(work, board)
+    work, command, args = parse(argv)
+    configure(work)
     if command == "start":
         return start(carry_from(args))
     if command == "run":

@@ -39,7 +39,9 @@ resistor packs by pin 1 (netlist/placement.csv, on Mick's layer traces,
 (netlist/placement-1991.csv, read off the assembly drawing; their own
 footprints from tools/pretty.py where the 1991 holes are not a library
 footprint's).  Only the board's own addition, E9, goes into the free place
-nearest the chip it works for.  Routing is Freerouting's (tools/route.py).
+nearest the chip it works for.  The inside is routed by PathFinder
+(tools/pathfind.py) round the 1991 outer copper; tools/route.py
+(Freerouting) was the routing from the empty board, 2026-11-05..10.
 """
 import json
 import math
@@ -588,7 +590,7 @@ def copper_obstacles(board, holes, vias):
 
 
 def lay_copper(board):
-    """Mick's outer layers on the board, locked; Freerouting routes the rest."""
+    """Mick's outer layers on the board, locked; tools/pathfind.py routes the rest."""
     holes, tracks, vias = copper_1991(board)
     at = lambda p: pcbnew.VECTOR2I(pcbnew.FromMM(p[0] * MM_PER_PX), pcbnew.FromMM(p[1] * MM_PER_PX))
     mm = lambda p: (p[0] * MM_PER_PX, p[1] * MM_PER_PX)

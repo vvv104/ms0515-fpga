@@ -4,7 +4,7 @@
 netlist/lines-1991.json (tools/copper1991.py) holds Mick's layers 1, 2, 7
 and 8 as centre lines, each with its width and the holes its copper area
 reaches.  This module gives them nets and turns them into tracks; tools/pcb.py
-lays them on the board, locked, and Freerouting routes the rest inside.
+lays them on the board, locked, and tools/pathfind.py routes the rest inside.
 
 - A line's net is the net of the hole nearest to it along the copper: the
   lines of a layer are a graph (their ends the nodes, an end on a hole its
