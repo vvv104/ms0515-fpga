@@ -36,16 +36,24 @@ wire them.  Not an emulator in HDL - a copy of the board.
 
 ## Layout
 ```
-netlist/   — НС4 read out of the scans: parts, pins, nets, sources
+netlist/   — НС4 read out of the scans: parts, pins, nets, sources; ext/ the
+             memory expansion module, ms7004/ the keyboard
 rtl/
   chips/   — one module per chip type (К555ЛА3, КР1807ВМ1, ...)
-  board/   — the board generated from netlist/ (never edited by hand)
-  top/     — per-FPGA-board tops: clocks, HDMI, SD card, keyboard line
+  board/   — the boards generated from netlist/ (never edited by hand)
+  parts/   — the bench's parts as logic for the core: the drive, the
+             keyboard's matrix, the video, the RAM disk's DDR3 bridge
+  ms0515.sv — the machine for the MiSTer core
 sim/       — Verilator test benches (C++), the emulator as reference model
-boards/    — FPGA-board constraints and build scripts (MiSTer / DE10-Nano: docs/plan.md stage 7)
-kicad/     — the KiCad schematic generated from netlist/ (tools/kicad.py; never edited by hand)
-tools/     — the netlist reader, the RTL generator, scan helpers (Python)
-docs/      — sources, plan, analog replacements, findings
+boards/    — FPGA-board constraints and build scripts (MiSTer / DE10-Nano:
+             core.tcl, docs/plan.md stage 7; template/ is Template_MiSTer, a submodule)
+firmware/  — the ROMs and the test ROMs' sources
+kicad/     — the KiCad schematic (tools/kicad.py) and the printed boards ns4
+             and ext (tools/pcb.py, pcb_ext.py, pathfind.py); never edited by hand
+recipes/   — the Conan recipe of Verilator
+tools/     — the netlist reader, the generators, the routers, the checks (Python)
+docs/      — map (what is made from what), plan, baseline (the last walk),
+             sources, findings, analog replacements, the chips' notes, pcb/
 ```
 
 ## Build
@@ -68,9 +76,10 @@ committed file is stale); `sim/board/test_board.cpp` runs it.
 `python tools/kicad.py` regenerates the KiCad schematic `kicad/` the same
 way; with KiCad's command line (`$KICAD_CLI` or `kicad-cli` on the PATH) a
 tool test reads the nets back out of it and compares them with the netlist.
-`quartus_sh -t boards/de10nano/synth.tcl` (Quartus Prime Lite 17.0.2, the
-MiSTer's version) takes the board through Quartus into `build/quartus`:
-synthesis, fit and timing at the 120 MHz master clock (plan stage 7a).
+`quartus_sh -t boards/de10nano/core.tcl` (Quartus Prime Lite 17.0.2, the
+MiSTer's version) builds the core into `build/mister`: synthesis, fit,
+timing at the 120 MHz master clock and the `.rbf` (plan stage 7d;
+`synth.tcl` is 7a's, the board alone, into `build/quartus`).
 
 ## Sources
 `docs/sources.md` lists every document, scan and forum thread the board is

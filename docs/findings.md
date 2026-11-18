@@ -965,7 +965,9 @@ for one, was a misread of the sheet).  The FPGA is built from Э3 with the rev. 
 switchable; where a change matters, software on the model decides.
 
 In `vvv104.csv` so far: nothing - D40.9 was taken out again once the factory
-patch D15.9-D40.9 was found (see below).
+patch D15.9-D40.9 was found (see below).  (Since 2026-11-15 one board: the
+file became the standard build's `netlist/assembly.csv`, checked by
+`python tools/netlist.py check assembly`.)
 
 ## Mick's redraw of Э3 in P-CAD 2002 (2012)
 

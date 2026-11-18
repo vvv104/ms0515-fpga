@@ -117,7 +117,7 @@ The second printed board, `ns4-vvv104`, is gone.
    The steps:
    1. The module's netlist from the tables (`netlist/ext/`), checked
       against the parts list and the photos; the four XS1 joins in
-      `vvv104.csv`.
+      `vvv104.csv` (now `assembly.csv`).
       **Done** (2026-11-12): `netlist/ext/` - 104 parts, 151 nets, 746
       pins (the chips' power pins in `parts.csv`), every pin the tables
       name on one net and every chip pin they leave out an unused one (D1
@@ -206,8 +206,7 @@ The second printed board, `ns4-vvv104`, is gone.
       placement).  The tracks' layers are the router's, not the photos'.
       C1's - lead is under its laid-over body, 7.5 mm right of the +
       square pad at the same height (owner's views from both sides: the
-      2 x 2 square pads under them take a resistor with their lower two);
-      the copper, when the routing is read off the photos, to confirm it.
+      2 x 2 square pads under them take a resistor with their lower two).
       That resistor is R27 (pinkish, not the list's grey С1-4: one end in
       an inner layer, the other under ИД14 - the pull-up of «запрос комм»,
       which reaches the plug).
@@ -338,11 +337,12 @@ The second printed board, `ns4-vvv104`, is gone.
    7d. **The core.**  Template_MiSTer's `sys/` unchanged - a git
        submodule, not copied in: no third-party HDL in the tree - the board and
        the parts of 7c under `emu`, the menu: disk images, ROM-A/ROM-B,
-       the vvv104 changes and the undecided places as switches.  Built,
+       the vvv104 changes (now `assembly.csv`'s) and the undecided places as switches.  Built,
        timing closed; the post-fit netlist run on the bench against the
        emulator as the RTL is.
        **Groundwork**: the machine for the core (`rtl/ms0515.sv`, the board
-       as `rtl/board/ns4_machine.sv` with only the ports it uses) holds
+       as `rtl/board/ns4_machine.sv` with only the ports it uses; since
+       6a step 4 `ns4_ext_machine.sv`) holds
        tick for tick to the bench's board (`test_machine`); the core
        builds (`boards/de10nano/core.tcl`, an .rbf) and meets timing in
        every domain: 29 % of the ALMs, of the block memory and of the
@@ -437,7 +437,8 @@ The second printed board, `ns4-vvv104`, is gone.
    its inner layers are not on any scan, and only the connections have
    to be the same - though with its placement and its layers the
    routing may come out near it.  KiCad 10 (`kicad-cli`), Freerouting
-   for the routing.  Э3's board first, as the paper schematic draws it
+   for the routing from the empty board (stopped, 8d), PathFinder inside
+   the 1991 outer copper for the board kept (8d).  Э3's board first, as the paper schematic draws it
    (owner, 2026-11-09, with 6b closed): it is routed from the empty
    board, and the owner's made from it.  The routings begun before
    (the owner's board, four and six layers) were stopped: no routing is
@@ -469,7 +470,8 @@ The second printed board, `ns4-vvv104`, is gone.
        options (SA1, E3/E4) fitted as jumpers, set for 3.858.420 (the
        МС 7004 on XS2, ROM-B, as the owner's machine).
    8d. **Layout.**  Placement by blocks, the decoupling of ПЭ3, routed by
-       Freerouting, DRC to a common fab's rules.  Two boards, one
+       Freerouting (then PathFinder inside the 1991 copper, below), DRC to
+       a common fab's rules.  Two boards, one
        placement (owner, 2026-11-05): `ns4` is Э3 as drawn - its 640 x 200
        left edge closed with a fitted speed of the chain to D70
        (`docs/findings.md`; on copper the chips as fitted decide it)
@@ -487,7 +489,8 @@ The second printed board, `ns4-vvv104`, is gone.
        its pins left are routed again (`tools/pcb.py` places Э3's -
        every part where Э3's nets put it, so the two boards have one
        placement; `tools/pcb.py derive vvv104` and `tools/route.py vvv104
-       start --from ns4` then make the owner's).
+       start --from ns4` then made the owner's - both gone with the second
+       board, 2026-11-15).
        The routing runs in chunks that survive a stop (`tools/route.py`);
        a routing is never carried onto a board with a part moved.  The
        owner's board's routing began from the empty board on 2026-11-05
@@ -580,7 +583,8 @@ The second printed board, `ns4-vvv104`, is gone.
        files and the assembly drawing; what to order, what to hold against
        the real parts, the options and the first power-on in `fab.md`.
        **The owner's board routed** the same way (2026-11-10,
-       `pathfind.py vvv104 ...`, E9 kept): its routing's vias cut R75.2 off
+       `pathfind.py vvv104 ...` - gone with the board, 2026-11-15 - E9 kept):
+       its routing's vias cut R75.2 off
        the GND plane on a piece of fill - KiCad's DRC told it, and so does
        `readback.py` now, which takes each piece of a plane's fill on its
        own; `pathfind.py vvv104 planes` hands such pins to the next

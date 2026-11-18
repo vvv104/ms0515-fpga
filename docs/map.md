@@ -82,7 +82,7 @@ again in memory and fails if the committed one differs.
 | `kicad/ext.kicad_pcb` (routed) | `tools/pcb_ext.py`, then `pathfind.py ext export`, `ext route`, `ext smooth`, `ext apply kicad/ext.kicad_pcb`; if `readback.py ext` finds a plane pin cut off, `pathfind.py ext planes`, `ext route`, `ext smooth`, `pcb_ext.py`, `ext apply` again; state in `build/pathfind-ext` | as above, `netlist/ext/holes.csv` | `pcb_ext.py check`, `readback.py ext BOARD`, KiCad's DRC |
 | `kicad/ns4.pretty` (all but DIN-5) | `python tools/pretty.py` | `placement-1991.csv` (the D-subs' holes) | `... check` |
 | `kicad/ns4.kicad_pcb` (placement) | `<KiCad>/bin/python tools/pcb.py` | `netlist/` + `placement.csv` + `placement-1991.csv` + footprints; every part where the 1991 board had it | `... pcb.py check`: every pad's net against the netlist |
-| the same file (routing) | `tools/route.py [--work DIR] start / run / finish` (Freerouting), state in `build/route` | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
+| the same file (routing from the empty board, 2026-11-05..10; not the board kept) | `tools/route.py [--work DIR] start / run / finish` (Freerouting), state in `build/route` | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
 | the same file (the inside over the 1991 copper) | `<KiCad>/bin/python tools/pathfind.py export`, `python tools/pathfind.py route`, `<KiCad>/bin/python tools/pathfind.py apply OUT` (PathFinder), state in `build/pathfind` | the board with Mick's outer layers laid | `tools/tests/test_pathfind.py`; the routed board by `pcb.py check` and KiCad's DRC |
 | `kicad/ns4.kicad_pcb` (routed) | `tools/pcb.py` (placed, the 1991 outer copper: the routing gone), then `pathfind.py export`, `route`, `apply kicad/ns4.kicad_pcb`; if `readback.py` finds a plane pin cut off, `pathfind.py planes`, `route`, `pcb.py`, `apply` again | as above | `pcb.py check`, `readback.py BOARD`, KiCad's DRC |
 | `build/fab/ns4/` (gerbers, drill, assembly drawing; not kept) | `python tools/fab.py` | the routed board | `tools/tests/test_fab.py`; `docs/pcb/fab.md` says what they are |
@@ -116,13 +116,13 @@ project and the core's `.rbf` (`build/mister`), the routing's state
 
 | Tool | What it is | What it does here | Stage |
 |---|---|---|---|
-| Python 3 | | every generator and check in `tools/`; their tests `python -m unittest discover -s tools/tests` | all |
+| Python 3 | | every generator and check in `tools/`; their tests `python -m unittest discover -s tools/tests` (KiCad's Python runs the same command with the pcbnew tests too) | all |
 | Verilator 5.044 (Conan) | turns SystemVerilog into C++ | the board and chips become C++ models; `sim/` tests them against the emulator | 3-6 |
 | Conan, CMake, Ninja, MSVC | the C++ build | `conan build . --build=missing -s compiler.cppstd=20` builds and runs every test (ctest) | 3-6 |
 | The emulator `../ms0515` | the MS 0515 emulator (C), our other project | the reference model linked into the tests; its `ms0515-run` assembles the test ROMs | 6 |
 | Quartus Prime Lite 17.0.2 | Intel's FPGA compiler | `quartus_sh -t boards/de10nano/core.tcl`: synthesis, fit, timing at 120 MHz, the `.rbf` | 7 |
-| KiCad 10 | printed-board editor | its Python (`pcbnew`) runs `tools/pcb.py`, `route.py`; `kicad-cli` reads the schematic back, runs DRC, writes Gerbers | 8 |
-| Freerouting 2.5.0 (Java) | autorouter | `tools/route.py` hands it the placed board (DSN) and takes the routing back (SES) | 8d |
+| KiCad 10 | printed-board editor | its Python (`pcbnew`) runs `tools/pcb.py`, `pcb_ext.py`, `pathfind.py export / apply / planes`, `readback.py`; `kicad-cli` reads the schematic back, runs DRC, writes Gerbers | 6a, 8 |
+| Freerouting 2.5.0 (Java) | autorouter | `tools/route.py` hands it the placed board (DSN) and takes the routing back (SES): the routing from the empty board of 2026-11-05..10, not the board kept | 8d |
 
 Where they are found (no machine paths in the repository): the emulator
 `$MS0515_EMULATOR_DIR` else `../ms0515`; `ms0515-run` `$MS0515_RUN` else
@@ -181,16 +181,21 @@ proves is said with it.
 7. **The core**: `quartus_sh -t boards/de10nano/core.tcl` -
    `build/mister/output_files/ms0515.fit.summary` (resources),
    `ms0515.sta.rpt` (Setup Summary: the 120 MHz domain's slack).
-8. **The printed board**, Э3's, eight layers: `<KiCad>/bin/python
-   tools/pcb.py` (placement), `tools/route.py start`, `run 8 3`,
-   `finish` (routing from the empty board, a day and more; `run` again
-   goes on after a stop; progress in `build/route/progress.txt`),
-   `pcb.py check` (pads against the netlist), `kicad-cli pcb drc`
-   (clearances, shorts).  The owner's fix is made at assembly
-   (`docs/pcb/fab.md`), not in copper.
+8. **The printed boards.**  НС4, eight layers: `<KiCad>/bin/python
+   tools/pcb.py` (placement, the 1991 outer copper), `pathfind.py
+   export`, `python tools/pathfind.py route`, `<KiCad>/bin/python
+   tools/pathfind.py apply kicad/ns4.kicad_pcb` (PathFinder inside;
+   `planes` and again when a plane pin is cut off), `pcb.py check` (pads
+   against the netlist), `readback.py` (the nets read off the copper),
+   `kicad-cli pcb drc` (clearances, shorts), `python tools/fab.py`
+   (gerbers, drill).  The standard build's fitting is made at assembly
+   (`docs/pcb/fab.md`), not in copper.  The memory expansion module, four
+   layers: `pcb_ext.py`, `pathfind.py ext export / route / smooth /
+   apply kicad/ext.kicad_pcb`, `pcb_ext.py check`, `readback.py ext`,
+   `kicad-cli pcb drc`.
 
 Steps 1-5 take about half an hour; step 6 about two hours (side by
-side); step 7 about half an hour; step 8 a day.
+side); step 7 about half an hour; step 8 under an hour.
 
 ## When to run what
 
