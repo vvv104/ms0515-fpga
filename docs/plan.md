@@ -211,7 +211,14 @@ The second printed board, `ns4-vvv104`, is gone.
       That resistor is R27 (pinkish, not the list's grey С1-4: one end in
       an inner layer, the other under ИД14 - the pull-up of «запрос комм»,
       which reaches the plug).
-      Open: which RU7 is which (alike, D19..D34 in order).
+      Which RU7 is which is not known: the sixteen are alike (9108) and
+      differ only by pins 2 and 14 (the data bit, ДК00..ДК07) and 15
+      (CAS0 or CAS1), whose tracks go under the chips on the parts side;
+      the solder side shows one of them, D26.15 to D20.15, both on CAS1 as
+      numbered (owner, 2026-11-18).  So D19..D34 stay in order (columns
+      left to right, each top to bottom); the board routed anew joins each
+      place as its number wants, so it works either way.  Only a real
+      board, buzzed out or with the chips off, would tell the original's.
 7. **The FPGA: a MiSTer core** (decided 2026-10-22; the Tang Nano 20K of
    the first plan dropped).  The target is MiSTer on Terasic's DE10-Nano
    (Cyclone V 5CSEBA6, about 110K LE, 5.5 Mbit of block memory): the
