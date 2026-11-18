@@ -55,7 +55,6 @@ netlist/analog.csv   ref,treatment,pins,reason
     crystal        a crystal oscillator: a square wave of the rating (parts.csv)
                    on pin 1, the gate input's side
 """
-import csv
 import math
 import os
 import re
@@ -1191,10 +1190,14 @@ def main(argv):
     if len(argv) > 1 and argv[1] == "check":
         stale = False
         for path, want in files.items():
-            with open(path, encoding="utf-8") as f:
-                if f.read() != want:
-                    stale = True
-                    print(f"error: {os.path.relpath(path, REPO)} is stale")
+            try:
+                with open(path, encoding="utf-8") as f:
+                    have = f.read()
+            except OSError:
+                have = None                 # not made yet: as stale as an old one
+            if have != want:
+                stale = True
+                print(f"error: {os.path.relpath(path, REPO)} is stale")
         return 1 if stale or any(p.error for p in problems) else 0
     for path, want in files.items():
         os.makedirs(os.path.dirname(path), exist_ok=True)

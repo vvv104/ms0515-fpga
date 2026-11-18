@@ -32,7 +32,6 @@ XS1 made anew is the straight female) where the original had an СНП59, on
 the original's holes: a1 and row a where its photos have them.  The
 mounting holes as the original's.
 """
-import math
 import os
 import sys
 from collections import defaultdict

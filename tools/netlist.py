@@ -244,6 +244,9 @@ def apply_changes(conns, changes):
 def main(argv):
     sys.stdout.reconfigure(encoding="utf-8")
     command = argv[1] if len(argv) > 1 else "check"
+    if command not in ("check", "stats"):
+        print(__doc__)
+        return 2
     board = argv[2] if len(argv) > 2 else None
     own, joined = None, []
     if board in MODULES:

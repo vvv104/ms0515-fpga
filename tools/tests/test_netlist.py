@@ -188,6 +188,11 @@ class TheRepositorysNetlistTest(unittest.TestCase):
     def test_e3_as_read(self):
         self.assertEqual(self.check(), (0, []))
 
+    def test_a_command_it_does_not_know_is_refused_not_taken_for_check(self):
+        out = io.TextIOWrapper(io.BytesIO(), encoding="utf-8")
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(netlist.main(["netlist.py", "chek"]), 2)
+
     def test_the_standard_build(self):
         self.assertEqual(self.check("assembly"), (0, []))
 
