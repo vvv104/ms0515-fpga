@@ -2,9 +2,126 @@
 
 The last full walk of `docs/map.md`'s chain, step by step: the command,
 the result, where the result is kept.  Nothing counts as passing that is
-not in this file with its run.  The board run is the owner's (`vvv104`,
-the model's default: D70.15 on GND); Э3's board is paused at stage 6b
-(`docs/plan.md`).
+not in this file with its run.  The walk before it is kept below as
+history.
+
+## The walk of 2026-11-18..19
+
+**Walked 2026-11-18..19** on commit f88960c (trees: `rtl` 3bdfc69,
+`firmware` 9e44dc5 - neither changed by the walk); the emulator
+`../ms0515` at 2a34d76.  One board (`docs/plan.md`, "One board"): Э3's
+`ns4` in the standard build, the model's default.  The walk changed
+`docs/map.md`'s step 6 alone (below); every log is in `build/walk`.
+
+| Step | State |
+|---|---|
+| 1. The netlist is consistent | pass |
+| 2. The netlist is the copper | pass: the counts of 2026-11-05 again, to the line |
+| 3. The generated files are current | pass; four inputs nothing drives, as Э3 draws them |
+| 4. Chips and board, typical delays | pass, 85 of 85 |
+| 5. The corners | pass, 85 of 85 at min and at max |
+| 6. The real software on the board | pass: ОСА and Omega to their prompts at typ, min and max, on the core's drive too; the module's RAM disk under Omega's EX.SYS to BIRDS run from it, at the three corners - after a first launch on the wrong diskette |
+| 7. The core | pass: timing met, +0.464 ns at 120 MHz |
+| 8. The printed boards | pass: both boards against the netlist and read back, 0 differences; DRC nothing unconnected, НС4 no error, the module 33 courtyard errors of the photos' placement |
+
+1. **The netlist** (`netlist-*.log`, `tools-*.log`): `netlist.py check`,
+   `check assembly`, `check ext` - no error.  The tools' tests: 278, OK
+   under the system's Python (29 skipped) and under KiCad's (36
+   skipped).
+2. **The copper** (`step2-*.log`): the seven logs are those of
+   2026-11-05 (`build/step2-*.log`) line for line - 1744 pins on pads,
+   8 joined, 171 apart; Mick's reading: 1331 signal pins in both, 1042
+   on a net of the same name, 20 differences, each with its line in
+   `docs/findings.md` (two ours, fixed; eighteen ours standing, four of
+   them read on Э3 at full resolution, `docs/evidence/mick-differences`);
+   the copper 3362 pads, 503 nets.
+3. **The generated files** (`step3-*.log`): every check exit 0.
+   `board.py` warns of four nets nothing drives: `~D10.14` (К555ТМ9's
+   D5), `~D70.13`, `~D70.14` (К555КП11's 4B, 4A), `~D89.18` (К555ИР23's
+   D7) - inputs Э3 draws as stubs to nothing (`netlist/nets.csv`: open;
+   D89.18 confirmed by the owner), single-pin nets in Mick's reading
+   too; the model reads them as an open LS input, 1.
+4. **Typical delays** (`build/walk-typ.log`): 85 of 85, 29 minutes.
+5. **The corners** (`build/walk-min.log`, `walk-max.log`): 85 of 85 at
+   each, 25 minutes each; the three corners built side by side.
+6. **The real software** (`build/walk/runs/<run>`: `run.log`, the
+   frames; every disk a fresh copy):
+   - *Omega* (`test_vvv_system.dsk`), typ seeds 0-3, min 0-2, max 1-3,
+     30 s: «ОМЕГА SJ(S) V05.04», `.SET TT QUIET`, the prompt; every
+     DRAM read as written (`RAM: ... 0 differ`); video requests lost 0
+     at typ and min, some 265 250 of 28 125 000 at max, the letters
+     spoiled there (the design's margin, `docs/timing.md`; 246 450 on
+     2026-11-06, the board then at 60 Hz).
+   - *ОСА* (`test_osa_games.dsk`, ROM-A), typ, min, max, 30 s: «ОСА
+     Версия 1.0», `.SET TT QUIET`, the prompt; 0 differ; lost 0 at typ
+     and min, 411 957 at max.
+   - *The core's drive* (`drive=logic`, Omega, typ): 0 blocks not as
+     mounted on either drive, 0 differ between them.
+   - *The module* (`run_board_ext`, 62 s).  First launched on
+     `test_omega_games.dsk`: its start file asks for the date, and the
+     typed commands went in as answers («Недопустимый ответ») - no
+     RAM disk reached; `docs/map.md` named neither the diskette nor the
+     keys, and now does.  Again on `build/games-omega/games.dsk` with
+     `build/ext-omega/ex.keys`, as on 2026-11-15: `INIT/NOQUERY EX0:`,
+     `COPY BIRDS.SAV EX0:` («Files copied»), `DIR EX0:` (BIRDS.SAV, 26
+     blocks, 982 free) and `RUN EX0:BIRDS` - its opening squares - at
+     typ, min and max; НС4's DRAM 0 differ of some 90 million reads;
+     lost 0 at typ and min, 535 932 of 58 125 000 at max, where the
+     squares carry the streaks of `docs/findings.md`'s open item.
+7. **The core** (`step7-core.log`; `build/mister/output_files`): 0
+   errors, 54 warnings (not gone through); 14 307 ALMs (34 %), 1 643 857
+   block memory bits (29 %), 214 RAM blocks, 33 DSP blocks, 3 PLLs;
+   setup slack on the 120 MHz domain +0.464 ns - the figures of plan 6a
+   step 4 (2026-11-15) again.
+8. **The printed boards** (`step8-*`): `pcb.py check` and `pcb_ext.py
+   check` 0 differences; `readback.py` on `kicad/ns4.kicad_pcb` and on
+   `build/pathfind/ns4-pathfind.kicad_pcb` 2436 pins, 16065 track pieces,
+   819 vias, 635 groups, 0 differences; `readback.py ext` 624 pins, 2679
+   pieces, 289 vias, 155 groups, 0 differences.  KiCad's DRC:
+   - НС4: 0 errors, nothing unconnected; warnings 191 silkscreen on
+     copper, 123 silkscreen overlaps, 167 dangling tracks and 11
+     dangling vias - every one of these the locked 1991 copper (B.Cu 51,
+     In1.Cu 51, In6.Cu 33, F.Cu 32), none of PathFinder's routing.
+   - The module: nothing unconnected; errors 26 courtyards overlapping
+     and 7 holes inside another part's courtyard - the placement read
+     off the photos (parts as close as they stand there, C1 laid over a
+     pad); warnings the silkscreen's alone (98 at the edge, 94 overlaps,
+     18 on pads, none on a track).
+   - Beyond the chain, `--schematic-parity`: НС4 413 warnings, all of the
+     board being built from the netlist, not the schematic (199 symbols
+     without a footprint, 199 pins without a schematic net, 11 mounting
+     holes, the 4 chips in sockets); the module 0.
+   `fab.py` was not run in this walk.
+
+### Open after this walk
+
+The open list of 2026-11-05..06 (below) is closed through: items 1-4
+and 7-12 closed there; 5, the routing, done since (plan 8d-8f); 6, Э3's
+board, decided 2026-11-15 (item 1 here).  What is open now, against
+`docs/plan.md` and `docs/findings.md`:
+
+1. Э3's race at D70 (plan 6b): as drawn the picture's left edge loses
+   it on the model; kept as a record, its two picture tests may_fail.
+2. Omega's EX.SYS on the core (plan 6a step 4, "Next").
+3. Which КР565РУ7 is which on the module (plan 6a step 5): only a real
+   board, buzzed out or with the chips off, tells.
+4. The module's 33 courtyard errors (step 8): to be held against the
+   photos place by place before a board is ordered.
+5. Streaks at max in BIRDS' colour picture (`docs/findings.md`, the
+   module on the model): seen again here; not traced.
+6. Two drivers on the module's data lines after a read
+   (`docs/findings.md`): not traced.
+7. The core on a DE10-Nano (plan 7e): whoever has one.
+8. The module run's diskette and keys are in `build/` only: the run
+   cannot be made from a clean checkout.
+9. The owner's to decide: whether `netlist/ext/copper.csv` (the photos'
+   copper, not laid) stays; whether НС4's dangling 1991 copper is
+   trimmed.
+
+## The walk of 2026-11-05..06, kept as history
+
+The board run then was the owner's (`vvv104`, D70.15 on GND); Э3's board
+was paused at stage 6b.  Its steps' sections and its open list follow.
 
 **Walked 2026-11-05..06**, begun on commit a17d511 (trees: `rtl`
 303e8f4, `firmware` 1a957b3 - neither changed by the walk); the emulator
@@ -570,7 +687,7 @@ The owner's board first (`docs/plan.md` 8d).
   board from this one.  What the board's stack is to be is the owner's
   to say, the probe having ended (open list, 5).
 
-## Open after this walk
+## Open after the walk of 2026-11-05..06
 
 1. Omega's startup to its end (step 6) - done, pass.  A command typed
    at the prompt (`keys=FILE`, the МС 7004's codes by the key's place):

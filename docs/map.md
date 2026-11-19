@@ -165,11 +165,19 @@ proves is said with it.
    `run_board_ext` the board with the memory expansion module),
    from `build/Release/sim`, `build/min/sim`, `build/max/sim`, the output
    folder made beforehand (it is not made by the run):
-   `run_board 20000 FOLDER 30 disk=IMAGE keyboard [seed=N] [rom=ROM-A]`
+   `run_board 30000 FOLDER 30 disk=IMAGE keyboard [seed=N] [rom=ROM-A]`
    - Omega (`test_vvv_system.dsk` of the emulator's
    `src/lib/tests/disks/originals`) and ОСА (`test_osa_games.dsk`,
-   `rom=firmware/ms0515-roma.rom`).  **`keyboard` is needed**: without the
+   `rom=firmware/ms0515-roma.rom`); Omega's prompt comes at 23 s, so 20 s
+   is too short.  **`keyboard` is needed**: without the
    stub ROM-B stops at «Клавиатура не готова» and never reads the disk.
+   The module: `run_board_ext 62000 FOLDER 30 disk=IMAGE layout=omega
+   keyboard keys=FILE` on Omega's system diskette with EX.SYS and
+   BIRDS.SAV (`build/games-omega/games.dsk`), the keys typing
+   `INIT/NOQUERY EX0:` at 24.5 s, `COPY BIRDS.SAV EX0:` at 34,
+   `DIR EX0:` at 49 and `RUN EX0:BIRDS` at 56 (`build/ext-omega/ex.keys`);
+   neither file is in the repository.  Not `test_omega_games.dsk`: its
+   start file asks for the date, and the keys go in as answers.
    What is checked, and what is not: up to ROM-B's keyboard request the
    fetches are the emulator's and the frames its screen; from there the
    emulator (given the ROM alone - no keyboard, no disk) goes another
