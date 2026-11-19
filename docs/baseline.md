@@ -1016,15 +1016,15 @@ The owner's board first (`docs/plan.md` 8d).
      E3 open - the sheet-1 table's base build and `-02`, and the
      assembly drawing's standard list - gives 60 Hz (260 lines); `-01`
      and `-03` have E3 alone, 72 Hz; 50 Hz needs both, which no build
-     has.  (First written here as "every build 60 Hz" - wrong, corrected
-     the same day; then as "the owner's board, read off its photo" -
-     also wrong: the photo cannot be read for the jumpers, and the
-     owner's argument of the same evening stands - the timer interrupt
-     is the frame sync (D60.1 clocked by КСИ), two bureaus' kits count
-     50 a second, and the machines kept time in banks, so the machines
-     in use had **both jumpers, 50 Hz**.)  The emulator started at 50 Hz
-     and, after a day at 60, starts at 50 again (its v1.21.0); the
-     generated boards have E3 fitted since 2026-11-08 (item 12).
+     has.  The boards photographed - the owner's, Frolov's, Radon17's -
+     carry E3 alone, **72 Hz** (2026-11-19, the owner's close-ups; earlier
+     notes here said the photo could not be read and argued 50 Hz from
+     the kits' clock and from banks keeping time - the photos read, and
+     the bank program of the collection asks for no time:
+     `netlist/variants.md`).  The two bureaus' kits count 50 a second,
+     so on these boards their clock runs 1.44 times fast.  The emulator
+     starts at 50 Hz (its v1.21.0); the generated boards carry E3 alone,
+     72 Hz, since the standard build of 2026-11-15.
    - *The timer's decoding and the keyboard's clock* (item 1): the
      emulator had the ВИ53 at 177520-526 for writes and 177500-506 for
      reads.  The board: D80 decodes `АД05`-`АД07`, so a chip's 010
