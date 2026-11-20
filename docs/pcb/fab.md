@@ -13,7 +13,8 @@ Not built yet: nothing here has been on a bench.
 ## The files
 
 `python tools/fab.py` (KiCad's command line as `$KICAD_CLI` or on the PATH)
-writes `build/fab/ns4/`:
+writes `build/fab/ns4/` (attached to the releases as `ns4-gerbers.zip` and
+`ns4-assembly-top.pdf`; `docs/release.md`):
 
 - `ns4-gerbers.zip` - what a fab takes: the eight copper layers, both masks,
   both silkscreens, the outline, the drill files (plated and not, apart) and
