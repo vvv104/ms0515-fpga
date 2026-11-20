@@ -391,18 +391,22 @@ The second printed board, `ns4-vvv104`, is gone.
        minutes of work, games, the RAM disk.  An FPGA is reprogrammed at
        will: nothing done here is final, a fix is a rebuild.
        **The first hour on a DE10-Nano**, in order, each against what the
-       model showed (2026-11-08; the `.rbf` of `build/mister/output_files/`
-       built on the 50 Hz board, `docs/baseline.md` §7):
+       model showed (2026-11-08, the frame rate brought to the core's
+       default 2026-11-20; the `.rbf` of `build/mister/output_files/`,
+       `docs/baseline.md` §7):
        1. The kit: DE10-Nano with MiSTer's `sys/` of the submodule's
           revision on its SD (Main, the menu), a USB hub with a keyboard,
-          HDMI to a monitor that takes 50 Hz (or `vsync_adjust` in the ini
+          HDMI to a monitor that takes 72 Hz (or `vsync_adjust` in the ini
           for one that does not); the IO board only for a CRT.  `ms0515.rbf`
           into `_Computer/`, ROM-B as the core's default, ROM-A by Load ROM.
        2. Power-on with no diskette: the self-test's words «Электроника ...
           Тест ОЗУ ... Без дефектов ... Клавиатура готова», the keyboard's
           beep over HDMI's sound, then «НГМД не готов».  Time it: the
-          board's self-test holds the screen 3.7 s.  A frame is 20 ms -
-          the menu's video info should say 50 Hz, 312 lines.
+          board's self-test holds the screen 3.7 s.  The core starts as
+          the boards photographed, E3 alone: a frame is 13.97 ms - the
+          menu's video info should say 72 Hz, 262 lines.  «Frame rate»
+          in the core's menu gives 50 Hz (312 lines, 20 ms), the rate
+          the kits' clock counts, and 60 Hz (260 lines).
        3. The picture: the border, the 640 x 200 text with its first column
           whole (the owner's board, D70.15 on GND - the menu's switch);
           flip the switch to «as drawn» and look at the first column of
@@ -410,7 +414,8 @@ The second printed board, `ns4-vvv104`, is gone.
           16th (6b); a real board's answer to 6b is a screenshot of this.
        4. Omega from `test_omega.dsk` on the SD: the prompt in 12 s at
           the model's pace; `DIR`, `TIME` (a minute of it against a
-          watch - it is the frame's clock), `SET SL ON` and a line edited.
+          watch - it is the frame's clock: at 72 Hz the kit's minute is
+          41.7 s, at 50 Hz a minute), `SET SL ON` and a line edited.
        5. ОСА from `test_osa.dsk` with ROM-A; Mihin's and Rodionov's
           systems, the kits' README says which ROM each wants.
        6. The keyboard: every key by character and by position, РУС/ЛАТ,

@@ -1073,8 +1073,10 @@ The owner's board first (`docs/plan.md` 8d).
    A finding of its own, read the wrong way round at first: the RT-11
    kits are generated for a 50-cycle clock (`CLOCK = 50.` in
    ms0515-devel's SYCDEC.MAC, no kit reads РВК at 177602) - written
-   here as "so TIME ran 20 % fast on the 60 Hz machine", where the kits
-   were the measurement: the machines ran at 50 Hz (above).  The
+   here as "so TIME ran 20 % fast on the 60 Hz machine", then as "the
+   kits were the measurement: the machines ran at 50 Hz" - also wrong:
+   the boards photographed run at 72 Hz (above), so the kits' TIME runs
+   1.44 times fast on them.  The
    emulator's default is 50 Hz again (its PR after #127); its clock test
    counts the monitor's minute as 3000 ticks, a minute.
 
@@ -1103,7 +1105,10 @@ The owner's board first (`docs/plan.md` 8d).
    run was of the 260-line board and said so).  The baseline's frame
    counts before this date (items 1, 3,
    9, the boots' seconds) are of the 260-line board; a second is a
-   second, the frames in it fewer.
+   second, the frames in it fewer.  The board did not stay at 50 Hz:
+   since 2026-11-15 (665ff6b) `netlist/analog.csv` has E3 alone, E4
+   open - 72 Hz, 262 lines, as on the boards photographed (item 11,
+   `netlist/variants.md`).
 
 ## Said from memory before this walk, and wrong
 

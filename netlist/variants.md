@@ -103,4 +103,5 @@ What it does to the software:
   `.TWAIT` or `.DATE` - and takes the operational day's date as typed.
 
 The emulator starts at 50 Hz (its `dip_refresh` 0), the rate the kits
-count; whether it takes the boards' 72 Hz is the owner's to decide.
+count: the owner's decision of 2026-11-19, the emulator stays at 50 Hz
+as the other emulators and the kits have it.
