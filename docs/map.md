@@ -85,7 +85,7 @@ again in memory and fails if the committed one differs.
 | the same file (routing from the empty board, 2026-11-05..10; not the board kept) | `tools/route.py [--work DIR] start / run / finish` (Freerouting), state in `build/route` | the placed board | not repeatable bit for bit: checked by `pcb.py check` and KiCad's DRC |
 | the same file (the inside over the 1991 copper) | `<KiCad>/bin/python tools/pathfind.py export`, `python tools/pathfind.py route`, `<KiCad>/bin/python tools/pathfind.py apply OUT` (PathFinder), state in `build/pathfind` | the board with Mick's outer layers laid | `tools/tests/test_pathfind.py`; the routed board by `pcb.py check` and KiCad's DRC |
 | `kicad/ns4.kicad_pcb` (routed) | `tools/pcb.py` (placed, the 1991 outer copper: the routing gone), then `pathfind.py export`, `route`, `apply kicad/ns4.kicad_pcb`; if `readback.py` finds a plane pin cut off, `pathfind.py planes`, `route`, `pcb.py`, `apply` again | as above | `pcb.py check`, `readback.py BOARD`, KiCad's DRC |
-| `build/fab/ns4/` (gerbers, drill, assembly drawing; not kept) | `python tools/fab.py` | the routed board | `tools/tests/test_fab.py`; `docs/pcb/fab.md` says what they are |
+| `build/fab/ns4/`, `build/fab/ext/` (gerbers, drill, assembly drawing), attached to a release (`<board>-gerbers.zip`, `<board>-assembly-top.pdf`; `docs/release.md`) | `python tools/fab.py [kicad/ext.kicad_pcb]` | the routed board | `tools/tests/test_fab.py`; `docs/pcb/fab.md` says what they are |
 | (a check) the routed board's nets off its copper | `<KiCad>/bin/python tools/readback.py [BOARD]`, `readback.py ext [BOARD]` for the module's | the routed board, `netlist/` (pcb.py's pin_nets; pcb_ext.py's for the module) | `tools/tests/test_readback.py`; exit 1 on a difference |
 
 ## The comparison files (made by a command, not kept)
@@ -110,7 +110,10 @@ difference found there is settled by hand in `nets.csv` (or
 Not in the repository, made in `build/`: the Verilator models and test
 executables, the corner boards (`build/min`, `build/max`), the Quartus
 project and the core's `.rbf` (`build/mister`), the routing's state
-(`build/route*`), the runs' logs and frames.
+(`build/route*`), the runs' logs and frames.  The core's `.rbf` and the
+boards' fab files go to the repository's releases (`docs/release.md`); a
+change to `rtl/`, `boards/de10nano/` or `kicad/` makes the last
+release's files stale until the next one.
 
 ## The tools
 

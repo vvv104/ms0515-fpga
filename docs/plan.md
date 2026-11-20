@@ -392,7 +392,7 @@ The second printed board, `ns4-vvv104`, is gone.
        will: nothing done here is final, a fix is a rebuild.
        **The first hour on a DE10-Nano**, in order, each against what the
        model showed (2026-11-08, the frame rate brought to the core's
-       default 2026-11-20; the `.rbf` of `build/mister/output_files/`,
+       default 2026-11-20; the `.rbf` of the releases, made by
        `docs/baseline.md` §7):
        1. The kit: DE10-Nano with MiSTer's `sys/` of the submodule's
           revision on its SD (Main, the menu), a USB hub with a keyboard,
